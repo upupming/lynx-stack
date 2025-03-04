@@ -1,5 +1,5 @@
 ---
-"@lynx-dev/react": patch
+"@lynx-js/react": patch
 ---
 
 feat: add compiler only version of addComponentElement, it does not support spread props but have no runtime overhead, use it by:
