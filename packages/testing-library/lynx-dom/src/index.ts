@@ -234,7 +234,6 @@ export function injectBackgroundThreadGlobals(target?: any) {
     target = globalThis;
   }
 
-  target.timestamp = Date.now();
   target.__DEV__ = true;
   target.__PROFILE__ = true;
   target.__JS__ = true;

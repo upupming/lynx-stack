@@ -158,7 +158,7 @@ function injectDOMMethods(element: LynxFiberElement) {
         if (!e.children || e.children.length === 0) {
           return e.type === 'raw-text' ? e.props.text : '';
         }
-        return e.children.map(collectText).join('');
+        return e.children.map(collectText).join(' ');
       };
       const ans = collectText(this);
       return ans;
