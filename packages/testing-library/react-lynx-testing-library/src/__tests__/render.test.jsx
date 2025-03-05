@@ -1,6 +1,6 @@
 import '@lynx-js/lynx-dom-jest-matchers';
 import { test } from 'vitest';
-import { render, waitSchedule } from '..';
+import { render } from '..';
 import { createRef } from '@lynx-js/react';
 import { expect } from 'vitest';
 
@@ -10,7 +10,6 @@ test('renders view into page', async () => {
     return <view ref={ref} />;
   };
   render(<Comp />);
-  await waitSchedule();
   expect(ref.current).toMatchInlineSnapshot(`
     NodesRef {
       "_nodeSelectToken": {

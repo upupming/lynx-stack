@@ -1,6 +1,6 @@
 import '@lynx-js/lynx-dom-jest-matchers';
 import { test } from 'vitest';
-import { fireEvent, render, waitSchedule } from '..';
+import { fireEvent, render } from '..';
 import { createRef } from '@lynx-js/react';
 import { expect, vi } from 'vitest';
 
@@ -69,7 +69,6 @@ eventTypes.forEach(({ type, events, elementType, init }, eventTypeIdx) => {
         };
 
         render(<Comp />);
-        await waitSchedule();
 
         if (eventTypeIdx === 0 && eventIdx === 0) {
           expect(ref).toMatchInlineSnapshot(`

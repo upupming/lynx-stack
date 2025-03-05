@@ -10,7 +10,7 @@
     "moduleResolution": "bundler",
     "useDefineForClassFields": true,
     "allowImportingTsExtensions": true,
-    "jsx": "preserve",
+    "jsx": "preserve"
   },
-  "include": ["src"],
+  "include": ["src"]
 }

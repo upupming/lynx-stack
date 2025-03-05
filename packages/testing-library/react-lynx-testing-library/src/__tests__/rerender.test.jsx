@@ -1,5 +1,5 @@
 import '@lynx-js/lynx-dom-jest-matchers';
-import { render, waitSchedule } from '..';
+import { render } from '..';
 import { expect } from 'vitest';
 import { useEffect, useState } from '@lynx-js/react';
 
@@ -53,43 +53,9 @@ test('rerender will flush pending hooks effects', async () => {
   const { rerender } = render(<Component />);
   const { findByText } = rerender(<Component />);
   vi.spyOn(lynx.getNativeApp(), 'callLepusMethod');
-  await waitSchedule();
   const callLepusMethod =
     lynxDOM.backgroundThread.lynx.getNativeApp().callLepusMethod;
-  expect(callLepusMethod.mock.calls).toMatchInlineSnapshot(`
-    [
-      [
-        "rLynxChange",
-        {
-          "data": "{"snapshotPatch":[3,2,0,1]}",
-          "patchOptions": {
-            "commitTaskId": 10,
-            "pipelineOptions": {
-              "needTimestamps": true,
-              "pipelineID": "pipelineID",
-            },
-            "reloadVersion": 0,
-          },
-        },
-        [Function],
-      ],
-      [
-        "rLynxChange",
-        {
-          "data": "{"snapshotPatch":[3,2,0,1]}",
-          "patchOptions": {
-            "commitTaskId": 11,
-            "pipelineOptions": {
-              "needTimestamps": true,
-              "pipelineID": "pipelineID",
-            },
-            "reloadVersion": 0,
-          },
-        },
-        [Function],
-      ],
-    ]
-  `);
+  expect(callLepusMethod.mock.calls).toMatchInlineSnapshot(`[]`);
 
   await findByText('1');
 

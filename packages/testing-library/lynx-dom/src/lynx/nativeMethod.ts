@@ -618,7 +618,6 @@ export const initElementTree = () => {
         console.log('__SendEvent', e, eventType, eventName, data);
       }
       const eventHandler = e.props?.event?.[`${eventType}:${eventName}`];
-      debugger;
       if (eventHandler) {
         // main thread events
         if (

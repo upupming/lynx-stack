@@ -35,7 +35,7 @@ function injectTt(): void {
 }
 
 let delayedLifecycleEvents: [type: string, data: any][];
-async function OnLifecycleEvent([type, data]: [string, any]) {
+function OnLifecycleEvent([type, data]: [string, any]) {
   const hasRootRendered = CHILDREN in __root;
   // never called `render(<App/>, __root)`
   // happens if user call `root.render()` async
@@ -101,14 +101,16 @@ async function OnLifecycleEvent([type, data]: [string, any]) {
         console.profile('commitChanges');
       }
       const commitTaskId = genCommitTaskId();
-      await commitPatchUpdate({ snapshotPatch }, { commitTaskId, isHydration: true });
-      updateBackgroundRefs(commitTaskId);
-      globalCommitTaskMap.forEach((commitTask, id) => {
-        if (id > commitTaskId) {
-          return;
-        }
-        commitTask();
-        globalCommitTaskMap.delete(id);
+      const obj = commitPatchUpdate({ snapshotPatch }, { commitTaskId, isHydration: true });
+      lynx.getNativeApp().callLepusMethod(LifecycleConstant.patchUpdate, obj, () => {
+        updateBackgroundRefs(commitTaskId);
+        globalCommitTaskMap.forEach((commitTask, id) => {
+          if (id > commitTaskId) {
+            return;
+          }
+          commitTask();
+          globalCommitTaskMap.delete(id);
+        });
       });
       break;
     }

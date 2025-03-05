@@ -1,5 +1,5 @@
 import { describe, expect, vi } from 'vitest';
-import { fireEvent, render, waitSchedule } from '..';
+import { fireEvent, render } from '..';
 import { runOnBackground } from '@lynx-js/react';
 
 describe('worklet', () => {
@@ -223,7 +223,6 @@ describe('worklet', () => {
         </view>
       </page>
     `);
-    debugger;
     fireEvent.tap(container.children[0], {
       key: 'value',
     });

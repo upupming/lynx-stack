@@ -5,7 +5,7 @@ import '@lynx-js/lynx-dom-jest-matchers';
 import { expect, test, vi } from 'vitest';
 
 import { getQueriesForElement } from '@lynx-js/lynx-dom-testing-library';
-import { render, waitSchedule } from '@lynx-js/react-lynx-testing-library';
+import { render } from '@lynx-js/react-lynx-testing-library';
 
 import { App } from '../App.jsx';
 
@@ -19,7 +19,6 @@ test('App', async () => {
       }}
     />,
   );
-  await waitSchedule();
   expect(cb).toBeCalledTimes(1);
   expect(cb.mock.calls).toMatchInlineSnapshot(`
     [

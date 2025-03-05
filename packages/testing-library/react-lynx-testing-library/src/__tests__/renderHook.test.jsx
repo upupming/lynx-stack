@@ -1,5 +1,5 @@
 import { useState, useEffect, createContext, useContext } from '@lynx-js/react';
-import { renderHook, waitSchedule } from '..';
+import { renderHook } from '..';
 
 test('gives committed result', async () => {
   const { result } = renderHook(() => {
@@ -11,7 +11,6 @@ test('gives committed result', async () => {
 
     return [state, setState];
   });
-  await waitSchedule();
 
   expect(result.current).toEqual([2, expect.any(Function)]);
 });
@@ -36,12 +35,10 @@ test('allows rerendering', async () => {
     },
     { initialProps: { branch: 'left' } },
   );
-  await waitSchedule();
 
   expect(result.current).toEqual(['left', expect.any(Function)]);
 
   rerender({ branch: 'right' });
-  await waitSchedule();
 
   expect(result.current).toEqual(['right', expect.any(Function)]);
 });
@@ -59,7 +56,6 @@ test('allows wrapper components', async () => {
       wrapper: Wrapper,
     },
   );
-  await waitSchedule();
 
   expect(result.current).toEqual('provided');
 });

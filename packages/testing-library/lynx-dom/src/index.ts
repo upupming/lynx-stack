@@ -92,7 +92,10 @@ function createPolyfills() {
 
       globalThis.lynxDOM.switchToMainThread();
       globalThis[rLynxChange[0]](rLynxChange[1]);
+
+      globalThis.lynxDOM.switchToBackgroundThread();
       rLynxChange[2]();
+      globalThis.lynxDOM.switchToMainThread();
 
       // restore the original thread state
       if (isBackground) {

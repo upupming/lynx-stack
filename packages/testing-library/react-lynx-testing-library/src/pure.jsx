@@ -7,6 +7,7 @@ import { useEffect } from 'preact/hooks';
 import { cloneElement } from 'preact';
 import { __root } from '@lynx-js/react/internal';
 import { flushDelayedLifecycleEvents } from '@lynx-js/react/runtime/lib/lynx/tt.js';
+import { act } from 'preact/test-utils';
 
 export function waitSchedule() {
   return new Promise(resolve => {
@@ -17,12 +18,18 @@ export function waitSchedule() {
 }
 
 configureDTL({
-  asyncWrapper: cb => {
-    let result = cb();
+  asyncWrapper: async cb => {
+    let result;
+    await act(() => {
+      result = cb();
+    });
     return result;
   },
   eventWrapper: cb => {
-    let result = cb();
+    let result;
+    act(() => {
+      result = cb();
+    });
     return result;
   },
 });
@@ -54,8 +61,10 @@ export function render(
   renderPage();
   if (enableBackgroundThread) {
     globalThis.lynxDOM.switchToBackgroundThread();
-    preactRender(compBackgroundThread, __root);
-    flushDelayedLifecycleEvents();
+    act(() => {
+      preactRender(compBackgroundThread, __root);
+      flushDelayedLifecycleEvents();
+    });
   }
 
   return {

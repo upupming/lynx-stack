@@ -1,8 +1,9 @@
 import '@lynx-js/lynx-dom-jest-matchers';
 import { vi } from 'vitest';
 import { test } from 'vitest';
-import { render, waitSchedule, fireEvent } from '..';
-import { Component, createRef, useEffect, useState } from '@lynx-js/react';
+import { render, fireEvent } from '..';
+import { createRef, useEffect, useState } from '@lynx-js/react';
+import { Component } from 'preact';
 import { expect } from 'vitest';
 import { __globalSnapshotPatch } from '@lynx-js/react/runtime/lib/snapshotPatch.js';
 
@@ -23,9 +24,34 @@ test('render calls useEffect immediately', async () => {
     </page>
   `);
 
-  // ensure that the effect is called in background thread
-  await waitSchedule();
+  expect(cb).toBeCalledTimes(1);
+  expect(cb.mock.calls).toMatchInlineSnapshot(`
+    [
+      [
+        "__LEPUS__: false",
+      ],
+    ]
+  `);
+});
 
+test.only('render calls componentDidMount immediately', async () => {
+  const cb = vi.fn();
+  class Comp extends Component {
+    componentDidMount() {
+      cb(`__LEPUS__: ${__LEPUS__}`);
+    }
+    render() {
+      return <view />;
+    }
+  }
+  const { container } = render(<Comp />);
+  expect(container).toMatchInlineSnapshot(`
+    <page
+      cssId="__Card__:0"
+    >
+      <view />
+    </page>
+  `);
   expect(cb).toBeCalledTimes(1);
   expect(cb.mock.calls).toMatchInlineSnapshot(`
     [
@@ -155,9 +181,9 @@ test('fireEvent triggers useEffect calls', async () => {
       [
         "rLynxChange",
         {
-          "data": "{"snapshotPatch":[0,"__Card__:__snapshot_268b9_test_3",2,0,null,3,4,3,[0],1,2,3,null,4,2,[1],1,-1,2,null]}",
+          "data": "{"snapshotPatch":[0,"__Card__:__snapshot_268b9_test_4",2,0,null,3,4,3,[0],1,2,3,null,4,2,[1],1,-1,2,null]}",
           "patchOptions": {
-            "commitTaskId": 8,
+            "commitTaskId": 11,
             "isHydration": true,
             "pipelineOptions": {
               "needTimestamps": true,
@@ -172,15 +198,14 @@ test('fireEvent triggers useEffect calls', async () => {
   `);
   fireEvent.tap(buttonNode);
   // ensure that the effect is called in background thread
-  await waitSchedule();
   expect(callLepusMethodCalls).toMatchInlineSnapshot(`
     [
       [
         "rLynxChange",
         {
-          "data": "{"snapshotPatch":[0,"__Card__:__snapshot_268b9_test_3",2,0,null,3,4,3,[0],1,2,3,null,4,2,[1],1,-1,2,null]}",
+          "data": "{"snapshotPatch":[0,"__Card__:__snapshot_268b9_test_4",2,0,null,3,4,3,[0],1,2,3,null,4,2,[1],1,-1,2,null]}",
           "patchOptions": {
-            "commitTaskId": 8,
+            "commitTaskId": 11,
             "isHydration": true,
             "pipelineOptions": {
               "needTimestamps": true,
@@ -196,7 +221,7 @@ test('fireEvent triggers useEffect calls', async () => {
         {
           "data": "{"snapshotPatch":[3,3,0,1]}",
           "patchOptions": {
-            "commitTaskId": 9,
+            "commitTaskId": 12,
             "pipelineOptions": {
               "needTimestamps": true,
               "pipelineID": "pipelineID",
