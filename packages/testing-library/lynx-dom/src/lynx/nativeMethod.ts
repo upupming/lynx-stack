@@ -54,7 +54,7 @@ function matchSelectors(
   );
 }
 function injectDOMMethods(element: LynxFiberElement) {
-  // This is required by @lynx-js/testing-library-lynx-dom to implement `findBy*` queries.
+  // This is required by @lynx-js/lynx-dom-testing-library to implement `findBy*` queries.
   // It's not a perfect implementation, but it's good enough for now.
   // TODO: implement a better implementation.
   Object.defineProperty(element, 'querySelector', {

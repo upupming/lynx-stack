@@ -34,7 +34,7 @@ test('render calls useEffect immediately', async () => {
   `);
 });
 
-test.only('render calls componentDidMount immediately', async () => {
+test('render calls componentDidMount immediately', async () => {
   const cb = vi.fn();
   class Comp extends Component {
     componentDidMount() {
