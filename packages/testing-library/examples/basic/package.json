@@ -1,5 +1,5 @@
 {
-  "name": "lynx-testing-library-example-basic",
+  "name": "@lynx-js/testing-library-example-basic",
   "version": "0.0.0",
   "private": true,
   "type": "module",
