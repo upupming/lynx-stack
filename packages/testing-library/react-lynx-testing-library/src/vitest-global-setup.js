@@ -15,7 +15,7 @@ import { deinitGlobalSnapshotPatch } from '@lynx-js/react/runtime/lib/snapshotPa
 import { initApiEnv } from '@lynx-js/react/worklet-runtime/lib/api/lynxApi.js';
 import { initEventListeners } from '@lynx-js/react/worklet-runtime/lib/listeners.js';
 import { initWorklet } from '@lynx-js/react/worklet-runtime/lib/workletRuntime.js';
-import { destroyWorklet } from '@lynx-js/react/runtime/lib/worklet/jsImpl.js';
+import { destroyWorklet } from '@lynx-js/react/runtime/lib/worklet/destroy.js';
 import { flushDelayedLifecycleEvents } from '@lynx-js/react/runtime/lib/lynx/tt.js';
 
 globalThis.jest = vi;
