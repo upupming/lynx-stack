@@ -163,7 +163,6 @@ function createPolyfills() {
     if (process.env.DEBUG) {
       console.log('__LoadLepusChunk', chunkName, options);
     }
-    debugger;
     if (chunkName === 'worklet-runtime') {
       return globalThis.onInitWorkletRuntime?.();
     } else {
@@ -217,7 +216,7 @@ export function injectMainThreadGlobals(target?: any) {
   globalThis.onInjectMainThreadGlobals?.(target);
 }
 
-const BLACKLIST_GLOBALS = [
+const IGNORE_LIST_GLOBALS = [
   'globalThis',
   'global',
 ];
@@ -361,7 +360,7 @@ export class LynxDOM {
     this.originals = new Map();
     Object.getOwnPropertyNames(this.backgroundThread.globalThis).forEach(
       (key) => {
-        if (BLACKLIST_GLOBALS.includes(key)) {
+        if (IGNORE_LIST_GLOBALS.includes(key)) {
           return;
         }
         this.originals.set(key, global[key]);
@@ -374,7 +373,7 @@ export class LynxDOM {
   switchToMainThread() {
     this.originals = new Map();
     Object.getOwnPropertyNames(this.mainThread.globalThis).forEach((key) => {
-      if (BLACKLIST_GLOBALS.includes(key)) {
+      if (IGNORE_LIST_GLOBALS.includes(key)) {
         return;
       }
       this.originals.set(key, global[key]);
