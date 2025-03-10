@@ -321,6 +321,10 @@ export const initElementTree = () => {
 
     __AddInlineStyle(e: LynxFiberElement, key: number, value: string) {
       const style = e.props.style || {};
+      if (typeof style === 'string') {
+        e.props.style += ';' + key + ':' + value;
+        return;
+      }
       style[key] = value;
       e.props.style = style;
     }
