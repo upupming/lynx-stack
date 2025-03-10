@@ -141,10 +141,10 @@ describe('WorkletRef in js', () => {
     globalEnvManager.switchToMainThread();
     const ref = new MainThreadRef(1);
     expect(() => ref.current).toThrowError(
-      'MainThreadRef: value of a MainThreadRef cannot be accessed outside of main thread script.',
+      'MainThreadRef: value of a MainThreadRef cannot be accessed outside of worklet.',
     );
     expect(() => ref.current = 1).toThrowError(
-      'MainThreadRef: value of a MainThreadRef cannot be accessed outside of main thread script.',
+      'MainThreadRef: value of a MainThreadRef cannot be accessed outside of worklet.',
     );
   });
 

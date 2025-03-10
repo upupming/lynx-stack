@@ -52,7 +52,7 @@ abstract class WorkletRef<T> {
     }
     if (__LEPUS__ && __DEV__) {
       /* v8 ignore next */
-      throw new Error('MainThreadRef: value of a MainThreadRef cannot be accessed outside of main thread script.');
+      throw new Error('MainThreadRef: value of a MainThreadRef cannot be accessed outside of worklet.');
     }
     /* v8 ignore next */
     return undefined as T;
@@ -63,7 +63,7 @@ abstract class WorkletRef<T> {
       throw new Error('MainThreadRef: value of a MainThreadRef cannot be accessed in the background thread.');
     }
     if (__LEPUS__ && __DEV__) {
-      throw new Error('MainThreadRef: value of a MainThreadRef cannot be accessed outside of main thread script.');
+      throw new Error('MainThreadRef: value of a MainThreadRef cannot be accessed outside of worklet.');
     }
   }
 
