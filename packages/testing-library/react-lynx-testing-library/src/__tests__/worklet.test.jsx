@@ -1,7 +1,10 @@
 import { describe, expect, vi } from 'vitest';
-import { fireEvent, render } from '..';
-import { runOnBackground, useMainThreadRef } from '@lynx-js/react';
-
+import { fireEvent, render, waitSchedule } from '..';
+import {
+  runOnBackground,
+  useMainThreadRef,
+  runOnMainThread,
+} from '@lynx-js/react';
 describe('worklet', () => {
   it('main-thread script should work', async () => {
     const cb = vi.fn();
@@ -147,7 +150,7 @@ describe('worklet', () => {
     `);
     vi.resetAllMocks();
   });
-  it.only('main-thread script should not update MTS function when enable background', async () => {
+  it('main-thread script should not update MTS function when enable background', async () => {
     vi.spyOn(lynx.getNativeApp(), 'callLepusMethod');
     const callLepusMethodCalls = lynx.getNativeApp().callLepusMethod.mock.calls;
     expect(callLepusMethodCalls).toMatchInlineSnapshot(`[]`);
@@ -194,7 +197,7 @@ describe('worklet', () => {
           {
             "data": "{"snapshotPatch":[3,-2,1,{"_c":{"props":{"main-thread:onClick":{"_wkltId":"15ab:test:3"}}},"_wkltId":"15ab:test:4","_execId":1}]}",
             "patchOptions": {
-              "commitTaskId": 2,
+              "commitTaskId": 6,
               "isHydration": true,
               "pipelineOptions": {
                 "needTimestamps": true,
@@ -257,7 +260,7 @@ describe('worklet', () => {
     vi.resetAllMocks();
   });
 
-  it.only('bug', () => {
+  it('main thread script props', () => {
     vi.spyOn(lynx.getNativeApp(), 'callLepusMethod');
     const callLepusMethodCalls = lynx.getNativeApp().callLepusMethod.mock.calls;
     expect(callLepusMethodCalls).toMatchInlineSnapshot(`[]`);
@@ -326,7 +329,7 @@ describe('worklet', () => {
           {
             "data": "{"snapshotPatch":[3,-2,0,{"_c":{"props":{"main-thread:onScroll":{"_wkltId":"15ab:test:5"}}},"_wkltId":"15ab:test:6","_execId":1}]}",
             "patchOptions": {
-              "commitTaskId": 5,
+              "commitTaskId": 9,
               "isHydration": true,
               "pipelineOptions": {
                 "needTimestamps": true,
@@ -352,21 +355,55 @@ describe('worklet', () => {
     expect(globalThis.cb).toBeCalledTimes(1);
   });
 
+  it('runOnMainThread works', async () => {
+    vi.spyOn(lynx.getNativeApp(), 'callLepusMethod');
+    const callLepusMethodCalls = lynx.getNativeApp().callLepusMethod.mock.calls;
+    expect(callLepusMethodCalls).toMatchInlineSnapshot(`[]`);
+    const Comp = () => {
+      return (
+        <view
+          bindtap={async (e) => {
+            const resp = await runOnMainThread(() => {
+              'main thread';
+              console.log('run on main thread');
+              return 'Hello from main thread';
+            })();
+            expect(resp).toMatchInlineSnapshot(`"Hello from main thread"`);
+          }}
+        >
+          <text>Hello Main Thread Script</text>
+        </view>
+      );
+    };
+
+    const { container } = render(<Comp />, {
+      enableMainThread: true,
+      enableBackgroundThread: true,
+    });
+    fireEvent.tap(container.children[0], {
+      key: 'value',
+    });
+    await waitSchedule();
+  });
+
   it('runOnBackground works', async () => {
     vi.spyOn(lynx.getNativeApp(), 'callLepusMethod');
     const callLepusMethodCalls = lynx.getNativeApp().callLepusMethod.mock.calls;
     expect(callLepusMethodCalls).toMatchInlineSnapshot(`[]`);
 
     const cb = vi.fn();
+    globalThis.receiveRunOnBackgroundResp = vi.fn();
     const Comp = () => {
       return (
         <view
-          main-thread:bindtap={(e) => {
+          main-thread:bindtap={async (e) => {
             'main thread';
-            runOnBackground(() => {
+            const resp = await runOnBackground(() => {
               console.log('run on background');
               cb();
+              return 'Hello from background11';
             })();
+            globalThis.receiveRunOnBackgroundResp(resp);
           }}
         >
           <text>Hello Main Thread Script</text>
@@ -382,9 +419,9 @@ describe('worklet', () => {
         [
           "rLynxChange",
           {
-            "data": "{"snapshotPatch":[3,-2,0,{"_wkltId":"15ab:test:5","_jsFn":{"_jsFn1":{"_jsFnId":2}},"_execId":1}]}",
+            "data": "{"snapshotPatch":[3,-2,0,{"_wkltId":"15ab:test:8","_jsFn":{"_jsFn1":{"_jsFnId":2}},"_execId":1}]}",
             "patchOptions": {
-              "commitTaskId": 9,
+              "commitTaskId": 15,
               "isHydration": true,
               "pipelineOptions": {
                 "needTimestamps": true,
@@ -413,7 +450,7 @@ describe('worklet', () => {
                       "_jsFnId": 2,
                     },
                   },
-                  "_wkltId": "15ab:test:5",
+                  "_wkltId": "15ab:test:8",
                   "_workletType": "main-thread",
                 },
               },
@@ -435,6 +472,17 @@ describe('worklet', () => {
     expect(cb.mock.calls).toMatchInlineSnapshot(`
       [
         [],
+      ]
+    `);
+    // wait for runOnBackground to finish
+    await waitSchedule();
+    expect(globalThis.receiveRunOnBackgroundResp).toBeCalledTimes(1);
+    expect(globalThis.receiveRunOnBackgroundResp.mock.calls)
+      .toMatchInlineSnapshot(`
+      [
+        [
+          "Hello from background11",
+        ],
       ]
     `);
     vi.resetAllMocks();
@@ -491,7 +539,7 @@ describe('worklet', () => {
                     },
                   },
                   "_execId": 1,
-                  "_wkltId": "15ab:test:6",
+                  "_wkltId": "15ab:test:9",
                   "_workletType": "main-thread",
                 },
               },
@@ -515,7 +563,7 @@ describe('worklet', () => {
           {
             "data": "{"workletRefInitValuePatch":[[1,null],[2,0]]}",
             "patchOptions": {
-              "commitTaskId": 11,
+              "commitTaskId": 17,
               "pipelineOptions": {
                 "needTimestamps": true,
                 "pipelineID": "pipelineID",
@@ -528,9 +576,9 @@ describe('worklet', () => {
         [
           "rLynxChange",
           {
-            "data": "{"snapshotPatch":[3,-2,0,{"_wvid":1},3,-2,1,{"_c":{"ref":{"_wvid":1},"num":{"_wvid":2}},"_wkltId":"15ab:test:6","_execId":1}]}",
+            "data": "{"snapshotPatch":[3,-2,0,{"_wvid":1},3,-2,1,{"_c":{"ref":{"_wvid":1},"num":{"_wvid":2}},"_wkltId":"15ab:test:9","_execId":1}]}",
             "patchOptions": {
-              "commitTaskId": 12,
+              "commitTaskId": 18,
               "isHydration": true,
               "pipelineOptions": {
                 "needTimestamps": true,

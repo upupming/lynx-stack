@@ -150,6 +150,10 @@ globalThis.onResetLynxEnv = () => {
 
   flushDelayedLifecycleEvents();
   destroyWorklet();
+
+  lynxDOM.switchToMainThread();
+  initEventListeners();
+  lynxDOM.switchToBackgroundThread();
 };
 
 globalThis.onSwitchedToMainThread = () => {
