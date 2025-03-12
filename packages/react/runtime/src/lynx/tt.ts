@@ -2,12 +2,11 @@
 // Licensed under the Apache License Version 2.0 that can be found in the
 // LICENSE file in the root directory of this source tree.
 import { render } from 'preact';
-
 import { LifecycleConstant, NativeUpdateDataType } from '../lifecycleConstant.js';
 import { PerformanceTimingKeys, beginPipeline, markTiming } from './performance.js';
 import { BackgroundSnapshotInstance, hydrate } from '../backgroundSnapshot.js';
 import { destroyBackground } from '../lifecycle/destroy.js';
-import { commitPatchUpdate, genCommitTaskId, globalCommitTaskMap } from '../lifecycle/patchUpdate.js';
+import { commitPatchUpdate, genCommitTaskId, globalCommitTaskMap } from '../lifecycle/patch/patchUpdate.js';
 import { reloadBackground } from '../lifecycle/reload.js';
 import { CHILDREN } from '../renderToOpcodes/constants.js';
 import { __root } from '../root.js';
@@ -76,7 +75,7 @@ function OnLifecycleEvent([type, data]: [string, any]) {
           try {
             publishEvent([idStr, ...rest].join(':'), data);
           } catch (e) {
-            lynx.reportError(e);
+            lynx.reportError(e as Error);
           }
         });
         delayedEvents.length = 0;
@@ -141,7 +140,7 @@ function flushDelayedLifecycleEvents(): void {
       try {
         OnLifecycleEvent(e);
       } catch (e) {
-        lynx.reportError(e);
+        lynx.reportError(e as Error);
       }
     });
     delayedLifecycleEvents.length = 0;

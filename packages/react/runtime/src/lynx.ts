@@ -8,7 +8,7 @@ import './hooks/react.js';
 import { initProfileHook } from './debug/profile.js';
 import { document, setupBackgroundDocument } from './document.js';
 import { initDelayUnmount } from './lifecycle/delayUnmount.js';
-import { injectUpdatePatch, replaceCommitHook, replaceRequestAnimationFrame } from './lifecycle/patchUpdate.js';
+import { injectUpdatePatch, replaceCommitHook, replaceRequestAnimationFrame } from './lifecycle/patch/patchUpdate.js';
 import { injectCalledByNative } from './lynx/calledByNative.js';
 import { setupLynxEnv } from './lynx/env.js';
 import { injectLepusMethods } from './lynx/injectLepusMethods.js';
@@ -19,8 +19,8 @@ export { runWithForce } from './lynx/runWithForce.js';
 // @ts-expect-error Element implicitly has an 'any' type because type 'typeof globalThis' has no index signature
 if (__LEPUS__ && typeof globalThis.processEvalResult === 'undefined') {
   // @ts-expect-error Element implicitly has an 'any' type because type 'typeof globalThis' has no index signature
-  globalThis.processEvalResult = <T>(result: (schema: string) => T, schema: string) => {
-    return result(schema);
+  globalThis.processEvalResult = <T>(result: ((schema: string) => T) | undefined, schema: string) => {
+    return result?.(schema);
   };
 }
 
