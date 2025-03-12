@@ -8,10 +8,10 @@ import { injectCalledByNative } from '@lynx-js/react/runtime/lib/lynx/calledByNa
 import {
   injectUpdatePatch,
   replaceCommitHook,
-} from '@lynx-js/react/runtime/lib/lifecycle/patchUpdate.js';
+} from '@lynx-js/react/runtime/lib/lifecycle/patch/patchUpdate.js';
 import { injectTt } from '@lynx-js/react/runtime/lib/lynx/tt.js';
 import { setRoot } from '@lynx-js/react/runtime/lib/root.js';
-import { deinitGlobalSnapshotPatch } from '@lynx-js/react/runtime/lib/snapshotPatch.js';
+import { deinitGlobalSnapshotPatch } from '@lynx-js/react/runtime/lib/lifecycle/patch/snapshotPatch.js';
 import { initApiEnv } from '@lynx-js/react/worklet-runtime/lib/api/lynxApi.js';
 import { initEventListeners } from '@lynx-js/react/worklet-runtime/lib/listeners.js';
 import { initWorklet } from '@lynx-js/react/worklet-runtime/lib/workletRuntime.js';

@@ -5,7 +5,7 @@ import { render, fireEvent } from '..';
 import { createRef, useEffect, useState } from '@lynx-js/react';
 import { Component } from 'preact';
 import { expect } from 'vitest';
-import { __globalSnapshotPatch } from '@lynx-js/react/runtime/lib/snapshotPatch.js';
+import { __globalSnapshotPatch } from '@lynx-js/react/runtime/lib/lifecycle/patch/snapshotPatch.js';
 
 test('render calls useEffect immediately', async () => {
   const cb = vi.fn();
