@@ -647,13 +647,3 @@ export const initElementTree = () => {
     }
   })();
 };
-
-export const initNativeMethodQueue = (): [string, any[]][] => {
-  let nativeMethodQueue: [string, any[]][] = [];
-  Object.defineProperty(nativeMethodQueue, 'clear', {
-    value: () => {
-      nativeMethodQueue.length = 0;
-    },
-  });
-  return nativeMethodQueue;
-};

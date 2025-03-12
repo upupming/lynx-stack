@@ -1,6 +1,6 @@
 import EventEmitter from 'events';
 import { createGlobalThis, LynxGlobalThis } from './lynx/GlobalThis';
-import { initElementTree, initNativeMethodQueue } from './lynx/nativeMethod';
+import { initElementTree } from './lynx/nativeMethod';
 import { VirtualConsole } from './lynx/virtual-console';
 export type { LynxFiberElement } from './lynx/nativeMethod';
 
@@ -34,17 +34,6 @@ declare global {
 export function __injectElementApi(target?: any) {
   const elementTree = initElementTree();
   target.elementTree = elementTree;
-  const nativeMethodQueue = initNativeMethodQueue();
-
-  function withQueue<T>(
-    name: string,
-    fn: (this: T, ...args: any[]) => any,
-  ) {
-    return function(this: T, ...args: any[]) {
-      nativeMethodQueue.push([name, args]);
-      return fn.apply(this, args);
-    };
-  }
 
   if (typeof target === 'undefined') {
     target = globalThis;
@@ -55,7 +44,7 @@ export function __injectElementApi(target?: any) {
   ) {
     if (k.startsWith('__')) {
       // @ts-ignore
-      target[k] = withQueue(k, elementTree[k].bind(elementTree));
+      target[k] = elementTree[k].bind(elementTree);
     }
   }
 

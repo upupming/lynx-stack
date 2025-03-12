@@ -79,6 +79,6 @@
     "@rollup/plugin-commonjs": "^25.0.4",
     "rollup": "^3.28.1",
     "rollup-plugin-delete": "^2.0.0",
-    "vitest": "^3.0.7"
+    "vitest": "^3.0.8"
   }
 }
