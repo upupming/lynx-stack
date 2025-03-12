@@ -1,4 +1,4 @@
-import '@lynx-js/lynx-dom-jest-matchers';
+import '@testing-library/jest-dom';
 import { test } from 'vitest';
 import { fireEvent, render } from '..';
 import { createRef } from '@lynx-js/react';
@@ -88,16 +88,7 @@ eventTypes.forEach(({ type, events, elementType, init }, eventTypeIdx) => {
           const element = __GetElementByUniqueId(
             Number(ref.current._nodeSelectToken.identifier),
           );
-          expect(element).toMatchInlineSnapshot(`
-            <view
-              event={
-                {
-                  "bindEvent:tap": "2:0:bindtap",
-                }
-              }
-              has-react-ref={true}
-            />
-          `);
+          expect(element).toMatchInlineSnapshot(`<view />`);
           expect(init).toMatchInlineSnapshot(`
             {
               "key": "value",
@@ -112,8 +103,10 @@ eventTypes.forEach(({ type, events, elementType, init }, eventTypeIdx) => {
           expect(spy).toHaveBeenCalledWith(expect.objectContaining(init));
           if (eventTypeIdx === 0 && eventIdx === 0) {
             expect(spy.mock.calls[0][0]).toMatchInlineSnapshot(`
-              {
+              Event {
                 "eventName": "tap",
+                "eventType": "bindEvent",
+                "isTrusted": false,
                 "key": "value",
               }
             `);
@@ -134,38 +127,44 @@ test('calling `fireEvent` directly works too', () => {
   const { container } = render(<Comp />);
 
   expect(container).toMatchInlineSnapshot(`
-    <page
-      cssId="__Card__:0"
-    >
-      <text
-        event={
-          {
-            "catchEvent:tap": "2:0:",
-          }
-        }
-      />
+    <page>
+      <text />
     </page>
   `);
   expect(handler).toHaveBeenCalledTimes(0);
-  const event = {
-    eventType: 'catchEvent',
-    eventName: 'tap',
-  };
-
+  const event = new Event('catchEvent:tap');
+  Object.assign(
+    event,
+    {
+      eventType: 'catchEvent',
+      eventName: 'tap',
+      key: 'value',
+    },
+  );
   const button = container.children[0];
   // Use fireEvent directly
   expect(fireEvent(button, event)).toBe(true);
 
   expect(handler).toHaveBeenCalledTimes(1);
-  expect(handler).toHaveBeenCalledWith(event);
+  expect(handler.mock.calls[0][0]).toMatchInlineSnapshot(`
+    Event {
+      "eventName": "tap",
+      "eventType": "catchEvent",
+      "isTrusted": false,
+      "key": "value",
+    }
+  `);
 
   // Use fireEvent.tap
   fireEvent.tap(button, {
     eventType: 'catchEvent',
   });
   expect(handler).toHaveBeenCalledTimes(2);
-  expect(handler).toHaveBeenCalledWith({
-    eventType: 'catchEvent',
-    eventName: 'tap',
-  });
+  expect(handler.mock.calls[1][0]).toMatchInlineSnapshot(`
+    Event {
+      "eventName": "tap",
+      "eventType": "catchEvent",
+      "isTrusted": false,
+    }
+  `);
 });

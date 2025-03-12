@@ -1,7 +1,7 @@
 // Copyright 2024 The Lynx Authors. All rights reserved.
 // Licensed under the Apache License Version 2.0 that can be found in the
 // LICENSE file in the root directory of this source tree.
-import '@lynx-js/lynx-dom-jest-matchers';
+import '@testing-library/jest-dom';
 import { expect, test, vi } from 'vitest';
 
 import { getQueriesForElement } from '@lynx-js/lynx-dom-testing-library';
@@ -28,16 +28,12 @@ test('App', async () => {
     ]
   `);
   expect(elementTree.root).toMatchInlineSnapshot(`
-    <page
-      cssId="__Card__:0"
-    >
+    <page>
       <view>
         <text
           id="app-text"
         >
-          <raw-text
-            text="Hello World!"
-          />
+          Hello World!
         </text>
       </view>
     </page>
@@ -46,14 +42,12 @@ test('App', async () => {
     findByText,
   } = getQueriesForElement(elementTree.root);
   const element = await findByText('Hello World!');
-  expect(element).toBeInTheElementTree();
+  expect(element).toBeInTheDocument();
   expect(element).toMatchInlineSnapshot(`
     <text
       id="app-text"
     >
-      <raw-text
-        text="Hello World!"
-      />
+      Hello World!
     </text>
   `);
 });

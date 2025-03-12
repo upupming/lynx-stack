@@ -1,4 +1,4 @@
-import '@lynx-js/lynx-dom-jest-matchers';
+import '@testing-library/jest-dom';
 import { Component, h } from 'preact';
 import { expect } from 'vitest';
 import { render, getScreen, waitForElementToBeRemoved } from '..';
@@ -52,13 +52,9 @@ test('state change will cause re-render', async () => {
   expect(snapshotInstanceManager.nextId).toMatchInlineSnapshot(`-1`);
   render(<ComponentWithLoader />);
   expect(elementTree.root).toMatchInlineSnapshot(`
-    <page
-      cssId="__Card__:0"
-    >
+    <page>
       <text>
-        <raw-text
-          text="Loading..."
-        />
+        Loading...
       </text>
     </page>
   `);
@@ -138,27 +134,15 @@ test('state change will cause re-render', async () => {
   }
 
   expect(elementTree.root).toMatchInlineSnapshot(`
-    <page
-      cssId="__Card__:0"
-    >
+    <page>
       <text
-        dataset={
-          {
-            "testid": "message",
-          }
-        }
+        data-testid="message"
       >
-        <raw-text
-          text="Loaded this message: "
-        />
+        Loaded this message: 
         <wrapper>
-          <raw-text
-            text="Hello World"
-          />
+          Hello World
         </wrapper>
-        <raw-text
-          text="!"
-        />
+        !
       </text>
     </page>
   `);
@@ -178,13 +162,9 @@ test('it waits for the data to be loaded', async () => {
   expect(snapshotInstanceManager.nextId).toMatchInlineSnapshot(`-1`);
   render(<ComponentWithLoader />);
   expect(elementTree.root).toMatchInlineSnapshot(`
-    <page
-      cssId="__Card__:0"
-    >
+    <page>
       <text>
-        <raw-text
-          text="Loading..."
-        />
+        Loading...
       </text>
     </page>
   `);
@@ -195,27 +175,15 @@ test('it waits for the data to be loaded', async () => {
   await waitForElementToBeRemoved(loading);
   expect(screen.getByTestId('message')).toHaveTextContent(/Hello World/);
   expect(elementTree.root).toMatchInlineSnapshot(`
-    <page
-      cssId="__Card__:0"
-    >
+    <page>
       <text
-        dataset={
-          {
-            "testid": "message",
-          }
-        }
+        data-testid="message"
       >
-        <raw-text
-          text="Loaded this message: "
-        />
+        Loaded this message: 
         <wrapper>
-          <raw-text
-            text="Hello World"
-          />
+          Hello World
         </wrapper>
-        <raw-text
-          text="!"
-        />
+        !
       </text>
     </page>
   `);

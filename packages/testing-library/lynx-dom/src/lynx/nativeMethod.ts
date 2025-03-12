@@ -3,268 +3,65 @@
 // Licensed under the Apache License Version 2.0 that can be found in the
 // LICENSE file in the root directory of this source tree.
 */
-import { format as prettyFormat, plugins } from 'pretty-format';
-import { parse as parseSelector } from 'css-what';
-const { ReactTestComponent } = plugins;
+import { JSDOM } from 'jsdom';
 
-export interface LynxFiberElement {
-  type: string;
-  props: any;
-  children: any[];
-  parent?: LynxFiberElement | null;
-  getRootNode: () => LynxFiberElement;
-  parentComponentUniqueId?: number;
+export interface LynxFiberElement extends HTMLElement {
+  props: Record<string, any>;
   $$uiSign: number;
-  nodeType: number;
-}
-
-function matchElement(element: LynxFiberElement, selector: any): boolean {
-  if (selector.type === 'tag' && element.type !== selector.name) {
-    return false;
-  }
-  if (selector.type === 'attribute') {
-    let attrValue;
-    if (selector.name.startsWith('data-')) {
-      const key = selector.name.slice(5);
-      attrValue = element.props?.dataset?.[key];
-    } else {
-      attrValue = element.props?.[selector.name];
-    }
-
-    if (attrValue === undefined) return false;
-    if (selector.action === 'exists') return true;
-    if (selector.action === 'equals') return attrValue === selector.value;
-    if (selector.action === 'includes') {
-      return attrValue?.includes?.(selector.value);
-    }
-    if (selector.action === 'dash') {
-      return attrValue?.startsWith?.(`${selector.value}-`);
-    }
-    if (selector.action === 'not') return attrValue !== selector.value;
-  }
-  return true;
-}
-
-function matchSelectors(
-  element: LynxFiberElement,
-  selectors: any[][],
-): boolean {
-  return selectors.some((group) =>
-    group.every((selector) => matchElement(element, selector))
-  );
-}
-function injectDOMMethods(element: LynxFiberElement) {
-  // This is required by @lynx-js/lynx-dom-testing-library to implement `findBy*` queries.
-  // It's not a perfect implementation, but it's good enough for now.
-  // TODO: implement a better implementation.
-  Object.defineProperty(element, 'querySelector', {
-    value: function(selector: string): LynxFiberElement | null {
-      const selectors = parseSelector(selector);
-
-      function traverse(node: LynxFiberElement): LynxFiberElement | null {
-        if (matchSelectors(node, selectors)) {
-          return node;
-        }
-        for (const child of node.children || []) {
-          if (typeof child === 'object') {
-            const found = traverse(child);
-            if (found) return found;
-          }
-        }
-        return null;
-      }
-
-      let ans = traverse(this);
-      return ans;
-    },
-  });
-  Object.defineProperty(element, 'querySelectorAll', {
-    value: function(selector: string): LynxFiberElement[] {
-      const selectors = parseSelector(selector);
-      const result: LynxFiberElement[] = [];
-
-      function traverse(node: LynxFiberElement) {
-        if (matchSelectors(node, selectors)) {
-          result.push(node);
-        }
-        for (const child of node.children || []) {
-          if (typeof child === 'object') traverse(child);
-        }
-      }
-
-      traverse(this);
-      return result;
-    },
-  });
-  Object.defineProperty(element, 'getAttribute', {
-    value: function(name: string): any {
-      if (name.startsWith('data-')) {
-        const key = name.slice(5);
-        return this.props?.dataset?.[key] ?? null;
-      }
-      return this.props[name] ?? null;
-    },
-  });
-  Object.defineProperty(element, 'matches', {
-    value: function(selectors: string): boolean {
-      try {
-        const selectorParts = selectors.split(',').map(s => s.trim());
-
-        const matchesSelector = (selector: string): boolean => {
-          const [tag, ...rest] = selector.split(/(?=\[|\.)/);
-          const tagMatches = !tag || tag === this.type;
-
-          const attributes = rest.filter(r => r.startsWith('['));
-          const classes = rest.filter(r => r.startsWith('.')).map(c =>
-            c.slice(1)
-          );
-
-          const attributesMatch = attributes.every(attr => {
-            const match = attr.match(/^\[(.+?)(?:=(.+))?\]$/);
-            if (!match) return false;
-            const [, key, value] = match;
-
-            if (key.startsWith('data-')) {
-              // Handle dataset properties
-              const datasetKey = key.slice(5).replace(
-                /-([a-z])/g,
-                (_, letter) => letter.toUpperCase(),
-              );
-              const datasetValue = this.props.dataset?.[datasetKey];
-              return value
-                ? datasetValue === value
-                : datasetKey in this.props.dataset;
-            }
-
-            return value ? this.props[key] === value : key in this.props;
-          });
-
-          const classesMatch = classes.every(cls =>
-            this.props.class?.split(' ').includes(cls)
-          );
-
-          return tagMatches && attributesMatch && classesMatch;
-        };
-
-        return selectorParts.some(matchesSelector);
-      } catch (error) {
-        throw new SyntaxError(`Invalid selector: ${selectors}`);
-      }
-    },
-  });
-  Object.defineProperty(element, 'textContent', {
-    get: function(): string {
-      const collectText = (e: LynxFiberElement): string => {
-        if (!e.children || e.children.length === 0) {
-          return e.type === 'raw-text' ? e.props.text : '';
-        }
-        return e.children.map(collectText).join(' ');
-      };
-      const ans = collectText(this);
-      return ans;
-    },
-    set: function() {
-      throw new Error('set textContent is not supported');
-    },
-  });
-  Object.defineProperty(element, 'childNodes', {
-    get: function(): LynxFiberElement[] {
-      return this.children ?? [];
-    },
-  });
-  Object.defineProperty(element, 'getRootNode', {
-    get: function() {
-      return function(this: LynxFiberElement): LynxFiberElement {
-        if (!this.parent) return this;
-        return this.parent.getRootNode();
-      };
-    },
-  });
-  Object.defineProperty(element, 'ownerDocument', {
-    get: function(): LynxFiberElement | undefined {
-      return elementTree.root;
-    },
-  });
-  Object.defineProperty(element, 'toJSON', {
-    value: function() {
-      return prettyFormat(this, {
-        plugins: [ReactTestComponent],
-      });
-    },
-  });
-  Object.defineProperty(element, 'dispatchEvent', {
-    value: function(event: any) {
-      global.__SendEvent(
-        this,
-        event.eventType || 'bindEvent',
-        event.eventName,
-        event,
-      );
-      // preventDefault is not supported, always return true
-      return true;
-    },
-  });
-  // @ts-ignore
-  element.constructor = {
-    name: 'LynxFiberElement',
-  };
-  return element;
+  parentComponentUniqueId: number;
+  firstChild: LynxFiberElement;
+  nextSibling: LynxFiberElement;
+  parentNode: LynxFiberElement;
 }
 
 export const initElementTree = () => {
   let uiSignNext = 0;
-  const parentMap = new WeakMap<LynxFiberElement, LynxFiberElement>();
   const uniqueId2Element = new Map<number, LynxFiberElement>();
 
   return new (class ElementTree {
-    root?: LynxFiberElement = undefined;
-
+    root: LynxFiberElement | undefined;
+    jsdom = new JSDOM();
     __CreatePage(tag: string, parentComponentUniqueId: number) {
-      return (this.root ??= this.__CreateElement(
-        'page',
-        parentComponentUniqueId,
-      ));
+      const page = this.__CreateElement('page', parentComponentUniqueId);
+      this.root = page;
+      this.jsdom.window.document.body.appendChild(page);
+      return page;
     }
 
-    __CreateRawText(text: string) {
-      // @ts-ignore
-      const json = this.__CreateElement('raw-text', 0);
-      json.props.text = text;
+    __CreateRawText(text: string): LynxFiberElement {
+      const element = this.jsdom.window.document.createTextNode(
+        text,
+      ) as unknown as LynxFiberElement;
+      element.$$uiSign = uiSignNext++;
+      uniqueId2Element.set(element.$$uiSign, element);
 
-      this.root ??= json;
-      return json;
+      return element;
     }
 
     __GetElementUniqueID(e: LynxFiberElement): number {
-      // @ts-ignore
       return e.$$uiSign;
     }
 
     __SetClasses(e: LynxFiberElement, cls: string) {
-      e.props.class = cls;
+      e.className = cls;
     }
 
-    __CreateElement(tag: string, parentComponentUniqueId: number) {
-      // @ts-ignore
-      const json = injectDOMMethods({
-        type: tag,
-        children: [],
-        props: {},
-        parentComponentUniqueId,
-      });
-      Object.defineProperty(json, '$$typeof', {
-        value: Symbol.for('react.test.json'),
-      });
-      Object.defineProperty(json, '$$uiSign', {
-        value: uiSignNext++,
-      });
-      uniqueId2Element.set(json.$$uiSign, json);
+    __CreateElement(
+      tag: string,
+      parentComponentUniqueId: number,
+    ): LynxFiberElement {
       if (tag === 'raw-text') {
-        json.nodeType = 3;
+        return this.__CreateRawText('');
       }
 
-      this.root ??= json;
-      return json;
+      const element = this.jsdom.window.document.createElement(
+        tag,
+      ) as LynxFiberElement;
+      element.$$uiSign = uiSignNext++;
+      uniqueId2Element.set(element.$$uiSign, element);
+      element.parentComponentUniqueId = parentComponentUniqueId;
+      element.props = {};
+      return element;
     }
 
     __CreateView(parentComponentUniqueId: number) {
@@ -274,65 +71,27 @@ export const initElementTree = () => {
       return this.__CreateElement('scroll-view', parentComponentUniqueId);
     }
     __FirstElement(e: LynxFiberElement) {
-      return e.children[0];
+      return e.firstChild;
     }
 
     __CreateText(parentComponentUniqueId: number) {
-      // @ts-ignore
-      const json = injectDOMMethods({
-        type: 'text',
-        children: [],
-        props: {},
-        parentComponentUniqueId,
-      });
-      Object.defineProperty(json, '$$typeof', {
-        value: Symbol.for('react.test.json'),
-      });
-      Object.defineProperty(json, '$$uiSign', {
-        value: uiSignNext++,
-      });
-      uniqueId2Element.set(json.$$uiSign, json);
-      this.root ??= json;
-      return json;
+      return this.__CreateElement('text', parentComponentUniqueId);
     }
 
     __CreateImage(parentComponentUniqueId: number) {
-      // @ts-ignore
-      const json = injectDOMMethods({
-        type: 'image',
-        children: [],
-        props: {},
-        parentComponentUniqueId,
-      });
-      Object.defineProperty(json, '$$typeof', {
-        value: Symbol.for('react.test.json'),
-      });
-      Object.defineProperty(json, '$$uiSign', {
-        value: uiSignNext++,
-      });
-      uniqueId2Element.set(json.$$uiSign, json);
-      this.root ??= json;
-      return json;
+      this.__CreateElement('image', parentComponentUniqueId);
     }
 
     __CreateWrapperElement(parentComponentUniqueId: number) {
       return this.__CreateElement('wrapper', parentComponentUniqueId);
     }
 
-    __AddInlineStyle(e: LynxFiberElement, key: number, value: string) {
-      const style = e.props.style || {};
-      if (typeof style === 'string') {
-        e.props.style += ';' + key + ':' + value;
-        return;
-      }
-      style[key] = value;
-      e.props.style = style;
+    __AddInlineStyle(e: HTMLElement, key: number, value: string) {
+      e.style[key] = value;
     }
 
     __AppendElement(parent: LynxFiberElement, child: LynxFiberElement) {
-      child.parent = parent;
-      parent.children.push(child);
-      parentMap.set(child, parent);
+      parent.appendChild(child);
     }
 
     __SetCSSId(
@@ -371,6 +130,11 @@ export const initElementTree = () => {
         return;
       }
 
+      if (key === 'text') {
+        e.textContent = value;
+        return;
+      }
+
       if (value === null) {
         delete e.props[key];
         return;
@@ -382,19 +146,47 @@ export const initElementTree = () => {
       e: LynxFiberElement,
       eventType: string,
       eventName: string,
-      event: string | Record<string, any>,
+      eventHandler: string | Record<string, any>,
     ) {
-      if (typeof event === 'undefined') {
-        if (e.props.event) {
-          delete e.props.event[`${eventType}:${eventName}`];
-        }
+      if (e.props.event?.[`${eventType}:${eventName}`]) {
+        e.removeEventListener(
+          `${eventType}:${eventName}`,
+          e.props.event[`${eventType}:${eventName}`],
+        );
+        delete e.props.event[`${eventType}:${eventName}`];
+      }
+      if (typeof eventHandler === 'undefined') {
         return;
       }
-      if (typeof event !== 'string' && event.type === undefined) {
-        throw new Error(`event must be string, but got ${typeof event}`);
-        // console.error(`event must be string, but got ${typeof event}`);
+      if (typeof eventHandler !== 'string' && eventHandler.type === undefined) {
+        throw new Error(`event must be string, but got ${typeof eventHandler}`);
       }
-      (e.props.event ??= {})[`${eventType}:${eventName}`] = event;
+
+      const listener = (evt) => {
+        if (
+          typeof eventHandler === 'object' && eventHandler.type === 'worklet'
+        ) {
+          const isBackground = !__LEPUS__;
+          globalThis.lynxDOM.switchToMainThread();
+
+          // Use Object.assign to convert evt to plain object to avoid infinite transformWorkletInner
+          // @ts-ignore
+          runWorklet(eventHandler.value, [Object.assign({}, evt)]);
+
+          if (isBackground) {
+            globalThis.lynxDOM.switchToBackgroundThread();
+          }
+        } else {
+          // @ts-ignore
+          globalThis.lynxCoreInject.tt.publishEvent(eventHandler, evt);
+        }
+      };
+      e.props.event = e.props.event ?? {};
+      e.props.event[`${eventType}:${eventName}`] = listener;
+      e.addEventListener(
+        `${eventType}:${eventName}`,
+        listener,
+      );
     }
 
     __GetEvent(e: LynxFiberElement, eventType: string, eventName: string) {
@@ -409,22 +201,26 @@ export const initElementTree = () => {
     }
 
     __SetID(e: LynxFiberElement, id: string) {
-      e.props.id = id;
+      e.id = id;
     }
 
     __SetInlineStyles(
       e: LynxFiberElement,
       styles: string | Record<string, string>,
     ) {
-      e.props.style = styles;
+      if (typeof styles === 'string') {
+        e.style.cssText = styles;
+      } else {
+        Object.assign(e.style, styles);
+      }
     }
 
     __AddDataset(e: LynxFiberElement, key: string, value: string) {
-      (e.props.dataset ??= {})[key] = value;
+      e.dataset[key] = value;
     }
 
     __SetDataset(e: LynxFiberElement, dataset: any) {
-      e.props.dataset = dataset;
+      Object.assign(e.dataset, dataset);
     }
 
     __SetGestureDetector(
@@ -443,49 +239,40 @@ export const initElementTree = () => {
     }
 
     __GetDataset(e: LynxFiberElement) {
-      return e.props.dataset;
+      return e.dataset;
     }
 
     __RemoveElement(parent: LynxFiberElement, child: LynxFiberElement) {
-      parent.children.forEach((ch, index) => {
+      let ch = parent.firstChild;
+      while (ch) {
         if (ch === child) {
-          parent.children.splice(index, 1);
-          return;
+          parent.removeChild(ch);
+          break;
         }
-      });
-      parentMap.delete(child);
+      }
     }
 
     __InsertElementBefore(
       parent: LynxFiberElement,
       child: LynxFiberElement,
-      ref?: LynxFiberElement | number,
+      ref?: LynxFiberElement,
     ) {
       if (typeof ref === 'undefined') {
-        child.parent = parent;
-        parent.children.push(child);
+        parent.appendChild(child);
       } else {
-        const index = parent.children.indexOf(ref);
-        parent.children.splice(index, 0, child);
+        parent.insertBefore(child, ref);
       }
-      parentMap.set(child, parent);
     }
 
     __ReplaceElement(
       newElement: LynxFiberElement,
       oldElement: LynxFiberElement,
     ) {
-      const parent = parentMap.get(oldElement);
+      const parent = oldElement.parentNode;
       if (!parent) {
-        /* c8 ignore next */
         throw new Error('unreachable');
       }
-      parent.children.forEach((ch, index) => {
-        if (ch === oldElement) {
-          parent.children[index] = newElement;
-          return;
-        }
-      });
+      parent.replaceChild(newElement, oldElement);
     }
 
     __FlushElementTree(): void {}
@@ -555,11 +342,12 @@ export const initElementTree = () => {
     }
 
     __GetTag(ele: LynxFiberElement) {
-      return ele.type;
+      return ele.nodeName;
     }
 
     __GetAttributeByName(ele: LynxFiberElement, name: string) {
-      return ele.props[name];
+      // return ele.props[name];
+      return ele.getAttribute(name);
     }
 
     clear() {
@@ -568,25 +356,6 @@ export const initElementTree = () => {
 
     toTree() {
       return this.root;
-    }
-
-    getElementById(id: string): LynxFiberElement | undefined {
-      const find = (e: LynxFiberElement): LynxFiberElement | undefined => {
-        if (typeof e === 'string') {
-          return;
-        }
-        if (e.props.id === id) {
-          return e;
-        }
-        for (const child of e.children) {
-          const result = find(child);
-          if (result) {
-            return result;
-          }
-        }
-        return undefined;
-      };
-      return find(this.root!);
     }
 
     triggerComponentAtIndex(
@@ -606,42 +375,39 @@ export const initElementTree = () => {
     }
 
     toJSON() {
-      return prettyFormat(this.toTree(), {
-        plugins: [ReactTestComponent],
-        printFunctionName: false,
-      });
+      return this.toTree();
     }
 
-    __SendEvent(
-      e: LynxFiberElement,
-      eventType: string,
-      eventName: string,
-      data: any,
-    ) {
-      if (process.env.DEBUG) {
-        console.log('__SendEvent', e, eventType, eventName, data);
-      }
-      const eventHandler = e.props?.event?.[`${eventType}:${eventName}`];
-      if (eventHandler) {
-        // main thread events
-        if (
-          typeof eventHandler === 'object' && eventHandler.type === 'worklet'
-        ) {
-          const isBackground = !__LEPUS__;
-          globalThis.lynxDOM.switchToMainThread();
+    // __SendEvent(
+    //   e: LynxFiberElement,
+    //   eventType: string,
+    //   eventName: string,
+    //   data: any,
+    // ) {
+    //   if (process.env.DEBUG) {
+    //     console.log('__SendEvent', e, eventType, eventName, data);
+    //   }
+    //   const eventHandler = e.props?.event?.[`${eventType}:${eventName}`];
+    //   if (eventHandler) {
+    //     // main thread events
+    //     if (
+    //       typeof eventHandler === 'object' && eventHandler.type === 'worklet'
+    //     ) {
+    //       const isBackground = !__LEPUS__;
+    //       globalThis.lynxDOM.switchToMainThread();
 
-          // @ts-ignore
-          runWorklet(eventHandler.value, [data]);
+    //       // @ts-ignore
+    //       runWorklet(eventHandler.value, [data]);
 
-          if (isBackground) {
-            globalThis.lynxDOM.switchToBackgroundThread();
-          }
-        } else {
-          // @ts-ignore
-          globalThis.lynxCoreInject.tt.publishEvent(eventHandler, data);
-        }
-      }
-    }
+    //       if (isBackground) {
+    //         globalThis.lynxDOM.switchToBackgroundThread();
+    //       }
+    //     } else {
+    //       // @ts-ignore
+    //       globalThis.lynxCoreInject.tt.publishEvent(eventHandler, data);
+    //     }
+    //   }
+    // }
     __GetElementByUniqueId(uniqueId: number) {
       return uniqueId2Element.get(uniqueId);
     }

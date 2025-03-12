@@ -1,4 +1,4 @@
-import '@lynx-js/lynx-dom-jest-matchers';
+import '@testing-library/jest-dom';
 import { render } from '..';
 import { expect } from 'vitest';
 import { useEffect, useState } from '@lynx-js/react';
@@ -7,13 +7,9 @@ test('rerender will re-render the element', async () => {
   const Greeting = (props) => <text>{props.message}</text>;
   const { container, rerender } = render(<Greeting message='hi' />);
   expect(container).toMatchInlineSnapshot(`
-    <page
-      cssId="__Card__:0"
-    >
+    <page>
       <text>
-        <raw-text
-          text="hi"
-        />
+        hi
       </text>
     </page>
   `);
@@ -24,13 +20,9 @@ test('rerender will re-render the element', async () => {
     expect(container.children[0]).toHaveTextContent('hey');
 
     expect(container).toMatchInlineSnapshot(`
-      <page
-        cssId="__Card__:0"
-      >
+      <page>
         <text>
-          <raw-text
-            text="hey"
-          />
+          hey
         </text>
       </page>
     `);

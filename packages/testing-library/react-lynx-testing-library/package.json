@@ -43,11 +43,11 @@
     "enhanced-resolve": "^5.18.0"
   },
   "devDependencies": {
-    "@lynx-js/lynx-dom-jest-matchers": "workspace:*",
     "@lynx-js/react": "workspace:*",
     "@preact/preset-vite": "^2.9.3",
     "@rsbuild/plugin-react": "^1.1.0",
     "@rslib/core": "^0.5.1",
+    "@testing-library/jest-dom": "^6.6.3",
     "@types/node": "^22.13.5",
     "@vitest/ui": "3.0.8",
     "esbuild-fix-imports-plugin": "^1.0.14",

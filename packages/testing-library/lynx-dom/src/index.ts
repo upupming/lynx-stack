@@ -350,6 +350,11 @@ export class LynxDOM {
     const polyfills = createPolyfills();
     injectBackgroundThreadGlobals(this.backgroundThread.globalThis, polyfills);
     injectMainThreadGlobals(this.mainThread.globalThis, polyfills);
+
+    this.mainThread.globalThis.Event =
+      this.mainThread.globalThis.elementTree.jsdom.window.Event;
+    this.backgroundThread.globalThis.Event =
+      this.mainThread.globalThis.elementTree.jsdom.window.Event;
   }
 
   switchToBackgroundThread() {

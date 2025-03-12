@@ -1,4 +1,4 @@
-import '@lynx-js/lynx-dom-jest-matchers';
+import '@testing-library/jest-dom';
 import { test } from 'vitest';
 import { render } from '..';
 import { createRef } from '@lynx-js/react';
@@ -33,26 +33,16 @@ test('renders options.wrapper around node', async () => {
   });
   // TODO: should we use it and polyfill our API
   // or write our own dom assertion extensions
-  expect(getByTestId('wrapper')).toBeInTheElementTree();
+  expect(getByTestId('wrapper')).toBeInTheDocument();
   expect(elementTree.root).toMatchInlineSnapshot(`
-      <page
-        cssId="__Card__:0"
+    <page>
+      <view
+        data-testid="wrapper"
       >
         <view
-          dataset={
-            {
-              "testid": "wrapper",
-            }
-          }
-        >
-          <view
-            dataset={
-              {
-                "testid": "inner",
-              }
-            }
-          />
-        </view>
-      </page>
-    `);
+          data-testid="inner"
+        />
+      </view>
+    </page>
+  `);
 });

@@ -49,37 +49,17 @@ test('unmounts a component', async () => {
   const { unmount, container, getByText } = render(<StopWatch />);
 
   expect(container).toMatchInlineSnapshot(`
-    <page
-      cssId="__Card__:0"
-    >
+    <page>
       <view>
         <text>
           <wrapper />
-          <raw-text
-            text="ms"
-          />
+          ms
         </text>
-        <text
-          event={
-            {
-              "bindEvent:tap": "4:0:",
-            }
-          }
-        >
-          <raw-text
-            text="Start"
-          />
+        <text>
+          Start
         </text>
-        <text
-          event={
-            {
-              "bindEvent:tap": "2:0:",
-            }
-          }
-        >
-          <raw-text
-            text="Clear"
-          />
+        <text>
+          Clear
         </text>
       </view>
     </page>

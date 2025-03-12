@@ -25,34 +25,15 @@ describe('worklet', () => {
       enableBackgroundThread: false,
     });
     expect(container).toMatchInlineSnapshot(`
-      <page
-        cssId="__Card__:0"
-      >
-        <view
-          event={
-            {
-              "bindEvent:tap": {
-                "type": "worklet",
-                "value": {
-                  "_c": {
-                    "cb": [MockFunction spy],
-                  },
-                  "_wkltId": "15ab:test:1",
-                  "_workletType": "main-thread",
-                },
-              },
-            }
-          }
-        >
+      <page>
+        <view>
           <text>
-            <raw-text
-              text="Hello Main Thread Script"
-            />
+            Hello Main Thread Script
           </text>
         </view>
       </page>
     `);
-    fireEvent.tap(container.children[0], {
+    fireEvent.tap(container.firstChild, {
       key: 'value',
     });
     expect(cb).toBeCalledTimes(1);
@@ -61,6 +42,8 @@ describe('worklet', () => {
         [
           {
             "eventName": "tap",
+            "eventType": "bindEvent",
+            "isTrusted": false,
             "key": "value",
           },
         ],
@@ -114,32 +97,15 @@ describe('worklet', () => {
       ]
     `);
     expect(container).toMatchInlineSnapshot(`
-      <page
-        cssId="__Card__:0"
-      >
-        <view
-          event={
-            {
-              "bindEvent:tap": {
-                "type": "worklet",
-                "value": {
-                  "_execId": 1,
-                  "_wkltId": "15ab:test:2",
-                  "_workletType": "main-thread",
-                },
-              },
-            }
-          }
-        >
+      <page>
+        <view>
           <text>
-            <raw-text
-              text="Hello Main Thread Script"
-            />
+            Hello Main Thread Script
           </text>
         </view>
       </page>
     `);
-    fireEvent.tap(container.children[0], {
+    fireEvent.tap(container.firstChild, {
       key: 'value',
     });
     expect(globalThis.cb).toBeCalledTimes(1);
@@ -211,39 +177,15 @@ describe('worklet', () => {
       ]
     `);
     expect(container).toMatchInlineSnapshot(`
-      <page
-        cssId="__Card__:0"
-      >
-        <view
-          event={
-            {
-              "bindEvent:tap": {
-                "type": "worklet",
-                "value": {
-                  "_c": {
-                    "props": {
-                      "main-thread:onClick": {
-                        "_wkltId": "15ab:test:3",
-                      },
-                    },
-                  },
-                  "_execId": 1,
-                  "_wkltId": "15ab:test:4",
-                  "_workletType": "main-thread",
-                },
-              },
-            }
-          }
-        >
+      <page>
+        <view>
           <text>
-            <raw-text
-              text="Hello Main Thread Script"
-            />
+            Hello Main Thread Script
           </text>
         </view>
       </page>
     `);
-    fireEvent.tap(container.children[0], {
+    fireEvent.tap(container.firstChild, {
       key: 'value',
     });
     expect(globalThis.cb).toBeCalledTimes(1);
@@ -252,6 +194,8 @@ describe('worklet', () => {
         [
           {
             "eventName": "tap",
+            "eventType": "bindEvent",
+            "isTrusted": false,
             "key": "value",
           },
         ],
@@ -295,30 +239,8 @@ describe('worklet', () => {
     );
 
     expect(container).toMatchInlineSnapshot(`
-      <page
-        cssId="__Card__:0"
-      >
-        <view
-          event={
-            {
-              "bindEvent:scroll": {
-                "type": "worklet",
-                "value": {
-                  "_c": {
-                    "props": {
-                      "main-thread:onScroll": {
-                        "_wkltId": "15ab:test:5",
-                      },
-                    },
-                  },
-                  "_execId": 1,
-                  "_wkltId": "15ab:test:6",
-                  "_workletType": "main-thread",
-                },
-              },
-            }
-          }
-        />
+      <page>
+        <view />
       </page>
     `);
 
@@ -435,32 +357,10 @@ describe('worklet', () => {
       ]
     `);
     expect(container).toMatchInlineSnapshot(`
-      <page
-        cssId="__Card__:0"
-      >
-        <view
-          event={
-            {
-              "bindEvent:tap": {
-                "type": "worklet",
-                "value": {
-                  "_execId": 1,
-                  "_jsFn": {
-                    "_jsFn1": {
-                      "_jsFnId": 2,
-                    },
-                  },
-                  "_wkltId": "15ab:test:8",
-                  "_workletType": "main-thread",
-                },
-              },
-            }
-          }
-        >
+      <page>
+        <view>
           <text>
-            <raw-text
-              text="Hello Main Thread Script"
-            />
+            Hello Main Thread Script
           </text>
         </view>
       </page>
@@ -521,37 +421,12 @@ describe('worklet', () => {
     });
 
     expect(container).toMatchInlineSnapshot(`
-      <page
-        cssId="__Card__:0"
-      >
+      <page>
         <view
-          event={
-            {
-              "bindEvent:tap": {
-                "type": "worklet",
-                "value": {
-                  "_c": {
-                    "num": {
-                      "_wvid": 2,
-                    },
-                    "ref": {
-                      "_wvid": 1,
-                    },
-                  },
-                  "_execId": 1,
-                  "_wkltId": "15ab:test:9",
-                  "_workletType": "main-thread",
-                },
-              },
-            }
-          }
-          has-react-ref={true}
-          style="width:300px;height:300px"
+          style="width: 300px; height: 300px;"
         >
           <text>
-            <raw-text
-              text="Hello main thread ref"
-            />
+            Hello main thread ref
           </text>
         </view>
       </page>

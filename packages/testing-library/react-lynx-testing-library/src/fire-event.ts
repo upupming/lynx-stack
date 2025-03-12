@@ -23,7 +23,7 @@ function getElement(elemOrNodesRef) {
     return __GetElementByUniqueId(
       Number(elemOrNodesRef._nodeSelectToken.identifier),
     );
-  } else if (elemOrNodesRef?.constructor?.name === 'LynxFiberElement') {
+  } else if (elemOrNodesRef?.constructor?.name === 'HTMLUnknownElement') {
     return elemOrNodesRef;
   } else {
     throw new Error(

@@ -1,4 +1,4 @@
-import '@lynx-js/lynx-dom-jest-matchers';
+import '@testing-library/jest-dom';
 import { vi } from 'vitest';
 import { test } from 'vitest';
 import { render, fireEvent } from '..';
@@ -17,9 +17,7 @@ test('render calls useEffect immediately', async () => {
   }
   const { container } = render(<Comp />);
   expect(container).toMatchInlineSnapshot(`
-    <page
-      cssId="__Card__:0"
-    >
+    <page>
       <view />
     </page>
   `);
@@ -46,9 +44,7 @@ test('render calls componentDidMount immediately', async () => {
   }
   const { container } = render(<Comp />);
   expect(container).toMatchInlineSnapshot(`
-    <page
-      cssId="__Card__:0"
-    >
+    <page>
       <view />
     </page>
   `);
@@ -76,38 +72,22 @@ test('findByTestId returns the element', async () => {
   const { container, findByTestId } = render(<Comp />);
 
   expect(container).toMatchInlineSnapshot(`
-    <page
-      cssId="__Card__:0"
-    >
+    <page>
       <view
-        dataset={
-          {
-            "testid": "foo",
-          }
-        }
-        has-react-ref={true}
+        data-testid="foo"
       >
         <text>
-          <raw-text
-            text="Hello world!"
-          />
+          Hello world!
         </text>
       </view>
     </page>
   `);
   expect(await findByTestId('foo')).toMatchInlineSnapshot(`
     <view
-      dataset={
-        {
-          "testid": "foo",
-        }
-      }
-      has-react-ref={true}
+      data-testid="foo"
     >
       <text>
-        <raw-text
-          text="Hello world!"
-        />
+        Hello world!
       </text>
     </view>
   `);
@@ -146,34 +126,16 @@ test('fireEvent triggers useEffect calls', async () => {
   }
   const { container } = render(<Counter />);
   expect(container).toMatchInlineSnapshot(`
-    <page
-      cssId="__Card__:0"
-    >
-      <text
-        event={
-          {
-            "bindEvent:tap": "2:0:",
-          }
-        }
-      >
-        <raw-text
-          text={0}
-        />
+    <page>
+      <text>
+        0
       </text>
     </page>
   `);
-  const buttonNode = container.children[0];
+  const buttonNode = container.firstChild;
   expect(buttonNode).toMatchInlineSnapshot(`
-    <text
-      event={
-        {
-          "bindEvent:tap": "2:0:",
-        }
-      }
-    >
-      <raw-text
-        text={0}
-      />
+    <text>
+      0
     </text>
   `);
   expect(callLepusMethodCalls).toMatchInlineSnapshot(`
@@ -249,8 +211,10 @@ test('fireEvent triggers useEffect calls', async () => {
   expect(onTap.mock.calls).toMatchInlineSnapshot(`
     [
       [
-        {
+        Event {
           "eventName": "tap",
+          "eventType": "bindEvent",
+          "isTrusted": false,
         },
       ],
     ]

@@ -1,5 +1,5 @@
 import { Config, ConfigFn } from '../types/config';
-// import {prettyDOM} from './pretty-dom'
+import { prettyDOM } from './pretty-dom';
 
 type Callback<T> = () => T;
 interface InternalConfig extends Config {
@@ -34,8 +34,7 @@ let config: InternalConfig = {
 
   // called when getBy* queries fail. (message, container) => Error
   getElementError(message, container) {
-    // @ts-ignore
-    const prettifiedDOM = container.toJSON();
+    const prettifiedDOM = prettyDOM(container);
     const error = new Error(
       [
         message,

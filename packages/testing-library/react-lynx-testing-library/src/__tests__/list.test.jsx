@@ -22,36 +22,8 @@ describe('list', () => {
     const { container } = render(<Comp />);
     expect(__pendingListUpdates.values).toMatchInlineSnapshot(`{}`);
     expect(container).toMatchInlineSnapshot(`
-      <page
-        cssId="__Card__:0"
-      >
-        <list
-          update-list-info={
-            [
-              {
-                "insertAction": [
-                  {
-                    "item-key": 0,
-                    "position": 0,
-                    "type": "__Card__:__snapshot_d0c07_test_2",
-                  },
-                  {
-                    "item-key": 1,
-                    "position": 1,
-                    "type": "__Card__:__snapshot_d0c07_test_2",
-                  },
-                  {
-                    "item-key": 2,
-                    "position": 2,
-                    "type": "__Card__:__snapshot_d0c07_test_2",
-                  },
-                ],
-                "removeAction": [],
-                "updateAction": [],
-              },
-            ]
-          }
-        />
+      <page>
+        <list />
       </page>
     `);
     const list = container.children[0];
@@ -76,43 +48,11 @@ describe('list', () => {
       }
     `);
     expect(container).toMatchInlineSnapshot(`
-      <page
-        cssId="__Card__:0"
-      >
-        <list
-          update-list-info={
-            [
-              {
-                "insertAction": [
-                  {
-                    "item-key": 0,
-                    "position": 0,
-                    "type": "__Card__:__snapshot_d0c07_test_2",
-                  },
-                  {
-                    "item-key": 1,
-                    "position": 1,
-                    "type": "__Card__:__snapshot_d0c07_test_2",
-                  },
-                  {
-                    "item-key": 2,
-                    "position": 2,
-                    "type": "__Card__:__snapshot_d0c07_test_2",
-                  },
-                ],
-                "removeAction": [],
-                "updateAction": [],
-              },
-            ]
-          }
-        >
-          <list-item
-            item-key={0}
-          >
+      <page>
+        <list>
+          <list-item>
             <text>
-              <raw-text
-                text={0}
-              />
+              0
             </text>
           </list-item>
         </list>
@@ -146,52 +86,16 @@ describe('list', () => {
       }
     `);
     expect(container).toMatchInlineSnapshot(`
-      <page
-        cssId="__Card__:0"
-      >
-        <list
-          update-list-info={
-            [
-              {
-                "insertAction": [
-                  {
-                    "item-key": 0,
-                    "position": 0,
-                    "type": "__Card__:__snapshot_d0c07_test_2",
-                  },
-                  {
-                    "item-key": 1,
-                    "position": 1,
-                    "type": "__Card__:__snapshot_d0c07_test_2",
-                  },
-                  {
-                    "item-key": 2,
-                    "position": 2,
-                    "type": "__Card__:__snapshot_d0c07_test_2",
-                  },
-                ],
-                "removeAction": [],
-                "updateAction": [],
-              },
-            ]
-          }
-        >
-          <list-item
-            item-key={0}
-          >
+      <page>
+        <list>
+          <list-item>
             <text>
-              <raw-text
-                text={0}
-              />
+              0
             </text>
           </list-item>
-          <list-item
-            item-key={1}
-          >
+          <list-item>
             <text>
-              <raw-text
-                text={1}
-              />
+              1
             </text>
           </list-item>
         </list>
@@ -227,52 +131,16 @@ describe('list', () => {
       }
     `);
     expect(container).toMatchInlineSnapshot(`
-      <page
-        cssId="__Card__:0"
-      >
-        <list
-          update-list-info={
-            [
-              {
-                "insertAction": [
-                  {
-                    "item-key": 0,
-                    "position": 0,
-                    "type": "__Card__:__snapshot_d0c07_test_2",
-                  },
-                  {
-                    "item-key": 1,
-                    "position": 1,
-                    "type": "__Card__:__snapshot_d0c07_test_2",
-                  },
-                  {
-                    "item-key": 2,
-                    "position": 2,
-                    "type": "__Card__:__snapshot_d0c07_test_2",
-                  },
-                ],
-                "removeAction": [],
-                "updateAction": [],
-              },
-            ]
-          }
-        >
-          <list-item
-            item-key={0}
-          >
+      <page>
+        <list>
+          <list-item>
             <text>
-              <raw-text
-                text={0}
-              />
+              0
             </text>
           </list-item>
-          <list-item
-            item-key={1}
-          >
+          <list-item>
             <text>
-              <raw-text
-                text={1}
-              />
+              1
             </text>
           </list-item>
         </list>
@@ -315,52 +183,16 @@ describe('list', () => {
     `,
     );
     expect(container).toMatchInlineSnapshot(`
-      <page
-        cssId="__Card__:0"
-      >
-        <list
-          update-list-info={
-            [
-              {
-                "insertAction": [
-                  {
-                    "item-key": 0,
-                    "position": 0,
-                    "type": "__Card__:__snapshot_d0c07_test_2",
-                  },
-                  {
-                    "item-key": 1,
-                    "position": 1,
-                    "type": "__Card__:__snapshot_d0c07_test_2",
-                  },
-                  {
-                    "item-key": 2,
-                    "position": 2,
-                    "type": "__Card__:__snapshot_d0c07_test_2",
-                  },
-                ],
-                "removeAction": [],
-                "updateAction": [],
-              },
-            ]
-          }
-        >
-          <list-item
-            item-key={2}
-          >
+      <page>
+        <list>
+          <list-item>
             <text>
-              <raw-text
-                text={2}
-              />
+              2
             </text>
           </list-item>
-          <list-item
-            item-key={1}
-          >
+          <list-item>
             <text>
-              <raw-text
-                text={1}
-              />
+              1
             </text>
           </list-item>
         </list>

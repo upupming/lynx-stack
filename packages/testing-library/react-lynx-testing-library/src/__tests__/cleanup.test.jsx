@@ -9,13 +9,11 @@ test('clean up the document', () => {
   class Test extends Component {
     componentWillUnmount() {
       expect(elementTree).toMatchInlineSnapshot(`
-        "<page
-          cssId="__Card__:0"
-        >
+        <page>
           <view
             id="my-view"
           />
-        </page>"
+        </page>
       `);
       spy();
     }
@@ -26,6 +24,6 @@ test('clean up the document', () => {
 
   render(<Test />);
   cleanup();
-  expect(elementTree).toMatchInlineSnapshot(`"undefined"`);
+  expect(elementTree).toMatchInlineSnapshot(`undefined`);
   expect(spy).toHaveBeenCalledTimes(1);
 });

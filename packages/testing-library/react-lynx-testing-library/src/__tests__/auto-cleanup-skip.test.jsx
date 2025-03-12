@@ -14,13 +14,9 @@ test('first', () => {
 
 test('second', () => {
   expect(elementTree.root).toMatchInlineSnapshot(`
-    <page
-      cssId="__Card__:0"
-    >
+    <page>
       <text>
-        <raw-text
-          text="hi"
-        />
+        hi
       </text>
     </page>
   `);

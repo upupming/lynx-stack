@@ -46,10 +46,19 @@ function createEvent(
     });
   }
   Object.assign(node, targetProperties);
-  const event = {
-    eventName,
-    ...(eventInit || {}),
-  };
+  const eventType = eventInit['eventType'] || 'bindEvent';
+  const event = new Event(
+    `${eventType}:${eventName}`,
+  );
+  Object.assign(
+    event,
+    {
+      eventType,
+      eventName,
+      ...(eventInit || {}),
+    },
+  );
+
   return event;
 }
 
