@@ -7,7 +7,6 @@ Unit testing library for lynx, same as https://github.com/testing-library.
 | Package                             | Description                              | Equivalent                                                                           |
 | ----------------------------------- | ---------------------------------------- | ------------------------------------------------------------------------------------ |
 | @lynx-js/lynx-dom                   | Lynx equivalent of jsdom                 | [jsdom](https://github.com/jsdom/jsdom)                                              |
-| @lynx-js/lynx-dom-jest-matchers     | Lynx equivalent of jest-dom              | [jest-dom](https://github.com/testing-library/jest-dom)                              |
 | @lynx-js/lynx-dom-testing-library   | Lynx equivalent of dom-testing-library   | [dom-testing-library](https://github.com/testing-library/dom-testing-library)        |
 | @lynx-js/lynx-react-testing-library | Lynx equivalent of react-testing-library | [@testing-library/preact](https://github.com/testing-library/preact-testing-library) |
 
@@ -85,11 +84,7 @@ expect(getByTestId('wrapper')).toBeInTheDocument();
 
 #### lynx-testing-library
 
-```jsx
-import '@lynx-js/lynx-dom-jest-matchers';
-
-expect(getByTestId('wrapper')).toBeInTheDocument();
-```
+Same as Preact Testing Library
 
 ### Fire event
 
