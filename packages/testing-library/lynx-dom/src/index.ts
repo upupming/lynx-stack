@@ -27,8 +27,6 @@ declare global {
   function onSwitchedToMainThread(): void;
   function onResetLynxEnv(): void;
   function onInitWorkletRuntime(): void;
-
-  var global: ElementTreeGlobals & typeof globalThis;
 }
 
 export function __injectElementApi(target?: any) {

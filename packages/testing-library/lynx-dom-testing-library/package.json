@@ -36,12 +36,12 @@
     "chalk": "^4.1.0",
     "dom-accessibility-api": "^0.5.9",
     "lz-string": "^1.5.0",
-    "pretty-format": "^27.0.2",
+    "pretty-format": "^29.7.0",
     "vitest": "^3.0.8"
   },
   "devDependencies": {
     "@lynx-js/lynx-dom": "workspace:*",
-    "@rslib/core": "^0.3.1"
+    "@rslib/core": "^0.5.4"
   },
   "engines": {
     "node": ">=18"
