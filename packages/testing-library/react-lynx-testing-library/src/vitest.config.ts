@@ -17,14 +17,15 @@ export interface CreateVitestConfigOptions {
 
 export const createVitestConfig = (options?: CreateVitestConfigOptions) => {
   const utils = {
-    require: typeof require === 'undefined'
-      ? createRequire(import.meta.url)
-      : require,
+    require:
+      (typeof require === 'undefined' || typeof require.resolve === 'undefined')
+        ? createRequire(import.meta.url)
+        : require,
     __filename: typeof __filename === 'undefined'
       ? fileURLToPath(import.meta.url)
       : __filename,
     __dirname: typeof __dirname === 'undefined'
-      ? path.dirname(fileURLToPath(import.meta.url))
+      ? path.posix.dirname(fileURLToPath(import.meta.url))
       : __dirname,
   };
 
@@ -32,7 +33,7 @@ export const createVitestConfig = (options?: CreateVitestConfigOptions) => {
   const runtimeOSSPkgName = '@lynx-js/react';
   let runtimeDir = null;
   try {
-    runtimeDir = path.dirname(
+    runtimeDir = path.posix.dirname(
       utils.require.resolve(`${runtimePkgName}/package.json`, {
         paths: [process.cwd()],
       }),
@@ -43,7 +44,7 @@ export const createVitestConfig = (options?: CreateVitestConfigOptions) => {
 
   let runtimeOSSDir = null;
   try {
-    runtimeOSSDir = path.dirname(
+    runtimeOSSDir = path.posix.dirname(
       utils.require.resolve(`${runtimeOSSPkgName}/package.json`, {
         paths: [process.cwd(), runtimeDir].filter(Boolean) as string[],
       }),
@@ -59,7 +60,7 @@ export const createVitestConfig = (options?: CreateVitestConfigOptions) => {
     console.log('runtimeOSSDir', runtimeOSSDir);
   }
   const runtimeOSSExports =
-    utils.require(path.join(runtimeOSSDir, 'package.json')).exports;
+    utils.require(path.posix.join(runtimeOSSDir, 'package.json')).exports;
   const runtimeOSSAlias = [];
   const resolve = resolver.create.sync({
     conditionNames: [
@@ -82,7 +83,7 @@ export const createVitestConfig = (options?: CreateVitestConfigOptions) => {
     // No `$` sign, make sure all relative path imports work
     // such as `import { SnapshotInstance } from '@lynx-js/react/runtime/lib/snapshot.js'`
     find: new RegExp('^' + runtimeOSSPkgName + '/'),
-    replacement: path.join(
+    replacement: path.posix.join(
       runtimeOSSDir,
     ) + '/',
   });
@@ -91,16 +92,16 @@ export const createVitestConfig = (options?: CreateVitestConfigOptions) => {
   }
 
   const preactPkgName = 'preact';
-  const preactDir = path.dirname(
+  const preactDir = path.posix.dirname(
     resolve(
       runtimeOSSDir,
       `${preactPkgName}/package.json`,
     ) as string,
   );
   const preactExports =
-    utils.require(path.join(preactDir, 'package.json')).exports;
+    utils.require(path.posix.join(preactDir, 'package.json')).exports;
   const preactAlias = Object.keys(preactExports).map((entry) => {
-    const name = path.join('preact', entry);
+    const name = path.posix.join('preact', entry);
     return ({
       find: new RegExp(name + '$'),
       replacement: resolve(
@@ -132,11 +133,11 @@ export const createVitestConfig = (options?: CreateVitestConfigOptions) => {
           '@lynx-js/react/transform',
         );
         // relativePath should be stable between different runs with different cwd
-        const relativePath = path.relative(
+        const relativePath = path.posix.relative(
           utils.__dirname,
           sourcePath,
         );
-        const basename = path.basename(sourcePath);
+        const basename = path.posix.basename(sourcePath);
         const result = transformReactLynxSync(sourceText, {
           mode: 'test',
           pluginName: '',
@@ -180,7 +181,7 @@ export const createVitestConfig = (options?: CreateVitestConfigOptions) => {
     server: {
       fs: {
         allow: [
-          path.join(utils.__dirname, '..'),
+          path.posix.join(utils.__dirname, '..'),
         ],
       },
     },
@@ -198,11 +199,11 @@ export const createVitestConfig = (options?: CreateVitestConfigOptions) => {
       // builtin environment:
       // environment: "jsdom",
       // custom environment:
-      environment: path.join(utils.__dirname, 'vitest-environment-lynxdom'),
+      environment: utils.require.resolve('@lynx-js/lynx-dom/env/vitest'),
       // setupFiles: "src/__tests__/setup.ts",
       globals: true,
 
-      setupFiles: [path.join(utils.__dirname, 'vitest-global-setup')],
+      setupFiles: [path.posix.join(utils.__dirname, 'vitest-global-setup')],
     },
   });
 };

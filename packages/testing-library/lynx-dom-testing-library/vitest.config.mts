@@ -1,6 +1,7 @@
+import { createRequire } from 'module';
 import { defineConfig } from 'vitest/config';
-import path from 'path';
 
+const require = createRequire(import.meta.url)
 export default defineConfig({
   test: {
     globals: true,
