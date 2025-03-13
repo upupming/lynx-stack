@@ -14,6 +14,7 @@ import { globalRefsToSet, updateBackgroundRefs } from '../snapshot/ref.js';
 import { backgroundSnapshotInstanceManager } from '../snapshot.js';
 import { destroyWorklet } from '../worklet/destroy.js';
 import { runWithForce } from './runWithForce.js';
+export { runWithForce };
 
 function injectTt(): void {
   // @ts-ignore

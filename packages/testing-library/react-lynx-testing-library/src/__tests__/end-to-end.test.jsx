@@ -65,7 +65,7 @@ test('state change will cause re-render', async () => {
           {
             "children": undefined,
             "id": 2,
-            "type": "__Card__:__snapshot_f46c5_test_1",
+            "type": "__Card__:__snapshot_d8f87_test_1",
             "values": undefined,
           },
         ],
@@ -76,7 +76,7 @@ test('state change will cause re-render', async () => {
       2 => {
         "children": undefined,
         "id": 2,
-        "type": "__Card__:__snapshot_f46c5_test_1",
+        "type": "__Card__:__snapshot_d8f87_test_1",
         "values": undefined,
       },
     }
@@ -97,7 +97,7 @@ test('state change will cause re-render', async () => {
       [
         "rLynxChange",
         {
-          "data": "{"snapshotPatch":[0,"__Card__:__snapshot_f46c5_test_1",2,1,-1,2,null]}",
+          "data": "{"snapshotPatch":[0,"__Card__:__snapshot_d8f87_test_1",2,1,-1,2,null]}",
           "patchOptions": {
             "commitTaskId": 2,
             "isHydration": true,
@@ -113,7 +113,7 @@ test('state change will cause re-render', async () => {
       [
         "rLynxChange",
         {
-          "data": "{"snapshotPatch":[2,-1,2,0,"__Card__:__snapshot_f46c5_test_2",3,0,null,4,3,4,0,"Hello World",1,3,4,null,1,-1,3,null]}",
+          "data": "{"snapshotPatch":[2,-1,2,0,"__Card__:__snapshot_d8f87_test_2",3,0,null,4,3,4,0,"Hello World",1,3,4,null,1,-1,3,null]}",
           "patchOptions": {
             "commitTaskId": 3,
             "pipelineOptions": {

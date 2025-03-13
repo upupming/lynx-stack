@@ -131,8 +131,9 @@ export const createVitestConfig = (options?: CreateVitestConfigOptions) => {
         const { transformReactLynxSync } = utils.require(
           '@lynx-js/react/transform',
         );
+        // relativePath should be stable between different runs with different cwd
         const relativePath = path.relative(
-          process.cwd(),
+          utils.__dirname,
           sourcePath,
         );
         const basename = path.basename(sourcePath);

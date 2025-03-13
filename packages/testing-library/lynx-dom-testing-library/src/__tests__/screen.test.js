@@ -6,19 +6,17 @@ test('exposes queries that are attached to elementTree', async () => {
   lynxDOM.switchToMainThread();
 
   const page = __CreatePage('0', 0);
-  expect(elementTree).toMatchInlineSnapshot(`"<page />"`);
+  expect(elementTree).toMatchInlineSnapshot(`<page />`);
   const text0 = __CreateText(0);
   const rawText0 = __CreateRawText('hello world', text0.$$uiSign);
   __AppendElement(text0, rawText0);
   __AppendElement(page, text0);
   expect(elementTree).toMatchInlineSnapshot(`
-    "<page>
+    <page>
       <text>
-        <raw-text
-          text="hello world"
-        />
+        hello world
       </text>
-    </page>"
+    </page>
   `);
   const screen = getScreen();
   screen.getByText(/hello world/i);

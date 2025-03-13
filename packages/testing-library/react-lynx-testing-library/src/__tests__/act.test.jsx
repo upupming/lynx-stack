@@ -143,7 +143,7 @@ test('fireEvent triggers useEffect calls', async () => {
       [
         "rLynxChange",
         {
-          "data": "{"snapshotPatch":[0,"__Card__:__snapshot_268b9_test_4",2,0,null,3,4,3,[0],1,2,3,null,4,2,[1],1,-1,2,null]}",
+          "data": "{"snapshotPatch":[0,"__Card__:__snapshot_b458b_test_4",2,0,null,3,4,3,[0],1,2,3,null,4,2,[1],1,-1,2,null]}",
           "patchOptions": {
             "commitTaskId": 11,
             "isHydration": true,
@@ -165,7 +165,7 @@ test('fireEvent triggers useEffect calls', async () => {
       [
         "rLynxChange",
         {
-          "data": "{"snapshotPatch":[0,"__Card__:__snapshot_268b9_test_4",2,0,null,3,4,3,[0],1,2,3,null,4,2,[1],1,-1,2,null]}",
+          "data": "{"snapshotPatch":[0,"__Card__:__snapshot_b458b_test_4",2,0,null,3,4,3,[0],1,2,3,null,4,2,[1],1,-1,2,null]}",
           "patchOptions": {
             "commitTaskId": 11,
             "isHydration": true,

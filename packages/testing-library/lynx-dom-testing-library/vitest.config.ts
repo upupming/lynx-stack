@@ -7,6 +7,8 @@ export default defineConfig({
     environment: require.resolve('@lynx-js/lynx-dom/env/vitest'),
     exclude: [
       'types/__tests__/**',
+      'dist/**',
+      'node_modules/**',
     ],
   },
 });
