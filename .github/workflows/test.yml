@@ -95,6 +95,30 @@ jobs:
         vitest.config.ts
         packages/webpack/**
         .github/workflows/**
+  test-testing-library:
+    needs: build
+    uses: ./.github/workflows/workflow-test.yml
+    secrets: inherit
+    with:
+      runs-on: lynx-ubuntu-24.04-medium
+      run: >
+        pnpm run test
+        --project 'testing-library/*'
+        --test-timeout=50000
+        --reporter=github-actions
+        --reporter=dot
+        --reporter=junit
+        --outputFile=test-report.junit.xml
+        --coverage
+        --no-cache
+        --logHeapUsage
+        --silent
+      files: |
+        package.json
+        pnpm-lock.yaml
+        vitest.config.ts
+        packages/testing-library/**
+        .github/workflows/**
   playwright-linux:
     needs: build
     uses: ./.github/workflows/workflow-test.yml
