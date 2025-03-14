@@ -6,7 +6,7 @@ import { LifecycleConstant, NativeUpdateDataType } from '../lifecycleConstant.js
 import { PerformanceTimingKeys, beginPipeline, markTiming } from './performance.js';
 import { BackgroundSnapshotInstance, hydrate } from '../backgroundSnapshot.js';
 import { destroyBackground } from '../lifecycle/destroy.js';
-import { commitPatchUpdate, genCommitTaskId, globalCommitTaskMap } from '../lifecycle/patch/patchUpdate.js';
+import { commitPatchUpdate, genCommitTaskId, globalCommitTaskMap } from '../lifecycle/patch/commit.js';
 import { reloadBackground } from '../lifecycle/reload.js';
 import { CHILDREN } from '../renderToOpcodes/constants.js';
 import { __root } from '../root.js';
