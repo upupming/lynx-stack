@@ -124,13 +124,8 @@ test('calling `fireEvent` directly works too', () => {
     return <text catchtap={handler} />;
   };
 
-  const { container } = render(<Comp />);
+  const { container: { firstChild: button } } = render(<Comp />);
 
-  expect(container).toMatchInlineSnapshot(`
-    <page>
-      <text />
-    </page>
-  `);
   expect(handler).toHaveBeenCalledTimes(0);
   const event = new Event('catchEvent:tap');
   Object.assign(
@@ -141,19 +136,19 @@ test('calling `fireEvent` directly works too', () => {
       key: 'value',
     },
   );
-  const button = container.children[0];
   // Use fireEvent directly
   expect(fireEvent(button, event)).toBe(true);
 
   expect(handler).toHaveBeenCalledTimes(1);
+  expect(handler).toHaveBeenCalledWith(event);
   expect(handler.mock.calls[0][0]).toMatchInlineSnapshot(`
-    Event {
-      "eventName": "tap",
-      "eventType": "catchEvent",
-      "isTrusted": false,
-      "key": "value",
-    }
-  `);
+  Event {
+    "eventName": "tap",
+    "eventType": "catchEvent",
+    "isTrusted": false,
+    "key": "value",
+  }
+`);
 
   // Use fireEvent.tap
   fireEvent.tap(button, {
@@ -161,10 +156,10 @@ test('calling `fireEvent` directly works too', () => {
   });
   expect(handler).toHaveBeenCalledTimes(2);
   expect(handler.mock.calls[1][0]).toMatchInlineSnapshot(`
-    Event {
-      "eventName": "tap",
-      "eventType": "catchEvent",
-      "isTrusted": false,
-    }
-  `);
+  Event {
+    "eventName": "tap",
+    "eventType": "catchEvent",
+    "isTrusted": false,
+  }
+`);
 });

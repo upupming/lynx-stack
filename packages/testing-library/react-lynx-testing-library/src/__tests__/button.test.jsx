@@ -15,6 +15,6 @@ it('basic', async function() {
   const { container } = render(<Button onClick={onClick}>Click me</Button>);
 
   expect(onClick).not.toHaveBeenCalled();
-  fireEvent.tap(container.children[0]);
+  fireEvent.tap(container.firstChild);
   expect(onClick).toBeCalledTimes(1);
 });

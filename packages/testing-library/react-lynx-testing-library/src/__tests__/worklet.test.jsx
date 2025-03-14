@@ -265,7 +265,7 @@ describe('worklet', () => {
       ]
     `);
 
-    const list = container.children[0];
+    const list = container.firstChild;
     fireEvent.scroll(list, {
       info: {
         detail: {
@@ -302,7 +302,7 @@ describe('worklet', () => {
       enableMainThread: true,
       enableBackgroundThread: true,
     });
-    fireEvent.tap(container.children[0], {
+    fireEvent.tap(container.firstChild, {
       key: 'value',
     });
     await waitSchedule();
@@ -365,7 +365,7 @@ describe('worklet', () => {
         </view>
       </page>
     `);
-    fireEvent.tap(container.children[0], {
+    fireEvent.tap(container.firstChild, {
       key: 'value',
     });
     expect(cb).toBeCalledTimes(1);
@@ -466,7 +466,7 @@ describe('worklet', () => {
         ],
       ]
     `);
-    fireEvent.tap(container.children[0], {
+    fireEvent.tap(container.firstChild, {
       key: 'value',
     });
     expect(globalThis.cb).toBeCalledTimes(1);

@@ -28,21 +28,17 @@ test('renders options.wrapper around node', async () => {
   const Comp = () => {
     return <view data-testid='inner' />;
   };
-  const { getByTestId } = render(<Comp />, {
+  const { container, getByTestId } = render(<Comp />, {
     wrapper: WrapperComponent,
   });
-  // TODO: should we use it and polyfill our API
-  // or write our own dom assertion extensions
   expect(getByTestId('wrapper')).toBeInTheDocument();
-  expect(elementTree.root).toMatchInlineSnapshot(`
-    <page>
+  expect(container.firstChild).toMatchInlineSnapshot(`
+    <view
+      data-testid="wrapper"
+    >
       <view
-        data-testid="wrapper"
-      >
-        <view
-          data-testid="inner"
-        />
-      </view>
-    </page>
+        data-testid="inner"
+      />
+    </view>
   `);
 });

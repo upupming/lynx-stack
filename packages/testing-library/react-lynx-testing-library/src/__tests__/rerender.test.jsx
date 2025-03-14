@@ -13,11 +13,11 @@ test('rerender will re-render the element', async () => {
       </text>
     </page>
   `);
-  expect(container.children[0]).toHaveTextContent('hi');
+  expect(container.firstChild).toHaveTextContent('hi');
 
   {
     const { container } = rerender(<Greeting message='hey' />);
-    expect(container.children[0]).toHaveTextContent('hey');
+    expect(container.firstChild).toHaveTextContent('hey');
 
     expect(container).toMatchInlineSnapshot(`
       <page>

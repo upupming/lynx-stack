@@ -26,7 +26,7 @@ describe('list', () => {
         <list />
       </page>
     `);
-    const list = container.children[0];
+    const list = container.firstChild;
     const uid0 = elementTree.triggerComponentAtIndex(list, 0);
     expect(__pendingListUpdates.values).toMatchInlineSnapshot(`
       {
