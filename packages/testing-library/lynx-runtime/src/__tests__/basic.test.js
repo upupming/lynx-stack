@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 beforeEach(() => {
-  lynxDOM.resetLynxEnv();
-  lynxDOM.switchToMainThread();
+  lynxRuntime.resetLynxEnv();
+  lynxRuntime.switchToMainThread();
 });
 
 describe('test', () => {
@@ -137,7 +137,7 @@ describe('test', () => {
       'tap',
       '2:0:bindtap',
     );
-    lynxDOM.switchToBackgroundThread();
+    lynxRuntime.switchToBackgroundThread();
     lynxCoreInject.tt.publishEvent = (eventHandler, data) => {
       expect(eventHandler).toMatchInlineSnapshot(`"2:0:bindtap"`);
       expect(data).toMatchInlineSnapshot(`
@@ -170,7 +170,7 @@ describe('test', () => {
     __AppendElement(text0, rawText0);
     expect(text0).toMatchInlineSnapshot(`
       <text>
-        
+
       </text>
     `);
   });

@@ -3,9 +3,10 @@
 // LICENSE file in the root directory of this source tree.
 import '@testing-library/jest-dom';
 import { expect, test, vi } from 'vitest';
-
-import { getQueriesForElement } from '@testing-library/dom';
-import { render } from '@lynx-js/react-lynx-testing-library';
+import {
+  render,
+  getQueriesForElement,
+} from '@lynx-js/react-lynx-testing-library';
 
 import { App } from '../App.jsx';
 

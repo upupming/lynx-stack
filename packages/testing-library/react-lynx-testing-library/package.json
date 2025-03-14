@@ -37,7 +37,7 @@
     "test:ui": "vitest --ui"
   },
   "dependencies": {
-    "@lynx-js/lynx-dom": "workspace:*",
+    "@lynx-js/lynx-runtime": "workspace:*",
     "@testing-library/dom": "^10.4.0",
     "@vitejs/plugin-react": "4.3.4",
     "enhanced-resolve": "^5.18.1"

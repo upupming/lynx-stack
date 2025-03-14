@@ -1,5 +1,5 @@
 import { queries, Queries, BoundFunction } from '@testing-library/dom';
-import { LynxFiberElement } from '@lynx-js/lynx-dom';
+import { LynxFiberElement } from '@lynx-js/lynx-runtime';
 import { ComponentChild, ComponentType } from 'preact';
 export * from '@testing-library/dom';
 

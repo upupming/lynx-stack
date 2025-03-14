@@ -12,7 +12,7 @@ type PickUnderscoreKeys<T> = Pick<T, FilterUnderscoreKeys<T>>;
 type ElementTreeGlobals = PickUnderscoreKeys<ElementTree>;
 
 declare global {
-  var lynxDOM: LynxDOM;
+  var lynxRuntime: lynxRuntime;
   var elementTree: ElementTree;
   var __JS__: boolean;
   var __LEPUS__: boolean;
@@ -55,11 +55,11 @@ export function __injectElementApi(target?: any) {
   target.__OnLifecycleEvent = (...args: any[]) => {
     const isMainThread = __LEPUS__;
 
-    globalThis.lynxDOM.switchToBackgroundThread();
+    globalThis.lynxRuntime.switchToBackgroundThread();
     globalThis.lynxCoreInject.tt.OnLifecycleEvent(...args);
 
     if (isMainThread) {
-      globalThis.lynxDOM.switchToMainThread();
+      globalThis.lynxRuntime.switchToMainThread();
     }
   };
   target._ReportError = () => {};
@@ -70,16 +70,16 @@ function createPolyfills() {
     callLepusMethod: (...rLynxChange: any[]) => {
       const isBackground = !__LEPUS__;
 
-      globalThis.lynxDOM.switchToMainThread();
+      globalThis.lynxRuntime.switchToMainThread();
       globalThis[rLynxChange[0]](rLynxChange[1]);
 
-      globalThis.lynxDOM.switchToBackgroundThread();
+      globalThis.lynxRuntime.switchToBackgroundThread();
       rLynxChange[2]();
-      globalThis.lynxDOM.switchToMainThread();
+      globalThis.lynxRuntime.switchToMainThread();
 
       // restore the original thread state
       if (isBackground) {
-        globalThis.lynxDOM.switchToBackgroundThread();
+        globalThis.lynxRuntime.switchToBackgroundThread();
       }
     },
     markTiming: () => {},
@@ -119,7 +119,7 @@ function createPolyfills() {
     data,
   }) => {
     const isMainThread = __LEPUS__;
-    lynxDOM.switchToBackgroundThread();
+    lynxRuntime.switchToBackgroundThread();
 
     // Ensure the code is running on the background thread
     ee.emit(type, {
@@ -127,7 +127,7 @@ function createPolyfills() {
     });
 
     if (isMainThread) {
-      lynxDOM.switchToMainThread();
+      lynxRuntime.switchToMainThread();
     }
   };
   // @ts-ignore
@@ -144,7 +144,7 @@ function createPolyfills() {
     options,
   ) {
     const isBackground = !__LEPUS__;
-    globalThis.lynxDOM.switchToMainThread();
+    globalThis.lynxRuntime.switchToMainThread();
 
     if (process.env.DEBUG) {
       console.log('__LoadLepusChunk', chunkName, options);
@@ -158,7 +158,7 @@ function createPolyfills() {
 
     // restore the original thread state
     if (isBackground) {
-      globalThis.lynxDOM.switchToBackgroundThread();
+      globalThis.lynxRuntime.switchToBackgroundThread();
     }
 
     return ans;
@@ -320,7 +320,8 @@ export function injectBackgroundThreadGlobals(target?: any, polyfills?: any) {
 
 export type ThreadType = 'background' | 'main';
 
-export class LynxDOM {
+/** */
+export class LynxRuntime {
   private originals: Map<string, any> = new Map();
   backgroundThread: LynxGlobalThis;
   mainThread: LynxGlobalThis & ElementTreeGlobals;
