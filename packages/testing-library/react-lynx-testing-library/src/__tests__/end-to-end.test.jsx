@@ -1,7 +1,7 @@
 import '@testing-library/jest-dom';
-import { Component, h } from 'preact';
+import { Component } from 'preact';
 import { expect } from 'vitest';
-import { render, getScreen, waitForElementToBeRemoved } from '..';
+import { render, screen, waitForElementToBeRemoved } from '..';
 import { snapshotInstanceManager } from '@lynx-js/react/runtime/lib/snapshot.js';
 
 const fetchAMessage = () =>
@@ -168,7 +168,6 @@ test('it waits for the data to be loaded', async () => {
       </text>
     </page>
   `);
-  const screen = getScreen();
   const loading = () => {
     return screen.getByText('Loading...');
   };

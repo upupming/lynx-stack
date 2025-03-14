@@ -1,6 +1,5 @@
 import { expect, it, vi } from 'vitest';
-import { render } from '../pure';
-import { fireEvent } from '@lynx-js/lynx-dom-testing-library';
+import { render, fireEvent } from '../pure';
 
 it('basic', async function() {
   const Button = ({

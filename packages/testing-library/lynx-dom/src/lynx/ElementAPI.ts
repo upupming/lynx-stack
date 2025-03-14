@@ -3,7 +3,6 @@
 // Licensed under the Apache License Version 2.0 that can be found in the
 // LICENSE file in the root directory of this source tree.
 */
-import { JSDOM } from 'jsdom';
 
 export interface LynxFiberElement extends HTMLElement {
   props: Record<string, any>;
@@ -20,16 +19,15 @@ export const initElementTree = () => {
 
   return new (class ElementTree {
     root: LynxFiberElement | undefined;
-    jsdom = new JSDOM();
     __CreatePage(tag: string, parentComponentUniqueId: number) {
       const page = this.__CreateElement('page', parentComponentUniqueId);
       this.root = page;
-      this.jsdom.window.document.body.appendChild(page);
+      lynxDOM.jsdom.window.document.body.appendChild(page);
       return page;
     }
 
     __CreateRawText(text: string): LynxFiberElement {
-      const element = this.jsdom.window.document.createTextNode(
+      const element = lynxDOM.jsdom.window.document.createTextNode(
         text,
       ) as unknown as LynxFiberElement;
       element.$$uiSign = uiSignNext++;
@@ -54,7 +52,7 @@ export const initElementTree = () => {
         return this.__CreateRawText('');
       }
 
-      const element = this.jsdom.window.document.createElement(
+      const element = lynxDOM.jsdom.window.document.createElement(
         tag,
       ) as LynxFiberElement;
       element.$$uiSign = uiSignNext++;
@@ -377,37 +375,6 @@ export const initElementTree = () => {
     toJSON() {
       return this.toTree();
     }
-
-    // __SendEvent(
-    //   e: LynxFiberElement,
-    //   eventType: string,
-    //   eventName: string,
-    //   data: any,
-    // ) {
-    //   if (process.env.DEBUG) {
-    //     console.log('__SendEvent', e, eventType, eventName, data);
-    //   }
-    //   const eventHandler = e.props?.event?.[`${eventType}:${eventName}`];
-    //   if (eventHandler) {
-    //     // main thread events
-    //     if (
-    //       typeof eventHandler === 'object' && eventHandler.type === 'worklet'
-    //     ) {
-    //       const isBackground = !__LEPUS__;
-    //       globalThis.lynxDOM.switchToMainThread();
-
-    //       // @ts-ignore
-    //       runWorklet(eventHandler.value, [data]);
-
-    //       if (isBackground) {
-    //         globalThis.lynxDOM.switchToBackgroundThread();
-    //       }
-    //     } else {
-    //       // @ts-ignore
-    //       globalThis.lynxCoreInject.tt.publishEvent(eventHandler, data);
-    //     }
-    //   }
-    // }
     __GetElementByUniqueId(uniqueId: number) {
       return uniqueId2Element.get(uniqueId);
     }

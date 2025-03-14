@@ -85,12 +85,7 @@ globalThis.onInjectMainThreadGlobals = (target) => {
     return document;
   }
 
-  target.document = setupDocument({});
-  Object.defineProperty(target.document, 'body', {
-    get: () => {
-      return elementTree.root;
-    },
-  });
+  target._document = setupDocument({});
 
   target.globalPipelineOptions = undefined;
 };
@@ -126,7 +121,7 @@ globalThis.onInjectBackgroundThreadGlobals = (target) => {
     return document;
   }
 
-  target.document = setupBackgroundDocument({});
+  target._document = setupBackgroundDocument({});
   target.globalPipelineOptions = undefined;
 
   // TODO: can we only inject to target(mainThread.globalThis) instead of globalThis?
@@ -165,8 +160,7 @@ globalThis.onSwitchedToMainThread = () => {
   }
 
   setRoot(globalThis.__root);
-
-  options.document = globalThis.document;
+  options.document = globalThis._document;
 };
 globalThis.onSwitchedToBackgroundThread = () => {
   if (onSwitchedToBackgroundThread) {
@@ -177,8 +171,7 @@ globalThis.onSwitchedToBackgroundThread = () => {
   }
 
   setRoot(globalThis.__root);
-
-  options.document = globalThis.document;
+  options.document = globalThis._document;
 };
 
 globalThis.onInjectMainThreadGlobals(globalThis.lynxDOM.mainThread.globalThis);

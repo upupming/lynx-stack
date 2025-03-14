@@ -1,8 +1,8 @@
 import EventEmitter from 'events';
 import { createGlobalThis, LynxGlobalThis } from './lynx/GlobalThis';
-import { initElementTree } from './lynx/nativeMethod';
-import { VirtualConsole } from './lynx/virtual-console';
-export type { LynxFiberElement } from './lynx/nativeMethod';
+import { initElementTree } from './lynx/ElementAPI';
+import { JSDOM } from 'jsdom';
+export type { LynxFiberElement } from './lynx/ElementAPI';
 
 type ElementTree = ReturnType<typeof initElementTree>;
 type FilterUnderscoreKeys<T> = {
@@ -324,17 +324,29 @@ export class LynxDOM {
   private originals: Map<string, any> = new Map();
   backgroundThread: LynxGlobalThis;
   mainThread: LynxGlobalThis & ElementTreeGlobals;
+  jsdom = new JSDOM();
   constructor() {
-    const virtualConsole = console && global.console
-      ? new VirtualConsole().sendTo(global.console)
-      : undefined;
+    this.backgroundThread = createGlobalThis({}) as any;
+    this.mainThread = createGlobalThis({}) as any;
 
-    this.backgroundThread = createGlobalThis({
-      virtualConsole,
-    }) as any;
-    this.mainThread = createGlobalThis({
-      virtualConsole,
-    }) as any;
+    const globalPolyfills = {
+      console: this.jsdom.window.console,
+      // `Event` is required by `fireEvent` in `@testing-library/dom`
+      Event: this.jsdom.window.Event,
+      // `window` is required by `getDocument` in `@testing-library/dom`
+      window: this.jsdom.window,
+      // `document` is required by `screen` in `@testing-library/dom`
+      document: this.jsdom.window.document,
+    };
+
+    Object.assign(
+      this.mainThread.globalThis,
+      globalPolyfills,
+    );
+    Object.assign(
+      this.backgroundThread.globalThis,
+      globalPolyfills,
+    );
 
     this.injectGlobals();
 
@@ -348,11 +360,6 @@ export class LynxDOM {
     const polyfills = createPolyfills();
     injectBackgroundThreadGlobals(this.backgroundThread.globalThis, polyfills);
     injectMainThreadGlobals(this.mainThread.globalThis, polyfills);
-
-    this.mainThread.globalThis.Event =
-      this.mainThread.globalThis.elementTree.jsdom.window.Event;
-    this.backgroundThread.globalThis.Event =
-      this.mainThread.globalThis.elementTree.jsdom.window.Event;
   }
 
   switchToBackgroundThread() {

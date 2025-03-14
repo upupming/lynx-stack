@@ -1,7 +1,8 @@
 import {
   getQueriesForElement,
   configure as configureDTL,
-} from '@lynx-js/lynx-dom-testing-library';
+  queries,
+} from '@testing-library/dom';
 import { h, render as preactRender, createRef } from 'preact';
 import { useEffect } from 'preact/hooks';
 import { cloneElement } from 'preact';
@@ -120,5 +121,22 @@ export function renderHook(renderCallback, options) {
   return { result, rerender, unmount };
 }
 
-export * from '@lynx-js/lynx-dom-testing-library';
+export * from '@testing-library/dom';
 export { fireEvent } from './fire-event';
+
+export const getScreen = () => {
+  const initialValue = {};
+
+  return getQueriesForElement(
+    lynxDOM.mainThread.elementTree.root,
+    queries,
+    initialValue,
+  );
+};
+
+/**
+ * @deprecated use `getScreen` instead
+ *
+ * `screen` depends on global `document`, but in Lynx Environment, `document` will change upon different render
+ */
+// export const screen = null

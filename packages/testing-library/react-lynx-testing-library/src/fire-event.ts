@@ -1,22 +1,4 @@
-import {
-  fireEvent as domFireEvent,
-  createEvent,
-} from '@lynx-js/lynx-dom-testing-library';
-import { options } from 'preact';
-
-let isCompat = false;
-
-//  Detects if preact/compat is used
-const oldHook = options.vnode;
-options.vnode = (vnode) => {
-  if (vnode.$$typeof) isCompat = true;
-  if (oldHook) oldHook(vnode);
-};
-
-//  Renames event to match React (preact/compat) version
-const renameEventCompat = (key) => {
-  return key === 'change' ? 'input' : key;
-};
+import { fireEvent as domFireEvent, createEvent } from '@testing-library/dom';
 
 function getElement(elemOrNodesRef) {
   if (elemOrNodesRef?.constructor?.name === 'NodesRef') {
@@ -51,19 +33,146 @@ export const fireEvent = (elemOrNodesRef, ...args) => {
   return ans;
 };
 
-Object.keys(domFireEvent).forEach((key) => {
-  fireEvent[key] = (elemOrNodesRef, init) => {
+export const eventMap = {
+  // LynxBindCatchEvent Events
+  tap: {
+    defaultInit: {},
+  },
+  longtap: {
+    defaultInit: {},
+  },
+  // LynxEvent Events
+  bgload: {
+    defaultInit: {},
+  },
+  bgerror: {
+    defaultInit: {},
+  },
+  touchstart: {
+    defaultInit: {},
+  },
+  touchmove: {
+    defaultInit: {},
+  },
+  touchcancel: {
+    defaultInit: {},
+  },
+  touchend: {
+    defaultInit: {},
+  },
+  longpress: {
+    defaultInit: {},
+  },
+  transitionstart: {
+    defaultInit: {},
+  },
+  transitioncancel: {
+    defaultInit: {},
+  },
+  transitionend: {
+    defaultInit: {},
+  },
+  animationstart: {
+    defaultInit: {},
+  },
+  animationiteration: {
+    defaultInit: {},
+  },
+  animationcancel: {
+    defaultInit: {},
+  },
+  animationend: {
+    defaultInit: {},
+  },
+  mousedown: {
+    defaultInit: {},
+  },
+  mouseup: {
+    defaultInit: {},
+  },
+  mousemove: {
+    defaultInit: {},
+  },
+  mouseclick: {
+    defaultInit: {},
+  },
+  mousedblclick: {
+    defaultInit: {},
+  },
+  mouselongpress: {
+    defaultInit: {},
+  },
+  wheel: {
+    defaultInit: {},
+  },
+  keydown: {
+    defaultInit: {},
+  },
+  keyup: {
+    defaultInit: {},
+  },
+  focus: {
+    defaultInit: {},
+  },
+  blur: {
+    defaultInit: {},
+  },
+  layoutchange: {
+    defaultInit: {},
+  },
+
+  scrolltoupper: {
+    defaultInit: {},
+  },
+  scrolltolower: {
+    defaultInit: {},
+  },
+  scroll: {
+    defaultInit: {},
+  },
+  scrollend: {
+    defaultInit: {},
+  },
+  contentsizechanged: {
+    defaultInit: {},
+  },
+  scrolltoupperedge: {
+    defaultInit: {},
+  },
+  scrolltoloweredge: {
+    defaultInit: {},
+  },
+  scrolltonormalstate: {
+    defaultInit: {},
+  },
+};
+
+Object.keys(eventMap).forEach((key) => {
+  fireEvent[key] = (elemOrNodesRef, init = {}) => {
     const isMainThread = __LEPUS__;
     // switch to background thread
     lynxDOM.switchToBackgroundThread();
 
-    // Preact changes all change events to input events when running 'preact/compat',
-    // making the event name out of sync.
-    // The problematic code is in: preact/compat/src/render.js > handleDomVNode()
-    const keyFiltered = !isCompat ? key : renameEventCompat(key);
-
     const elem = getElement(elemOrNodesRef);
-    const ans = domFireEvent[keyFiltered](elem, init);
+    const eventType = init?.['eventType'] || 'bindEvent';
+    init = {
+      eventType,
+      eventName: key,
+      ...eventMap[key].defaultInit,
+      ...init,
+    };
+
+    const event = createEvent(
+      `${eventType}:${key}`,
+      elem,
+      init,
+    );
+    Object.assign(event, init);
+    console.log('event', event.type, event);
+    const ans = domFireEvent(
+      elem,
+      event,
+    );
 
     if (isMainThread) {
       // switch back to main thread
