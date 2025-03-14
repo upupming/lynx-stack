@@ -12,7 +12,7 @@ type PickUnderscoreKeys<T> = Pick<T, FilterUnderscoreKeys<T>>;
 type ElementTreeGlobals = PickUnderscoreKeys<ElementTree>;
 
 declare global {
-  var lynxRuntime: lynxRuntime;
+  var lynxRuntime: LynxRuntime;
   var elementTree: ElementTree;
   var __JS__: boolean;
   var __LEPUS__: boolean;

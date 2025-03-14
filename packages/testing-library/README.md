@@ -119,10 +119,15 @@ const Comp = () => {
 
 const { container } = render(<Comp />);
 
-const event = {
-  eventType: 'catchEvent',
-  eventName: 'tap',
-};
+const event = new Event('catchEvent:tap');
+Object.assign(
+  event,
+  {
+    eventType: 'catchEvent',
+    eventName: 'tap',
+    key: 'value',
+  },
+);
 
 const button = container.children[0];
 // Use fireEvent directly
