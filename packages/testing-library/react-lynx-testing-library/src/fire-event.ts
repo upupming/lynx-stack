@@ -168,7 +168,6 @@ Object.keys(eventMap).forEach((key) => {
       init,
     );
     Object.assign(event, init);
-    console.log('event', event.type, event);
     const ans = domFireEvent(
       elem,
       event,

@@ -13,7 +13,6 @@
   },
   "devDependencies": {
     "@lynx-js/lynx-dom": "workspace:*",
-    "@lynx-js/lynx-dom-testing-library": "workspace:*",
     "@lynx-js/react-lynx-testing-library": "workspace:*",
     "@lynx-js/react-rsbuild-plugin": "workspace:*",
     "@lynx-js/rspeedy": "workspace:*",

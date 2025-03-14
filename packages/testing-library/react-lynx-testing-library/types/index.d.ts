@@ -1,11 +1,7 @@
-import {
-  queries,
-  Queries,
-  BoundFunction,
-} from '@lynx-js/lynx-dom-testing-library';
+import { queries, Queries, BoundFunction } from '@testing-library/dom';
 import { LynxFiberElement } from '@lynx-js/lynx-dom';
 import { ComponentChild, ComponentType } from 'preact';
-export * from '@lynx-js/lynx-dom-testing-library';
+export * from '@testing-library/dom';
 
 export interface RenderOptions<Q extends Queries = typeof queries> {
   queries?: Q;
