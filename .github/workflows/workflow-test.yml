@@ -46,13 +46,13 @@ jobs:
           # It doesn't support corepack
           # See: https://github.com/actions/setup-node/issues/480
           # See: https://github.com/actions/setup-node/issues/531
-      # - name: TurboCache
-      #   uses: actions/cache@v4
-      #   if: steps.changed-files.outputs.any_changed == 'true'
-      #   with:
-      #     path: .turbo
-      #     # We have to be strict here to make sure getting the cache of build-all
-      #     key: turbo-v3-${{ hashFiles('**/packages/**/src/**/*.rs') }}-${{ github.sha }}
+      - name: TurboCache
+        uses: actions/cache@v4
+        if: steps.changed-files.outputs.any_changed == 'true'
+        with:
+          path: .turbo
+          # We have to be strict here to make sure getting the cache of build-all
+          key: turbo-v3-${{ hashFiles('**/packages/**/src/**/*.rs') }}-${{ github.sha }}
       - name: Install
         if: steps.changed-files.outputs.any_changed == 'true'
         run: |
