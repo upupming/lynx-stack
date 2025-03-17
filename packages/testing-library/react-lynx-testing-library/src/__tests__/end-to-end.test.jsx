@@ -89,9 +89,9 @@ test('state change will cause re-render', async () => {
   const isBackground = !__LEPUS__;
 
   const callLepusMethod =
-    lynxRuntime.backgroundThread.lynx.getNativeApp().callLepusMethod;
+    lynxEnv.backgroundThread.lynx.getNativeApp().callLepusMethod;
   // callLepusMethodCalls such as rLynxChange
-  globalThis.lynxRuntime.switchToMainThread();
+  globalThis.lynxEnv.switchToMainThread();
   expect(callLepusMethod.mock.calls).toMatchInlineSnapshot(`
     [
       [
@@ -130,7 +130,7 @@ test('state change will cause re-render', async () => {
 
   // restore the original thread state
   if (isBackground) {
-    globalThis.lynxRuntime.switchToBackgroundThread();
+    globalThis.lynxEnv.switchToBackgroundThread();
   }
 
   expect(elementTree.root).toMatchInlineSnapshot(`

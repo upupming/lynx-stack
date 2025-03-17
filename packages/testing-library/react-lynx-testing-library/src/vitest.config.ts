@@ -199,7 +199,9 @@ export const createVitestConfig = (options?: CreateVitestConfigOptions) => {
       // builtin environment:
       // environment: "jsdom",
       // custom environment:
-      environment: utils.require.resolve('@lynx-js/lynx-runtime/env/vitest'),
+      environment: utils.require.resolve(
+        '@lynx-js/lynx-environment/env/vitest',
+      ),
       // setupFiles: "src/__tests__/setup.ts",
       globals: true,
 

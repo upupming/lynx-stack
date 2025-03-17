@@ -1,5 +1,5 @@
 {
-  "name": "@lynx-js/lynx-runtime",
+  "name": "@lynx-js/lynx-environment",
   "version": "0.0.0",
   "exports": {
     ".": {

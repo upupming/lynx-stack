@@ -6,7 +6,7 @@ Unit testing library for lynx, same as https://github.com/testing-library.
 
 | Package                             | Description                              | Equivalent                                                                           |
 | ----------------------------------- | ---------------------------------------- | ------------------------------------------------------------------------------------ |
-| @lynx-js/lynx-runtime               | Lynx equivalent of jsdom                 | [jsdom](https://github.com/jsdom/jsdom)                                              |
+| @lynx-js/lynx-environment           | Lynx equivalent of jsdom                 | [jsdom](https://github.com/jsdom/jsdom)                                              |
 | @lynx-js/lynx-react-testing-library | Lynx equivalent of react-testing-library | [@testing-library/preact](https://github.com/testing-library/preact-testing-library) |
 
 ## Usage Example Compared to Preact Testing Library

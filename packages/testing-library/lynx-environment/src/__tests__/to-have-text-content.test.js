@@ -3,8 +3,8 @@ import { expect, test } from 'vitest';
 
 describe('.toHaveTextContent', () => {
   test('handles positive test cases', () => {
-    lynxRuntime.resetLynxEnv();
-    lynxRuntime.switchToMainThread();
+    lynxEnv.resetLynxEnv();
+    lynxEnv.switchToMainThread();
 
     const page = __CreatePage('0', 0);
     const text0 = __CreateText(0);
@@ -32,8 +32,8 @@ describe('.toHaveTextContent', () => {
   });
 
   test('handles text nodes', () => {
-    lynxRuntime.resetLynxEnv();
-    lynxRuntime.switchToMainThread();
+    lynxEnv.resetLynxEnv();
+    lynxEnv.switchToMainThread();
     const page = __CreatePage('0', 0);
     const text0 = __CreateText(0);
     const rawText0 = __CreateRawText('example', text0.$$uiSign);
@@ -57,8 +57,8 @@ describe('.toHaveTextContent', () => {
   });
 
   test('handles negative test cases', () => {
-    lynxRuntime.resetLynxEnv();
-    lynxRuntime.switchToMainThread();
+    lynxEnv.resetLynxEnv();
+    lynxEnv.switchToMainThread();
     const page = __CreatePage('0', 0);
     const text0 = __CreateText(0);
     const rawText0 = __CreateRawText('2', text0.$$uiSign);
@@ -86,8 +86,8 @@ describe('.toHaveTextContent', () => {
   });
 
   test('normalizes whitespace by default', () => {
-    lynxRuntime.resetLynxEnv();
-    lynxRuntime.switchToMainThread();
+    lynxEnv.resetLynxEnv();
+    lynxEnv.switchToMainThread();
     const page = __CreatePage('0', 0);
     const text0 = __CreateText(0);
     const rawText0 = __CreateRawText('Step 1 of 4', text0.$$uiSign);
@@ -104,8 +104,8 @@ describe('.toHaveTextContent', () => {
   });
 
   test('allows whitespace normalization to be turned off', () => {
-    lynxRuntime.resetLynxEnv();
-    lynxRuntime.switchToMainThread();
+    lynxEnv.resetLynxEnv();
+    lynxEnv.switchToMainThread();
     const page = __CreatePage('0', 0);
     const text0 = __CreateText(0);
     const rawText0 = __CreateRawText('  Step 1 of 4', text0.$$uiSign);
@@ -124,8 +124,8 @@ describe('.toHaveTextContent', () => {
   });
 
   test('can handle multiple levels', () => {
-    lynxRuntime.resetLynxEnv();
-    lynxRuntime.switchToMainThread();
+    lynxEnv.resetLynxEnv();
+    lynxEnv.switchToMainThread();
     const page = __CreatePage('0', 0);
     const text0 = __CreateText(0);
     const rawText0 = __CreateRawText('Step 1 of 4', text0.$$uiSign);
@@ -147,8 +147,8 @@ describe('.toHaveTextContent', () => {
   });
 
   test('can handle multiple levels with content spread across decendants', () => {
-    lynxRuntime.resetLynxEnv();
-    lynxRuntime.switchToMainThread();
+    lynxEnv.resetLynxEnv();
+    lynxEnv.switchToMainThread();
     const page = __CreatePage('0', 0);
     const view = __CreateView(0);
     const text0 = __CreateText(view.$$uiSign);
@@ -195,8 +195,8 @@ describe('.toHaveTextContent', () => {
   });
 
   test('does not throw error with empty content', () => {
-    lynxRuntime.resetLynxEnv();
-    lynxRuntime.switchToMainThread();
+    lynxEnv.resetLynxEnv();
+    lynxEnv.switchToMainThread();
     const page = __CreatePage('0', 0);
     const text0 = __CreateText(0);
     __AppendElement(page, text0);
@@ -209,8 +209,8 @@ describe('.toHaveTextContent', () => {
   });
 
   test('is case-sensitive', () => {
-    lynxRuntime.resetLynxEnv();
-    lynxRuntime.switchToMainThread();
+    lynxEnv.resetLynxEnv();
+    lynxEnv.switchToMainThread();
     const page = __CreatePage('0', 0);
     const text0 = __CreateText(0);
     const rawText0 = __CreateRawText('Sensitive text', text0.$$uiSign);

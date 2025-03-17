@@ -5,6 +5,6 @@ export default defineConfig({
   test: {
     globals: true,
     environment: path.posix.join(__dirname, './src/env/vitest/index.ts'),
-    name: 'testing-library/lynx-runtime',
+    name: 'testing-library/lynx-environment',
   },
 });

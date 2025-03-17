@@ -19,7 +19,7 @@ export const fireEvent = (elemOrNodesRef, ...args) => {
   const isMainThread = __LEPUS__;
 
   // switch to background thread
-  lynxRuntime.switchToBackgroundThread();
+  lynxEnv.switchToBackgroundThread();
 
   const elem = getElement(elemOrNodesRef);
 
@@ -27,7 +27,7 @@ export const fireEvent = (elemOrNodesRef, ...args) => {
 
   if (isMainThread) {
     // switch back to main thread
-    lynxRuntime.switchToMainThread();
+    lynxEnv.switchToMainThread();
   }
 
   return ans;
@@ -151,7 +151,7 @@ Object.keys(eventMap).forEach((key) => {
   fireEvent[key] = (elemOrNodesRef, init = {}) => {
     const isMainThread = __LEPUS__;
     // switch to background thread
-    lynxRuntime.switchToBackgroundThread();
+    lynxEnv.switchToBackgroundThread();
 
     const elem = getElement(elemOrNodesRef);
     const eventType = init?.['eventType'] || 'bindEvent';
@@ -175,7 +175,7 @@ Object.keys(eventMap).forEach((key) => {
 
     if (isMainThread) {
       // switch back to main thread
-      lynxRuntime.switchToMainThread();
+      lynxEnv.switchToMainThread();
     }
 
     return ans;

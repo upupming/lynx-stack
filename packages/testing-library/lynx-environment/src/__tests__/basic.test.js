@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 beforeEach(() => {
-  lynxRuntime.resetLynxEnv();
-  lynxRuntime.switchToMainThread();
+  lynxEnv.resetLynxEnv();
+  lynxEnv.switchToMainThread();
 });
 
 describe('test', () => {
@@ -137,7 +137,7 @@ describe('test', () => {
       'tap',
       '2:0:bindtap',
     );
-    lynxRuntime.switchToBackgroundThread();
+    lynxEnv.switchToBackgroundThread();
     lynxCoreInject.tt.publishEvent = (eventHandler, data) => {
       expect(eventHandler).toMatchInlineSnapshot(`"2:0:bindtap"`);
       expect(data).toMatchInlineSnapshot(`

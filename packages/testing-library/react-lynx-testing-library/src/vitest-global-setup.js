@@ -128,7 +128,7 @@ globalThis.onInjectBackgroundThreadGlobals = (target) => {
 
   // TODO: can we only inject to target(mainThread.globalThis) instead of globalThis?
   // packages/react/runtime/src/lynx.ts
-  // intercept lynxCoreInject assignments to lynxRuntime.backgroundThread.globalThis.lynxCoreInject
+  // intercept lynxCoreInject assignments to lynxEnv.backgroundThread.globalThis.lynxCoreInject
   const oldLynxCoreInject = globalThis.lynxCoreInject;
   globalThis.lynxCoreInject = target.lynxCoreInject;
   injectTt();
@@ -148,9 +148,9 @@ globalThis.onResetLynxEnv = () => {
   flushDelayedLifecycleEvents();
   destroyWorklet();
 
-  lynxRuntime.switchToMainThread();
+  lynxEnv.switchToMainThread();
   initEventListeners();
-  lynxRuntime.switchToBackgroundThread();
+  lynxEnv.switchToBackgroundThread();
 };
 
 globalThis.onSwitchedToMainThread = () => {
@@ -177,8 +177,8 @@ globalThis.onSwitchedToBackgroundThread = () => {
 };
 
 globalThis.onInjectMainThreadGlobals(
-  globalThis.lynxRuntime.mainThread.globalThis,
+  globalThis.lynxEnv.mainThread.globalThis,
 );
 globalThis.onInjectBackgroundThreadGlobals(
-  globalThis.lynxRuntime.backgroundThread.globalThis,
+  globalThis.lynxEnv.backgroundThread.globalThis,
 );

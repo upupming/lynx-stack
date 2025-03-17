@@ -523,9 +523,9 @@ importers:
         specifier: workspace:*
         version: link:../../../react
     devDependencies:
-      '@lynx-js/lynx-runtime':
+      '@lynx-js/lynx-environment':
         specifier: workspace:*
-        version: link:../../lynx-runtime
+        version: link:../../lynx-environment
       '@lynx-js/react-lynx-testing-library':
         specifier: workspace:*
         version: link:../../react-lynx-testing-library
@@ -554,7 +554,7 @@ importers:
         specifier: ^3.0.8
         version: 3.0.8(@types/debug@4.1.12)(@types/node@22.13.5)(@vitest/ui@3.0.8)(jsdom@26.0.0)(sass-embedded@1.85.0)(terser@5.31.6)
 
-  packages/testing-library/lynx-runtime:
+  packages/testing-library/lynx-environment:
     dependencies:
       css-what:
         specifier: ^6.1.0
@@ -590,9 +590,9 @@ importers:
 
   packages/testing-library/react-lynx-testing-library:
     dependencies:
-      '@lynx-js/lynx-runtime':
+      '@lynx-js/lynx-environment':
         specifier: workspace:*
-        version: link:../lynx-runtime
+        version: link:../lynx-environment
       '@testing-library/dom':
         specifier: ^10.4.0
         version: 10.4.0

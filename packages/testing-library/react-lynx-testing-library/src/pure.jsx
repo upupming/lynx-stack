@@ -57,11 +57,11 @@ export function render(
   const compMainThread = cloneElement(comp);
   const compBackgroundThread = cloneElement(comp);
 
-  globalThis.lynxRuntime.switchToMainThread();
+  globalThis.lynxEnv.switchToMainThread();
   __root.__jsx = enableMainThread ? compMainThread : null;
   renderPage();
   if (enableBackgroundThread) {
-    globalThis.lynxRuntime.switchToBackgroundThread();
+    globalThis.lynxEnv.switchToBackgroundThread();
     act(() => {
       preactRender(compBackgroundThread, __root);
       flushDelayedLifecycleEvents();
@@ -69,13 +69,13 @@ export function render(
   }
 
   return {
-    container: lynxRuntime.mainThread.elementTree.root,
+    container: lynxEnv.mainThread.elementTree.root,
     unmount: cleanup,
     rerender: (rerenderUi) => {
-      lynxRuntime.resetLynxEnv();
+      lynxEnv.resetLynxEnv();
       return render(wrapUiIfNeeded(rerenderUi), {});
     },
-    ...getQueriesForElement(lynxRuntime.mainThread.elementTree.root, queries),
+    ...getQueriesForElement(lynxEnv.mainThread.elementTree.root, queries),
   };
 }
 
@@ -83,13 +83,13 @@ export function cleanup() {
   const isMainThread = !__LEPUS__;
 
   // Ensure componentWillUnmount is called
-  globalThis.lynxRuntime.switchToBackgroundThread();
+  globalThis.lynxEnv.switchToBackgroundThread();
   preactRender(null, __root);
 
-  lynxRuntime.mainThread.elementTree.root = undefined;
+  lynxEnv.mainThread.elementTree.root = undefined;
 
   if (isMainThread) {
-    globalThis.lynxRuntime.switchToMainThread();
+    globalThis.lynxEnv.switchToMainThread();
   }
 }
 
@@ -128,7 +128,7 @@ export const getScreen = () => {
   const initialValue = {};
 
   return getQueriesForElement(
-    lynxRuntime.mainThread.elementTree.root,
+    lynxEnv.mainThread.elementTree.root,
     queries,
     initialValue,
   );
