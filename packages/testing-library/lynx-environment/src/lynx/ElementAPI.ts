@@ -4,21 +4,21 @@
 // LICENSE file in the root directory of this source tree.
 */
 
-export interface LynxFiberElement extends HTMLElement {
+export interface LynxElement extends HTMLElement {
   props: Record<string, any>;
   $$uiSign: number;
   parentComponentUniqueId: number;
-  firstChild: LynxFiberElement;
-  nextSibling: LynxFiberElement;
-  parentNode: LynxFiberElement;
+  firstChild: LynxElement;
+  nextSibling: LynxElement;
+  parentNode: LynxElement;
 }
 
 export const initElementTree = () => {
   let uiSignNext = 0;
-  const uniqueId2Element = new Map<number, LynxFiberElement>();
+  const uniqueId2Element = new Map<number, LynxElement>();
 
   return new (class ElementTree {
-    root: LynxFiberElement | undefined;
+    root: LynxElement | undefined;
     __CreatePage(tag: string, parentComponentUniqueId: number) {
       const page = this.__CreateElement('page', parentComponentUniqueId);
       this.root = page;
@@ -26,35 +26,35 @@ export const initElementTree = () => {
       return page;
     }
 
-    __CreateRawText(text: string): LynxFiberElement {
+    __CreateRawText(text: string): LynxElement {
       const element = lynxEnv.jsdom.window.document.createTextNode(
         text,
-      ) as unknown as LynxFiberElement;
+      ) as unknown as LynxElement;
       element.$$uiSign = uiSignNext++;
       uniqueId2Element.set(element.$$uiSign, element);
 
       return element;
     }
 
-    __GetElementUniqueID(e: LynxFiberElement): number {
+    __GetElementUniqueID(e: LynxElement): number {
       return e.$$uiSign;
     }
 
-    __SetClasses(e: LynxFiberElement, cls: string) {
+    __SetClasses(e: LynxElement, cls: string) {
       e.className = cls;
     }
 
     __CreateElement(
       tag: string,
       parentComponentUniqueId: number,
-    ): LynxFiberElement {
+    ): LynxElement {
       if (tag === 'raw-text') {
         return this.__CreateRawText('');
       }
 
       const element = lynxEnv.jsdom.window.document.createElement(
         tag,
-      ) as LynxFiberElement;
+      ) as LynxElement;
       element.$$uiSign = uiSignNext++;
       uniqueId2Element.set(element.$$uiSign, element);
       element.parentComponentUniqueId = parentComponentUniqueId;
@@ -68,7 +68,7 @@ export const initElementTree = () => {
     __CreateScrollView(parentComponentUniqueId: number) {
       return this.__CreateElement('scroll-view', parentComponentUniqueId);
     }
-    __FirstElement(e: LynxFiberElement) {
+    __FirstElement(e: LynxElement) {
       return e.firstChild;
     }
 
@@ -88,12 +88,12 @@ export const initElementTree = () => {
       e.style[key] = value;
     }
 
-    __AppendElement(parent: LynxFiberElement, child: LynxFiberElement) {
+    __AppendElement(parent: LynxElement, child: LynxElement) {
       parent.appendChild(child);
     }
 
     __SetCSSId(
-      e: LynxFiberElement | LynxFiberElement[],
+      e: LynxElement | LynxElement[],
       id: string,
       entryName?: string,
     ) {
@@ -107,7 +107,7 @@ export const initElementTree = () => {
       }
     }
 
-    __SetAttribute(e: LynxFiberElement, key: string, value: any) {
+    __SetAttribute(e: LynxElement, key: string, value: any) {
       if (
         key === 'style'
         || key === 'class'
@@ -141,7 +141,7 @@ export const initElementTree = () => {
     }
 
     __AddEvent(
-      e: LynxFiberElement,
+      e: LynxElement,
       eventType: string,
       eventName: string,
       eventHandler: string | Record<string, any>,
@@ -164,7 +164,7 @@ export const initElementTree = () => {
         if (
           typeof eventHandler === 'object' && eventHandler.type === 'worklet'
         ) {
-          const isBackground = !__LEPUS__;
+          const isBackground = !__MAIN_THREAD__;
           globalThis.lynxEnv.switchToMainThread();
 
           // Use Object.assign to convert evt to plain object to avoid infinite transformWorkletInner
@@ -187,7 +187,7 @@ export const initElementTree = () => {
       );
     }
 
-    __GetEvent(e: LynxFiberElement, eventType: string, eventName: string) {
+    __GetEvent(e: LynxElement, eventType: string, eventName: string) {
       const jsFunction = e.props.event?.[`${eventType}:${eventName}`];
       if (typeof jsFunction !== 'undefined') {
         return {
@@ -198,12 +198,12 @@ export const initElementTree = () => {
       }
     }
 
-    __SetID(e: LynxFiberElement, id: string) {
+    __SetID(e: LynxElement, id: string) {
       e.id = id;
     }
 
     __SetInlineStyles(
-      e: LynxFiberElement,
+      e: LynxElement,
       styles: string | Record<string, string>,
     ) {
       if (typeof styles === 'string') {
@@ -213,16 +213,16 @@ export const initElementTree = () => {
       }
     }
 
-    __AddDataset(e: LynxFiberElement, key: string, value: string) {
+    __AddDataset(e: LynxElement, key: string, value: string) {
       e.dataset[key] = value;
     }
 
-    __SetDataset(e: LynxFiberElement, dataset: any) {
+    __SetDataset(e: LynxElement, dataset: any) {
       Object.assign(e.dataset, dataset);
     }
 
     __SetGestureDetector(
-      e: LynxFiberElement,
+      e: LynxElement,
       id: number,
       type: number,
       config: any,
@@ -236,11 +236,11 @@ export const initElementTree = () => {
       };
     }
 
-    __GetDataset(e: LynxFiberElement) {
+    __GetDataset(e: LynxElement) {
       return e.dataset;
     }
 
-    __RemoveElement(parent: LynxFiberElement, child: LynxFiberElement) {
+    __RemoveElement(parent: LynxElement, child: LynxElement) {
       let ch = parent.firstChild;
       while (ch) {
         if (ch === child) {
@@ -251,9 +251,9 @@ export const initElementTree = () => {
     }
 
     __InsertElementBefore(
-      parent: LynxFiberElement,
-      child: LynxFiberElement,
-      ref?: LynxFiberElement,
+      parent: LynxElement,
+      child: LynxElement,
+      ref?: LynxElement,
     ) {
       if (typeof ref === 'undefined') {
         parent.appendChild(child);
@@ -263,8 +263,8 @@ export const initElementTree = () => {
     }
 
     __ReplaceElement(
-      newElement: LynxFiberElement,
-      oldElement: LynxFiberElement,
+      newElement: LynxElement,
+      oldElement: LynxElement,
     ) {
       const parent = oldElement.parentNode;
       if (!parent) {
@@ -275,10 +275,10 @@ export const initElementTree = () => {
 
     __FlushElementTree(): void {}
 
-    __UpdateListComponents(list: LynxFiberElement, components: string[]) {}
+    __UpdateListComponents(list: LynxElement, components: string[]) {}
 
     __UpdateListActions(
-      list: LynxFiberElement,
+      list: LynxElement,
       removals: number[],
       insertions: number[],
       moveFrom: number[],
@@ -288,16 +288,16 @@ export const initElementTree = () => {
     ) {}
 
     __UpdateListCallbacks(
-      list: LynxFiberElement,
+      list: LynxElement,
       componentAtIndex: (
-        list: LynxFiberElement,
+        list: LynxElement,
         listID: number,
         cellIndex: number,
         operationID: number,
         enable_reuse_notification: boolean,
       ) => void,
       enqueueComponent: (
-        list: LynxFiberElement,
+        list: LynxElement,
         listID: number,
         sign: number,
       ) => void,
@@ -339,11 +339,11 @@ export const initElementTree = () => {
       return e;
     }
 
-    __GetTag(ele: LynxFiberElement) {
+    __GetTag(ele: LynxElement) {
       return ele.nodeName;
     }
 
-    __GetAttributeByName(ele: LynxFiberElement, name: string) {
+    __GetAttributeByName(ele: LynxElement, name: string) {
       // return ele.props[name];
       return ele.getAttribute(name);
     }
@@ -357,7 +357,7 @@ export const initElementTree = () => {
     }
 
     triggerComponentAtIndex(
-      e: LynxFiberElement,
+      e: LynxElement,
       index: number,
       ...args: any[]
     ): number {
@@ -366,7 +366,7 @@ export const initElementTree = () => {
       return componentAtIndex(e, $$uiSign, index, ...args);
     }
 
-    triggerEnqueueComponent(e: LynxFiberElement, uiSign: number) {
+    triggerEnqueueComponent(e: LynxElement, uiSign: number) {
       // @ts-ignore
       const { enqueueComponent, $$uiSign } = e;
       enqueueComponent(e, $$uiSign, uiSign);

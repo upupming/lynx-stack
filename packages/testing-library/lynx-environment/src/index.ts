@@ -2,7 +2,7 @@ import EventEmitter from 'events';
 import { createGlobalThis, LynxGlobalThis } from './lynx/GlobalThis';
 import { initElementTree } from './lynx/ElementAPI';
 import { JSDOM } from 'jsdom';
-export type { LynxFiberElement } from './lynx/ElementAPI';
+export type { LynxElement } from './lynx/ElementAPI';
 
 type ElementTree = ReturnType<typeof initElementTree>;
 type FilterUnderscoreKeys<T> = {
@@ -16,6 +16,8 @@ declare global {
   var elementTree: ElementTree;
   var __JS__: boolean;
   var __LEPUS__: boolean;
+  var __BACKGROUND__: boolean;
+  var __MAIN_THREAD__: boolean;
 
   namespace lynxCoreInject {
     var tt: any;
@@ -53,7 +55,7 @@ export function __injectElementApi(target?: any) {
   };
 
   target.__OnLifecycleEvent = (...args: any[]) => {
-    const isMainThread = __LEPUS__;
+    const isMainThread = __MAIN_THREAD__;
 
     globalThis.lynxEnv.switchToBackgroundThread();
     globalThis.lynxCoreInject.tt.OnLifecycleEvent(...args);
@@ -68,7 +70,7 @@ export function __injectElementApi(target?: any) {
 function createPolyfills() {
   const app = {
     callLepusMethod: (...rLynxChange: any[]) => {
-      const isBackground = !__LEPUS__;
+      const isBackground = !__MAIN_THREAD__;
 
       globalThis.lynxEnv.switchToMainThread();
       globalThis[rLynxChange[0]](rLynxChange[1]);
@@ -118,7 +120,7 @@ function createPolyfills() {
     type,
     data,
   }) => {
-    const isMainThread = __LEPUS__;
+    const isMainThread = __MAIN_THREAD__;
     lynxEnv.switchToBackgroundThread();
 
     // Ensure the code is running on the background thread
@@ -143,7 +145,7 @@ function createPolyfills() {
     chunkName: string,
     options,
   ) {
-    const isBackground = !__LEPUS__;
+    const isBackground = !__MAIN_THREAD__;
     globalThis.lynxEnv.switchToMainThread();
 
     if (process.env.DEBUG) {
@@ -190,6 +192,8 @@ export function injectMainThreadGlobals(target?: any, polyfills?: any) {
   target.__PROFILE__ = true;
   target.__JS__ = false;
   target.__LEPUS__ = true;
+  target.__BACKGROUND__ = false;
+  target.__MAIN_THREAD__ = true;
   target.__REF_FIRE_IMMEDIATELY__ = false;
   target.__FIRST_SCREEN_SYNC_TIMING__ = 'immediately';
   target.__TESTING_FORCE_RENDER_TO_OPCODE__ = false;
@@ -231,6 +235,8 @@ export function injectBackgroundThreadGlobals(target?: any, polyfills?: any) {
   target.__PROFILE__ = true;
   target.__JS__ = true;
   target.__LEPUS__ = false;
+  target.__BACKGROUND__ = true;
+  target.__MAIN_THREAD__ = false;
   target.globDynamicComponentEntry = '__Card__';
   target.lynxCoreInject = {};
   target.lynxCoreInject.tt = {
@@ -353,7 +359,7 @@ export class LynxEnv {
 
     // we have to switch background thread first
     // otherwise global import for @lynx-js/react will report error
-    // on __LEPUS__/__JS__/lynx not defined etc.
+    // on __MAIN_THREAD__/__BACKGROUND__/lynx not defined etc.
     this.switchToBackgroundThread();
   }
 
@@ -390,7 +396,7 @@ export class LynxEnv {
     globalThis?.onSwitchedToMainThread?.();
   }
   // we do not use it because we have to keep background thread
-  // otherwise we will get error on __LEPUS__/__JS__/lynx not defined etc.
+  // otherwise we will get error on __MAIN_THREAD__/__BACKGROUND__/lynx not defined etc.
   clearGlobal() {
     this.originals?.forEach((v, k) => {
       global[k] = v;

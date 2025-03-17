@@ -80,7 +80,7 @@ export function render(
 }
 
 export function cleanup() {
-  const isMainThread = !__LEPUS__;
+  const isMainThread = !__MAIN_THREAD__;
 
   // Ensure componentWillUnmount is called
   globalThis.lynxEnv.switchToBackgroundThread();

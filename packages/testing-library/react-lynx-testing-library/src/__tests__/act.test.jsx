@@ -11,7 +11,7 @@ test('render calls useEffect immediately', async () => {
   const cb = vi.fn();
   function Comp() {
     useEffect(() => {
-      cb(`__LEPUS__: ${__LEPUS__}`);
+      cb(`__MAIN_THREAD__: ${__MAIN_THREAD__}`);
     });
     return <view />;
   }
@@ -26,7 +26,7 @@ test('render calls useEffect immediately', async () => {
   expect(cb.mock.calls).toMatchInlineSnapshot(`
     [
       [
-        "__LEPUS__: false",
+        "__MAIN_THREAD__: false",
       ],
     ]
   `);
@@ -36,7 +36,7 @@ test('render calls componentDidMount immediately', async () => {
   const cb = vi.fn();
   class Comp extends Component {
     componentDidMount() {
-      cb(`__LEPUS__: ${__LEPUS__}`);
+      cb(`__MAIN_THREAD__: ${__MAIN_THREAD__}`);
     }
     render() {
       return <view />;
@@ -52,7 +52,7 @@ test('render calls componentDidMount immediately', async () => {
   expect(cb.mock.calls).toMatchInlineSnapshot(`
     [
       [
-        "__LEPUS__: false",
+        "__MAIN_THREAD__: false",
       ],
     ]
   `);

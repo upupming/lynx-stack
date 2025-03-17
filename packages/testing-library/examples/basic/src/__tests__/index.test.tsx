@@ -16,7 +16,7 @@ test('App', async () => {
   render(
     <App
       onMounted={() => {
-        cb(`__LEPUS__: ${__LEPUS__}`);
+        cb(`__MAIN_THREAD__: ${__MAIN_THREAD__}`);
       }}
     />,
   );
@@ -24,7 +24,7 @@ test('App', async () => {
   expect(cb.mock.calls).toMatchInlineSnapshot(`
     [
       [
-        "__LEPUS__: false",
+        "__MAIN_THREAD__: false",
       ],
     ]
   `);
@@ -41,7 +41,7 @@ test('App', async () => {
   `);
   const {
     findByText,
-  } = getQueriesForElement(elementTree.root);
+  } = getQueriesForElement(elementTree.root!);
   const element = await findByText('Hello World!');
   expect(element).toBeInTheDocument();
   expect(element).toMatchInlineSnapshot(`

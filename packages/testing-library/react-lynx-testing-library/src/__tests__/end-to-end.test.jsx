@@ -86,7 +86,7 @@ test('state change will cause re-render', async () => {
     setTimeout(resolve, 1000);
   });
 
-  const isBackground = !__LEPUS__;
+  const isBackground = !__MAIN_THREAD__;
 
   const callLepusMethod =
     lynxEnv.backgroundThread.lynx.getNativeApp().callLepusMethod;

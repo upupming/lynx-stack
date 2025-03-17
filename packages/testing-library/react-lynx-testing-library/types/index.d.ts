@@ -1,5 +1,5 @@
 import { queries, Queries, BoundFunction } from '@testing-library/dom';
-import { LynxFiberElement } from '@lynx-js/lynx-environment';
+import { LynxElement } from '@lynx-js/lynx-environment';
 import { ComponentChild, ComponentType } from 'preact';
 export * from '@testing-library/dom';
 
@@ -21,7 +21,7 @@ export interface RenderOptions<Q extends Queries = typeof queries> {
 }
 
 export type RenderResult<Q extends Queries = typeof queries> = {
-  container: LynxFiberElement;
+  container: LynxElement;
   rerender: (ui: ComponentChild) => void;
   unmount: () => boolean;
 } & { [P in keyof Q]: BoundFunction<Q[P]> };
@@ -76,7 +76,7 @@ export interface RenderHookOptions<Props> {
    *
    *  @see https://testing-library.com/docs/react-testing-library/api/#wrapper
    */
-  wrapper?: ComponentType<{ children: LynxFiberElement }>;
+  wrapper?: ComponentType<{ children: LynxElement }>;
 }
 
 /**
