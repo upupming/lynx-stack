@@ -6,9 +6,11 @@ import { BackgroundSnapshotInstance } from '@lynx-js/react/runtime/lib/backgroun
 import { backgroundSnapshotInstanceManager } from '@lynx-js/react/runtime/lib/snapshot.js';
 import { injectCalledByNative } from '@lynx-js/react/runtime/lib/lynx/calledByNative.js';
 import {
-  injectUpdatePatch,
+  injectUpdateMainThread,
+} from '@lynx-js/react/runtime/lib/lifecycle/patch/updateMainThread.js';
+import {
   replaceCommitHook,
-} from '@lynx-js/react/runtime/lib/lifecycle/patch/patchUpdate.js';
+} from '@lynx-js/react/runtime/lib/lifecycle/patch/commit.js';
 import { injectTt } from '@lynx-js/react/runtime/lib/lynx/tt.js';
 import { setRoot } from '@lynx-js/react/runtime/lib/root.js';
 import { deinitGlobalSnapshotPatch } from '@lynx-js/react/runtime/lib/lifecycle/patch/snapshotPatch.js';
@@ -30,7 +32,7 @@ const {
 } = globalThis;
 
 injectCalledByNative();
-injectUpdatePatch();
+injectUpdateMainThread();
 replaceCommitHook();
 
 globalThis.onInitWorkletRuntime = () => {

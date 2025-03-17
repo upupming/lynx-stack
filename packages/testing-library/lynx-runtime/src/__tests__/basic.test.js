@@ -168,9 +168,10 @@ describe('test', () => {
     const rawText0 = __CreateElement('raw-text', text0.$$uiSign);
     expect(rawText0).toMatchInlineSnapshot(``);
     __AppendElement(text0, rawText0);
+    __SetAttribute(rawText0, 'text', 'Hello World');
     expect(text0).toMatchInlineSnapshot(`
       <text>
-
+        Hello World
       </text>
     `);
   });

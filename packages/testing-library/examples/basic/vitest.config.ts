@@ -4,6 +4,11 @@ import { createVitestConfig } from '@lynx-js/react-lynx-testing-library/vitest-c
 const defaultConfig = createVitestConfig({
   runtimePkgName: '@lynx-js/react',
 });
-const config = defineConfig({});
+const config = defineConfig({
+  test: {
+    name: 'testing-library/examples/basic',
+  },
+});
 
 export default defineConfig(mergeConfig(defaultConfig, config));
+``;
