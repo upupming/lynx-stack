@@ -53,6 +53,7 @@ export function applyEntry(
     pipelineSchedulerConfig,
     removeDescendantSelectorScope,
     targetSdkVersion,
+    injectGlobalFetch,
 
     experimental_isLazyBundle,
   } = options
@@ -199,6 +200,7 @@ export function applyEntry(
           targetSdkVersion,
           // Inject runtime wrapper for all `.js` but not `main-thread.js` and `main-thread.[hash].js`.
           test: /^(?!.*main-thread(?:\.[A-Fa-f0-9]*)?\.js$).*\.js$/,
+          injectGlobalFetch,
         }])
         .end()
         .plugin(`${LynxEncodePlugin.name}`)

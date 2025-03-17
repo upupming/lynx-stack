@@ -285,6 +285,11 @@ export interface PluginReactLynxOptions {
    * @deprecated `targetSdkVersion` is now an alias of {@link PluginReactLynxOptions.engineVersion}. Use {@link PluginReactLynxOptions.engineVersion} instead.
    */
   targetSdkVersion?: string
+  /**
+   * Inject `lynx.fetch` to global scope `fetch`.
+   * @defaultValue true
+   */
+  injectGlobalFetch?: boolean
 
   /**
    * Generate standalone lazy bundle.
@@ -341,6 +346,8 @@ export function pluginReactLynx(
     engineVersion: '',
 
     experimental_isLazyBundle: false,
+
+    injectGlobalFetch: true,
   }
   const resolvedOptions = Object.assign(defaultOptions, userOptions, {
     // Use `engineVersion` to override the default values

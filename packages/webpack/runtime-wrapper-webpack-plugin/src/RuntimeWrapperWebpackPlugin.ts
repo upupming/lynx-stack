@@ -37,6 +37,11 @@ interface RuntimeWrapperWebpackPluginOptions {
    * The variables to be injected into the chunk.
    */
   injectVars?: ((vars: string[]) => string[]) | string[];
+  /**
+   * Inject `lynx.fetch` to global scope `fetch`.
+   * @defaultValue true
+   */
+  injectGlobalFetch?: boolean;
 }
 
 const defaultInjectVars = [
@@ -78,6 +83,7 @@ class RuntimeWrapperWebpackPlugin {
     test: /\.js$/,
     bannerType: () => 'script',
     injectVars: defaultInjectVars,
+    injectGlobalFetch: true,
   });
 
   /**
@@ -108,7 +114,7 @@ class RuntimeWrapperWebpackPluginImpl {
     public compiler: Compiler,
     public options: RuntimeWrapperWebpackPluginOptions,
   ) {
-    const { targetSdkVersion, test } = options;
+    const { targetSdkVersion, test, injectGlobalFetch = true } = options;
     const { BannerPlugin } = compiler.webpack;
 
     const isDev = process.env['NODE_ENV'] === 'development'
@@ -136,6 +142,7 @@ class RuntimeWrapperWebpackPluginImpl {
             overrideRuntimePromise: true,
             moduleId: '[name].js',
             targetSdkVersion,
+            injectGlobalFetch,
           })
           + (isDev
             ? lynxChunkEntries(JSON.stringify(chunk.id))
@@ -216,11 +223,13 @@ const amdBanner = ({
   moduleId,
   overrideRuntimePromise,
   targetSdkVersion,
+  injectGlobalFetch,
 }: {
   injectStr: string;
   moduleId: string;
   overrideRuntimePromise: boolean;
   targetSdkVersion: string;
+  injectGlobalFetch?: boolean;
 }) => {
   return (
     `
@@ -230,7 +239,11 @@ lynx.targetSdkVersion=lynx.targetSdkVersion||${
       JSON.stringify(targetSdkVersion)
     };
 ${overrideRuntimePromise ? `var Promise = lynx.Promise;` : ''}
-var fetch = lynx.fetch;
+${
+      injectGlobalFetch
+        ? `var fetch = lynx.fetch;`
+        : ''
+    }
 `
   );
 };
