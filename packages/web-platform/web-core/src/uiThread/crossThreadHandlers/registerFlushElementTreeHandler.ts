@@ -17,7 +17,6 @@ import {
 import type { Rpc } from '@lynx-js/web-worker-rpc';
 import type { RuntimePropertyOnElement } from '../../types/RuntimePropertyOnElement.js';
 import { decodeElementOperation } from '../decodeElementOperation.js';
-import { getElementTag } from '../getElementTag.js';
 import { createCrossThreadEvent } from '../../utils/createCrossThreadEvent.js';
 
 function applyPageAttributes(
@@ -34,7 +33,6 @@ export function registerFlushElementTreeHandler(
   endpoint: typeof flushElementTreeEndpoint,
   options: {
     pageConfig: PageConfig;
-    overrideTagMap: Record<string, string>;
     backgroundRpc: Rpc;
     rootDom: HTMLElement;
   },
@@ -51,7 +49,6 @@ export function registerFlushElementTreeHandler(
 ) {
   const {
     pageConfig,
-    overrideTagMap,
     backgroundRpc,
     rootDom,
   } = options;
@@ -66,8 +63,7 @@ export function registerFlushElementTreeHandler(
     rootDom.append(rootStyleElementForCssInJs);
   }
   const createElementImpl = (tag: string) => {
-    const htmlTag = getElementTag(tag, overrideTagMap);
-    const element = document.createElement(htmlTag) as
+    const element = document.createElement(tag) as
       & HTMLElement
       & RuntimePropertyOnElement;
     element[lynxRuntimeValue] = {
@@ -119,15 +115,13 @@ export function registerFlushElementTreeHandler(
   };
   mainThreadRpc.registerHandler(
     endpoint,
-    (operations, options, cardCss) => {
+    (operations, options, cardCss, timingFlags) => {
       const { pipelineOptions } = options;
       const pipelineId = pipelineOptions?.pipelineID;
-      const timingFlags: string[] = [];
       markTimingInternal('dispatch_start', pipelineId);
       markTimingInternal('layout_start', pipelineId);
       markTimingInternal('ui_operation_flush_start', pipelineId);
       const page = decodeElementOperation(operations, {
-        timingFlags,
         uniqueIdToElement,
         uniqueIdToCssInJsRule,
         createElementImpl,
