@@ -56,6 +56,7 @@ export function applyEntry(
     targetSdkVersion,
 
     experimental_isLazyBundle,
+    extractStr,
   } = options
 
   const { config } = api.useExposed<ExposedAPI>(
@@ -69,6 +70,7 @@ export function applyEntry(
     chain.entryPoints.clear()
 
     const mainThreadChunks: string[] = []
+    const backgroundChunks: string[] = []
 
     Object.entries(entries).forEach(([entryName, entryPoint]) => {
       const { imports } = getChunks(entryName, entryPoint.values())
@@ -105,6 +107,7 @@ export function applyEntry(
       const backgroundEntry = entryName
 
       mainThreadChunks.push(mainThreadName)
+      backgroundChunks.push(backgroundName)
 
       chain
         .entry(mainThreadEntry)
@@ -223,7 +226,9 @@ export function applyEntry(
         firstScreenSyncTiming,
         enableSSR,
         mainThreadChunks,
+        backgroundChunks,
         experimental_isLazyBundle,
+        extractStr,
       }])
   })
 }

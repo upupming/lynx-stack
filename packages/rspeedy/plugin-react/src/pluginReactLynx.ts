@@ -15,6 +15,7 @@ import type { RsbuildPlugin } from '@rsbuild/core'
 import type {
   CompatVisitorConfig,
   DefineDceVisitorConfig,
+  ExtractStrConfig,
   JsxTransformerConfig,
   ShakeVisitorConfig,
 } from '@lynx-js/react/transform'
@@ -300,6 +301,13 @@ export interface PluginReactLynxOptions {
    * @alpha
    */
   experimental_isLazyBundle?: boolean
+  /**
+   * Merge same string literals in JS and Lepus to reduce output bundle size.
+   * Set to `false` to disable.
+   *
+   * @defaultValue `{ strLength: 20 }`
+   */
+  extractStr?: Partial<ExtractStrConfig> | boolean
 }
 
 /**
@@ -350,6 +358,7 @@ export function pluginReactLynx(
     engineVersion: '',
 
     experimental_isLazyBundle: false,
+    extractStr: false,
   }
   const resolvedOptions = Object.assign(defaultOptions, userOptions, {
     // Use `engineVersion` to override the default values
