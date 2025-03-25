@@ -7,6 +7,7 @@
 import type { CompatVisitorConfig } from '@lynx-js/react/transform';
 import type { Compiler } from '@rspack/core';
 import type { DefineDceVisitorConfig } from '@lynx-js/react/transform';
+import type { ExtractStrConfig } from '@lynx-js/react/transform';
 import type { JsxTransformerConfig } from '@lynx-js/react/transform';
 import type { ShakeVisitorConfig } from '@lynx-js/react/transform';
 
@@ -39,10 +40,12 @@ export class ReactWebpackPlugin {
 
 // @public
 export interface ReactWebpackPluginOptions {
+    backgroundChunks?: string[] | undefined;
     disableCreateSelectorQueryIncompatibleWarning?: boolean | undefined;
     enableSSR?: boolean;
     // @alpha
     experimental_isLazyBundle?: boolean;
+    extractStr?: Partial<ExtractStrConfig> | boolean;
     firstScreenSyncTiming?: 'immediately' | 'jsReady';
     mainThreadChunks?: string[] | undefined;
 }

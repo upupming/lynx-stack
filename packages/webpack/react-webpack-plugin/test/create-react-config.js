@@ -92,6 +92,7 @@ export function createConfig(loaderOptions, pluginOptions, swcLoaderOptions) {
     plugins: [
       new ReactWebpackPlugin({
         mainThreadChunks: ['main:main-thread.js'],
+        backgroundChunks: ['main:background.js'],
         ...pluginOptions,
       }),
       /**
