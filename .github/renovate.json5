@@ -52,11 +52,36 @@
       "automerge": false,
     },
     {
+      "groupName": "Rspress",
+      "groupSlug": "Rspress",
+      "matchDepTypes": [
+        "devDependencies",
+        "dependencies",
+      ],
+      "matchPackageNames": [
+        "rspress",
+        "/@rspress/*/",
+        "@rstack-dev/doc-ui",
+      ],
+      "rangeStrategy": "pin",
+    },
+    {
       "groupName": "changesets",
       "groupSlug": "changesets",
       "matchPackageNames": [
         "/^@changesets/*/",
       ],
+    },
+    {
+      "groupName": "API Extractor",
+      "groupSlug": "api-extractor",
+      "matchPackageNames": [
+        "@microsoft/api-documenter",
+        "@microsoft/api-extractor",
+        "@microsoft/api-extractor-model",
+        "@microsoft/tsdoc",
+      ],
+      "automerge": true,
     },
     {
       "matchDepTypes": [
@@ -72,5 +97,8 @@
   "ignoreDeps": [
     // align Node.js version minimum requirements
     "node",
+
+    // Rspress not compatible
+    "@microsoft/api-documenter",
   ],
 }

@@ -1,6 +1,6 @@
 {
   "name": "@lynx-js/web-webpack-plugin",
-  "version": "0.6.2",
+  "version": "0.6.3",
   "private": false,
   "description": "TBD",
   "keywords": [],
@@ -22,6 +22,7 @@
     "README.md"
   ],
   "scripts": {
+    "api-extractor": "api-extractor run --verbose",
     "test": "pnpm vitest --project webpack/web-webpack-plugin"
   },
   "dependencies": {

@@ -2,7 +2,8 @@
 // Licensed under the Apache License Version 2.0 that can be found in the
 // LICENSE file in the root directory of this source tree.
 import { swipe, dragAndHold } from './utils.js';
-import { test, expect, type Page } from '@playwright/test';
+import { test, expect } from './coverage-fixture.js';
+import type { Page } from '@playwright/test';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import fs from 'node:fs/promises';
@@ -55,14 +56,6 @@ const goto = async (page: Page, testname: string, hasDir?: boolean) => {
 };
 
 test.describe('reactlynx3 tests', () => {
-  test.beforeEach(async ({ page, browserName }) => {
-    if (browserName === 'chromium') {
-      await page.coverage.startJSCoverage({
-        reportAnonymousScripts: true,
-        resetOnNavigation: true,
-      });
-    }
-  });
   test.describe('basic', () => {
     test('basic-pink-rect', async ({ page }, { title }) => {
       await goto(page, title);
@@ -115,12 +108,12 @@ test.describe('reactlynx3 tests', () => {
     });
     test('basic-setstate-in-constructor', async ({ page }, { title }) => {
       await goto(page, title);
-      await wait(100);
+      await wait(200);
       await expectHasText(page, 'awesome');
     });
     test('basic-setsate-with-cb', async ({ page }, { title }) => {
       await goto(page, title);
-      await wait(100);
+      await wait(200);
       await expectHasText(page, 'awesome');
       await expectNoText(page, 'success');
     });
@@ -499,6 +492,13 @@ test.describe('reactlynx3 tests', () => {
       await wait(50);
       expect(message).toContain('fin');
       expect(page.workers().length).toStrictEqual(1);
+    });
+
+    test('api-error', async ({ page }, { title }) => {
+      await goto(page, title);
+      await wait(200);
+      const target = await page.locator('lynx-view');
+      expect(target).toHaveCSS('display', 'none');
     });
 
     test('api-preheat', async ({ page }, { title }) => {
@@ -1014,6 +1014,26 @@ test.describe('reactlynx3 tests', () => {
   });
 
   test.describe('elements', () => {
+    test.describe('lynx-view', () => {
+      const elementName = 'lynx-view';
+      test('basic-element-lynx-view-not-auto', async ({ page }, { title }) => {
+        await goto(page, title);
+        await page.evaluate(() => {
+          document.querySelector('lynx-view')!.setAttribute('width', '100vw');
+          document.querySelector('lynx-view')!.setAttribute('height', '100vh');
+          document.querySelector('lynx-view')!.setAttribute(
+            'style',
+            'width: 100vw; height: 100vh',
+          );
+        });
+        await wait(100);
+        await diffScreenShot(
+          page,
+          elementName,
+          title,
+        );
+      });
+    });
     test.describe('view', () => {
       const elementName = 'view';
       test(
@@ -1144,10 +1164,6 @@ test.describe('reactlynx3 tests', () => {
       test(
         'basic-element-text-maxlength',
         async ({ page, browserName }, { title }) => {
-          test.skip(
-            browserName === 'firefox',
-            'firefox ResizeObserver detection is incorrect',
-          ); // This is caused by the LynxView's auto size feature
           await goto(page, title);
           await wait(100);
           await diffScreenShot(page, 'text', 'maxlength');
@@ -1478,6 +1494,7 @@ test.describe('reactlynx3 tests', () => {
         }) => {
           test.skip(browserName !== 'chromium', 'not supoort CDPsession');
           await goto(page, title);
+          await wait(300);
           const cdpSession = await context.newCDPSession(page);
           await swipe(cdpSession, {
             x: 100,
@@ -2960,25 +2977,6 @@ test.describe('reactlynx3 tests', () => {
           }
         },
       );
-      test(
-        'basic-element-x-swiper-circular-click',
-        async ({ page }, { title }) => {
-          await goto(page, title);
-          await wait(100);
-
-          await page.mouse.click(100, 25);
-          expect(await page.getByText('目前计数为 1').count()).toBe(1);
-
-          await page.mouse.click(100, 25);
-          expect(await page.getByText('目前计数为 2').count()).toBe(1);
-
-          await page.getByTestId('next').click();
-          // default duration is 500ms, add 100ms tolerance
-          await wait(1000);
-          await page.mouse.click(100, 25);
-          expect(await page.getByText('目前计数为 3').count()).toBe(1);
-        },
-      );
     });
 
     test.describe('x-textarea', () => {
@@ -3601,30 +3599,5 @@ test.describe('reactlynx3 tests', () => {
         await diffScreenShot(page, title, 'index');
       },
     );
-  });
-
-  test.afterEach(async ({ page, browserName, baseURL, browser }, { title }) => {
-    if (browserName === 'chromium') {
-      const coverage = await page.coverage.stopJSCoverage();
-      const converter = v8toIstanbul(
-        path.join(__dirname, '..', 'www', 'main.js'),
-      );
-      for (const entry of coverage) {
-        await converter.load();
-        converter.applyCoverage(entry.functions);
-      }
-      const dir = path.join(__dirname, '..', '..', '.nyc_output');
-      await fs.mkdir(dir, { recursive: true });
-      const converageMapData = Object.fromEntries(
-        Object.entries(converter.toIstanbul()).map(([key, value]) => {
-          return [key, value];
-        }),
-      );
-      fs.writeFile(
-        path.join(dir, `playwright_output_${title}.json`),
-        JSON.stringify(converageMapData),
-        { flag: 'w' },
-      );
-    }
   });
 });

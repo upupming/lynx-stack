@@ -1,6 +1,6 @@
 {
   "name": "@lynx-js/react",
-  "version": "0.105.2",
+  "version": "0.106.0",
   "description": "ReactLynx is a framework for developing Lynx applications with familiar React.",
   "repository": {
     "type": "git",
@@ -155,7 +155,7 @@
   "devDependencies": {
     "@lynx-js/types": "^3.2.0",
     "@microsoft/api-extractor": "catalog:",
-    "@types/react": "^18.3.18"
+    "@types/react": "^18.3.20"
   },
   "peerDependencies": {
     "@lynx-js/types": "*",

@@ -7,13 +7,11 @@ import {
   createLynxView,
 } from './createLynxView.js';
 import {
-  cardIdAttribute,
   type Cloneable,
-  lynxViewEntryIdPrefix,
-  lynxViewRootDomId,
   type NapiModulesCall,
   type NapiModulesMap,
   type NativeModulesCall,
+  type NativeModulesMap,
   type UpdateDataType,
 } from '@lynx-js/web-constants';
 import { inShadowRootStyles } from './inShadowRootStyles.js';
@@ -27,15 +25,13 @@ import { inShadowRootStyles } from './inShadowRootStyles.js';
  * @param {Cloneable} globalProps [optional] The globalProps value of this Lynx card
  * @param {Cloneable} initData [oprional] The initial data of this Lynx card
  * @param {Record<string,string>} overrideLynxTagToHTMLTagMap [optional] use this property/attribute to override the lynx tag -> html tag map
- * @param {string} nativeModulesUrl [optional] It is a esm url, use to customize NativeModules.
- * @param {INativeModulesCall} onNativeModulesCall [optional] the NativeModules value handler. Arguments will be cached before this property is assigned.
+ * @param {NativeModulesMap} nativeModulesMap [optional] use to customize NativeModules. key is module-name, value is esm url.
+ * @param {NativeModulesCall} onNativeModulesCall [optional] the NativeModules value handler. Arguments will be cached before this property is assigned.
  * @param {"auto" | null} height [optional] set it to "auto" for height auto-sizing
  * @param {"auto" | null} width [optional] set it to "auto" for width auto-sizing
  * @param {NapiModulesMap} napiModulesMap [optional] the napiModule which is called in lynx-core. key is module-name, value is esm url.
  * @param {NapiModulesCall} onNapiModulesCall [optional] the NapiModule value handler.
  * @param {"false" | "true" | null} injectHeadLinks [optional] @default true set it to "false" to disable injecting the <link href="" ref="stylesheet"> styles into shadowroot
- *
- * @property entryId the currently Lynx view entryId.
  *
  * @event error lynx card fired an error
  *
@@ -63,7 +59,7 @@ export class LynxView extends HTMLElement {
     'globalProps',
     'initData',
     'overrideLynxTagToHTMLTagMap',
-    'nativeModulesUrl',
+    'nativeModulesMap',
   ];
   private static attributeCamelCaseMap = Object.fromEntries(
     this.observedAttributeAsProperties.map((
@@ -76,11 +72,7 @@ export class LynxView extends HTMLElement {
   static observedAttributes = LynxView.observedAttributeAsProperties.map(nm =>
     nm.toLowerCase()
   );
-  #instance?: {
-    lynxView: LynxViewInstance;
-    rootDom: HTMLDivElement;
-    resizeObserver?: ResizeObserver;
-  };
+  #instance?: LynxViewInstance;
 
   #url?: string;
   /**
@@ -129,17 +121,6 @@ export class LynxView extends HTMLElement {
     }
   }
 
-  #entryId?: string;
-  /**
-   * @public
-   * @readonly
-   * @property
-   * The random generated entryId of current lynxview
-   */
-  get entryId() {
-    return this.#entryId;
-  }
-
   #overrideLynxTagToHTMLTagMap: Record<string, string> = { 'page': 'div' };
   /**
    * @public
@@ -175,22 +156,24 @@ export class LynxView extends HTMLElement {
     }
   }
 
-  #nativeModulesUrl?: string;
+  #nativeModulesMap: NativeModulesMap = {};
   /**
    * @public
-   * @property nativeModules
+   * @property nativeModulesMap
+   * @default {}
    */
-  get nativeModulesUrl(): string | undefined {
-    return this.#nativeModulesUrl;
+  get nativeModulesMap(): NativeModulesMap | undefined {
+    return this.#nativeModulesMap;
   }
-  set nativeModulesUrl(val: string) {
-    this.#nativeModulesUrl = val;
+  set nativeModulesMap(map: NativeModulesMap) {
+    this.#nativeModulesMap = map;
   }
 
   #napiModulesMap: NapiModulesMap = {};
   /**
    * @param
-   * @property
+   * @property napiModulesMap
+   * @default {}
    */
   get napiModulesMap(): NapiModulesMap | undefined {
     return this.#napiModulesMap;
@@ -211,72 +194,6 @@ export class LynxView extends HTMLElement {
     this.#onNapiModulesCall = handler;
   }
 
-  #autoHeight = false;
-  #autoWidth = false;
-  #currentWidth = 0;
-  #currentHeight = 0;
-  /**
-   * @public
-   * "auto" for auto calculated height
-   */
-  get height() {
-    return this.#autoHeight ? 'auto' : null;
-  }
-  /**
-   * @public
-   * "auto" for auto calculated width
-   */
-  get width() {
-    return this.#autoWidth ? 'auto' : null;
-  }
-  set height(val: string | null) {
-    this.#handleAutoSize();
-    this.#autoHeight = val === 'auto' ? true : false;
-  }
-  set width(val: string | null) {
-    this.#handleAutoSize();
-    this.#autoWidth = val === 'auto' ? true : false;
-  }
-  #handleAutoSize() {
-    if (this.#autoHeight || this.#autoWidth) {
-      if (this.#instance && !this.#instance.resizeObserver) {
-        this.#instance.resizeObserver = new ResizeObserver((sizes) => {
-          const size = sizes[0];
-          if (size) {
-            const { width, height } = size.contentRect;
-            if (this.#autoWidth) {
-              if (this.#currentWidth !== width) {
-                this.#currentWidth = width;
-                this.style.setProperty('--lynx-view-width', `${width}px`);
-              }
-            }
-            if (this.#autoHeight) {
-              if (this.#currentHeight !== height) {
-                this.#currentHeight = height;
-                this.style.setProperty('--lynx-view-height', `${height}px`);
-              }
-            }
-          }
-        });
-        this.#instance.resizeObserver.observe(this.#instance.rootDom);
-      }
-    } else {
-      if (this.#instance?.resizeObserver) {
-        this.#instance.resizeObserver.disconnect();
-      }
-    }
-    if (this.#autoHeight) {
-      this.setAttribute('height', 'auto');
-    } else {
-      this.removeAttribute('height');
-    }
-    if (this.#autoWidth) {
-      this.setAttribute('width', 'auto');
-    } else {
-      this.removeAttribute('width');
-    }
-  }
-
   /**
    * @public
    * @method
@@ -287,7 +204,7 @@ export class LynxView extends HTMLElement {
     updateDataType: UpdateDataType,
     callback?: () => void,
   ) {
-    this.#instance?.lynxView.updateData(data, updateDataType, callback);
+    this.#instance?.updateData(data, updateDataType, callback);
   }
 
   /**
@@ -296,7 +213,7 @@ export class LynxView extends HTMLElement {
    * send global events, which can be listened to using the GlobalEventEmitter
    */
   sendGlobalEvent(eventName: string, params: Cloneable[]) {
-    this.#instance?.lynxView.sendGlobalEvent(eventName, params);
+    this.#instance?.sendGlobalEvent(eventName, params);
   }
 
   /**
@@ -339,11 +256,7 @@ export class LynxView extends HTMLElement {
    * @private
    */
   disconnectedCallback() {
-    this.cleanupResizeObserver();
-    if (this.#instance) {
-      this.#instance.lynxView.dispose();
-      this.#instance.rootDom.remove();
-    }
+    this.#instance?.dispose();
     this.#instance = undefined;
     if (this.shadowRoot) {
       this.shadowRoot.innerHTML = '';
@@ -367,24 +280,25 @@ export class LynxView extends HTMLElement {
           this.disconnectedCallback();
         }
         if (this.#url) {
-          const rootDom = document.createElement('div');
-          rootDom.id = lynxViewRootDomId;
-          const entryId = `${lynxViewEntryIdPrefix}-${LynxView
-            .lynxViewCount++}`;
-          this.#entryId = entryId;
-          rootDom.setAttribute(cardIdAttribute, entryId);
-          rootDom.setAttribute('part', lynxViewRootDomId);
-          const commonEventDetail = {
-            entryId,
+          const tagMap = {
+            'page': 'div',
+            'view': 'x-view',
+            'text': 'x-text',
+            'image': 'x-image',
+            'list': 'x-list',
+            'svg': 'x-svg',
+            ...this.overrideLynxTagToHTMLTagMap,
           };
+          if (!this.shadowRoot) {
+            this.attachShadow({ mode: 'open' });
+          }
           const lynxView = createLynxView({
-            entryId,
-            rootDom,
+            tagMap,
+            shadowRoot: this.shadowRoot!,
             templateUrl: this.#url,
             globalProps: this.#globalProps,
             initData: this.#initData,
-            overrideLynxTagToHTMLTagMap: this.#overrideLynxTagToHTMLTagMap,
-            nativeModulesUrl: this.#nativeModulesUrl,
+            nativeModulesMap: this.#nativeModulesMap,
             napiModulesMap: this.#napiModulesMap,
             callbacks: {
               nativeModulesCall: (
@@ -403,21 +317,12 @@ export class LynxView extends HTMLElement {
               },
               onError: () => {
                 this.dispatchEvent(
-                  new CustomEvent('error', {
-                    detail: commonEventDetail,
-                  }),
+                  new CustomEvent('error', {}),
                 );
               },
             },
           });
-          this.#instance = {
-            lynxView,
-            rootDom,
-          };
-          this.#handleAutoSize();
-          if (!this.shadowRoot) {
-            this.attachShadow({ mode: 'open' });
-          }
+          this.#instance = lynxView;
           const styleElement = document.createElement('style');
           this.shadowRoot!.append(styleElement);
           const styleSheet = styleElement.sheet!;
@@ -432,7 +337,6 @@ export class LynxView extends HTMLElement {
               },
             );
           }
-          this.shadowRoot!.append(rootDom);
         }
       });
     }
@@ -442,13 +346,6 @@ export class LynxView extends HTMLElement {
    */
   connectedCallback() {
     this.#render();
-  }
-
-  private cleanupResizeObserver() {
-    if (this.#instance?.resizeObserver) {
-      this.#instance.resizeObserver.disconnect();
-      this.#instance.resizeObserver = undefined;
-    }
   }
 }
 
