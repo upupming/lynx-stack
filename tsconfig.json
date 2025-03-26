@@ -120,9 +120,6 @@
       "path": "./packages/rspeedy"
     },
     {
-      "path": "./packages/react"
-    },
-    {
       "path": "./packages/third-party"
     },
   ],

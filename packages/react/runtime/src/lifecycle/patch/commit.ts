@@ -11,10 +11,10 @@ import { LifecycleConstant } from '../../lifecycleConstant.js';
 import {
   BackgroundThreadPerformanceTimingKeys,
   globalPipelineOptions,
-  markTiming,
-  markTimingLegacy,
+  markBackgroundThreadTiming,
+  markBackgroundThreadTimingLegacy,
   setPipeline,
-} from '../../lynx/performance.js';
+} from '../../lynx/performance/background.js';
 import { CATCH_ERROR, COMMIT, RENDER_CALLBACKS, VNODE } from '../../renderToOpcodes/constants.js';
 import { updateBackgroundRefs } from '../../snapshot/ref.js';
 import { backgroundSnapshotInstanceManager } from '../../snapshot.js';
@@ -142,12 +142,14 @@ function replaceCommitHook(): void {
 }
 
 async function commitToMainThread(): Promise<void> {
+  'background-only';
+
   if (patchesToCommit.length === 0) {
     return;
   }
 
-  markTimingLegacy(BackgroundThreadPerformanceTimingKeys.update_diff_vdom_end);
-  markTiming(BackgroundThreadPerformanceTimingKeys.diff_vdom_end);
+  markBackgroundThreadTimingLegacy(BackgroundThreadPerformanceTimingKeys.update_diff_vdom_end);
+  markBackgroundThreadTiming(BackgroundThreadPerformanceTimingKeys.diff_vdom_end);
 
   const flushOptions = globalFlushOptions;
   globalFlushOptions = {};
@@ -174,6 +176,7 @@ async function commitToMainThread(): Promise<void> {
 }
 
 function commitPatchUpdate(patchList: PatchList, patchOptions: Omit<PatchOptions, 'reloadVersion'>): Promise<void> {
+  'background-only';
   return new Promise(resolve => {
     // console.debug('********** JS update:');
     // printSnapshotInstance(
@@ -183,7 +186,7 @@ function commitPatchUpdate(patchList: PatchList, patchOptions: Omit<PatchOptions
     if (__PROFILE__) {
       console.profile('commitChanges');
     }
-    markTiming(BackgroundThreadPerformanceTimingKeys.pack_changes_start);
+    markBackgroundThreadTiming(BackgroundThreadPerformanceTimingKeys.pack_changes_start);
     const obj: {
       data: string;
       patchOptions: PatchOptions;
@@ -194,7 +197,7 @@ function commitPatchUpdate(patchList: PatchList, patchOptions: Omit<PatchOptions
         reloadVersion: getReloadVersion(),
       },
     };
-    markTiming(BackgroundThreadPerformanceTimingKeys.pack_changes_end);
+    markBackgroundThreadTiming(BackgroundThreadPerformanceTimingKeys.pack_changes_end);
     if (globalPipelineOptions) {
       obj.patchOptions.pipelineOptions = globalPipelineOptions;
       setPipeline(undefined);

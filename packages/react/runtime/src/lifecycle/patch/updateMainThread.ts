@@ -8,7 +8,11 @@ import type { PatchList, PatchOptions } from './commit.js';
 import { snapshotPatchApply } from './snapshotPatchApply.js';
 import { LifecycleConstant } from '../../lifecycleConstant.js';
 import { __pendingListUpdates } from '../../list.js';
-import { MainThreadPerformanceTimingKeys, markMainThreadTiming, setPipeline } from '../../lynx/performance.js';
+import {
+  MainThreadPerformanceTimingKeys,
+  markMainThreadTiming,
+  setPipeline,
+} from '../../lynx/performance/main-thread.js';
 import { takeGlobalRefPatchMap } from '../../snapshot/ref.js';
 import { __page } from '../../snapshot.js';
 import { isEmptyObject } from '../../utils.js';

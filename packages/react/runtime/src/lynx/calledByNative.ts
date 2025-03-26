@@ -11,7 +11,7 @@ import { __root, setRoot } from '../root.js';
 import { reloadMainThread } from '../lifecycle/reload.js';
 import { renderMainThread } from '../lifecycle/render.js';
 import { hydrate } from '../hydrate.js';
-import { MainThreadPerformanceTimingKeys, markMainThreadTiming, setPipeline } from './performance.js';
+import { MainThreadPerformanceTimingKeys, markMainThreadTiming, setPipeline } from './performance/main-thread.js';
 import { __pendingListUpdates } from '../list.js';
 import { ssrHydrateByOpcodes } from '../opcodes.js';
 
