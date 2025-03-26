@@ -1,0 +1,20 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "composite": true,
+    "skipLibCheck": true, // Skip since type-x-element has too many errors :)
+    "emitDeclarationOnly": true,
+  },
+  "references": [
+    {
+      "path": "./runtime/tsconfig.json",
+    },
+    {
+      "path": "./components/tsconfig.json",
+    },
+    {
+      "path": "./worklet-runtime/tsconfig.json",
+    },
+  ],
+  "include": ["types"],
+}

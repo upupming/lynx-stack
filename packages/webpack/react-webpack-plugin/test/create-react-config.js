@@ -1,10 +1,15 @@
 // Copyright 2024 The Lynx Authors. All rights reserved.
 // Licensed under the Apache License Version 2.0 that can be found in the
 // LICENSE file in the root directory of this source tree.
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 import { rspack } from '@rspack/core';
 
 import { LAYERS, ReactWebpackPlugin } from '../src';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 /**
  * @param {string=} name - The name
@@ -38,6 +43,7 @@ function createRuleFor(layer, options) {
         loader: ReactWebpackPlugin.loaders[layer],
         options,
       },
+      path.resolve(__dirname, './remove-background-only-loader.js'),
     ],
   };
 }

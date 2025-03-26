@@ -33,9 +33,6 @@ function markBackgroundThreadTiming(
  * @deprecated used by old timing api(setState timing flag)
  */
 const PerfSpecificKey = '__lynx_timing_flag';
-/**
- * @deprecated used by old timing api(setState timing flag)
- */
 let timingFlag: string | undefined;
 let shouldMarkDiffVdomStart = false;
 let shouldMarkDiffVdomEnd = false;

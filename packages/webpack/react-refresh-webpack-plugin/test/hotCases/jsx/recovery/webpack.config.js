@@ -47,6 +47,7 @@ export default {
             loader: ReactWebpackPlugin.loaders.BACKGROUND,
             options: { enableRemoveCSSScope: true, refresh: true },
           },
+          path.resolve(__dirname, '../../remove-background-only-loader.js')
         ],
       },
     ],

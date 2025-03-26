@@ -14,6 +14,7 @@ const config: RslibConfig = defineConfig(
           distPath: {
             root: `./${folder}/lib`,
           },
+          cleanDistPath: false,
         },
         format: 'esm',
         syntax: 'es2021',
