@@ -8,8 +8,6 @@ import { createRequire } from 'node:module';
 import type { Chunk, Compilation, Compiler } from '@rspack/core';
 import invariant from 'tiny-invariant';
 
-import { transformBundleResultSync } from '@lynx-js/react/transform';
-import type { ExtractStrConfig } from '@lynx-js/react/transform';
 import { LynxTemplatePlugin } from '@lynx-js/template-webpack-plugin';
 import { RuntimeGlobals } from '@lynx-js/webpack-runtime-globals';
 
@@ -43,10 +41,6 @@ interface ReactWebpackPluginOptions {
    * The chunk names to be considered as main thread chunks.
    */
   mainThreadChunks?: string[] | undefined;
-  /**
-   * The chunk names to be considered as background thread chunks.
-   */
-  backgroundChunks?: string[] | undefined;
 
   /**
    * Whether to enable lazy bundle.
@@ -54,13 +48,6 @@ interface ReactWebpackPluginOptions {
    * @alpha
    */
   experimental_isLazyBundle?: boolean;
-  /**
-   * Merge same string literals in JS and Lepus to reduce output bundle size.
-   * Set to `false` to disable.
-   *
-   * @defaultValue `{ strLength: 20 }`
-   */
-  extractStr?: Partial<ExtractStrConfig> | boolean;
 }
 
 /**
@@ -131,9 +118,7 @@ class ReactWebpackPlugin {
       firstScreenSyncTiming: 'immediately',
       enableSSR: false,
       mainThreadChunks: [],
-      backgroundChunks: [],
       experimental_isLazyBundle: false,
-      extractStr: false,
     });
 
   /**
@@ -158,16 +143,6 @@ class ReactWebpackPlugin {
       }).apply(compiler);
     }
 
-    if (options.extractStr) {
-      new BannerPlugin({
-        banner: `var _EXTRACT_STR;
-__EXTRACT_STR_FLAG__(_EXTRACT_STR = lynxCoreInject.tt._params.updateData._EXTRACT_STR, _EXTRACT_STR);`,
-        raw: true,
-        test: options.backgroundChunks!,
-        stage: -256,
-      }).apply(compiler);
-    }
-
     new EnvironmentPlugin({
       // Default values of null and undefined behave differently.
       // Use undefined for variables that must be provided during bundling, or null if they are optional.
@@ -182,7 +157,8 @@ __EXTRACT_STR_FLAG__(_EXTRACT_STR = lynxCoreInject.tt._params.updateData._EXTRAC
       __PROFILE__: JSON.stringify(
         process.env['REACT_PROFILE'] ?? compiler.options.mode === 'development',
       ),
-      __EXTRACT_STR__: JSON.stringify(options.extractStr),
+      // TODO: config
+      __EXTRACT_STR__: JSON.stringify(false),
       __FIRST_SCREEN_SYNC_TIMING__: JSON.stringify(
         options.firstScreenSyncTiming,
       ),
@@ -230,6 +206,7 @@ __EXTRACT_STR_FLAG__(_EXTRACT_STR = lynxCoreInject.tt._params.updateData._EXTRAC
           for (const name of options.mainThreadChunks ?? []) {
             this.#updateMainThreadInfo(compilation, name);
           }
+
           compilation.chunkGroups
             // Async ChunkGroups
             .filter(cg => !cg.isInitial())
@@ -247,98 +224,6 @@ __EXTRACT_STR_FLAG__(_EXTRACT_STR = lynxCoreInject.tt._params.updateData._EXTRAC
             });
         },
       );
-      if (options.extractStr) {
-        compilation.hooks.processAssets.tap(
-          {
-            name: 'compilation',
-            stage:
-              compiler.webpack.Compilation.PROCESS_ASSETS_STAGE_OPTIMIZE_INLINE,
-          },
-          (assets) => {
-            const entryIdx2selectStrVec: Record<
-              number,
-              string[]
-            > = {};
-            const DEFAULT_STR_LENGTH = 20;
-            const jsAssets = Object.keys(assets).filter(name =>
-              name.endsWith('.js')
-            );
-            jsAssets.forEach(
-              (key) => {
-                const entryIdx = options.mainThreadChunks?.findIndex(
-                  (chunkName) => key.includes(chunkName),
-                );
-                if (entryIdx !== undefined && entryIdx !== -1) {
-                  const result = transformBundleResultSync(
-                    assets[key]!.source().toString(),
-                    {
-                      filename: key,
-                      pluginName: 'transformBundleResult',
-                      sourcemap: true,
-                      sourceFileName: key,
-                      extractStr: {
-                        strLength: typeof options.extractStr === 'boolean'
-                          ? DEFAULT_STR_LENGTH
-                          : options.extractStr.strLength ?? DEFAULT_STR_LENGTH,
-                      },
-                      minify: compiler.options.optimization.minimize ?? false,
-                    },
-                  );
-                  compilation.updateAsset(
-                    key,
-                    new compiler.webpack.sources.SourceMapSource(
-                      result.code,
-                      key,
-                      result.map!,
-                      assets[key]!.source(),
-                      assets[key]!.map()!,
-                    ),
-                  );
-                  if (result.selectStrVec) {
-                    entryIdx2selectStrVec[entryIdx] = result.selectStrVec;
-                  }
-                }
-              },
-            );
-            jsAssets.forEach((key) => {
-              const entryIdx = options.backgroundChunks?.findIndex(
-                (chunkName) => key.includes(chunkName),
-              );
-              if (
-                entryIdx !== undefined && entryIdx !== -1
-                && entryIdx2selectStrVec[entryIdx]
-              ) {
-                const result = transformBundleResultSync(
-                  assets[key]!.source().toString(),
-                  {
-                    filename: key,
-                    pluginName: 'transformBundleResult',
-                    sourcemap: true,
-                    sourceFileName: key,
-                    extractStr: {
-                      strLength: typeof options.extractStr === 'boolean'
-                        ? DEFAULT_STR_LENGTH
-                        : options.extractStr.strLength ?? DEFAULT_STR_LENGTH,
-                      extractedStrArr: entryIdx2selectStrVec[entryIdx],
-                    },
-                    minify: compiler.options.optimization.minimize ?? false,
-                  },
-                );
-                compilation.updateAsset(
-                  key,
-                  new compiler.webpack.sources.SourceMapSource(
-                    result.code,
-                    key,
-                    result.map!,
-                    assets[key]!.source(),
-                    assets[key]!.map()!,
-                  ),
-                );
-              }
-            });
-          },
-        );
-      }
 
       // TODO: replace LynxTemplatePlugin types with Rspack
       // @ts-expect-error Rspack x Webpack compilation not match

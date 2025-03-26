@@ -4,7 +4,9 @@
 
 import { rspack } from '@rspack/core';
 
-import { LAYERS, ReactWebpackPlugin } from '../src';
+import { LAYERS, ReactWebpackPlugin } from '@lynx-js/react-webpack-plugin';
+
+import { ExtractStrWebpackPlugin } from '../src';
 
 /**
  * @param {string=} name - The name
@@ -92,6 +94,11 @@ export function createConfig(loaderOptions, pluginOptions, swcLoaderOptions) {
     plugins: [
       new ReactWebpackPlugin({
         mainThreadChunks: ['main:main-thread.js'],
+        backgroundChunks: ['main:background.js'],
+      }),
+      new ExtractStrWebpackPlugin({
+        mainThreadChunks: ['main:main-thread.js'],
+        backgroundChunks: ['main:background.js'],
         ...pluginOptions,
       }),
       /**

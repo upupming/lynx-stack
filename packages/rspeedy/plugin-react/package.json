@@ -39,6 +39,7 @@
   },
   "dependencies": {
     "@lynx-js/css-extract-webpack-plugin": "workspace:*",
+    "@lynx-js/extract-str-webpack-plugin": "workspace:*",
     "@lynx-js/react-alias-rsbuild-plugin": "workspace:*",
     "@lynx-js/react-refresh-webpack-plugin": "workspace:*",
     "@lynx-js/react-webpack-plugin": "workspace:*",

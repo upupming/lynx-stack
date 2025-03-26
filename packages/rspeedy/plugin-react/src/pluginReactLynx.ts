@@ -305,7 +305,7 @@ export interface PluginReactLynxOptions {
    * Merge same string literals in JS and Lepus to reduce output bundle size.
    * Set to `false` to disable.
    *
-   * @defaultValue `{ strLength: 20 }`
+   * @defaultValue false
    */
   extractStr?: Partial<ExtractStrConfig> | boolean
 }

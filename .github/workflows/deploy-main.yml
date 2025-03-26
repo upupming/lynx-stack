@@ -76,6 +76,11 @@ jobs:
         --no-cache
         --logHeapUsage
         --silent
+  rust-coverage:
+    uses: ./.github/workflows/rust.yml
+    if: github.repository == 'lynx-family/lynx-stack'
+    secrets:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
   playwright-linux:
     needs: build-all
     uses: ./.github/workflows/workflow-test.yml

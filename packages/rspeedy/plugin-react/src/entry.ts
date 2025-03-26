@@ -11,6 +11,7 @@ import type {
 } from '@rsbuild/core'
 import type { UndefinedOnPartialDeep } from 'type-fest'
 
+import { ExtractStrWebpackPlugin } from '@lynx-js/extract-str-webpack-plugin'
 import { LAYERS, ReactWebpackPlugin } from '@lynx-js/react-webpack-plugin'
 import type { ExposedAPI } from '@lynx-js/rspeedy'
 import { RuntimeWrapperWebpackPlugin } from '@lynx-js/runtime-wrapper-webpack-plugin'
@@ -24,6 +25,7 @@ import { WebWebpackPlugin } from '@lynx-js/web-webpack-plugin'
 import type { PluginReactLynxOptions } from './pluginReactLynx.js'
 
 const PLUGIN_NAME_REACT = 'lynx:react'
+const PLUGIN_NAME_EXTRACT_STR = 'lynx:extract-str'
 const PLUGIN_NAME_TEMPLATE = 'lynx:template'
 const PLUGIN_NAME_RUNTIME_WRAPPER = 'lynx:runtime-wrapper'
 const PLUGIN_NAME_WEB = 'lynx:web'
@@ -226,8 +228,15 @@ export function applyEntry(
         firstScreenSyncTiming,
         enableSSR,
         mainThreadChunks,
-        backgroundChunks,
         experimental_isLazyBundle,
+      }])
+
+    chain
+      .plugin(PLUGIN_NAME_EXTRACT_STR)
+      .after(PLUGIN_NAME_REACT)
+      .use(ExtractStrWebpackPlugin, [{
+        mainThreadChunks,
+        backgroundChunks,
         extractStr,
       }])
   })
