@@ -10,8 +10,7 @@
       ],
       "outputs": [
         "./runtime/lib",
-        "./components/lib",
-        "./worklet-runtime/lib"
+        "./components/lib"
       ]
     }
   }

@@ -1,4 +1,4 @@
-import { globalPipelineOptions } from './impl.js';
+import { markTimingImpl } from './impl.js';
 
 enum MainThreadPerformanceTimingKeys {
   update_diff_vdom_start,
@@ -13,9 +13,11 @@ function markMainThreadTiming(
   timestampKey: MainThreadPerformanceTimingKeys,
   force?: boolean,
 ): void {
-  if (globalPipelineOptions && (force || globalPipelineOptions.needTimestamps)) {
-    lynx.performance?._markTiming?.(globalPipelineOptions.pipelineID, MainThreadPerformanceTimingKeys[timestampKey]);
-  }
+  return markTimingImpl(
+    MainThreadPerformanceTimingKeys,
+    timestampKey,
+    force,
+  );
 }
 
 /**
