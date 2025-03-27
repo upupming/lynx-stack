@@ -1,25 +1,23 @@
-import type { RslibConfig } from '@rslib/core';
 import { defineConfig } from '@rslib/core';
 
-const config: RslibConfig = defineConfig(
-  {
-    lib: [{
-      source: {
-        entry: {
-          index: `./src/**`,
-        },
-      },
-      output: {
-        distPath: {
-          root: `./lib`,
-        },
-        cleanDistPath: false,
-      },
+export default defineConfig({
+  source: {
+    entry: {
+      index: './src/**',
+    },
+  },
+  lib: [
+    {
+      bundle: false,
       format: 'esm',
       syntax: 'es2021',
-      bundle: false,
-    }],
+      dts: true,
+    },
+  ],
+  output: {
+    distPath: {
+      root: './lib',
+    },
+    sourceMap: true,
   },
-);
-
-export default config;
+});

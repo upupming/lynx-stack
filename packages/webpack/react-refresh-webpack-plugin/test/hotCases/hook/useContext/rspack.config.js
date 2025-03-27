@@ -15,6 +15,8 @@ export default {
           /node_modules/,
           /@lynx-js/,
           /compiler-nodiff-runtime3/,
+          // import 'background-only' should be excluded
+          /background-only/,
           path.dirname(require.resolve('@lynx-js/react/package.json')) + path.sep,
           path.resolve(__dirname, '../../../../runtime'),
           ReactRefreshRspackPlugin.loader,
@@ -45,7 +47,6 @@ export default {
             loader: ReactWebpackPlugin.loaders.BACKGROUND,
             options: { enableRemoveCSSScope: true, refresh: true },
           },
-          path.resolve(__dirname, '../../remove-background-only-loader.js')
         ],
       },
     ],

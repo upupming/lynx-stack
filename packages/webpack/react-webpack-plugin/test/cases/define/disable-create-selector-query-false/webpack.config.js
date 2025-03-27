@@ -1,4 +1,3 @@
-import path from 'node:path';
 import { ReactWebpackPlugin } from '../../../../src';
 
 /** @type {import('webpack').Configuration} */
@@ -22,7 +21,6 @@ export default {
           {
             loader: ReactWebpackPlugin.loaders.BACKGROUND,
           },
-          path.resolve(__dirname, '../../../remove-background-only-loader.js'),
         ],
       },
     ],

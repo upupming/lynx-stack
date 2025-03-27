@@ -3,7 +3,7 @@ import { defineConfig } from '@rslib/core';
 
 const config: RslibConfig = defineConfig(
   {
-    lib: ['runtime', 'components', 'worklet-runtime'].map(folder => {
+    lib: ['runtime', 'components'].map(folder => {
       return {
         source: {
           entry: {
