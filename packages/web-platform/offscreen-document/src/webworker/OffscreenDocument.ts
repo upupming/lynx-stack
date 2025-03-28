@@ -11,15 +11,15 @@ import {
   OffscreenEvent,
   propagationStopped,
 } from './OffscreenEvent.js';
-import { uniqueId, type OffscreenNode } from './OffscreenNode.js';
+import { OffscreenNode, uniqueId } from './OffscreenNode.js';
 
 export const operations = Symbol('operations');
 export const enableEvent = Symbol('enableEvent');
 export const getElementByUniqueId = Symbol('getElementByUniqueId');
-const _onEvent = Symbol('_onEvent');
+export const _onEvent = Symbol('_onEvent');
 const _uniqueIdInc = Symbol('uniqueIdInc');
 const _uniqueIdToElement = Symbol('_uniqueIdToElement');
-export class OffscreenDocument extends EventTarget {
+export class OffscreenDocument extends OffscreenNode {
   /**
    * @private
    */
@@ -44,12 +44,24 @@ export class OffscreenDocument extends EventTarget {
     return this[_uniqueIdToElement][uniqueId]?.deref();
   }
 
+  [enableEvent]: (eventType: string, uid: number) => void;
   constructor(
     private _callbacks: {
       onCommit: (operations: ElementOperation[]) => void;
     },
   ) {
-    super();
+    const enableEventImpl: (nm: string, uid: number) => void = (
+      eventType,
+      uid,
+    ) => {
+      this[operations].push({
+        type: OperationType.EnableEvent,
+        eventType,
+        uid,
+      });
+    };
+    super(0, enableEventImpl);
+    this[enableEvent] = enableEventImpl;
   }
 
   commit(): void {
@@ -58,12 +70,13 @@ export class OffscreenDocument extends EventTarget {
     this._callbacks.onCommit(currentOperations);
   }
 
-  append(element: OffscreenElement) {
+  override append(element: OffscreenElement) {
     this[operations].push({
       type: OperationType.Append,
       uid: 0,
       cid: [element[uniqueId]],
     });
+    super.append(element);
   }
 
   createElement(tagName: string): OffscreenElement {
@@ -78,21 +91,11 @@ export class OffscreenDocument extends EventTarget {
     return element;
   }
 
-  #enabledEvents = new Set<string>();
-  [enableEvent](eventType: string): void {
-    if (!this.#enabledEvents.has(eventType)) {
-      this[operations].push({
-        type: OperationType.EnableEvent,
-        eventType,
-        uid: 0,
-      });
-    }
-  }
-
   [_onEvent] = (
     eventType: string,
     targetUniqueId: number,
     bubbles: boolean,
+    otherProperties: Parameters<typeof structuredClone>[0],
   ) => {
     const target = this[getElementByUniqueId](targetUniqueId);
     if (target) {
@@ -103,6 +106,7 @@ export class OffscreenDocument extends EventTarget {
         tempTarget = tempTarget.parentElement;
       }
       const event = new OffscreenEvent(eventType, target);
+      Object.assign(event, otherProperties);
       // capture phase
       event[eventPhase] = Event.CAPTURING_PHASE;
       for (let ii = bubblePath.length - 1; ii >= 0; ii--) {

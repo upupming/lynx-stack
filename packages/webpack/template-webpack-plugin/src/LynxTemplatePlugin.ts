@@ -641,14 +641,12 @@ class LynxTemplatePluginImpl {
       return asyncChunkGroups;
     }
 
+    const hooks = LynxTemplatePlugin.getLynxTemplatePluginHooks(compilation);
+
     asyncChunkGroups = groupBy(
       compilation.chunkGroups
         .filter(cg => !cg.isInitial()),
-      (cg) =>
-        cg.origins
-          .sort((a, b) => a.request.localeCompare(b.request))
-          .map(({ request }) => request)
-          .join('|'),
+      cg => hooks.asyncChunkName.call(cg.name)!,
     );
 
     LynxTemplatePluginImpl.#asyncChunkGroups.set(compilation, asyncChunkGroups);

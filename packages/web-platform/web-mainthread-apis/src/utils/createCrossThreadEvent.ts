@@ -1,19 +1,20 @@
 // Copyright 2023 The Lynx Authors. All rights reserved.
 // Licensed under the Apache License Version 2.0 that can be found in the
 // LICENSE file in the root directory of this source tree.
+import type { Cloneable, LynxCrossThreadEvent } from '@lynx-js/web-constants';
 import {
-  lynxRuntimeValue,
-  lynxUniqueIdAttribute,
-  W3cEventNameToLynx,
-  type Cloneable,
-  type LynxCrossThreadEvent,
-} from '@lynx-js/web-constants';
-import type { RuntimePropertyOnElement } from '../types/RuntimePropertyOnElement';
+  elementToRuntimeInfoMap,
+  type MainThreadRuntime,
+} from '../MainThreadRuntime.js';
 
-export function createCrossThreadEvent(domEvent: Event): LynxCrossThreadEvent {
-  const targetElement = domEvent.target as (RuntimePropertyOnElement & Element);
+export function createCrossThreadEvent(
+  runtime: MainThreadRuntime,
+  domEvent: Event,
+  eventName: string,
+): LynxCrossThreadEvent {
+  const targetElement = domEvent.target as HTMLElement;
   const currentTargetElement = domEvent
-    .currentTarget! as (RuntimePropertyOnElement & Element);
+    .currentTarget! as HTMLElement;
   const type = domEvent.type;
   const params: Cloneable = {};
   if (type.match(/^transition/)) {
@@ -29,21 +30,27 @@ export function createCrossThreadEvent(domEvent: Event): LynxCrossThreadEvent {
       new_animator: true, // we support the new_animator only
     });
   }
+  const targetElementRuntimeInfo = runtime[elementToRuntimeInfoMap].get(
+    targetElement,
+  )!;
+  const currentTargetElementRuntimeInfo = runtime[elementToRuntimeInfoMap].get(
+    currentTargetElement,
+  );
   return {
-    type: W3cEventNameToLynx[type] ?? type,
+    type: eventName,
     timestamp: domEvent.timeStamp,
     target: {
       id: targetElement.id,
-      dataset: targetElement[lynxRuntimeValue].dataset,
-      uniqueId: parseFloat(targetElement.getAttribute(lynxUniqueIdAttribute)!),
+      dataset: targetElementRuntimeInfo.lynxDataset,
+      uniqueId: targetElementRuntimeInfo.uniqueId,
     },
-    currentTarget: {
-      id: currentTargetElement.id,
-      dataset: currentTargetElement[lynxRuntimeValue]?.dataset ?? {},
-      uniqueId: parseFloat(
-        currentTargetElement.getAttribute?.(lynxUniqueIdAttribute)!,
-      ),
-    },
+    currentTarget: currentTargetElementRuntimeInfo
+      ? {
+        id: currentTargetElement.id,
+        dataset: currentTargetElementRuntimeInfo.lynxDataset,
+        uniqueId: currentTargetElementRuntimeInfo.uniqueId,
+      }
+      : null,
     // @ts-expect-error
     detail: domEvent.detail ?? {},
     params,

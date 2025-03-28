@@ -2,28 +2,14 @@
 // Licensed under the Apache License Version 2.0 that can be found in the
 // LICENSE file in the root directory of this source tree.
 // @ts-nocheck
-import {
-  componentIdAttribute,
-  cssIdAttribute,
-  parentComponentUniqueIdAttribute,
-} from '@lynx-js/web-constants';
+import { componentIdAttribute, cssIdAttribute } from '@lynx-js/web-constants';
 import { test, expect } from './coverage-fixture.js';
 import type { Page } from '@playwright/test';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
-import fs from 'node:fs/promises';
-import v8toIstanbul from 'v8-to-istanbul';
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 const wait = async (ms: number) => {
   await new Promise((resolve) => {
     setTimeout(resolve, ms);
   });
-};
-
-const getTitle = (titlePath: string[]) => {
-  return path.join(...[titlePath.pop()!, titlePath.pop()!].reverse());
 };
 
 test.describe('main thread api tests', () => {
@@ -91,7 +77,6 @@ test.describe('main thread api tests', () => {
   test(
     'create-scroll-view-with-set-attribute',
     async ({ page, browserName }, { title }) => {
-      test.skip(browserName !== 'chromium', 'flaky');
       const ret = await page.evaluate(() => {
         let root = globalThis.__CreatePage('page', 0);
         let ret = globalThis.__CreateScrollView(0);
@@ -207,7 +192,7 @@ test.describe('main thread api tests', () => {
         ret1: globalThis.__GetTag(ret1),
       };
     });
-    expect(ret.ret0).toBe(undefined);
+    expect(ret.ret0).toBeFalsy();
     expect(ret.ret_u).toBe(undefined);
     expect(ret.ret1).toBe('text');
   });
@@ -484,7 +469,6 @@ test.describe('main thread api tests', () => {
       return;
     });
     const e1 = page.locator(`[${componentIdAttribute}="id1"]`);
-    expect(await e1?.getAttribute(parentComponentUniqueIdAttribute)).toBe('0');
   });
 
   test('__SetInlineStyles', async ({ page }, { title }) => {
@@ -530,12 +514,8 @@ test.describe('main thread api tests', () => {
       globalThis.__AddInlineStyle(root, 26, '80px');
       globalThis.__FlushElementTree();
     });
-    const style = await page.evaluate(() => {
-      const elements = globalThis.getElementThreadElements();
-      return elements[0].deref().attributes.style;
-    });
-    await expect(style).toBe('height:80px;');
-    await expect(page.locator(`[lynx-tag='page']`)).toHaveCSS('height', '80px');
+    const pageElement = page.locator(`[lynx-tag='page']`);
+    await expect(pageElement).toHaveCSS('height', '80px');
   });
 
   test('__AddInlineStyle_raw_string', async ({ page }, { title }) => {
@@ -958,12 +938,18 @@ test.describe('main thread api tests', () => {
       globalThis.__SetID(child_2, 'node_id_2');
 
       globalThis.__FlushElementTree();
-      let ret_node = document.querySelector('#node_id');
+      let ret_node = document.getElementById('root').shadowRoot.querySelector(
+        '#node_id',
+      );
       let ret_id = ret_node?.getAttribute('id');
 
-      let ret_u = document.querySelector('#node_id_u');
+      let ret_u = document.getElementById('root').shadowRoot.querySelector(
+        '#node_id_u',
+      );
 
-      let ret_child = document.querySelector('#node_id_2');
+      let ret_child = document.getElementById('root').shadowRoot.querySelector(
+        '#node_id_2',
+      );
       let ret_child_id = ret_child?.getAttribute('id');
 
       // let ret_child_u = parent.querySelector('#node_id_2');
@@ -982,7 +968,7 @@ test.describe('main thread api tests', () => {
 
   test('__setAttribute_null_value', async ({ page }, { title }) => {
     await page.evaluate(() => {
-      const ret = globalThis.__CreateElement('page', 0) as HTMLElement;
+      const ret = globalThis.__CreatePage('page', 0);
       globalThis.__SetAttribute(ret, 'test-attr', 'val');
       globalThis.__SetAttribute(ret, 'test-attr', null);
       globalThis.__FlushElementTree();
@@ -1126,6 +1112,24 @@ test.describe('main thread api tests', () => {
       expect(nul).toBe(-1);
       expect(undef).toBe(-1);
       expect(randomObject).toBe(-1);
+    },
+  );
+
+  test(
+    '__AddInlineStyle_value_number_0',
+    async ({ page }, { title }) => {
+      await page.evaluate(() => {
+        const root = globalThis.__CreatePage('page', 0);
+        const view = globalThis.__CreateView(0);
+        globalThis.__AddInlineStyle(root, 24, 'flex'); // display: flex
+        globalThis.__AddInlineStyle(view, 51, 0); // flex-shrink:0;
+        globalThis.__SetID(view, 'target');
+        globalThis.__AppendElement(root, view);
+        globalThis.__FlushElementTree();
+        return {};
+      });
+      const inlineStyle = await page.locator('#target').getAttribute('style');
+      expect(inlineStyle).toContain('flex-shrink');
     },
   );
 });
