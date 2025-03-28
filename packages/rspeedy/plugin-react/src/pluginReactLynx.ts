@@ -318,8 +318,11 @@ export interface PluginReactLynxOptions {
  */
 export function pluginReactLynx(
   userOptions?: PluginReactLynxOptions,
+  validate = true,
 ): RsbuildPlugin {
-  validateConfig(userOptions)
+  if (validate) {
+    validateConfig(userOptions)
+  }
 
   const engineVersion = userOptions?.engineVersion
     ?? userOptions?.targetSdkVersion ?? '3.2'

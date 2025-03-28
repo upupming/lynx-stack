@@ -14,7 +14,7 @@ import type { ShakeVisitorConfig } from '@lynx-js/react/transform';
 export { LAYERS }
 
 // @public
-export function pluginReactLynx(userOptions?: PluginReactLynxOptions): RsbuildPlugin;
+export function pluginReactLynx(userOptions?: PluginReactLynxOptions, validate?: boolean): RsbuildPlugin;
 
 // @public
 export interface PluginReactLynxOptions {
