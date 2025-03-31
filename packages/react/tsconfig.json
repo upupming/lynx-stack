@@ -3,7 +3,6 @@
   "compilerOptions": {
     "composite": true,
     "skipLibCheck": true, // Skip since type-x-element has too many errors :)
-    "emitDeclarationOnly": true,
   },
   "references": [
     {

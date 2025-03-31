@@ -150,13 +150,13 @@
     "dev": "rslib build --watch"
   },
   "dependencies": {
+    "background-only": "0.0.1",
     "preact": "npm:@hongzhiyuan/preact@10.24.0-319c684e"
   },
   "devDependencies": {
     "@lynx-js/types": "^3.2.0",
     "@microsoft/api-extractor": "catalog:",
-    "@types/react": "^18.3.20",
-    "background-only": "workspace:*"
+    "@types/react": "^18.3.20"
   },
   "peerDependencies": {
     "@lynx-js/types": "*",

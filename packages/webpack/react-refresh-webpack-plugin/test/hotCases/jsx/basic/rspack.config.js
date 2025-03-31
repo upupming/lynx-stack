@@ -15,7 +15,6 @@ export default {
           /node_modules/,
           /@lynx-js/,
           /compiler-nodiff-runtime3/,
-          /background-only/,
           path.dirname(require.resolve('@lynx-js/react/package.json')) + path.sep,
           path.resolve(__dirname, '../../../../runtime'),
           ReactRefreshRspackPlugin.loader,
