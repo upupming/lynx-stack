@@ -19,6 +19,15 @@ export const initElementTree = () => {
 
   return new (class ElementTree {
     root: LynxElement | undefined;
+    countElement(
+      element: LynxElement,
+      parentComponentUniqueId: number,
+    ) {
+      element.$$uiSign = uiSignNext++;
+      uniqueId2Element.set(element.$$uiSign, element);
+      element.parentComponentUniqueId = parentComponentUniqueId;
+      element.props = {};
+    }
     __CreatePage(tag: string, parentComponentUniqueId: number) {
       const page = this.__CreateElement('page', parentComponentUniqueId);
       this.root = page;
@@ -30,8 +39,7 @@ export const initElementTree = () => {
       const element = lynxEnv.jsdom.window.document.createTextNode(
         text,
       ) as unknown as LynxElement;
-      element.$$uiSign = uiSignNext++;
-      uniqueId2Element.set(element.$$uiSign, element);
+      this.countElement(element, 0);
 
       return element;
     }
@@ -55,10 +63,7 @@ export const initElementTree = () => {
       const element = lynxEnv.jsdom.window.document.createElement(
         tag,
       ) as LynxElement;
-      element.$$uiSign = uiSignNext++;
-      uniqueId2Element.set(element.$$uiSign, element);
-      element.parentComponentUniqueId = parentComponentUniqueId;
-      element.props = {};
+      this.countElement(element, parentComponentUniqueId);
       return element;
     }
 

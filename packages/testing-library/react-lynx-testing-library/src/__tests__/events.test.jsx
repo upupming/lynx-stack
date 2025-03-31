@@ -89,6 +89,14 @@ eventTypes.forEach(({ type, events, elementType, init }, eventTypeIdx) => {
             Number(ref.current._nodeSelectToken.identifier),
           );
           expect(element).toMatchInlineSnapshot(`<view />`);
+          expect(element.props).toMatchInlineSnapshot(`
+            {
+              "event": {
+                "bindEvent:tap": [Function],
+              },
+              "has-react-ref": true,
+            }
+          `);
           expect(init).toMatchInlineSnapshot(`
             {
               "key": "value",
