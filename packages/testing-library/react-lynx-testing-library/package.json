@@ -47,13 +47,13 @@
     "@lynx-js/react": "workspace:*",
     "@preact/preset-vite": "^2.9.3",
     "@rsbuild/plugin-react": "^1.1.0",
-    "@rslib/core": "^0.5.4",
+    "@rslib/core": "^0.6.1",
     "@testing-library/jest-dom": "^6.6.3",
-    "@types/node": "^22.13.5",
-    "@vitest/ui": "^3.0.8",
+    "@types/node": "^22.13.16",
+    "@vitest/ui": "^3.1.1",
     "esbuild-fix-imports-plugin": "^1.0.14",
     "jsdom": "^26.0.0",
     "tsup": "^8.4.0",
-    "vitest": "^3.0.8"
+    "vitest": "^3.1.1"
   }
 }

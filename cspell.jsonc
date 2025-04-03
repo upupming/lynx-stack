@@ -117,6 +117,17 @@
     "parseable", // https://pnpm.io/cli/list
     "debugids", // https://getsentry.github.io/debugids/
     "layoutchange", // the "layoutchange" event of Lynx
+    "longtap",
+    "bgload",
+    "bgerror",
+    "mouseclick",
+    "mousedblclick",
+    "mouselongpress",
+    "mouselongpress",
+    "contentsizechanged",
+    "scrolltoupperedge",
+    "scrolltoloweredge",
+    "scrolltonormalstate",
   ],
   // Glob
   "ignorePaths": [

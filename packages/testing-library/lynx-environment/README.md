@@ -7,7 +7,7 @@ The Element PAPI implementation is based on jsdom, for example `__CreateElement`
 ## Usage
 
 ```js
-import { LynxEnv } from '@byted-lynx/testing-library';
+import { LynxEnv } from '@lynx-js/lynx-environment';
 
 const lynxEnv = new LynxEnv();
 ```

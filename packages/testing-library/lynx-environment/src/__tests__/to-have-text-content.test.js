@@ -146,7 +146,7 @@ describe('.toHaveTextContent', () => {
     );
   });
 
-  test('can handle multiple levels with content spread across decendants', () => {
+  test('can handle multiple levels with content spread across descendants', () => {
     lynxEnv.resetLynxEnv();
     lynxEnv.switchToMainThread();
     const page = __CreatePage('0', 0);
