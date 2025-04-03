@@ -6,7 +6,7 @@ beforeEach(() => {
 });
 
 describe('test', () => {
-  it('basic element API should work', () => {
+  it('basic element PAPI should work', () => {
     const page = __CreatePage('0', 0);
     expect(elementTree).toMatchInlineSnapshot(`<page />`);
     const view0 = __CreateView(0);

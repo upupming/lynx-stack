@@ -75,6 +75,7 @@ test('findByTestId returns the element', async () => {
     <page>
       <view
         data-testid="foo"
+        has-react-ref="true"
       >
         <text>
           Hello world!
@@ -85,6 +86,7 @@ test('findByTestId returns the element', async () => {
   expect(await findByTestId('foo')).toMatchInlineSnapshot(`
     <view
       data-testid="foo"
+      has-react-ref="true"
     >
       <text>
         Hello world!

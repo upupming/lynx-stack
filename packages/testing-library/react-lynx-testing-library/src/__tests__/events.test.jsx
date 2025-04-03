@@ -88,13 +88,19 @@ eventTypes.forEach(({ type, events, elementType, init }, eventTypeIdx) => {
           const element = __GetElementByUniqueId(
             Number(ref.current._nodeSelectToken.identifier),
           );
-          expect(element).toMatchInlineSnapshot(`<view />`);
-          expect(element.props).toMatchInlineSnapshot(`
+          expect(element).toMatchInlineSnapshot(`
+            <view
+              has-react-ref="true"
+            />
+          `);
+          expect(element.attributes).toMatchInlineSnapshot(`
+            NamedNodeMap {
+              "has-react-ref": "true",
+            }
+          `);
+          expect(element.eventMap).toMatchInlineSnapshot(`
             {
-              "event": {
-                "bindEvent:tap": [Function],
-              },
-              "has-react-ref": true,
+              "bindEvent:tap": [Function],
             }
           `);
           expect(init).toMatchInlineSnapshot(`
@@ -149,6 +155,9 @@ test('calling `fireEvent` directly works too', () => {
 
   expect(handler).toHaveBeenCalledTimes(1);
   expect(handler).toHaveBeenCalledWith(event);
+  expect(handler.mock.calls[0][0].type).toMatchInlineSnapshot(
+    `"catchEvent:tap"`,
+  );
   expect(handler.mock.calls[0][0]).toMatchInlineSnapshot(`
   Event {
     "eventName": "tap",

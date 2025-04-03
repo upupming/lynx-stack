@@ -1,8 +1,7 @@
 import '@testing-library/jest-dom';
-import { test } from 'vitest';
+import { test, expect } from 'vitest';
 import { render } from '..';
 import { createRef } from '@lynx-js/react';
-import { expect } from 'vitest';
 
 test('renders view into page', async () => {
   const ref = createRef();
@@ -26,7 +25,7 @@ test('renders options.wrapper around node', async () => {
     <view data-testid='wrapper'>{children}</view>
   );
   const Comp = () => {
-    return <view data-testid='inner' />;
+    return <view data-testid='inner' style='background-color: yellow;' />;
   };
   const { container, getByTestId } = render(<Comp />, {
     wrapper: WrapperComponent,
@@ -38,6 +37,7 @@ test('renders options.wrapper around node', async () => {
     >
       <view
         data-testid="inner"
+        style="background-color: yellow;"
       />
     </view>
   `);

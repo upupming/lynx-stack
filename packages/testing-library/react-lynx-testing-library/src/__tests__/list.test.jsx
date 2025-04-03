@@ -23,10 +23,13 @@ describe('list', () => {
     expect(__pendingListUpdates.values).toMatchInlineSnapshot(`{}`);
     expect(container).toMatchInlineSnapshot(`
       <page>
-        <list />
+        <list
+          update-list-info="[{"insertAction":[{"position":0,"type":"__Card__:__snapshot_8f9f7_test_2","item-key":0},{"position":1,"type":"__Card__:__snapshot_8f9f7_test_2","item-key":1},{"position":2,"type":"__Card__:__snapshot_8f9f7_test_2","item-key":2}],"removeAction":[],"updateAction":[]}]"
+        />
       </page>
     `);
     const list = container.firstChild;
+    expect(list.props).toMatchInlineSnapshot(`undefined`);
     const uid0 = elementTree.triggerComponentAtIndex(list, 0);
     expect(__pendingListUpdates.values).toMatchInlineSnapshot(`
       {
@@ -49,8 +52,12 @@ describe('list', () => {
     `);
     expect(container).toMatchInlineSnapshot(`
       <page>
-        <list>
-          <list-item>
+        <list
+          update-list-info="[{"insertAction":[{"position":0,"type":"__Card__:__snapshot_8f9f7_test_2","item-key":0},{"position":1,"type":"__Card__:__snapshot_8f9f7_test_2","item-key":1},{"position":2,"type":"__Card__:__snapshot_8f9f7_test_2","item-key":2}],"removeAction":[],"updateAction":[]}]"
+        >
+          <list-item
+            item-key="0"
+          >
             <text>
               0
             </text>
@@ -87,13 +94,19 @@ describe('list', () => {
     `);
     expect(container).toMatchInlineSnapshot(`
       <page>
-        <list>
-          <list-item>
+        <list
+          update-list-info="[{"insertAction":[{"position":0,"type":"__Card__:__snapshot_8f9f7_test_2","item-key":0},{"position":1,"type":"__Card__:__snapshot_8f9f7_test_2","item-key":1},{"position":2,"type":"__Card__:__snapshot_8f9f7_test_2","item-key":2}],"removeAction":[],"updateAction":[]}]"
+        >
+          <list-item
+            item-key="0"
+          >
             <text>
               0
             </text>
           </list-item>
-          <list-item>
+          <list-item
+            item-key="1"
+          >
             <text>
               1
             </text>
@@ -132,13 +145,19 @@ describe('list', () => {
     `);
     expect(container).toMatchInlineSnapshot(`
       <page>
-        <list>
-          <list-item>
+        <list
+          update-list-info="[{"insertAction":[{"position":0,"type":"__Card__:__snapshot_8f9f7_test_2","item-key":0},{"position":1,"type":"__Card__:__snapshot_8f9f7_test_2","item-key":1},{"position":2,"type":"__Card__:__snapshot_8f9f7_test_2","item-key":2}],"removeAction":[],"updateAction":[]}]"
+        >
+          <list-item
+            item-key="0"
+          >
             <text>
               0
             </text>
           </list-item>
-          <list-item>
+          <list-item
+            item-key="1"
+          >
             <text>
               1
             </text>
@@ -184,13 +203,19 @@ describe('list', () => {
     );
     expect(container).toMatchInlineSnapshot(`
       <page>
-        <list>
-          <list-item>
+        <list
+          update-list-info="[{"insertAction":[{"position":0,"type":"__Card__:__snapshot_8f9f7_test_2","item-key":0},{"position":1,"type":"__Card__:__snapshot_8f9f7_test_2","item-key":1},{"position":2,"type":"__Card__:__snapshot_8f9f7_test_2","item-key":2}],"removeAction":[],"updateAction":[]}]"
+        >
+          <list-item
+            item-key="2"
+          >
             <text>
               2
             </text>
           </list-item>
-          <list-item>
+          <list-item
+            item-key="1"
+          >
             <text>
               1
             </text>

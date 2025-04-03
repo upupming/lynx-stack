@@ -1,15 +1,37 @@
+/**
+ * @packageDocumentation
+ *
+ * A pure-JavaScript implementation of the {@link https://lynxjs.org/guide/spec.html | Lynx Spec},
+ * notably the {@link https://lynxjs.org/api/engine/element-api | Element PAPI} and {@link https://lynxjs.org/guide/spec#dual-threaded-model | Dual-threaded Model} for use with Node.js.
+ */
+
 import EventEmitter from 'events';
 import { createGlobalThis, LynxGlobalThis } from './lynx/GlobalThis';
-import { initElementTree } from './lynx/ElementAPI';
+import { initElementTree } from './lynx/ElementPAPI';
 import { JSDOM } from 'jsdom';
-export type { LynxElement } from './lynx/ElementAPI';
-
-type ElementTree = ReturnType<typeof initElementTree>;
-type FilterUnderscoreKeys<T> = {
+export { initElementTree } from './lynx/ElementPAPI';
+export type { LynxElement } from './lynx/ElementPAPI';
+export type { LynxGlobalThis } from './lynx/GlobalThis';
+/**
+ * @public
+ * The lynx element tree
+ */
+export type ElementTree = ReturnType<typeof initElementTree>;
+/**
+ * @public
+ */
+export type FilterUnderscoreKeys<T> = {
   [K in keyof T]: K extends `__${string}` ? K : never;
 }[keyof T];
-type PickUnderscoreKeys<T> = Pick<T, FilterUnderscoreKeys<T>>;
-type ElementTreeGlobals = PickUnderscoreKeys<ElementTree>;
+/**
+ * @public
+ */
+export type PickUnderscoreKeys<T> = Pick<T, FilterUnderscoreKeys<T>>;
+/**
+ * The Element PAPI Types
+ * @public
+ */
+export type ElementTreeGlobals = PickUnderscoreKeys<ElementTree>;
 
 declare global {
   var lynxEnv: LynxEnv;
@@ -31,7 +53,7 @@ declare global {
   function onInitWorkletRuntime(): void;
 }
 
-export function __injectElementApi(target?: any) {
+function __injectElementApi(target?: any) {
   const elementTree = initElementTree();
   target.elementTree = elementTree;
 
@@ -148,7 +170,7 @@ function createPolyfills() {
     const isBackground = !__MAIN_THREAD__;
     globalThis.lynxEnv.switchToMainThread();
 
-    if (process.env.DEBUG) {
+    if (process.env['DEBUG']) {
       console.log('__LoadLepusChunk', chunkName, options);
     }
     let ans;
@@ -175,12 +197,11 @@ function createPolyfills() {
   };
 }
 
-export function injectMainThreadGlobals(target?: any, polyfills?: any) {
+function injectMainThreadGlobals(target?: any, polyfills?: any) {
   __injectElementApi(target);
 
   const {
     performance,
-    CoreContext,
     JsContext,
     __LoadLepusChunk,
   } = polyfills || {};
@@ -200,7 +221,6 @@ export function injectMainThreadGlobals(target?: any, polyfills?: any) {
   target.globDynamicComponentEntry = '__Card__';
   target.lynx = {
     performance,
-    // getCoreContext: (() => CoreContext),
     getJSContext: (() => JsContext),
   };
   target.requestAnimationFrame = setTimeout;
@@ -219,12 +239,11 @@ const IGNORE_LIST_GLOBALS = [
   'global',
 ];
 
-export function injectBackgroundThreadGlobals(target?: any, polyfills?: any) {
+function injectBackgroundThreadGlobals(target?: any, polyfills?: any) {
   const {
     app,
     performance,
     CoreContext,
-    JsContext,
     __LoadLepusChunk,
   } = polyfills || {};
   if (typeof target === 'undefined') {
@@ -247,7 +266,9 @@ export function injectBackgroundThreadGlobals(target?: any, polyfills?: any) {
   };
 
   class NodesRef {
+    // @ts-ignore
     private readonly _nodeSelectToken: any;
+    // @ts-ignore
     private readonly _selectorQuery: any;
 
     constructor(selectorQuery: any, nodeSelectToken: any) {
@@ -292,7 +313,6 @@ export function injectBackgroundThreadGlobals(target?: any, polyfills?: any) {
       };
     }),
     getCoreContext: (() => CoreContext),
-    // getJSContext: (() => JsContext),
     getJSModule: (moduleName) => {
       if (moduleName === 'GlobalEventEmitter') {
         return globalEventEmiter;
@@ -324,20 +344,70 @@ export function injectBackgroundThreadGlobals(target?: any, polyfills?: any) {
   globalThis.onInjectBackgroundThreadGlobals?.(target);
 }
 
-export type ThreadType = 'background' | 'main';
-
-/** */
+/**
+ * A pure-JavaScript implementation of the {@link https://lynxjs.org/guide/spec.html | Lynx Spec},
+ * notably the {@link https://lynxjs.org/api/engine/element-api | Element PAPI} and {@link https://lynxjs.org/guide/spec#dual-threaded-model | Dual-threaded Model} for use with Node.js.
+ *
+ * @example
+ *
+ * ```ts
+ * import { LynxEnv } from '@byted-lynx/testing-library';
+ *
+ * const lynxEnv = new LynxEnv();
+ *
+ * lynxEnv.switchToMainThread();
+ * // use the main thread Element PAPI
+ * const page = __CreatePage('0', 0);
+ * const view = __CreateView(0);
+ * __AppendElement(page, view);
+ *
+ * ```
+ *
+ * @public
+ */
 export class LynxEnv {
   private originals: Map<string, any> = new Map();
+  /**
+   * The global object for the background thread.
+   *
+   * @example
+   *
+   * ```ts
+   * import { LynxEnv } from '@byted-lynx/testing-library';
+   *
+   * const lynxEnv = new LynxEnv();
+   *
+   * lynxEnv.switchToBackgroundThread();
+   * // use the background thread global object
+   * globalThis.lynxCoreInject.tt.OnLifecycleEvent(...args);
+   * ```
+   */
   backgroundThread: LynxGlobalThis;
+  /**
+   * The global object for the main thread.
+   *
+   * @example
+   *
+   * ```ts
+   * import { LynxEnv } from '@byted-lynx/testing-library';
+   *
+   * const lynxEnv = new LynxEnv();
+   *
+   * lynxEnv.switchToMainThread();
+   * // use the main thread global object
+   * const page = globalThis.__CreatePage('0', 0);
+   * const view = globalThis.__CreateView(0);
+   * globalThis.__AppendElement(page, view);
+   * ```
+   */
   mainThread: LynxGlobalThis & ElementTreeGlobals;
   jsdom = new JSDOM();
   constructor() {
-    this.backgroundThread = createGlobalThis({}) as any;
-    this.mainThread = createGlobalThis({}) as any;
+    this.backgroundThread = createGlobalThis() as any;
+    this.mainThread = createGlobalThis() as any;
 
     const globalPolyfills = {
-      console: this.jsdom.window.console,
+      console: this.jsdom.window['console'],
       // `Event` is required by `fireEvent` in `@testing-library/dom`
       Event: this.jsdom.window.Event,
       // `window` is required by `getDocument` in `@testing-library/dom`

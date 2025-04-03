@@ -4,15 +4,77 @@
 // LICENSE file in the root directory of this source tree.
 */
 
+/**
+ * Any Lynx Element, such as `view`, `text`, `image`, etc.
+ *
+ * [Lynx Spec Reference](https://lynxjs.org/living-spec/index.html?ts=1743416098203#element%E2%91%A0)
+ *
+ * @public
+ */
 export interface LynxElement extends HTMLElement {
-  props: Record<string, any>;
+  // /**
+  //  * The props of the element.
+  //  */
+  // props: {
+  //   cssId?: string;
+  //   event?: {
+  //     [key: string]: any;
+  //   };
+  //   gesture?: {
+  //     [key: string]: any;
+  //   };
+  //   [key: string]: any;
+  // };
+  /**
+   * The unique id of the element.
+   *
+   * @internal
+   */
   $$uiSign: number;
+  /**
+   * The unique id of the parent of the element.
+   *
+   * @internal
+   */
   parentComponentUniqueId: number;
+  /**
+   * The map of events bound to the element.
+   */
+  eventMap?: {
+    [key: string]: any;
+  };
+  /**
+   * The gestures bound to the element.
+   */
+  gesture?: {
+    [key: string]: any;
+  };
+  /**
+   * The cssId of the element
+   */
+  cssId?: string;
+  /**
+   * Returns the first child.
+   *
+   * [MDN Reference](https://developer.mozilla.org/docs/Web/API/Node/firstChild)
+   */
   firstChild: LynxElement;
+  /**
+   * Returns the next sibling.
+   *
+   * [MDN Reference](https://developer.mozilla.org/docs/Web/API/Node/nextSibling)
+   */
   nextSibling: LynxElement;
+  /**
+   * Returns the parent.
+   *
+   * [MDN Reference](https://developer.mozilla.org/docs/Web/API/Node/parentNode)
+   */
   parentNode: LynxElement;
 }
-
+/**
+ * @public
+ */
 export const initElementTree = () => {
   let uiSignNext = 0;
   const uniqueId2Element = new Map<number, LynxElement>();
@@ -26,9 +88,8 @@ export const initElementTree = () => {
       element.$$uiSign = uiSignNext++;
       uniqueId2Element.set(element.$$uiSign, element);
       element.parentComponentUniqueId = parentComponentUniqueId;
-      element.props = {};
     }
-    __CreatePage(tag: string, parentComponentUniqueId: number) {
+    __CreatePage(_tag: string, parentComponentUniqueId: number) {
       const page = this.__CreateElement('page', parentComponentUniqueId);
       this.root = page;
       lynxEnv.jsdom.window.document.body.appendChild(page);
@@ -105,10 +166,10 @@ export const initElementTree = () => {
       const cssId = `${entryName ?? '__Card__'}:${id}`;
       if (Array.isArray(e)) {
         e.forEach(item => {
-          item.props.cssId = cssId;
+          item.cssId = cssId;
         });
       } else {
-        e.props.cssId = cssId;
+        e.cssId = cssId;
       }
     }
 
@@ -129,7 +190,11 @@ export const initElementTree = () => {
       }
 
       if (key === 'update-list-info') {
-        (e.props[key] ??= []).push(value);
+        let listInfoStr = e.getAttribute(key);
+        let listInfo = listInfoStr ? JSON.parse(listInfoStr) : [];
+        listInfo.push(value);
+
+        e.setAttribute(key, JSON.stringify(listInfo));
         return;
       }
 
@@ -139,10 +204,16 @@ export const initElementTree = () => {
       }
 
       if (value === null) {
-        delete e.props[key];
+        e.removeAttribute(key);
         return;
       }
-      e.props[key] = value;
+      if (typeof value === 'string') {
+        e.setAttribute(key, value);
+        return;
+      } else {
+        e.setAttribute(key, JSON.stringify(value));
+        return;
+      }
     }
 
     __AddEvent(
@@ -151,23 +222,25 @@ export const initElementTree = () => {
       eventName: string,
       eventHandler: string | Record<string, any>,
     ) {
-      if (e.props.event?.[`${eventType}:${eventName}`]) {
+      if (e.eventMap?.[`${eventType}:${eventName}`]) {
         e.removeEventListener(
           `${eventType}:${eventName}`,
-          e.props.event[`${eventType}:${eventName}`],
+          e.eventMap[`${eventType}:${eventName}`],
         );
-        delete e.props.event[`${eventType}:${eventName}`];
+        delete e.eventMap[`${eventType}:${eventName}`];
       }
       if (typeof eventHandler === 'undefined') {
         return;
       }
-      if (typeof eventHandler !== 'string' && eventHandler.type === undefined) {
+      if (
+        typeof eventHandler !== 'string' && eventHandler['type'] === undefined
+      ) {
         throw new Error(`event must be string, but got ${typeof eventHandler}`);
       }
 
-      const listener = (evt) => {
+      const listener: EventListenerOrEventListenerObject = (evt) => {
         if (
-          typeof eventHandler === 'object' && eventHandler.type === 'worklet'
+          typeof eventHandler === 'object' && eventHandler['type'] === 'worklet'
         ) {
           const isBackground = !__MAIN_THREAD__;
           globalThis.lynxEnv.switchToMainThread();
@@ -180,20 +253,29 @@ export const initElementTree = () => {
             globalThis.lynxEnv.switchToBackgroundThread();
           }
         } else {
+          // stop the propagation of the event
+          if (eventType === 'catchEvent' || eventType === 'capture-catch') {
+            evt.stopPropagation();
+          }
           // @ts-ignore
           globalThis.lynxCoreInject.tt.publishEvent(eventHandler, evt);
         }
       };
-      e.props.event = e.props.event ?? {};
-      e.props.event[`${eventType}:${eventName}`] = listener;
+      e.eventMap = e.eventMap ?? {};
+      e.eventMap[`${eventType}:${eventName}`] = listener;
       e.addEventListener(
         `${eventType}:${eventName}`,
         listener,
+        {
+          // listening at capture stage
+          capture: eventType === 'capture-bind'
+            || eventType === 'capture-catch',
+        },
       );
     }
 
     __GetEvent(e: LynxElement, eventType: string, eventName: string) {
-      const jsFunction = e.props.event?.[`${eventType}:${eventName}`];
+      const jsFunction = e.eventMap?.[`${eventType}:${eventName}`];
       if (typeof jsFunction !== 'undefined') {
         return {
           type: eventType,
@@ -201,6 +283,7 @@ export const initElementTree = () => {
           jsFunction,
         };
       }
+      return undefined;
     }
 
     __SetID(e: LynxElement, id: string) {
@@ -233,7 +316,7 @@ export const initElementTree = () => {
       config: any,
       relationMap: Record<string, number[]>,
     ) {
-      e.props.gesture = {
+      e.gesture = {
         id,
         type,
         config,
@@ -280,16 +363,16 @@ export const initElementTree = () => {
 
     __FlushElementTree(): void {}
 
-    __UpdateListComponents(list: LynxElement, components: string[]) {}
+    __UpdateListComponents(_list: LynxElement, _components: string[]) {}
 
     __UpdateListActions(
-      list: LynxElement,
-      removals: number[],
-      insertions: number[],
-      moveFrom: number[],
-      moveTo: number[],
-      updateFrom: number[],
-      updateTo: number[],
+      _list: LynxElement,
+      _removals: number[],
+      _insertions: number[],
+      _moveFrom: number[],
+      _moveTo: number[],
+      _updateFrom: number[],
+      _updateTo: number[],
     ) {}
 
     __UpdateListCallbacks(

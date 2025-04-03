@@ -323,7 +323,7 @@ describe('worklet', () => {
             const resp = await runOnBackground(() => {
               console.log('run on background');
               cb();
-              return 'Hello from background11';
+              return 'Hello from background';
             })();
             globalThis.receiveRunOnBackgroundResp(resp);
           }}
@@ -379,12 +379,12 @@ describe('worklet', () => {
     expect(globalThis.receiveRunOnBackgroundResp).toBeCalledTimes(1);
     expect(globalThis.receiveRunOnBackgroundResp.mock.calls)
       .toMatchInlineSnapshot(`
-      [
         [
-          "Hello from background11",
-        ],
-      ]
-    `);
+          [
+            "Hello from background",
+          ],
+        ]
+      `);
     vi.resetAllMocks();
   });
 
@@ -423,6 +423,7 @@ describe('worklet', () => {
     expect(container).toMatchInlineSnapshot(`
       <page>
         <view
+          has-react-ref="true"
           style="width: 300px; height: 300px;"
         >
           <text>
