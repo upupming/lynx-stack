@@ -7,7 +7,14 @@ import { BackgroundSnapshotInstance, hydrate } from '../backgroundSnapshot.js';
 import { destroyBackground } from '../lifecycle/destroy.js';
 import { delayedEvents, delayedPublishEvent } from '../lifecycle/event/delayEvents.js';
 import { delayLifecycleEvent, delayedLifecycleEvents } from '../lifecycle/event/delayLifecycleEvents.js';
-import { commitPatchUpdate, genCommitTaskId, globalCommitTaskMap } from '../lifecycle/patch/commit.js';
+import {
+  clearPatchesToCommit,
+  commitPatchUpdate,
+  genCommitTaskId,
+  globalCommitTaskMap,
+  patchesToCommit,
+  type PatchList,
+} from '../lifecycle/patch/commit.js';
 import { reloadBackground } from '../lifecycle/reload.js';
 import { renderBackground } from '../lifecycle/render.js';
 import { CHILDREN } from '../renderToOpcodes/constants.js';
@@ -50,7 +57,7 @@ function onLifecycleEvent([type, data]: [string, any]) {
   }
 
   try {
-    void onLifecycleEventImpl(type, data);
+    onLifecycleEventImpl(type, data);
   } catch (e) {
     lynx.reportError(e as Error);
   }
@@ -60,7 +67,7 @@ function onLifecycleEvent([type, data]: [string, any]) {
   }
 }
 
-async function onLifecycleEventImpl(type: string, data: any): Promise<void> {
+function onLifecycleEventImpl(type: string, data: any): void {
   switch (type) {
     case LifecycleConstant.firstScreen: {
       const { root: lepusSide, refPatch, jsReadyEventIdSwap } = data;
@@ -116,7 +123,14 @@ async function onLifecycleEventImpl(type: string, data: any): Promise<void> {
         console.profile('commitChanges');
       }
       const commitTaskId = genCommitTaskId();
-      const obj = commitPatchUpdate({ patchList: [{ snapshotPatch, id: commitTaskId }] }, { isHydration: true });
+      patchesToCommit.push(
+        { snapshotPatch, id: commitTaskId },
+      );
+      const patchList: PatchList = {
+        patchList: patchesToCommit,
+      };
+      clearPatchesToCommit();
+      const obj = commitPatchUpdate(patchList, { isHydration: true });
       lynx.getNativeApp().callLepusMethod(LifecycleConstant.patchUpdate, obj, () => {
         updateBackgroundRefs(commitTaskId);
         globalCommitTaskMap.forEach((commitTask, id) => {
@@ -147,13 +161,18 @@ async function onLifecycleEventImpl(type: string, data: any): Promise<void> {
   }
 }
 
+let flushingDelayedLifecycleEvents = false;
 function flushDelayedLifecycleEvents(): void {
+  // avoid stackoverflow
+  if (flushingDelayedLifecycleEvents) return;
+  flushingDelayedLifecycleEvents = true;
   if (delayedLifecycleEvents) {
     delayedLifecycleEvents.forEach((e) => {
       onLifecycleEvent(e);
     });
     delayedLifecycleEvents.length = 0;
   }
+  flushingDelayedLifecycleEvents = false;
 }
 
 function publishEvent(handlerName: string, data: unknown) {

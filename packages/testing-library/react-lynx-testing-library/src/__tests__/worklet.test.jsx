@@ -433,24 +433,8 @@ describe('worklet', () => {
         [
           "rLynxChange",
           {
-            "data": "{"workletRefInitValuePatch":[[1,null],[2,0]]}",
+            "data": "{"patchList":[{"id":1,"workletRefInitValuePatch":[[1,null],[2,0]]},{"snapshotPatch":[3,-2,0,{"_wvid":1},3,-2,1,{"_c":{"ref":{"_wvid":1},"num":{"_wvid":2}},"_wkltId":"a5c2:test:9","_execId":1}],"id":2}]}",
             "patchOptions": {
-              "commitTaskId": 17,
-              "pipelineOptions": {
-                "needTimestamps": true,
-                "pipelineID": "pipelineID",
-              },
-              "reloadVersion": 0,
-            },
-          },
-          [Function],
-        ],
-        [
-          "rLynxChange",
-          {
-            "data": "{"snapshotPatch":[3,-2,0,{"_wvid":1},3,-2,1,{"_c":{"ref":{"_wvid":1},"num":{"_wvid":2}},"_wkltId":"a5c2:test:9","_execId":1}]}",
-            "patchOptions": {
-              "commitTaskId": 18,
               "isHydration": true,
               "pipelineOptions": {
                 "needTimestamps": true,

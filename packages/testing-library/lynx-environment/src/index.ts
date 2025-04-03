@@ -325,6 +325,9 @@ function injectBackgroundThreadGlobals(target?: any, polyfills?: any) {
         throw new Error(`getJSModule(${moduleName}) not implemented`);
       }
     },
+    reportError: (e: Error) => {
+      throw e;
+    },
   };
   target.requestAnimationFrame = setTimeout;
   target.cancelAnimationFrame = clearTimeout;
