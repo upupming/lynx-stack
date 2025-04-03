@@ -137,11 +137,9 @@ describe('test', () => {
       'tap',
       '2:0:bindtap',
     );
-    expect(view0.props).toMatchInlineSnapshot(`
+    expect(view0.eventMap).toMatchInlineSnapshot(`
       {
-        "event": {
-          "bindEvent:tap": [Function],
-        },
+        "bindEvent:tap": [Function],
       }
     `);
     lynxEnv.switchToBackgroundThread();
