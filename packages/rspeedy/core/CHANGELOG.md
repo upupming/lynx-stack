@@ -1,5 +1,29 @@
 # @lynx-js/rspeedy
 
+## 0.8.6
+
+### Patch Changes
+
+- Support `dev.progressBar` ([#307](https://github.com/lynx-family/lynx-stack/pull/307))
+
+  Whether to display progress bar during compilation.
+
+  Defaults to `true`.
+
+- support load `.env` file by default ([#233](https://github.com/lynx-family/lynx-stack/pull/233))
+
+- Support `server.strictPort` ([#303](https://github.com/lynx-family/lynx-stack/pull/303))
+
+  When a port is occupied, Rspeedy will automatically increment the port number until an available port is found.
+
+  Set strictPort to true and Rspeedy will throw an exception when the port is occupied.
+
+## 0.8.5
+
+### Patch Changes
+
+- Bump Rsdoctor v1.0.0. ([#250](https://github.com/lynx-family/lynx-stack/pull/250))
+
 ## 0.8.4
 
 ### Patch Changes

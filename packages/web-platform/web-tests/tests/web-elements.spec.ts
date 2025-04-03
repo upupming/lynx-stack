@@ -2,7 +2,8 @@
 // Licensed under the Apache License Version 2.0 that can be found in the
 // LICENSE file in the root directory of this source tree.
 import { swipe, dragAndHold } from './utils';
-import { test, expect, type Page } from '@playwright/test';
+import { test, expect } from './coverage-fixture.js';
+import type { Page } from '@playwright/test';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import fs from 'node:fs/promises';
@@ -44,14 +45,6 @@ const getTitle = (titlePath: string[]) => {
 };
 
 test.describe('web-elements test suite', () => {
-  test.beforeEach(async ({ page, browserName }) => {
-    if (browserName === 'chromium') {
-      await page.coverage.startJSCoverage({
-        reportAnonymousScripts: true,
-        resetOnNavigation: true,
-      });
-    }
-  });
   test.describe('layout', () => {
     test('layout/percentage-cyclic', async ({ page }, { title }) => {
       await gotoWebComponentPage(page, title);
@@ -1586,37 +1579,6 @@ test.describe('web-elements test suite', () => {
       await diffScreenShot(page, title, 'index');
     });
   });
-  test.afterEach(
-    async ({ page, browserName, baseURL, browser }, { titlePath }) => {
-      if (browserName === 'chromium') {
-        const coverage = await page.coverage.stopJSCoverage();
-        const converter = v8toIstanbul(
-          path.join(__dirname, '..', 'www', 'main.js'),
-        );
-        for (const entry of coverage) {
-          await converter.load();
-          converter.applyCoverage(entry.functions);
-        }
-        const dir = path.join(__dirname, '..', '..', '.nyc_output');
-        await fs.mkdir(dir, { recursive: true });
-        const converageMapData = Object.fromEntries(
-          Object.entries(converter.toIstanbul()).map(([key, value]) => {
-            return [key, value];
-          }),
-        );
-        fs.writeFile(
-          path.join(
-            dir,
-            `playwright_output_${
-              getTitle(titlePath).replaceAll('/', '_')
-            }.json`,
-          ),
-          JSON.stringify(converageMapData),
-          { flag: 'w' },
-        );
-      }
-    },
-  );
 
   test.describe('x-list', () => {
     test('basic', async ({ page, browserName }, { titlePath }) => {
@@ -2024,6 +1986,50 @@ test.describe('web-elements test suite', () => {
         ).toBeTruthy();
       },
     );
+
+    test('basic-flow', async ({ page, browserName }, { titlePath }) => {
+      const title = getTitle(titlePath);
+      await gotoWebComponentPage(page, title);
+      await diffScreenShot(page, title, 'initial');
+      if (browserName === 'webkit') test.skip(); // cannot wheel
+      await page.mouse.move(100, 100);
+      await page.mouse.wheel(300, 0);
+      await diffScreenShot(page, title, 'wheel-x-not-wheelable');
+      await page.mouse.wheel(0, 300);
+      await diffScreenShot(page, title, 'wheel-y-wheelable');
+    });
+    test(
+      'scroll-orientation-flow',
+      async ({ page }, { titlePath }) => {
+        const title = getTitle(titlePath);
+        await gotoWebComponentPage(page, title);
+        await diffScreenShot(page, title, 'index');
+      },
+    );
+    test('sticky-flow', async ({ page, browserName }, { titlePath }) => {
+      const title = getTitle(titlePath);
+      await gotoWebComponentPage(page, title);
+      await diffScreenShot(page, title, 'index');
+      if (browserName === 'webkit') test.skip(); // cannot wheel
+      await page.mouse.move(200, 300);
+      await page.mouse.wheel(0, 500);
+      await diffScreenShot(page, title, 'sticky-y-scroll');
+    });
+    test('full-span', async ({ page }, { titlePath }) => {
+      const title = getTitle(titlePath);
+      await gotoWebComponentPage(page, title);
+      await diffScreenShot(page, title, 'index');
+    });
+    test('axis-gap', async ({ page }, { titlePath }) => {
+      const title = getTitle(titlePath);
+      await gotoWebComponentPage(page, title);
+      await diffScreenShot(page, title, 'index');
+    });
+    test('axis-gap-flow', async ({ page }, { titlePath }) => {
+      const title = getTitle(titlePath);
+      await gotoWebComponentPage(page, title);
+      await diffScreenShot(page, title, 'index');
+    });
   });
   test.describe('x-input', () => {
     test('placeholder', async ({ page }, { titlePath }) => {
@@ -3154,16 +3160,18 @@ test.describe('web-elements test suite', () => {
       await wait(100);
 
       await page.mouse.click(100, 25);
-      expect(await page.getByText('目前计数为 1').count()).toBe(1);
-
-      await page.mouse.click(100, 25);
-      expect(await page.getByText('目前计数为 2').count()).toBe(1);
+      expect(await page.getByText('1').count()).toBe(1);
 
       await page.getByTestId('next').click();
-      // default duration is 500ms, add 100ms tolerance
       await wait(1000);
       await page.mouse.click(100, 25);
-      expect(await page.getByText('目前计数为 3').count()).toBe(1);
+      expect(await page.getByText('2').count()).toBe(1);
+
+      await page.getByTestId('next').click();
+      await wait(1000);
+      await page.mouse.click(100, 25);
+      await page.getByTestId('next').click();
+      expect(await page.getByText('3').count()).toBe(1);
     });
 
     test(
@@ -3968,8 +3976,10 @@ test.describe('web-elements test suite', () => {
     test('method-seek', async ({ page }, { titlePath }) => {
       const title = getTitle(titlePath);
       await gotoWebComponentPage(page, title);
+      await wait(1000);
 
       await page.locator('#play').click();
+      await wait(1000);
       await page.locator('#seek').click();
       await wait(3000);
       expect(

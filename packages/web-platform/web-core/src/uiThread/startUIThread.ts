@@ -31,17 +31,15 @@ import { registerNapiModulesCallHandler } from './crossThreadHandlers/registerNa
 export function startUIThread(
   templateUrl: string,
   configs: Omit<MainThreadStartConfigs, 'template'>,
-  rootDom: HTMLElement,
+  shadowRoot: ShadowRoot,
   callbacks: {
     nativeModulesCall: NativeModulesCall;
     napiModulesCall: NapiModulesCall;
     onError?: () => void;
   },
-  overrideTagMap: Record<string, string> = {},
-  nativeModulesUrl: string | undefined,
 ): LynxView {
   const createLynxStartTiming = performance.now() + performance.timeOrigin;
-  const { entryId, napiModulesMap } = configs;
+  const { nativeModulesMap, napiModulesMap } = configs;
   const {
     mainThreadRpc,
     backgroundRpc,
@@ -53,7 +51,7 @@ export function startUIThread(
   const { markTimingInternal, sendTimingResult } = bootTimingSystem(
     mainThreadRpc,
     backgroundRpc,
-    rootDom,
+    shadowRoot,
   );
   markTimingInternal('create_lynx_start', undefined, createLynxStartTiming);
   markTimingInternal('load_template_start');
@@ -62,7 +60,7 @@ export function startUIThread(
     mainThreadStart({
       ...configs,
       template,
-      nativeModulesUrl,
+      nativeModulesMap,
       napiModulesMap,
     });
   });
@@ -79,31 +77,29 @@ export function startUIThread(
         flushElementTreeEndpoint,
         {
           pageConfig,
-          overrideTagMap,
           backgroundRpc,
-          rootDom,
-          entryId,
+          shadowRoot,
         },
         (info) => {
           const { pipelineId, timingFlags, isFP } = info;
           if (isFP) {
             registerInvokeUIMethodHandler(
               backgroundRpc,
-              rootDom,
+              shadowRoot,
             );
             registerNativePropsHandler(
               backgroundRpc,
-              rootDom,
+              shadowRoot,
             );
             registerTriggerComponentEventHandler(
               backgroundRpc,
-              rootDom,
+              shadowRoot,
             );
             registerSelectComponentHandler(
               backgroundRpc,
-              rootDom,
+              shadowRoot,
             );
-            createExposureService(backgroundRpc, rootDom);
+            createExposureService(backgroundRpc, shadowRoot);
             uiThreadFpReady();
           }
           sendTimingResult(pipelineId, timingFlags, isFP);

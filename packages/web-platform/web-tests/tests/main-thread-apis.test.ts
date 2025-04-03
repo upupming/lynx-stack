@@ -7,7 +7,8 @@ import {
   cssIdAttribute,
   parentComponentUniqueIdAttribute,
 } from '@lynx-js/web-constants';
-import { test, expect, type Page, CDPSession } from '@playwright/test';
+import { test, expect } from './coverage-fixture.js';
+import type { Page } from '@playwright/test';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import fs from 'node:fs/promises';
@@ -31,14 +32,6 @@ test.describe('main thread api tests', () => {
       waitUntil: 'load',
     });
   });
-  test.beforeEach(async ({ page, browserName }) => {
-    if (browserName === 'chromium') {
-      await page.coverage.startJSCoverage({
-        reportAnonymousScripts: true,
-        resetOnNavigation: true,
-      });
-    }
-  });
 
   test.afterEach(async ({ page }) => {
     const fiberTree = await page.evaluate(() => {
@@ -50,37 +43,6 @@ test.describe('main thread api tests', () => {
     expect(fiberTree).toStrictEqual(domTree);
   });
 
-  test.afterEach(
-    async ({ page, browserName, baseURL, browser }, { titlePath }) => {
-      if (browserName === 'chromium') {
-        const coverage = await page.coverage.stopJSCoverage();
-        const converter = v8toIstanbul(
-          path.join(__dirname, '..', 'www', 'main.js'),
-        );
-        for (const entry of coverage) {
-          await converter.load();
-          converter.applyCoverage(entry.functions);
-        }
-        const dir = path.join(__dirname, '..', '..', '.nyc_output');
-        await fs.mkdir(dir, { recursive: true });
-        const converageMapData = Object.fromEntries(
-          Object.entries(converter.toIstanbul()).map(([key, value]) => {
-            return [key, value];
-          }),
-        );
-        fs.writeFile(
-          path.join(
-            dir,
-            `playwright_output_${
-              getTitle(titlePath).replaceAll('/', '_')
-            }.json`,
-          ),
-          JSON.stringify(converageMapData),
-          { flag: 'w' },
-        );
-      }
-    },
-  );
   test('createElementView', async ({ page }, { title }) => {
     const lynxTag = await page.evaluate(() => {
       const ret = globalThis.__CreateElement('view', 0) as HTMLElement;
@@ -129,7 +91,6 @@ test.describe('main thread api tests', () => {
   test(
     'create-scroll-view-with-set-attribute',
     async ({ page, browserName }, { title }) => {
-      test.skip(browserName !== 'chromium', 'flaky');
       const ret = await page.evaluate(() => {
         let root = globalThis.__CreatePage('page', 0);
         let ret = globalThis.__CreateScrollView(0);
@@ -245,7 +206,7 @@ test.describe('main thread api tests', () => {
         ret1: globalThis.__GetTag(ret1),
       };
     });
-    expect(ret.ret0).toBe(undefined);
+    expect(ret.ret0).toBeFalsy();
     expect(ret.ret_u).toBe(undefined);
     expect(ret.ret1).toBe('text');
   });
@@ -568,12 +529,8 @@ test.describe('main thread api tests', () => {
       globalThis.__AddInlineStyle(root, 26, '80px');
       globalThis.__FlushElementTree();
     });
-    const style = await page.evaluate(() => {
-      const elements = globalThis.getElementThreadElements();
-      return elements[0].deref().attributes.style;
-    });
-    await expect(style).toBe('height:80px;');
-    await expect(page.locator(`[lynx-tag='page']`)).toHaveCSS('height', '80px');
+    const pageElement = page.locator(`[lynx-tag='page']`);
+    await expect(pageElement).toHaveCSS('height', '80px');
   });
 
   test('__AddInlineStyle_raw_string', async ({ page }, { title }) => {
@@ -996,12 +953,18 @@ test.describe('main thread api tests', () => {
       globalThis.__SetID(child_2, 'node_id_2');
 
       globalThis.__FlushElementTree();
-      let ret_node = document.querySelector('#node_id');
+      let ret_node = document.getElementById('root').shadowRoot.querySelector(
+        '#node_id',
+      );
       let ret_id = ret_node?.getAttribute('id');
 
-      let ret_u = document.querySelector('#node_id_u');
+      let ret_u = document.getElementById('root').shadowRoot.querySelector(
+        '#node_id_u',
+      );
 
-      let ret_child = document.querySelector('#node_id_2');
+      let ret_child = document.getElementById('root').shadowRoot.querySelector(
+        '#node_id_2',
+      );
       let ret_child_id = ret_child?.getAttribute('id');
 
       // let ret_child_u = parent.querySelector('#node_id_2');
@@ -1020,7 +983,7 @@ test.describe('main thread api tests', () => {
 
   test('__setAttribute_null_value', async ({ page }, { title }) => {
     await page.evaluate(() => {
-      const ret = globalThis.__CreateElement('page', 0) as HTMLElement;
+      const ret = globalThis.__CreatePage('page', 0);
       globalThis.__SetAttribute(ret, 'test-attr', 'val');
       globalThis.__SetAttribute(ret, 'test-attr', null);
       globalThis.__FlushElementTree();

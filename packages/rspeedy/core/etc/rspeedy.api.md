@@ -4,6 +4,7 @@
 
 ```ts
 
+import type { CreateRsbuildOptions } from '@rsbuild/core';
 import { logger } from '@rsbuild/core';
 import type { RsbuildConfig } from '@rsbuild/core';
 import type { RsbuildInstance } from '@rsbuild/core';
@@ -68,11 +69,12 @@ export interface Config {
 export type ConsoleType = 'log' | 'warn' | 'error' | 'info' | 'debug' | 'profile' | 'profileEnd' | (string & Record<never, never>);
 
 // @public
-export function createRspeedy({ cwd, rspeedyConfig }: CreateRspeedyOptions): Promise<RspeedyInstance>;
+export function createRspeedy({ cwd, rspeedyConfig, loadEnv }: CreateRspeedyOptions): Promise<RspeedyInstance>;
 
 // @public
 export interface CreateRspeedyOptions {
     cwd?: string;
+    loadEnv?: CreateRsbuildOptions['loadEnv'];
     rspeedyConfig?: Config;
 }
 
@@ -130,6 +132,9 @@ export function defineConfig(config: Config): Config;
 export interface Dev {
     assetPrefix?: string | boolean | undefined;
     client?: DevClient | undefined;
+    progressBar?: boolean | {
+        id?: string;
+    } | undefined;
     watchFiles?: WatchFiles | WatchFiles[] | undefined;
     writeToDisk?: boolean | ((filename: string) => boolean) | undefined;
 }
@@ -261,6 +266,7 @@ export interface Server {
     headers?: Record<string, string | string[]> | undefined;
     host?: string | undefined;
     port?: number | undefined;
+    strictPort?: boolean | undefined;
 }
 
 // @public
