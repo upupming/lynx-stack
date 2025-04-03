@@ -212,6 +212,7 @@ jobs:
       - test-rspeedy
       - test-tools
       - test-testing-library
+      - test-type
       - website
     if: always()
     runs-on: lynx-ubuntu-24.04-medium
