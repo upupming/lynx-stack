@@ -10,6 +10,8 @@ import {
 } from '@lynx-js/react/runtime/lib/lifecycle/patch/updateMainThread.js';
 import {
   replaceCommitHook,
+  clearPatchesToCommit,
+  clearCommitTaskId,
 } from '@lynx-js/react/runtime/lib/lifecycle/patch/commit.js';
 import { injectTt } from '@lynx-js/react/runtime/lib/lynx/tt.js';
 import { setRoot } from '@lynx-js/react/runtime/lib/root.js';
@@ -136,6 +138,8 @@ globalThis.onInjectBackgroundThreadGlobals = (target) => {
 
   // re-init global snapshot patch to undefined
   deinitGlobalSnapshotPatch();
+  clearPatchesToCommit();
+  clearCommitTaskId();
 };
 globalThis.onResetLynxEnv = () => {
   if (onResetLynxEnv) {

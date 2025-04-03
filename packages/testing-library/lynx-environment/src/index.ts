@@ -218,10 +218,14 @@ function injectMainThreadGlobals(target?: any, polyfills?: any) {
   target.__REF_FIRE_IMMEDIATELY__ = false;
   target.__FIRST_SCREEN_SYNC_TIMING__ = 'immediately';
   target.__TESTING_FORCE_RENDER_TO_OPCODE__ = false;
+  target.__ENABLE_SSR__ = false;
   target.globDynamicComponentEntry = '__Card__';
   target.lynx = {
     performance,
     getJSContext: (() => JsContext),
+    reportError: (e: Error) => {
+      throw e;
+    },
   };
   target.requestAnimationFrame = setTimeout;
   target.cancelAnimationFrame = clearTimeout;
@@ -256,6 +260,7 @@ function injectBackgroundThreadGlobals(target?: any, polyfills?: any) {
   target.__LEPUS__ = false;
   target.__BACKGROUND__ = true;
   target.__MAIN_THREAD__ = false;
+  target.__ENABLE_SSR__ = false;
   target.globDynamicComponentEntry = '__Card__';
   target.lynxCoreInject = {};
   target.lynxCoreInject.tt = {
@@ -294,11 +299,11 @@ function injectBackgroundThreadGlobals(target?: any, polyfills?: any) {
     UNIQUE_ID, // element_id
   }
 
-  const globalEventEmiter = new EventEmitter();
+  const globalEventEmitter = new EventEmitter();
   // @ts-ignore
-  globalEventEmiter.trigger = globalEventEmiter.emit;
+  globalEventEmitter.trigger = globalEventEmitter.emit;
   // @ts-ignore
-  globalEventEmiter.toggle = globalEventEmiter.emit;
+  globalEventEmitter.toggle = globalEventEmitter.emit;
   target.lynx = {
     getNativeApp: () => app,
     performance,
@@ -315,7 +320,7 @@ function injectBackgroundThreadGlobals(target?: any, polyfills?: any) {
     getCoreContext: (() => CoreContext),
     getJSModule: (moduleName) => {
       if (moduleName === 'GlobalEventEmitter') {
-        return globalEventEmiter;
+        return globalEventEmitter;
       } else {
         throw new Error(`getJSModule(${moduleName}) not implemented`);
       }
@@ -351,7 +356,7 @@ function injectBackgroundThreadGlobals(target?: any, polyfills?: any) {
  * @example
  *
  * ```ts
- * import { LynxEnv } from '@byted-lynx/testing-library';
+ * import { LynxEnv } from '@lynx-js/lynx-environment';
  *
  * const lynxEnv = new LynxEnv();
  *
@@ -373,7 +378,7 @@ export class LynxEnv {
    * @example
    *
    * ```ts
-   * import { LynxEnv } from '@byted-lynx/testing-library';
+   * import { LynxEnv } from '@lynx-js/lynx-environment';
    *
    * const lynxEnv = new LynxEnv();
    *
@@ -389,7 +394,7 @@ export class LynxEnv {
    * @example
    *
    * ```ts
-   * import { LynxEnv } from '@byted-lynx/testing-library';
+   * import { LynxEnv } from '@lynx-js/lynx-environment';
    *
    * const lynxEnv = new LynxEnv();
    *

@@ -108,7 +108,10 @@
     "vitest", // https://github.com/vitest-dev/vitest
     "worklet",
     "xlarge",
-    "PAPI", // Lynx's Element PAPI
+    "PAPI", // Lynx's Element PAPI,
+    "wvid",
+    "bindscroll",
+    "deinit",
   ],
   // Glob
   "ignorePaths": [

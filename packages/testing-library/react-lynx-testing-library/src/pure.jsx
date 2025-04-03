@@ -87,6 +87,7 @@ export function cleanup() {
   preactRender(null, __root);
 
   lynxEnv.mainThread.elementTree.root = undefined;
+  lynxEnv.jsdom.window.document.body.innerHTML = '';
 
   if (isMainThread) {
     globalThis.lynxEnv.switchToMainThread();

@@ -81,9 +81,8 @@ describe('worklet', () => {
         [
           "rLynxChange",
           {
-            "data": "{"snapshotPatch":[3,-2,0,{"_wkltId":"a5c2:test:2","_workletType":"main-thread","_execId":1}]}",
+            "data": "{"patchList":[{"snapshotPatch":[3,-2,0,{"_wkltId":"a5c2:test:2","_workletType":"main-thread","_execId":1}],"id":2}]}",
             "patchOptions": {
-              "commitTaskId": 3,
               "isHydration": true,
               "pipelineOptions": {
                 "needTimestamps": true,
@@ -161,9 +160,8 @@ describe('worklet', () => {
         [
           "rLynxChange",
           {
-            "data": "{"snapshotPatch":[3,-2,1,{"_c":{"props":{"main-thread:onClick":{"_wkltId":"a5c2:test:3"}}},"_wkltId":"a5c2:test:4","_execId":1}]}",
+            "data": "{"patchList":[{"snapshotPatch":[3,-2,1,{"_c":{"props":{"main-thread:onClick":{"_wkltId":"a5c2:test:3"}}},"_wkltId":"a5c2:test:4","_execId":1}],"id":2}]}",
             "patchOptions": {
-              "commitTaskId": 6,
               "isHydration": true,
               "pipelineOptions": {
                 "needTimestamps": true,
@@ -249,9 +247,8 @@ describe('worklet', () => {
         [
           "rLynxChange",
           {
-            "data": "{"snapshotPatch":[3,-2,0,{"_c":{"props":{"main-thread:onScroll":{"_wkltId":"a5c2:test:5"}}},"_wkltId":"a5c2:test:6","_execId":1}]}",
+            "data": "{"patchList":[{"snapshotPatch":[3,-2,0,{"_c":{"props":{"main-thread:onScroll":{"_wkltId":"a5c2:test:5"}}},"_wkltId":"a5c2:test:6","_execId":1}],"id":2}]}",
             "patchOptions": {
-              "commitTaskId": 9,
               "isHydration": true,
               "pipelineOptions": {
                 "needTimestamps": true,
@@ -341,9 +338,8 @@ describe('worklet', () => {
         [
           "rLynxChange",
           {
-            "data": "{"snapshotPatch":[3,-2,0,{"_wkltId":"a5c2:test:8","_jsFn":{"_jsFn1":{"_jsFnId":2}},"_execId":1}]}",
+            "data": "{"patchList":[{"snapshotPatch":[3,-2,0,{"_wkltId":"a5c2:test:8","_jsFn":{"_jsFn1":{"_jsFnId":2}},"_execId":1}],"id":2}]}",
             "patchOptions": {
-              "commitTaskId": 15,
               "isHydration": true,
               "pipelineOptions": {
                 "needTimestamps": true,

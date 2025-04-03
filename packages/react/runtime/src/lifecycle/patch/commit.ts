@@ -31,6 +31,9 @@ let nextCommitTaskId = 1;
 let globalBackgroundSnapshotInstancesToRemove: number[] = [];
 
 let patchesToCommit: Patch[] = [];
+function clearPatchesToCommit(): void {
+  patchesToCommit = [];
+}
 
 interface Patch {
   id: number;
@@ -212,6 +215,9 @@ function commitPatchUpdate(patchList: PatchList, patchOptions: Omit<PatchOptions
 function genCommitTaskId(): number {
   return nextCommitTaskId++;
 }
+function clearCommitTaskId(): void {
+  nextCommitTaskId = 1;
+}
 
 function replaceRequestAnimationFrame(): void {
   // to make afterPaintEffects run faster
@@ -228,10 +234,13 @@ export {
   commitPatchUpdate,
   commitToMainThread,
   genCommitTaskId,
+  clearCommitTaskId,
   globalBackgroundSnapshotInstancesToRemove,
   globalCommitTaskMap,
   globalFlushOptions,
   nextCommitTaskId,
+  patchesToCommit,
+  clearPatchesToCommit,
   replaceCommitHook,
   replaceRequestAnimationFrame,
   type PatchOptions,

@@ -6,6 +6,7 @@ import { createRef, useEffect, useState } from '@lynx-js/react';
 import { Component } from 'preact';
 import { expect } from 'vitest';
 import { __globalSnapshotPatch } from '@lynx-js/react/runtime/lib/lifecycle/patch/snapshotPatch.js';
+import { snapshotInstanceManager } from '@lynx-js/react/runtime/lib/snapshot.js';
 
 test('render calls useEffect immediately', async () => {
   const cb = vi.fn();
@@ -126,6 +127,16 @@ test('fireEvent triggers useEffect calls', async () => {
       </text>
     );
   }
+  expect(snapshotInstanceManager.values).toMatchInlineSnapshot(`
+    Map {
+      -1 => {
+        "children": undefined,
+        "id": -1,
+        "type": "root",
+        "values": undefined,
+      },
+    }
+  `);
   const { container } = render(<Counter />);
   expect(container).toMatchInlineSnapshot(`
     <page>
@@ -145,9 +156,8 @@ test('fireEvent triggers useEffect calls', async () => {
       [
         "rLynxChange",
         {
-          "data": "{"snapshotPatch":[0,"__Card__:__snapshot_b458b_test_4",2,0,null,3,4,3,[0],1,2,3,null,4,2,[1],1,-1,2,null]}",
+          "data": "{"patchList":[{"snapshotPatch":[0,"__Card__:__snapshot_b458b_test_4",2,0,null,3,4,3,[0],1,2,3,null,4,2,[1],1,-1,2,null],"id":2}]}",
           "patchOptions": {
-            "commitTaskId": 11,
             "isHydration": true,
             "pipelineOptions": {
               "needTimestamps": true,
@@ -160,16 +170,70 @@ test('fireEvent triggers useEffect calls', async () => {
       ],
     ]
   `);
+  expect(snapshotInstanceManager.values).toMatchInlineSnapshot(`
+    Map {
+      -1 => {
+        "children": [
+          {
+            "children": [
+              {
+                "children": undefined,
+                "id": 3,
+                "type": null,
+                "values": [
+                  0,
+                ],
+              },
+            ],
+            "id": 2,
+            "type": "__Card__:__snapshot_b458b_test_4",
+            "values": [
+              "2:0:",
+            ],
+          },
+        ],
+        "id": -1,
+        "type": "root",
+        "values": undefined,
+      },
+      2 => {
+        "children": [
+          {
+            "children": undefined,
+            "id": 3,
+            "type": null,
+            "values": [
+              0,
+            ],
+          },
+        ],
+        "id": 2,
+        "type": "__Card__:__snapshot_b458b_test_4",
+        "values": [
+          "2:0:",
+        ],
+      },
+      3 => {
+        "children": undefined,
+        "id": 3,
+        "type": null,
+        "values": [
+          0,
+        ],
+      },
+    }
+  `);
+  expect(__globalSnapshotPatch).toMatchInlineSnapshot(`[]`);
+  debugger;
   fireEvent.tap(buttonNode);
-  // ensure that the effect is called in background thread
+  expect(__globalSnapshotPatch).toMatchInlineSnapshot(`[]`);
   expect(callLepusMethodCalls).toMatchInlineSnapshot(`
     [
       [
         "rLynxChange",
         {
-          "data": "{"snapshotPatch":[0,"__Card__:__snapshot_b458b_test_4",2,0,null,3,4,3,[0],1,2,3,null,4,2,[1],1,-1,2,null]}",
+          "data": "{"patchList":[{"snapshotPatch":[0,"__Card__:__snapshot_b458b_test_4",2,0,null,3,4,3,[0],1,2,3,null,4,2,[1],1,-1,2,null],"id":2}]}",
           "patchOptions": {
-            "commitTaskId": 11,
             "isHydration": true,
             "pipelineOptions": {
               "needTimestamps": true,
@@ -183,9 +247,8 @@ test('fireEvent triggers useEffect calls', async () => {
       [
         "rLynxChange",
         {
-          "data": "{"snapshotPatch":[3,3,0,1]}",
+          "data": "{"patchList":[{"id":3,"snapshotPatch":[3,3,0,1]}]}",
           "patchOptions": {
-            "commitTaskId": 12,
             "pipelineOptions": {
               "needTimestamps": true,
               "pipelineID": "pipelineID",
