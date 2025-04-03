@@ -5,14 +5,31 @@ import { isIP, isIPv4 } from 'node:net'
 import type { AddressInfo } from 'node:net'
 import path from 'node:path'
 
-import { beforeEach, describe, expect, test, vi } from 'vitest'
+import { assert, beforeEach, describe, expect, test, vi } from 'vitest'
 
 import { createStubRspeedy } from '../createStubRspeedy.js'
 
+vi.mock('node:os')
+
 describe('Plugins - Dev', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     vi.stubEnv('NODE_ENV', 'development')
     vi.mock('../../src/webpack/ProvidePlugin.js')
+
+    const { default: os } = await import('node:os')
+
+    vi.mocked(os.networkInterfaces).mockReturnValue({
+      eth0: [
+        {
+          address: '192.168.1.1',
+          family: 'IPv4',
+          internal: false,
+          netmask: '255.255.255.0',
+          mac: '00:00:00:00:00:00',
+          cidr: '192.168.1.1/24',
+        },
+      ],
+    })
 
     return () => {
       vi.unstubAllEnvs()
@@ -36,7 +53,9 @@ describe('Plugins - Dev', () => {
 
     expect(isIPv4(rsbuild.getRsbuildConfig().dev!.client!.host!)).toBe(true)
 
-    expect(config.resolve?.alias?.['webpack/hot/emitter.js']).toStrictEqual(
+    assert(config.resolve?.alias)
+
+    expect(config.resolve.alias['webpack/hot/emitter.js']).toStrictEqual(
       expect.stringContaining('@rspack/core/hot/emitter.js'),
     )
   })
@@ -352,6 +371,88 @@ describe('Plugins - Dev', () => {
 
     expect(config.output?.publicPath).toContain(`http://example.com:`)
     expect(config.output?.publicPath).not.toBe(`http://example.com:${port}`)
+  })
+
+  test('dev.hmr default', async () => {
+    const rsbuild = await createStubRspeedy({})
+
+    const config = await rsbuild.unwrapConfig()
+
+    expect(config.resolve?.alias).toHaveProperty(
+      '@lynx-js/webpack-dev-transport/client',
+      expect.stringContaining('hot=true'),
+    )
+  })
+
+  test('dev.hmr: false', async () => {
+    const rsbuild = await createStubRspeedy({
+      dev: {
+        hmr: false,
+      },
+    })
+
+    const config = await rsbuild.unwrapConfig()
+
+    expect(config.resolve?.alias).toHaveProperty(
+      '@lynx-js/webpack-dev-transport/client',
+      expect.stringContaining('hot=false'),
+    )
+  })
+
+  test('dev.hmr: true', async () => {
+    const rsbuild = await createStubRspeedy({
+      dev: {
+        hmr: true,
+      },
+    })
+
+    const config = await rsbuild.unwrapConfig()
+
+    expect(config.resolve?.alias).toHaveProperty(
+      '@lynx-js/webpack-dev-transport/client',
+      expect.stringContaining('hot=true'),
+    )
+  })
+
+  test('dev.liveReload default', async () => {
+    const rsbuild = await createStubRspeedy({})
+
+    const config = await rsbuild.unwrapConfig()
+
+    expect(config.resolve?.alias).toHaveProperty(
+      '@lynx-js/webpack-dev-transport/client',
+      expect.stringContaining('live-reload=true'),
+    )
+  })
+
+  test('dev.liveReload: false', async () => {
+    const rsbuild = await createStubRspeedy({
+      dev: {
+        liveReload: false,
+      },
+    })
+
+    const config = await rsbuild.unwrapConfig()
+
+    expect(config.resolve?.alias).toHaveProperty(
+      '@lynx-js/webpack-dev-transport/client',
+      expect.stringContaining('live-reload=false'),
+    )
+  })
+
+  test('dev.liveReload: true', async () => {
+    const rsbuild = await createStubRspeedy({
+      dev: {
+        liveReload: true,
+      },
+    })
+
+    const config = await rsbuild.unwrapConfig()
+
+    expect(config.resolve?.alias).toHaveProperty(
+      '@lynx-js/webpack-dev-transport/client',
+      expect.stringContaining('live-reload=true'),
+    )
   })
 
   test('websocketTransport', async () => {

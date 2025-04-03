@@ -278,9 +278,13 @@ test.describe('web core tests', () => {
     await wait(3000);
     const backWorker = await getBackgroundThreadWorker(page);
     let successCallback = false;
+    let successCallback2 = false;
     await page.on('console', async (message) => {
       if (message.text() === 'green') {
         successCallback = true;
+      }
+      if (message.text() === 'LYNX-VIEW') {
+        successCallback2 = true;
       }
     });
     await backWorker.evaluate(() => {
@@ -292,8 +296,8 @@ test.describe('web core tests', () => {
     });
     await wait(100);
     expect(successCallback).toBeTruthy();
+    expect(successCallback2).toBeTruthy();
   });
-
   test('api-onNapiModulesCall-class', async ({ page, browserName }) => {
     // firefox dose not support this.
     test.skip(browserName === 'firefox');
@@ -305,9 +309,13 @@ test.describe('web core tests', () => {
     await wait(3000);
     const backWorker = await getBackgroundThreadWorker(page);
     let successCallback = false;
+    let successCallback2 = false;
     await page.on('console', async (message) => {
       if (message.text() === 'green') {
         successCallback = true;
+      }
+      if (message.text() === 'LYNX-VIEW') {
+        successCallback2 = true;
       }
     });
     await backWorker.evaluate(() => {
@@ -320,5 +328,36 @@ test.describe('web core tests', () => {
     });
     await wait(100);
     expect(successCallback).toBeTruthy();
+    expect(successCallback2).toBeTruthy();
+  });
+  test('api-onNapiModulesCall-dispatchNapiModules', async ({ page, browserName }) => {
+    // firefox dose not support this.
+    test.skip(browserName === 'firefox');
+    await goto(page);
+    const mainWorker = await getMainThreadWorker(page);
+    await mainWorker.evaluate(() => {
+      globalThis.runtime.renderPage = () => {};
+    });
+    await wait(3000);
+    const backWorker = await getBackgroundThreadWorker(page);
+    let successDispatchNapiModule = false;
+    await page.on('console', async (message) => {
+      if (message.text() === 'bts:lynx-view') {
+        successDispatchNapiModule = true;
+      }
+    });
+    await backWorker.evaluate(() => {
+      const nativeApp = globalThis.runtime.lynx.getNativeApp();
+      const eventMethod = globalThis[`napiLoaderOnRT${nativeApp.id}`].load(
+        'event_method',
+      );
+      eventMethod.bindEvent();
+    });
+    await wait(1000);
+    await page.evaluate(() => {
+      document.querySelector('lynx-view')?.click();
+    });
+    await wait(1000);
+    expect(successDispatchNapiModule).toBeTruthy();
   });
 });

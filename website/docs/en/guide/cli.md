@@ -64,7 +64,9 @@ The `rspeedy dev` command is used to start a local dev server and compile the so
 Usage: rspeedy dev [options]
 
 Options:
+  -b --base <base>      specify the base path of the server
   -c --config <config>  specify the configuration file, can be a relative or absolute path
+  --env-mode <mode>     specify the env mode to load the .env.[mode] file
   -h, --help            display help for command
 ```
 
@@ -81,6 +83,7 @@ Usage: rspeedy build [options]
 
 Options:
   -c --config <config>  specify the configuration file, can be a relative or absolute path
+  --env-mode <mode>     specify the env mode to load the .env.[mode] file
   -h, --help            display help for command
 ```
 
@@ -94,7 +97,9 @@ The `rspeedy preview` command is used to preview the production build outputs lo
 Usage: rspeedy preview [options]
 
 Options:
+  -b --base <base>      specify the base path of the server
   -c --config <config>  specify the configuration file, can be a relative or absolute path
+  --env-mode <mode>     specify the env mode to load the .env.[mode] file
   -h, --help            display help for command
 ```
 
@@ -118,6 +123,7 @@ Options:
   --output <output>     specify inspect content output path
   --verbose             show full function definitions in output
   -c --config <config>  specify the configuration file, can be a relative or absolute path
+  --env-mode <mode>     specify the env mode to load the .env.[mode] file
   -h, --help            display help for command
 ```
 

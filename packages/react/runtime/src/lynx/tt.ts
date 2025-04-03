@@ -5,6 +5,8 @@ import { LifecycleConstant, NativeUpdateDataType } from '../lifecycleConstant.js
 import { PerformanceTimingKeys, beginPipeline, markTiming } from './performance.js';
 import { BackgroundSnapshotInstance, hydrate } from '../backgroundSnapshot.js';
 import { destroyBackground } from '../lifecycle/destroy.js';
+import { delayedEvents, delayedPublishEvent } from '../lifecycle/event/delayEvents.js';
+import { delayLifecycleEvent, delayedLifecycleEvents } from '../lifecycle/event/delayLifecycleEvents.js';
 import { commitPatchUpdate, genCommitTaskId, globalCommitTaskMap } from '../lifecycle/patch/commit.js';
 import { reloadBackground } from '../lifecycle/reload.js';
 import { renderBackground } from '../lifecycle/render.js';
@@ -19,7 +21,7 @@ export { runWithForce };
 function injectTt(): void {
   // @ts-ignore
   const tt = lynxCoreInject.tt;
-  tt.OnLifecycleEvent = OnLifecycleEvent;
+  tt.OnLifecycleEvent = onLifecycleEvent;
   tt.publishEvent = delayedPublishEvent;
   tt.publicComponentEvent = delayedPublicComponentEvent;
   tt.callDestroyLifetimeFun = () => {
@@ -34,20 +36,31 @@ function injectTt(): void {
   };
 }
 
-let delayedLifecycleEvents: [type: string, data: any][];
-function OnLifecycleEvent([type, data]: [string, any]) {
+function onLifecycleEvent([type, data]: [string, any]) {
   const hasRootRendered = CHILDREN in __root;
   // never called `render(<App/>, __root)`
   // happens if user call `root.render()` async
   if (!hasRootRendered) {
-    delayedLifecycleEvents ??= [];
-    delayedLifecycleEvents.push([type, data]);
+    delayLifecycleEvent(type, data);
     return;
   }
 
   if (__PROFILE__) {
     console.profile(`OnLifecycleEvent::${type}`);
   }
+
+  try {
+    void onLifecycleEventImpl(type, data);
+  } catch (e) {
+    lynx.reportError(e as Error);
+  }
+
+  if (__PROFILE__) {
+    console.profileEnd();
+  }
+}
+
+async function onLifecycleEventImpl(type: string, data: any): Promise<void> {
   switch (type) {
     case LifecycleConstant.firstScreen: {
       const { root: lepusSide, refPatch, jsReadyEventIdSwap } = data;
@@ -68,6 +81,8 @@ function OnLifecycleEvent([type, data]: [string, any]) {
       }
       markTiming(PerformanceTimingKeys.diff_vdom_end);
 
+      // TODO: It seems `delayedEvents` and `delayedLifecycleEvents` should be merged into one array to ensure the proper order of events.
+      flushDelayedLifecycleEvents();
       if (delayedEvents) {
         delayedEvents.forEach((args) => {
           const [handlerName, data] = args;
@@ -81,6 +96,7 @@ function OnLifecycleEvent([type, data]: [string, any]) {
         });
         delayedEvents.length = 0;
       }
+
       lynxCoreInject.tt.publishEvent = publishEvent;
       lynxCoreInject.tt.publicComponentEvent = publicComponentEvent;
 
@@ -129,19 +145,12 @@ function OnLifecycleEvent([type, data]: [string, any]) {
       break;
     }
   }
-  if (__PROFILE__) {
-    console.profileEnd();
-  }
 }
 
 function flushDelayedLifecycleEvents(): void {
   if (delayedLifecycleEvents) {
     delayedLifecycleEvents.forEach((e) => {
-      try {
-        OnLifecycleEvent(e);
-      } catch (e) {
-        lynx.reportError(e as Error);
-      }
+      onLifecycleEvent(e);
     });
     delayedLifecycleEvents.length = 0;
   }
@@ -164,12 +173,6 @@ function publishEvent(handlerName: string, data: unknown) {
 
 function publicComponentEvent(_componentId: string, handlerName: string, data: unknown) {
   publishEvent(handlerName, data);
-}
-
-let delayedEvents: [handlerName: string, data: unknown][];
-function delayedPublishEvent(handlerName: string, data: unknown) {
-  delayedEvents ??= [];
-  delayedEvents.push([handlerName, data]);
 }
 
 function delayedPublicComponentEvent(_componentId: string, handlerName: string, data: unknown) {
@@ -210,4 +213,4 @@ function updateCardData(newData: Record<string, any>, options?: Record<string, a
   lynxCoreInject.tt.GlobalEventEmitter.emit('onDataChanged');
 }
 
-export { injectTt, flushDelayedLifecycleEvents, delayedLifecycleEvents };
+export { injectTt, flushDelayedLifecycleEvents };

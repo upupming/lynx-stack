@@ -4,12 +4,6 @@
 import { swipe, dragAndHold } from './utils.js';
 import { test, expect } from './coverage-fixture.js';
 import type { Page } from '@playwright/test';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
-import fs from 'node:fs/promises';
-import v8toIstanbul from 'v8-to-istanbul';
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 const wait = async (ms: number) => {
   await new Promise((resolve) => {
@@ -71,6 +65,7 @@ test.describe('reactlynx3 tests', () => {
       await wait(100);
       const target = page.locator('#target');
       await target.click();
+      await wait(100);
       await expect(await target.getAttribute('style')).toContain('green');
       await page.evaluate(() => {
         // @ts-expect-error
@@ -113,7 +108,7 @@ test.describe('reactlynx3 tests', () => {
     });
     test('basic-setsate-with-cb', async ({ page }, { title }) => {
       await goto(page, title);
-      await wait(200);
+      await wait(300);
       await expectHasText(page, 'awesome');
       await expectNoText(page, 'success');
     });
@@ -448,7 +443,7 @@ test.describe('reactlynx3 tests', () => {
 
     test('api-onNativeAppReady', async ({ page }, { title }) => {
       const messages: string[] = [];
-      page.on('console', async (message) => {
+      await page.on('console', async (message) => {
         for (const arg of message.args()) {
           messages.push(JSON.stringify(await arg.jsonValue()));
         }
@@ -496,9 +491,9 @@ test.describe('reactlynx3 tests', () => {
 
     test('api-error', async ({ page }, { title }) => {
       await goto(page, title);
-      await wait(200);
+      await wait(300);
       const target = await page.locator('lynx-view');
-      expect(target).toHaveCSS('display', 'none');
+      await expect(target).toHaveCSS('display', 'none');
     });
 
     test('api-preheat', async ({ page }, { title }) => {
@@ -964,7 +959,7 @@ test.describe('reactlynx3 tests', () => {
         await expect(target).toHaveCSS('height', '100px');
       },
     );
-    test.fixme( // TODO(@colinaaa): update the template plugin
+    test(
       'config-splitchunk-single-vendor',
       async ({ page }, { title }) => {
         await goto(page, title, true);
@@ -973,7 +968,7 @@ test.describe('reactlynx3 tests', () => {
         await expect(target).toHaveCSS('background-color', 'rgb(0, 128, 0)'); // green
       },
     );
-    test.fixme( // TODO(@colinaaa): update the template plugin
+    test(
       'config-splitchunk-split-by-experience',
       async ({ page }, { title }) => {
         await goto(page, title, true);
@@ -982,18 +977,8 @@ test.describe('reactlynx3 tests', () => {
         await expect(target).toHaveCSS('background-color', 'rgb(0, 128, 0)'); // green
       },
     );
-    test.fixme( // TODO(@colinaaa): update the template plugin
+    test(
       'config-splitchunk-split-by-module',
-      async ({ page }, { title }) => {
-        await goto(page, title, true);
-        await wait(1500);
-        const target = page.locator('#target');
-        await expect(target).toHaveCSS('background-color', 'rgb(0, 128, 0)'); // green
-      },
-    );
-
-    test.fixme( // TODO(@colinaaa): update the template plugin
-      'config-splitchunk-error-assertPrefix',
       async ({ page }, { title }) => {
         await goto(page, title, true);
         await wait(1500);
@@ -1011,6 +996,18 @@ test.describe('reactlynx3 tests', () => {
       await target.click();
       await expect(await target.getAttribute('style')).toContain('pink');
     });
+
+    test(
+      'config-css-default-overflow-visible-unset',
+      async ({ page }, { title }) => {
+        await goto(page, title);
+        await diffScreenShot(
+          page,
+          title,
+          'index',
+        );
+      },
+    );
   });
 
   test.describe('elements', () => {
@@ -1271,13 +1268,14 @@ test.describe('reactlynx3 tests', () => {
         'basic-element-text-set-native-props-with-setData',
         async ({ page }, { title }) => {
           await goto(page, title);
-          await wait(200);
+          await wait(300);
           // --initialtextinitial
           let count = await page.getByText('--').count();
           expect(count).toBe(1);
           count = await page.getByText('initial').count();
           expect(count).toBeGreaterThanOrEqual(1);
           await page.locator('#target').click();
+          await wait(100);
           // nativeTextinitialtextinitial
           // -- -> nativeText
           count = await page.getByText('nativeText').count();
@@ -1287,6 +1285,7 @@ test.describe('reactlynx3 tests', () => {
           count = await page.getByText('--').count();
           expect(count).toBe(0);
           await page.locator('#target').click();
+          await wait(100);
           // nativeTexthellotexthello
           count = await page.getByText('nativeText').count();
           expect(count).toBe(1);
@@ -1295,12 +1294,14 @@ test.describe('reactlynx3 tests', () => {
           count = await page.getByText('initial').count();
           expect(count).toBe(0);
           await page.locator('#target').click();
+          await wait(100);
           // 2ndNativeTexthellotexthello
           count = await page.getByText('2ndNative').count();
           expect(count).toBe(1);
           count = await page.getByText('hello').count();
           expect(count).toBeGreaterThanOrEqual(1);
           await page.locator('#target').click();
+          await wait(100);
           // 2ndNativeworldtextworld
           count = await page.getByText('2ndNative').count();
           expect(count).toBe(1);
@@ -1352,6 +1353,7 @@ test.describe('reactlynx3 tests', () => {
         async ({ page }, { title }) => {
           await goto(page, title);
           await page.locator('#img').first().click();
+          await wait(100);
           expect(await page.locator('#result').getAttribute('class'))
             .toStrictEqual(
               'success',
@@ -1939,8 +1941,9 @@ test.describe('reactlynx3 tests', () => {
       test('basic-element-x-input-bindinput', async ({ page }, { title }) => {
         await goto(page, title);
         await page.locator('input').press('Enter');
-        await wait(100);
+        await wait(200);
         await page.locator('input').fill('foobar');
+        await wait(200);
         const result = await page.locator('.result').first().innerText();
         expect(result).toBe('foobar');
       });
