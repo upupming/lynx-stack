@@ -1,5 +1,6 @@
+import '@testing-library/jest-dom';
 import { expect, it, vi } from 'vitest';
-import { render, fireEvent } from '../pure';
+import { render, fireEvent, screen } from '../pure';
 
 it('basic', async function() {
   const Button = ({
@@ -11,9 +12,14 @@ it('basic', async function() {
   const onClick = vi.fn(() => {
   });
 
-  const { container } = render(<Button onClick={onClick}>Click me</Button>);
+  const { container } = render(
+    <Button onClick={onClick}>
+      <text data-testid='text'>Click me</text>
+    </Button>,
+  );
 
   expect(onClick).not.toHaveBeenCalled();
   fireEvent.tap(container.firstChild);
   expect(onClick).toBeCalledTimes(1);
+  expect(screen.getByTestId('text')).toHaveTextContent('Click me');
 });

@@ -42,6 +42,29 @@ lynxEnv.switchToMainThread();
 lynxEnv.backgroundThread.tt.OnLifecycleEvent(...args);
 ```
 
+### Use in Vitest
+
+It is recommended to configure as Vitest's [test environment](https://vitest.dev/guide/environment), for example:
+
+```js
+// vitest.config.js
+import { defineConfig } from 'vitest/config';
+
+export default defineConfig({
+  test: {
+    environment: require.resolve(
+      '@lynx-js/lynx-environment/env/vitest',
+    ),
+  },
+});
+```
+
+After configuration, you can directly access the `lynxEnv` object globally in the test.
+
+If you want to use `@lynx-js/lynx-environment` for unit testing in ReactLynx, you usually don't need to specify this configuration manually.
+
+Please refer to [ReactLynx Testing Library](https://lynxjs.org/react/react-lynx-testing-library/react-lynx-testing-library.html) to inherit the configuration from `@lynx-js/react-lynx-testing-library`.
+
 ## Credits
 
 Thanks to:
