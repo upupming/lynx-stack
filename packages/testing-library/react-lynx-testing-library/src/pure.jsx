@@ -8,6 +8,7 @@ import { useEffect } from 'preact/hooks';
 import { cloneElement } from 'preact';
 import { __root } from '@lynx-js/react/internal';
 import { flushDelayedLifecycleEvents } from '@lynx-js/react/runtime/lib/lynx/tt.js';
+import { clearPage } from '@lynx-js/react/runtime/lib/snapshot.js';
 import { act } from 'preact/test-utils';
 
 export function waitSchedule() {
@@ -87,6 +88,7 @@ export function cleanup() {
   preactRender(null, __root);
 
   lynxEnv.mainThread.elementTree.root = undefined;
+  clearPage();
   lynxEnv.jsdom.window.document.body.innerHTML = '';
 
   if (isMainThread) {
