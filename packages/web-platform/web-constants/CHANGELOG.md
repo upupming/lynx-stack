@@ -1,5 +1,38 @@
 # @lynx-js/web-constants
 
+## 0.10.1
+
+### Patch Changes
+
+- feat: onNapiModulesCall function add new param: `dispatchNapiModules`, napiModulesMap val add new param: `handleDispatch`. ([#414](https://github.com/lynx-family/lynx-stack/pull/414))
+
+  Now you can use them to actively communicate to napiModules (background thread) in onNapiModulesCall (ui thread).
+
+- Updated dependencies []:
+  - @lynx-js/web-worker-rpc@0.10.1
+
+## 0.10.0
+
+### Minor Changes
+
+- feat: rewrite the main thread Element PAPIs ([#343](https://github.com/lynx-family/lynx-stack/pull/343))
+
+  In this commit we've rewritten the main thread apis.
+
+  The most highlighted change is that
+
+  - Before this commit we send events directly to bts
+  - After this change, we send events to mts then send them to bts with some data combined.
+
+### Patch Changes
+
+- feat: The onNapiModulesCall function of lynx-view provides the fourth parameter: `lynxView`, which is the actual lynx-view DOM. ([#350](https://github.com/lynx-family/lynx-stack/pull/350))
+
+- fix: publicComponentEvent args order ([#401](https://github.com/lynx-family/lynx-stack/pull/401))
+
+- Updated dependencies [[`a521759`](https://github.com/lynx-family/lynx-stack/commit/a5217592f5aebea4b17860e729d523ecabb5f691)]:
+  - @lynx-js/web-worker-rpc@0.10.0
+
 ## 0.9.1
 
 ### Patch Changes

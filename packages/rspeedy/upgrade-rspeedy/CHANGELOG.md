@@ -1,5 +1,9 @@
 # upgrade-rspeedy
 
+## 0.9.0
+
+## 0.8.7
+
 ## 0.8.6
 
 ### Patch Changes

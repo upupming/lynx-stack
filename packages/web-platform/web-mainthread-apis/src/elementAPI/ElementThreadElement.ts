@@ -5,16 +5,17 @@ import type { LynxEventType, Cloneable } from '@lynx-js/web-constants';
 
 export interface LynxRuntimeInfo {
   uniqueId: number;
+  parentComponentUniqueId: number;
   componentConfig: Record<string, Cloneable>;
   lynxDataset: Record<string, Cloneable>;
   eventHandlerMap: Record<string, {
     capture: {
       type: LynxEventType;
-      handler: string;
+      handler: string | { type: 'worklet'; value: unknown };
     } | undefined;
     bind: {
       type: LynxEventType;
-      handler: string;
+      handler: string | { type: 'worklet'; value: unknown };
     } | undefined;
   }>;
   componentAtIndex?: ComponentAtIndexCallback;

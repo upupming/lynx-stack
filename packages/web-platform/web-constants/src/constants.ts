@@ -8,18 +8,18 @@ export const cssIdAttribute = 'lynx-css-id' as const;
 
 export const componentIdAttribute = 'lynx-component-id' as const;
 
-export const parentComponentUniqueIdAttribute =
-  'lynx-parent-component-uid' as const;
-
 export const lynxTagAttribute = 'lynx-tag' as const;
-
-export const lynxRuntimeValue = Symbol('lynx-runtime-value');
 
 export const lynxDefaultDisplayLinearAttribute =
   'lynx-default-display-linear' as const;
+
+export const lynxDefaultOverflowVisibleAttribute =
+  'lynx-default-overflow-visible' as const;
 
 export const __lynx_timing_flag = '__lynx_timing_flag' as const;
 
 export const globalMuteableVars = [
   'registerDataProcessor',
+  'registerWorkletInternal',
+  'lynxWorkletImpl',
 ] as const;

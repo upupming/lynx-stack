@@ -1,5 +1,17 @@
 # @lynx-js/template-webpack-plugin
 
+## 0.6.8
+
+### Patch Changes
+
+- fix: add enableCSSInvalidation for encodeCSS of css HMR, this will fix pseudo-class (such as `:active`) not working in HMR. ([#435](https://github.com/lynx-family/lynx-stack/pull/435))
+
+## 0.6.7
+
+### Patch Changes
+
+- fix: merge different chunk groups for same output filename ([#371](https://github.com/lynx-family/lynx-stack/pull/371))
+
 ## 0.6.6
 
 ### Patch Changes

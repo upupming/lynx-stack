@@ -3,7 +3,6 @@
 // LICENSE file in the root directory of this source tree.
 
 import type { LynxView } from '../apis/createLynxView.js';
-import { createExposureService } from './crossThreadHandlers/createExposureService.js';
 import { registerInvokeUIMethodHandler } from './crossThreadHandlers/registerInvokeUIMethodHandler.js';
 import { registerNativePropsHandler } from './crossThreadHandlers/registerSetNativePropsHandler.js';
 import { registerNativeModulesCallHandler } from './crossThreadHandlers/registerNativeModulesCallHandler.js';
@@ -11,13 +10,12 @@ import { bootWorkers } from './bootWorkers.js';
 import { registerReportErrorHandler } from './crossThreadHandlers/registerReportErrorHandler.js';
 import { registerFlushElementTreeHandler } from './crossThreadHandlers/registerFlushElementTreeHandler.js';
 import { createDispose } from './crossThreadHandlers/createDispose.js';
-import { bootTimingSystem } from './crossThreadHandlers/bootTimingSystem.js';
 import { registerTriggerComponentEventHandler } from './crossThreadHandlers/registerTriggerComponentEventHandler.js';
 import { registerSelectComponentHandler } from './crossThreadHandlers/registerSelectComponentHandler.js';
 import {
-  flushElementTreeEndpoint,
   mainThreadChunkReadyEndpoint,
   mainThreadStartEndpoint,
+  markTimingEndpoint,
   sendGlobalEventEndpoint,
   uiThreadFpReadyEndpoint,
   type MainThreadStartConfigs,
@@ -27,6 +25,7 @@ import {
 import { loadTemplate } from '../utils/loadTemplate.js';
 import { createUpdateData } from './crossThreadHandlers/createUpdateData.js';
 import { registerNapiModulesCallHandler } from './crossThreadHandlers/registerNapiModulesCallHandler.js';
+import { registerDispatchLynxViewEventHandler } from './crossThreadHandlers/registerDispatchLynxViewEventHandler.js';
 
 export function startUIThread(
   templateUrl: string,
@@ -48,11 +47,15 @@ export function startUIThread(
   const sendGlobalEvent = backgroundRpc.createCall(sendGlobalEventEndpoint);
   const uiThreadFpReady = backgroundRpc.createCall(uiThreadFpReadyEndpoint);
   const mainThreadStart = mainThreadRpc.createCall(mainThreadStartEndpoint);
-  const { markTimingInternal, sendTimingResult } = bootTimingSystem(
-    mainThreadRpc,
-    backgroundRpc,
-    shadowRoot,
-  );
+  const markTiming = backgroundRpc.createCall(markTimingEndpoint);
+  const markTimingInternal = (
+    timingKey: string,
+    pipelineId?: string,
+    timeStamp?: number,
+  ) => {
+    if (!timeStamp) timeStamp = performance.now() + performance.timeOrigin;
+    markTiming(timingKey, pipelineId, timeStamp);
+  };
   markTimingInternal('create_lynx_start', undefined, createLynxStartTiming);
   markTimingInternal('load_template_start');
   loadTemplate(templateUrl).then((template) => {
@@ -68,20 +71,17 @@ export function startUIThread(
     mainThreadRpc,
     callbacks.onError,
   );
+  registerDispatchLynxViewEventHandler(backgroundRpc, shadowRoot);
   mainThreadRpc.registerHandler(
     mainThreadChunkReadyEndpoint,
-    (mainChunkInfo) => {
-      const { pageConfig } = mainChunkInfo;
+    () => {
       registerFlushElementTreeHandler(
         mainThreadRpc,
-        flushElementTreeEndpoint,
         {
-          pageConfig,
-          backgroundRpc,
           shadowRoot,
         },
         (info) => {
-          const { pipelineId, timingFlags, isFP } = info;
+          const { isFP } = info;
           if (isFP) {
             registerInvokeUIMethodHandler(
               backgroundRpc,
@@ -99,12 +99,9 @@ export function startUIThread(
               backgroundRpc,
               shadowRoot,
             );
-            createExposureService(backgroundRpc, shadowRoot);
             uiThreadFpReady();
           }
-          sendTimingResult(pipelineId, timingFlags, isFP);
         },
-        markTimingInternal,
       );
     },
   );

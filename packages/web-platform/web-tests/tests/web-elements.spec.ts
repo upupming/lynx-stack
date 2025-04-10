@@ -1,15 +1,10 @@
 // Copyright 2024 The Lynx Authors. All rights reserved.
 // Licensed under the Apache License Version 2.0 that can be found in the
 // LICENSE file in the root directory of this source tree.
-import { swipe, dragAndHold } from './utils';
+import { swipe, dragAndHold } from './utils.js';
 import { test, expect } from './coverage-fixture.js';
 import type { Page } from '@playwright/test';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
-import fs from 'node:fs/promises';
-import v8toIstanbul from 'v8-to-istanbul';
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 const wait = async (ms: number) => {
   await new Promise((resolve) => {
@@ -108,6 +103,24 @@ test.describe('web-elements test suite', () => {
         'background-color',
         'rgb(0, 128, 0)',
       );
+    });
+    test('event-layoutchange', async ({ page }, { titlePath }) => {
+      const title = getTitle(titlePath);
+      await gotoWebComponentPage(page, title);
+      await page.locator('#target').click();
+      await wait(100);
+      const detail = await page.evaluate(() => {
+        // @ts-expect-error
+        return globalThis.detail;
+      });
+      expect(detail).toBeTruthy();
+      expect(typeof detail.width).toBe('number');
+      expect(typeof detail.height).toBe('number');
+      expect(typeof detail.left).toBe('number');
+      expect(typeof detail.right).toBe('number');
+      expect(typeof detail.top).toBe('number');
+      expect(typeof detail.bottom).toBe('number');
+      expect(detail.id).toBe('target');
     });
   });
   test.describe('x-text', () => {
@@ -340,6 +353,24 @@ test.describe('web-elements test suite', () => {
       await gotoWebComponentPage(page, title);
       await wait(500);
       await diffScreenShot(page, title, title);
+    });
+    test('event-layoutchange', async ({ page }, { titlePath }) => {
+      const title = getTitle(titlePath);
+      await gotoWebComponentPage(page, title);
+      await page.locator('#target').click();
+      await wait(100);
+      const detail = await page.evaluate(() => {
+        // @ts-expect-error
+        return globalThis.detail;
+      });
+      expect(detail).toBeTruthy();
+      expect(typeof detail.width).toBe('number');
+      expect(typeof detail.height).toBe('number');
+      expect(typeof detail.left).toBe('number');
+      expect(typeof detail.right).toBe('number');
+      expect(typeof detail.top).toBe('number');
+      expect(typeof detail.bottom).toBe('number');
+      expect(detail.id).toBe('target');
     });
   });
   test.describe('x-blur-view', () => {
@@ -1741,6 +1772,59 @@ test.describe('web-elements test suite', () => {
         await page.mouse.wheel(0, -500);
         await wait(100);
         expect(scrolltoupper).toBeTruthy();
+      },
+    );
+
+    test(
+      'event-scrolltoupper-flow',
+      async ({ page, browserName }, { titlePath }) => {
+        titlePath[titlePath.length - 1] = 'event-scrolltoupper-tolower-flow';
+        const title = getTitle(titlePath);
+        await gotoWebComponentPage(page, title);
+        await diffScreenShot(page, title, 'index');
+        if (browserName === 'webkit') test.skip(); // cannot wheel
+        let scrolltoupper = false;
+        await page.on('console', async (msg) => {
+          const event = await msg.args()[0]?.evaluate((e) => ({
+            type: e.type,
+          }));
+          if (!event) return;
+          if (event.type === 'scrolltoupper') {
+            scrolltoupper = true;
+          }
+        });
+        await page.mouse.move(200, 200);
+        await page.mouse.wheel(0, 100);
+        await page.mouse.wheel(0, -500);
+        await wait(1000);
+        expect(scrolltoupper).toBeTruthy();
+      },
+    );
+    test(
+      'event-scrolltolower-flow',
+      async ({ page, browserName }, { titlePath }) => {
+        titlePath[titlePath.length - 1] = 'event-scrolltoupper-tolower-flow';
+        const title = getTitle(titlePath);
+        await gotoWebComponentPage(page, title);
+        if (browserName === 'webkit') test.skip(); // cannot wheel
+        let scrolltolower = false;
+        await page.on('console', async (msg) => {
+          const event = await msg.args()[0]?.evaluate((e) => ({
+            type: e.type,
+          }));
+          if (!event) return;
+          if (event.type === 'scrolltolower') {
+            scrolltolower = true;
+          }
+        });
+        await page.evaluate(() => {
+          document.querySelector('x-list')?.shadowRoot?.querySelector(
+            '#content',
+          )
+            ?.scrollTo(0, 5000);
+        });
+        await wait(1000);
+        expect(scrolltolower).toBeTruthy();
       },
     );
 

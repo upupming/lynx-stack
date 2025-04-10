@@ -6,7 +6,8 @@
       "dependsOn": [],
       "inputs": [
         "scripts",
-        "src"
+        "src",
+        "rslib.config.ts"
       ],
       "outputs": [
         "dist",

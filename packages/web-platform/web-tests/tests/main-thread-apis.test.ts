@@ -2,28 +2,14 @@
 // Licensed under the Apache License Version 2.0 that can be found in the
 // LICENSE file in the root directory of this source tree.
 // @ts-nocheck
-import {
-  componentIdAttribute,
-  cssIdAttribute,
-  parentComponentUniqueIdAttribute,
-} from '@lynx-js/web-constants';
+import { componentIdAttribute, cssIdAttribute } from '@lynx-js/web-constants';
 import { test, expect } from './coverage-fixture.js';
 import type { Page } from '@playwright/test';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
-import fs from 'node:fs/promises';
-import v8toIstanbul from 'v8-to-istanbul';
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 const wait = async (ms: number) => {
   await new Promise((resolve) => {
     setTimeout(resolve, ms);
   });
-};
-
-const getTitle = (titlePath: string[]) => {
-  return path.join(...[titlePath.pop()!, titlePath.pop()!].reverse());
 };
 
 test.describe('main thread api tests', () => {
@@ -483,7 +469,6 @@ test.describe('main thread api tests', () => {
       return;
     });
     const e1 = page.locator(`[${componentIdAttribute}="id1"]`);
-    expect(await e1?.getAttribute(parentComponentUniqueIdAttribute)).toBe('0');
   });
 
   test('__SetInlineStyles', async ({ page }, { title }) => {
@@ -1129,4 +1114,59 @@ test.describe('main thread api tests', () => {
       expect(randomObject).toBe(-1);
     },
   );
+
+  test(
+    '__AddInlineStyle_value_number_0',
+    async ({ page }, { title }) => {
+      await page.evaluate(() => {
+        const root = globalThis.__CreatePage('page', 0);
+        const view = globalThis.__CreateView(0);
+        globalThis.__AddInlineStyle(root, 24, 'flex'); // display: flex
+        globalThis.__AddInlineStyle(view, 51, 0); // flex-shrink:0;
+        globalThis.__SetID(view, 'target');
+        globalThis.__AppendElement(root, view);
+        globalThis.__FlushElementTree();
+        return {};
+      });
+      const inlineStyle = await page.locator('#target').getAttribute('style');
+      expect(inlineStyle).toContain('flex-shrink');
+    },
+  );
+
+  test('publicComponentEvent', async ({ page }, { title }) => {
+    const ret = await page.evaluate(() => {
+      let page = globalThis.__CreatePage('0', 0);
+      let parent = globalThis.__CreateComponent(
+        0,
+        'id1',
+        0,
+        'test_entry',
+        'name',
+        'path',
+        {},
+      );
+      let parentUid = globalThis.__GetElementUniqueID(parent);
+      let child = globalThis.__CreateView(parentUid);
+      globalThis.__AppendElement(page, parent);
+      globalThis.__AppendElement(parent, child);
+      globalThis.__SetID(parent, 'parent_id');
+      globalThis.__SetID(child, 'child_id');
+      globalThis.__AddEvent(child, 'bindEvent', 'tap', 'hname');
+      globalThis.__SetInlineStyles(parent, {
+        'display': 'flex',
+      });
+      globalThis.__SetInlineStyles(child, {
+        'width': '100px',
+        'height': '100px',
+      });
+      globalThis.__FlushElementTree();
+    });
+    await page.locator('#child_id').click({ force: true });
+    await wait(100);
+    const publicComponentEventArgs = await page.evaluate(() => {
+      return globalThis.publicComponentEvent;
+    });
+    await expect(publicComponentEventArgs.hname).toBe('hname');
+    await expect(publicComponentEventArgs.componentId).toBe('id1');
+  });
 });

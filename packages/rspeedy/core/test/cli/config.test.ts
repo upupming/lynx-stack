@@ -36,4 +36,72 @@ describe('rspeedy config test', () => {
       }),
     )
   })
+
+  test('createRspeedy with env-mode ', async () => {
+    const root = join(fixturesRoot, 'project-with-env')
+    const rsbuild = await createRspeedy({
+      cwd: root,
+      loadEnv: {
+        mode: 'test',
+      },
+    })
+    const configs = await rsbuild.initConfigs()
+    const maybeDefinePluginInstance = configs[0]?.plugins?.filter((plugin) => {
+      if (plugin) {
+        return plugin.name === 'DefinePlugin'
+      } else {
+        return false
+      }
+    })
+
+    expect(maybeDefinePluginInstance).toHaveLength(1)
+    const defineInstance = maybeDefinePluginInstance![0]
+
+    expect(defineInstance!).toMatchObject(
+      expect.objectContaining({
+        _args: [
+          expect.objectContaining({
+            'process.env.PUBLIC_FOO': '"BAR"',
+            'process.env.PUBLIC_TEST': '"TEST"',
+          }),
+        ],
+      }),
+    )
+  })
+})
+
+describe('rspeedy environment test', () => {
+  const fixturesRoot = join(
+    dirname(fileURLToPath(import.meta.url)),
+    'fixtures',
+  )
+
+  test.each([
+    { name: 'web only', environment: ['web'], expected: ['web'] },
+    { name: 'lynx only', environment: ['lynx'], expected: ['lynx'] },
+    {
+      name: 'web + lynx',
+      environment: ['web', 'lynx'],
+      expected: ['web', 'lynx'],
+    },
+    { name: 'empty array', environment: [], expected: ['web', 'lynx'] },
+  ])(
+    'test environment combinations - $name',
+    async ({ environment, expected }) => {
+      const root = join(fixturesRoot, 'environment')
+      const rsbuild = await createRspeedy({
+        cwd: root,
+        rspeedyConfig: {
+          environments: {
+            web: {},
+            lynx: {},
+          },
+        },
+        environment,
+      })
+      const configs = await rsbuild.initConfigs()
+      expect(configs).toHaveLength(expected.length)
+      expect(configs.map(c => c.name)).toEqual(expected)
+    },
+  )
 })
