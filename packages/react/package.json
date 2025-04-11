@@ -165,7 +165,7 @@
   },
   "devDependencies": {
     "@lynx-js/lynx-environment": "workspace:*",
-    "@lynx-js/types": "^3.2.0",
+    "@lynx-js/types": "^3.2.1",
     "@microsoft/api-extractor": "catalog:",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
