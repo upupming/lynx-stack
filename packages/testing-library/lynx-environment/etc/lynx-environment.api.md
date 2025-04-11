@@ -53,7 +53,6 @@ export const initElementTree: () => {
     __ReplaceElement(newElement: LynxElement, oldElement: LynxElement): void;
     __FlushElementTree(): void;
     __UpdateListComponents(_list: LynxElement, _components: string[]): void;
-    __UpdateListActions(_list: LynxElement, _removals: number[], _insertions: number[], _moveFrom: number[], _moveTo: number[], _updateFrom: number[], _updateTo: number[]): void;
     __UpdateListCallbacks(list: LynxElement, componentAtIndex: (list: LynxElement, listID: number, cellIndex: number, operationID: number, enable_reuse_notification: boolean) => void, enqueueComponent: (list: LynxElement, listID: number, sign: number) => void): void;
     __CreateList(parentComponentUniqueId: number, componentAtIndex: any, enqueueComponent: any): LynxElement;
     __GetTag(ele: LynxElement): string;

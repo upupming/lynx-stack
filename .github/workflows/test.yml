@@ -183,6 +183,7 @@ jobs:
       runs-on: lynx-ubuntu-24.04-medium
       run: >
         pnpm run test
+        --project 'react/testing-library'
         --project 'testing-library/*'
         --test-timeout=50000
         --reporter=github-actions

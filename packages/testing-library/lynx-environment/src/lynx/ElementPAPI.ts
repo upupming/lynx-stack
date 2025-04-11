@@ -365,16 +365,6 @@ export const initElementTree = () => {
 
     __UpdateListComponents(_list: LynxElement, _components: string[]) {}
 
-    __UpdateListActions(
-      _list: LynxElement,
-      _removals: number[],
-      _insertions: number[],
-      _moveFrom: number[],
-      _moveTo: number[],
-      _updateFrom: number[],
-      _updateTo: number[],
-    ) {}
-
     __UpdateListCallbacks(
       list: LynxElement,
       componentAtIndex: (
