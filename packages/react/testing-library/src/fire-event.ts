@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { fireEvent as domFireEvent, createEvent } from '@testing-library/dom';
 
 function getElement(elemOrNodesRef) {
@@ -15,7 +16,7 @@ function getElement(elemOrNodesRef) {
 }
 // Similar to RTL we make are own fireEvent helper that just calls DTL's fireEvent with that
 // we can that any specific behaviors to the helpers we need
-export const fireEvent = (elemOrNodesRef, ...args) => {
+export const fireEvent: any = (elemOrNodesRef, ...args) => {
   const isMainThread = __MAIN_THREAD__;
 
   // switch to background thread

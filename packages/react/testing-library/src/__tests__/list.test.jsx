@@ -1,7 +1,7 @@
 import { describe, expect } from 'vitest';
 import { render } from '..';
 import { useState } from '@lynx-js/react';
-import { __pendingListUpdates } from '@lynx-js/react/runtime/lib/list.js';
+import { __pendingListUpdates } from '../../../runtime/lib/list.js';
 
 describe('list', () => {
   it('basic', async () => {

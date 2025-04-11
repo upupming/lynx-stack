@@ -82,6 +82,7 @@ export default tseslint.config(
       // TODO: enable eslint for testing-library
       // testing-library
       'packages/testing-library/**',
+      'packages/react/testing-library/**',
     ],
   },
   js.configs.recommended,

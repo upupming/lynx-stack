@@ -21,9 +21,7 @@ test('renders view into page', async () => {
 });
 
 test('renders options.wrapper around node', async () => {
-  const WrapperComponent = ({ children }) => (
-    <view data-testid='wrapper'>{children}</view>
-  );
+  const WrapperComponent = ({ children }) => <view data-testid='wrapper'>{children}</view>;
   const Comp = () => {
     return <view data-testid='inner' style='background-color: yellow;' />;
   };

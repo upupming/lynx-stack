@@ -1,15 +1,15 @@
-import {
-  getQueriesForElement,
-  configure as configureDTL,
-  queries,
-} from '@testing-library/dom';
-import { h, render as preactRender, createRef } from 'preact';
+// Copyright 2024 The Lynx Authors. All rights reserved.
+// Licensed under the Apache License Version 2.0 that can be found in the
+// LICENSE file in the root directory of this source tree.
+import { configure as configureDTL, getQueriesForElement, queries } from '@testing-library/dom';
+import { cloneElement, createRef, h, render as preactRender } from 'preact';
 import { useEffect } from 'preact/hooks';
-import { cloneElement } from 'preact';
-import { __root } from '@lynx-js/react/internal';
-import { flushDelayedLifecycleEvents } from '@lynx-js/react/runtime/lib/lynx/tt.js';
-import { clearPage } from '@lynx-js/react/runtime/lib/snapshot.js';
 import { act } from 'preact/test-utils';
+
+import { __root } from '@lynx-js/react/internal';
+
+import { flushDelayedLifecycleEvents } from '../../runtime/lib/lynx/tt.js';
+import { clearPage } from '../../runtime/lib/snapshot.js';
 
 export function waitSchedule() {
   return new Promise(resolve => {

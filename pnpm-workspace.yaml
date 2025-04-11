@@ -6,6 +6,7 @@ packages:
   - packages/react/runtime
   - packages/react/transform
   - packages/react/worklet-runtime
+  - packages/react/testing-library
   - packages/rspeedy/*
   - packages/tools/*
   - packages/web-platform/*

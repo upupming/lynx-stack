@@ -2,11 +2,12 @@ import '@testing-library/jest-dom';
 import { vi } from 'vitest';
 import { test } from 'vitest';
 import { render, fireEvent } from '..';
-import { createRef, useEffect, useState } from '@lynx-js/react';
+import { useEffect, useState } from 'preact/hooks';
+import { createRef } from 'preact';
 import { Component } from 'preact';
 import { expect } from 'vitest';
-import { __globalSnapshotPatch } from '@lynx-js/react/runtime/lib/lifecycle/patch/snapshotPatch.js';
-import { snapshotInstanceManager } from '@lynx-js/react/runtime/lib/snapshot.js';
+import { __globalSnapshotPatch } from '../../../runtime/lib/lifecycle/patch/snapshotPatch.js';
+import { snapshotInstanceManager } from '../../../runtime/lib/snapshot.js';
 
 test('render calls useEffect immediately', async () => {
   const cb = vi.fn();

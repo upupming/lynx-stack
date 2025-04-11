@@ -1,28 +1,23 @@
-import { vi } from 'vitest';
 import { options } from 'preact';
-import { SnapshotInstance } from '@lynx-js/react/runtime/lib/snapshot.js';
-import { snapshotInstanceManager } from '@lynx-js/react/runtime/lib/snapshot.js';
-import { BackgroundSnapshotInstance } from '@lynx-js/react/runtime/lib/backgroundSnapshot.js';
-import { backgroundSnapshotInstanceManager } from '@lynx-js/react/runtime/lib/snapshot.js';
-import { injectCalledByNative } from '@lynx-js/react/runtime/lib/lynx/calledByNative.js';
-import {
-  injectUpdateMainThread,
-} from '@lynx-js/react/runtime/lib/lifecycle/patch/updateMainThread.js';
+import { SnapshotInstance } from '../../runtime/lib/snapshot.js';
+import { snapshotInstanceManager } from '../../runtime/lib/snapshot.js';
+import { BackgroundSnapshotInstance } from '../../runtime/lib/backgroundSnapshot.js';
+import { backgroundSnapshotInstanceManager } from '../../runtime/lib/snapshot.js';
+import { injectCalledByNative } from '../../runtime/lib/lynx/calledByNative.js';
+import { injectUpdateMainThread } from '../../runtime/lib/lifecycle/patch/updateMainThread.js';
 import {
   replaceCommitHook,
   clearPatchesToCommit,
   clearCommitTaskId,
-} from '@lynx-js/react/runtime/lib/lifecycle/patch/commit.js';
-import { injectTt } from '@lynx-js/react/runtime/lib/lynx/tt.js';
-import { setRoot } from '@lynx-js/react/runtime/lib/root.js';
-import { deinitGlobalSnapshotPatch } from '@lynx-js/react/runtime/lib/lifecycle/patch/snapshotPatch.js';
-import { initApiEnv } from '@lynx-js/react/worklet-runtime/lib/api/lynxApi.js';
-import { initEventListeners } from '@lynx-js/react/worklet-runtime/lib/listeners.js';
-import { initWorklet } from '@lynx-js/react/worklet-runtime/lib/workletRuntime.js';
-import { destroyWorklet } from '@lynx-js/react/runtime/lib/worklet/destroy.js';
-import { flushDelayedLifecycleEvents } from '@lynx-js/react/runtime/lib/lynx/tt.js';
-
-globalThis.jest = vi;
+} from '../../runtime/lib/lifecycle/patch/commit.js';
+import { injectTt } from '../../runtime/lib/lynx/tt.js';
+import { setRoot } from '../../runtime/lib/root.js';
+import { deinitGlobalSnapshotPatch } from '../../runtime/lib/lifecycle/patch/snapshotPatch.js';
+import { initApiEnv } from '../../worklet-runtime/lib/api/lynxApi.js';
+import { initEventListeners } from '../../worklet-runtime/lib/listeners.js';
+import { initWorklet } from '../../worklet-runtime/lib/workletRuntime.js';
+import { destroyWorklet } from '../../runtime/lib/worklet/destroy.js';
+import { flushDelayedLifecycleEvents } from '../../runtime/lib/lynx/tt.js';
 
 const {
   onInjectMainThreadGlobals,

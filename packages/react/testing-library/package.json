@@ -1,0 +1,13 @@
+{
+  "name": "@lynx-js/react-lynx-testing-library",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "api-extractor": "api-extractor run --verbose",
+    "test": "vitest",
+    "test:ui": "vitest --ui"
+  },
+  "devDependencies": {
+    "@lynx-js/react": "workspace:*"
+  }
+}

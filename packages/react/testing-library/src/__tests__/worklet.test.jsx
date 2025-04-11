@@ -1,10 +1,6 @@
 import { describe, expect, vi } from 'vitest';
 import { fireEvent, render, waitSchedule } from '..';
-import {
-  runOnBackground,
-  useMainThreadRef,
-  runOnMainThread,
-} from '@lynx-js/react';
+import { runOnBackground, useMainThreadRef, runOnMainThread } from '@lynx-js/react';
 describe('worklet', () => {
   it('main-thread script should work', async () => {
     const cb = vi.fn();

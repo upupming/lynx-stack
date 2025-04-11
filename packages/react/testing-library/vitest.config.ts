@@ -6,7 +6,7 @@ const defaultConfig = createVitestConfig({
 });
 const config = defineConfig({
   test: {
-    name: 'testing-library/react-lynx-testing-library',
+    name: 'react/testing-library',
   },
 });
 

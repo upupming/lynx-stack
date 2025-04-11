@@ -1,4 +1,4 @@
-import { cleanup } from './pure';
+import { cleanup } from './pure.jsx';
 
 // If we're running in a test runner that supports afterEach
 // or teardown then we'll automatically run cleanup afterEach test
@@ -22,4 +22,4 @@ if (
   }
 }
 
-export * from './pure';
+export * from './pure.jsx';

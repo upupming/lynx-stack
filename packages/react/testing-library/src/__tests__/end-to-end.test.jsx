@@ -2,7 +2,7 @@ import '@testing-library/jest-dom';
 import { Component } from 'preact';
 import { expect } from 'vitest';
 import { render, screen, waitForElementToBeRemoved } from '..';
-import { snapshotInstanceManager } from '@lynx-js/react/runtime/lib/snapshot.js';
+import { snapshotInstanceManager } from '../../../runtime/lib/snapshot.js';
 
 const fetchAMessage = () =>
   new Promise((resolve) => {
@@ -88,8 +88,7 @@ test('state change will cause re-render', async () => {
 
   const isBackground = !__MAIN_THREAD__;
 
-  const callLepusMethod =
-    lynxEnv.backgroundThread.lynx.getNativeApp().callLepusMethod;
+  const callLepusMethod = lynxEnv.backgroundThread.lynx.getNativeApp().callLepusMethod;
   // callLepusMethodCalls such as rLynxChange
   globalThis.lynxEnv.switchToMainThread();
   expect(callLepusMethod.mock.calls).toMatchInlineSnapshot(`
