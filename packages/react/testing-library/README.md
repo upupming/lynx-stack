@@ -1,4 +1,4 @@
-# @lynx-js/react-lynx-testing-library
+# @lynx-js/react/testing-library
 
 ReactLynx Testing Library is a simple and complete ReactLynx DOM
 testing utilities that encourage good testing practices.
@@ -12,7 +12,7 @@ Similar to [react-testing-library](https://github.com/testing-library/react-test
 Install the package and vitest:
 
 ```sh
-npm install --save-dev @lynx-js/react-lynx-testing-library vitest
+npm install --save-dev vitest @lynx-js/lynx-environment @testing-library/dom @vitejs/plugin-react
 ```
 
 Setup vitest:
@@ -20,7 +20,7 @@ Setup vitest:
 ```js
 // vitest.config.js
 import { defineConfig, mergeConfig } from 'vitest/config';
-import { createVitestConfig } from '@lynx-js/react-lynx-testing-library/vitest-config';
+import { createVitestConfig } from '@lynx-js/react/testing-library/vitest-config';
 
 const defaultConfig = createVitestConfig();
 const config = defineConfig({
@@ -39,7 +39,7 @@ Then you can start writing tests and run them with vitest!
 ```js
 import '@testing-library/jest-dom';
 import { test, expect } from 'vitest';
-import { render } from '@lynx-js/react-lynx-testing-library';
+import { render } from '@lynx-js/react/testing-library';
 
 test('renders options.wrapper around node', async () => {
   const WrapperComponent = ({ children }) => (

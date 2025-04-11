@@ -1,8 +1,8 @@
 /**
  * @packageDocumentation
  *
- * ReactLynx Testing Library is a simple and complete Preact DOM
- * testing utilities that encourage good testing practices.
+ * ReactLynx Testing Library is a simple and complete ReactLynx
+ * unit testing utilities that encourage good testing practices.
  *
  * Inspired by {@link https://testing-library.com/docs/react-testing-library/intro | React Testing Library} and {@link https://github.com/jsdom/jsdom | jsdom}.
  */
@@ -26,7 +26,7 @@ export interface RenderOptions<Q extends Queries = typeof queries> {
    * ```ts
    * // Example, a function to traverse table contents
    * import * as tableQueries from 'my-table-query-library'
-   * import { queries } from '@lynx-js/react-lynx-testing-library'
+   * import { queries } from '@lynx-js/react/testing-library'
    *
    * const { getByRowColumn, getByText } = render(<MyTable />, {
    *   queries: {...queries, ...tableQueries},
@@ -42,7 +42,7 @@ export interface RenderOptions<Q extends Queries = typeof queries> {
    * @example
    *
    * ```ts
-   * import { render } from '@lynx-js/react-lynx-testing-library'
+   * import { render } from '@lynx-js/react/testing-library'
    * import { ThemeProvider } from 'my-ui-lib'
    * import { TranslationProvider } from 'my-i18n-lib'
    * import defaultStrings from 'i18n/en-x-default'
@@ -61,7 +61,7 @@ export interface RenderOptions<Q extends Queries = typeof queries> {
    *   render(ui, { wrapper: AllTheProviders, ...options })
    *
    * // re-export everything
-   * export * from '@lynx-js/react-lynx-testing-library'
+   * export * from '@lynx-js/react/testing-library'
    *
    * // override render method
    * export { customRender as render }
@@ -103,7 +103,7 @@ export type RenderResult<Q extends Queries = typeof queries> = {
  * @example
  *
  * ```ts
- * import { render} from '@lynx-js/react-lynx-testing-library'
+ * import { render} from '@lynx-js/react/testing-library'
  *
  * const WrapperComponent = ({ children }) => (
  *     <view data-testid='wrapper'>{children}</view>
@@ -186,7 +186,7 @@ export interface RenderHookOptions<Props> {
    * @example
    *
    * ```ts
-   * import { renderHook } from '@lynx-js/react-lynx-testing-library'
+   * import { renderHook } from '@lynx-js/react/testing-library'
    * import { ThemeProvider } from 'my-ui-lib'
    * import { TranslationProvider } from 'my-i18n-lib'
    * import defaultStrings from 'i18n/en-x-default'
@@ -205,7 +205,7 @@ export interface RenderHookOptions<Props> {
    *   renderHook(ui, { wrapper: AllTheProviders, ...options })
    *
    * // re-export everything
-   * export * from '@lynx-js/react-lynx-testing-library'
+   * export * from '@lynx-js/react/testing-library'
    *
    * // override renderHook method
    * export { customRender as renderHook }
@@ -221,7 +221,7 @@ export interface RenderHookOptions<Props> {
  * @example
  *
  * ```ts
- * import { renderHook } from '@lynx-js/react-lynx-testing-library'
+ * import { renderHook } from '@lynx-js/react/testing-library'
  *
  * const Context = createContext('default');
  * function Wrapper({ children }) {
