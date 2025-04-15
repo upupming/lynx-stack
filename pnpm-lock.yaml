@@ -179,13 +179,16 @@ importers:
 
   packages/react:
     dependencies:
+      '@lynx-js/lynx-environment':
+        specifier: workspace:*
+        version: link:../testing-library/lynx-environment
+      '@testing-library/jest-dom':
+        specifier: ^6.6.3
+        version: 6.6.3
       preact:
         specifier: npm:@hongzhiyuan/preact@10.24.0-319c684e
         version: '@hongzhiyuan/preact@10.24.0-319c684e'
     devDependencies:
-      '@lynx-js/lynx-environment':
-        specifier: workspace:*
-        version: link:../testing-library/lynx-environment
       '@lynx-js/types':
         specifier: ^3.2.1
         version: 3.2.1
@@ -195,15 +198,9 @@ importers:
       '@testing-library/dom':
         specifier: ^10.4.0
         version: 10.4.0
-      '@testing-library/jest-dom':
-        specifier: ^6.6.3
-        version: 6.6.3
       '@types/react':
         specifier: ^18.3.20
         version: 18.3.20
-      '@vitejs/plugin-react':
-        specifier: 4.3.4
-        version: 4.3.4(vite@5.4.2(@types/node@22.14.1)(sass-embedded@1.86.0)(terser@5.31.6))
 
   packages/react/refresh:
     devDependencies:

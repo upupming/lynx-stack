@@ -8,12 +8,6 @@ Similar to [react-testing-library](https://github.com/testing-library/react-test
 
 ## Setup
 
-Install the package and vitest:
-
-```sh
-npm install --save-dev vitest @lynx-js/lynx-environment @testing-library/dom @vitejs/plugin-react
-```
-
 Setup vitest:
 
 ```js

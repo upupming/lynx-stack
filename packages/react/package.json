@@ -161,6 +161,8 @@
     "api-extractor": "api-extractor run --verbose"
   },
   "dependencies": {
+    "@lynx-js/lynx-environment": "workspace:*",
+    "@testing-library/jest-dom": "^6.6.3",
     "preact": "npm:@hongzhiyuan/preact@10.24.0-319c684e"
   },
   "devDependencies": {
@@ -169,27 +171,14 @@
     "@microsoft/api-extractor": "catalog:",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
-    "@types/react": "^18.3.20",
-    "@vitejs/plugin-react": "4.3.4"
+    "@types/react": "^18.3.20"
   },
   "peerDependencies": {
-    "@lynx-js/lynx-environment": "*",
     "@lynx-js/types": "*",
-    "@testing-library/dom": "^10",
-    "@types/react": "^18",
-    "@vitejs/plugin-react": "^4"
+    "@types/react": "^18"
   },
   "peerDependenciesMeta": {
-    "@lynx-js/lynx-environment": {
-      "optional": true
-    },
     "@lynx-js/types": {
-      "optional": true
-    },
-    "@testing-library/dom": {
-      "optional": true
-    },
-    "@vitejs/plugin-react": {
       "optional": true
     }
   }

@@ -1,5 +1,4 @@
 import { defineConfig } from 'vitest/config';
-import react from '@vitejs/plugin-react';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { createRequire } from 'module';
@@ -44,7 +43,7 @@ export const createVitestConfig = (options) => {
           filename: basename,
           sourcemap: true,
           snapshot: {
-            preserveJsx: true,
+            preserveJsx: false,
             runtimePkg: `${runtimePkgName}/internal`,
             jsxImportSource: runtimePkgName,
             filename: relativePath,
@@ -63,7 +62,6 @@ export const createVitestConfig = (options) => {
           refresh: false,
           cssScope: false,
         });
-
         if (result.errors.length > 0) {
           console.error(result.errors);
           throw new Error('transformReactLynxSync failed');
@@ -87,7 +85,6 @@ export const createVitestConfig = (options) => {
     },
     plugins: [
       transformReactLynxPlugin(),
-      react({ jsxImportSource: runtimePkgName }),
     ],
     test: {
       environment: require.resolve(
