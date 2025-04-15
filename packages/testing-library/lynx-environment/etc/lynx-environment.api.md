@@ -59,8 +59,8 @@ export const initElementTree: () => {
     __GetAttributeByName(ele: LynxElement, name: string): string | null;
     clear(): void;
     toTree(): LynxElement | undefined;
-    triggerComponentAtIndex(e: LynxElement, index: number, ...args: any[]): number;
-    triggerEnqueueComponent(e: LynxElement, uiSign: number): void;
+    enterListItemAtIndex(e: LynxElement, index: number, ...args: any[]): number;
+    leaveListItem(e: LynxElement, uiSign: number): void;
     toJSON(): LynxElement | undefined;
     __GetElementByUniqueId(uniqueId: number): LynxElement | undefined;
 };

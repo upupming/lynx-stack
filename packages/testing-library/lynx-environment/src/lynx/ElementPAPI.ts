@@ -438,9 +438,9 @@ export const initElementTree = () => {
      * Enter a list-item element at the given index.
      * It will load the list-item element using the `componentAtIndex` callback.
      *
-     * @param e The list element
-     * @param index The index of the list-item element
-     * @param args The arguments used to create the list-item element
+     * @param e - The list element
+     * @param index - The index of the list-item element
+     * @param args - The arguments used to create the list-item element
      * @returns The unique id of the list-item element
      */
     enterListItemAtIndex(
@@ -459,8 +459,8 @@ export const initElementTree = () => {
      * the `enqueueComponent` callback, and the list-item element
      * will be reused in the future by other list-item elements.
      *
-     * @param e The list element
-     * @param uiSign  The unique id of the list-item element
+     * @param e - The list element
+     * @param uiSign - The unique id of the list-item element
      */
     leaveListItem(e: LynxElement, uiSign: number) {
       // @ts-ignore
