@@ -181,7 +181,7 @@ importers:
     dependencies:
       '@lynx-js/test-environment':
         specifier: workspace:*
-        version: link:../testing-library/lynx-environment
+        version: link:../testing-library/test-environment
       '@testing-library/jest-dom':
         specifier: ^6.6.3
         version: 6.6.3
@@ -567,15 +567,15 @@ importers:
         specifier: workspace:*
         version: link:../../../react
     devDependencies:
-      '@lynx-js/test-environment':
-        specifier: workspace:*
-        version: link:../../lynx-environment
       '@lynx-js/react-rsbuild-plugin':
         specifier: workspace:*
         version: link:../../../rspeedy/plugin-react
       '@lynx-js/rspeedy':
         specifier: workspace:*
         version: link:../../../rspeedy/core
+      '@lynx-js/test-environment':
+        specifier: workspace:*
+        version: link:../../test-environment
       '@testing-library/jest-dom':
         specifier: ^6.6.3
         version: 6.6.3
@@ -595,7 +595,7 @@ importers:
         specifier: ^3.1.1
         version: 3.1.1(@types/debug@4.1.12)(@types/node@22.14.1)(@vitest/ui@3.1.1)(jsdom@26.0.0)(sass-embedded@1.86.0)(terser@5.31.6)
 
-  packages/testing-library/lynx-environment:
+  packages/testing-library/test-environment:
     dependencies:
       css-what:
         specifier: ^6.1.0

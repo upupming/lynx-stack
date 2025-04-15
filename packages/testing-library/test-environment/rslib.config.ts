@@ -22,7 +22,4 @@ export default defineConfig({
       syntax: 'es2021',
     },
   ],
-  output: {
-    sourceMap: true,
-  },
 });
