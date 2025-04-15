@@ -30,7 +30,7 @@ describe('list', () => {
     `);
     const list = container.firstChild;
     expect(list.props).toMatchInlineSnapshot(`undefined`);
-    const uid0 = elementTree.triggerComponentAtIndex(list, 0);
+    const uid0 = elementTree.enterListItemAtIndex(list, 0);
     expect(__pendingListUpdates.values).toMatchInlineSnapshot(`
       {
         "2": [
@@ -65,7 +65,7 @@ describe('list', () => {
         </list>
       </page>
     `);
-    const uid1 = elementTree.triggerComponentAtIndex(list, 1);
+    const uid1 = elementTree.enterListItemAtIndex(list, 1);
     expect(__pendingListUpdates.values).toMatchInlineSnapshot(`
       {
         "2": [
@@ -116,7 +116,7 @@ describe('list', () => {
     `);
     expect(uid0).toMatchInlineSnapshot(`2`);
     expect(uid1).toMatchInlineSnapshot(`5`);
-    elementTree.triggerEnqueueComponent(list, uid0);
+    elementTree.leaveListItem(list, uid0);
     expect(__pendingListUpdates.values).toMatchInlineSnapshot(`
       {
         "2": [
@@ -165,7 +165,7 @@ describe('list', () => {
         </list>
       </page>
     `);
-    const uid2 = elementTree.triggerComponentAtIndex(list, 2);
+    const uid2 = elementTree.enterListItemAtIndex(list, 2);
     expect(__pendingListUpdates.values).toMatchInlineSnapshot(
       `
       {

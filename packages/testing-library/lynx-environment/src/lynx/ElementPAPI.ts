@@ -434,7 +434,16 @@ export const initElementTree = () => {
       return this.root;
     }
 
-    triggerComponentAtIndex(
+    /**
+     * Enter a list-item element at the given index.
+     * It will load the list-item element using the `componentAtIndex` callback.
+     *
+     * @param e The list element
+     * @param index The index of the list-item element
+     * @param args The arguments used to create the list-item element
+     * @returns The unique id of the list-item element
+     */
+    enterListItemAtIndex(
       e: LynxElement,
       index: number,
       ...args: any[]
@@ -444,7 +453,16 @@ export const initElementTree = () => {
       return componentAtIndex(e, $$uiSign, index, ...args);
     }
 
-    triggerEnqueueComponent(e: LynxElement, uiSign: number) {
+    /**
+     * Leave a list-item element.
+     * It will mark the list-item element as unused using
+     * the `enqueueComponent` callback, and the list-item element
+     * will be reused in the future by other list-item elements.
+     *
+     * @param e The list element
+     * @param uiSign  The unique id of the list-item element
+     */
+    leaveListItem(e: LynxElement, uiSign: number) {
       // @ts-ignore
       const { enqueueComponent, $$uiSign } = e;
       enqueueComponent(e, $$uiSign, uiSign);
