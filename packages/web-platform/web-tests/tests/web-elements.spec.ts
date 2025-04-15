@@ -806,6 +806,22 @@ test.describe('web-elements test suite', () => {
     });
   });
   test.describe('x-foldview-ng', () => {
+    test('x-foldview-ng/basic-fling', async ({ page, browserName, context }, {
+      title,
+    }) => {
+      test.skip(browserName !== 'chromium', 'using chromium only cdp methods');
+      const cdpSession = await context.newCDPSession(page);
+      await gotoWebComponentPage(page, title);
+      await diffScreenShot(page, title, 'initial');
+      await swipe(cdpSession, {
+        x: 100,
+        y: 500,
+        xDistance: 0,
+        yDistance: -250,
+        steps: 10,
+      });
+      await diffScreenShot(page, title, 'fling-works');
+    });
     test('x-foldview-ng/size-controled-by-parent-flex-cross-axis', async ({
       page,
       browserName,
@@ -891,8 +907,8 @@ test.describe('web-elements test suite', () => {
         x: 100,
         y: 400,
         xDistance: 0,
-        yDistance: -250,
-        speed: 300,
+        yDistance: -200,
+        steps: 30,
       });
       let currentScrollviewScrolledPosition = await scrollview.evaluate((
         dom: HTMLElement,
@@ -956,6 +972,29 @@ test.describe('web-elements test suite', () => {
         'swipe-back-to-show-header',
       ).toBeLessThan(200);
     });
+
+    test(
+      'x-foldview-ng/size-toolbar-and-slot-size-lager',
+      async ({ page, browserName, context }, {
+        title,
+      }) => {
+        test.skip(
+          browserName !== 'chromium',
+          'using chromium only cdp methods',
+        );
+        const cdpSession = await context.newCDPSession(page);
+        await gotoWebComponentPage(page, title);
+        await diffScreenShot(page, title, 'initial');
+        await swipe(cdpSession, {
+          x: 100,
+          y: 500,
+          xDistance: 0,
+          yDistance: -600,
+          speed: 200,
+        });
+        await diffScreenShot(page, title, 'fully-swiped');
+      },
+    );
     test('x-foldview-ng/swipe-with-x-scroll-view', async ({
       page,
       browserName,
@@ -1006,7 +1045,7 @@ test.describe('web-elements test suite', () => {
         y: 250,
         xDistance: 0,
         yDistance: -50,
-        speed: 200,
+        steps: 20,
       });
       await wait(100);
       let scrollEvents = await events.jsonValue();
@@ -1016,7 +1055,7 @@ test.describe('web-elements test suite', () => {
         y: 250,
         xDistance: 0,
         yDistance: -100,
-        speed: 200,
+        steps: 20,
       });
       await wait(100);
       scrollEvents = await events.jsonValue();
@@ -1108,8 +1147,8 @@ test.describe('web-elements test suite', () => {
           x: 100,
           y: 400,
           xDistance: 0,
-          yDistance: -250,
-          speed: 300,
+          yDistance: -200,
+          steps: 30,
         });
         let currentScrollviewScrolledPosition = await scrollview.evaluate((
           dom: HTMLElement,
@@ -2228,7 +2267,7 @@ test.describe('web-elements test suite', () => {
         await gotoWebComponentPage(page, title);
         await diffScreenShot(page, title, 'index');
         await page.evaluate(() => {
-          (document.querySelector('list-item[id="1"]') as HTMLElement)
+          (document.querySelector('list-item[item-key="1"]') as HTMLElement)
             .style
             .setProperty(
               'height',
@@ -2247,14 +2286,12 @@ test.describe('web-elements test suite', () => {
         await gotoWebComponentPage(page, title);
         await diffScreenShot(page, title, 'index');
         await page.evaluate(() => {
-          (document.querySelector('list-item[id="2"]') as HTMLElement)
+          (document.querySelector('list-item[item-key="1"]') as Element)
             .insertAdjacentHTML(
               'afterend',
-              `<list-item item-key="21" id="21">
-          <x-view class="item" part="item" style="height: 120px;">
-            21
-          </x-view>
-        </list-item>
+              `<list-item class="item" item-key="30" style="--item-index: 30; height: 120px;">
+  <x-view></x-view>
+</list-item>
 `,
             );
         });
@@ -2713,10 +2750,32 @@ test.describe('web-elements test suite', () => {
     );
   });
 
-  test.describe('x-overlay', () => {
-    test('x-overlay-ng/basic-z-index', async ({ page }, { title }) => {
+  test.describe('x-overlay-ng', () => {
+    test('basic-z-index', async ({ page }, { titlePath }) => {
+      const title = getTitle(titlePath);
       await gotoWebComponentPage(page, title);
       await diffScreenShot(page, title, 'red-cover-next-z-staking-rect');
+    });
+
+    test('event-layoutchange', async ({ page }, { titlePath }) => {
+      const title = getTitle(titlePath);
+      await gotoWebComponentPage(page, title);
+      await page.evaluate(() => {
+        document.getElementById('target')?.setAttribute('open', '');
+      });
+      await wait(100);
+      const detail = await page.evaluate(() => {
+        // @ts-expect-error
+        return globalThis.detail;
+      });
+      expect(detail).toBeTruthy();
+      expect(typeof detail.width).toBe('number');
+      expect(typeof detail.height).toBe('number');
+      expect(typeof detail.left).toBe('number');
+      expect(typeof detail.right).toBe('number');
+      expect(typeof detail.top).toBe('number');
+      expect(typeof detail.bottom).toBe('number');
+      expect(detail.id).toBe('target');
     });
   });
 
