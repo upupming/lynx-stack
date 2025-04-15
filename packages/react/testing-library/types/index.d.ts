@@ -2,7 +2,7 @@
  * @packageDocumentation
  *
  * ReactLynx Testing Library is a simple and complete ReactLynx
- * unit testing utilities that encourage good testing practices.
+ * unit testing library that encourages good testing practices.
  *
  * Inspired by {@link https://testing-library.com/docs/react-testing-library/intro | React Testing Library} and {@link https://github.com/jsdom/jsdom | jsdom}.
  */
