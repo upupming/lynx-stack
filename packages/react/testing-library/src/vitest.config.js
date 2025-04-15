@@ -33,11 +33,11 @@ export const createVitestConfig = (options) => {
           '@lynx-js/react/transform',
         );
         // relativePath should be stable between different runs with different cwd
-        const relativePath = path.posix.relative(
+        const relativePath = path.relative(
           __dirname,
           sourcePath,
         );
-        const basename = path.posix.basename(sourcePath);
+        const basename = path.basename(sourcePath);
         const result = transformReactLynxSync(sourceText, {
           mode: 'test',
           pluginName: '',
@@ -81,7 +81,7 @@ export const createVitestConfig = (options) => {
     server: {
       fs: {
         allow: [
-          path.posix.join(__dirname, '..'),
+          path.join(__dirname, '..'),
         ],
       },
     },
@@ -94,7 +94,7 @@ export const createVitestConfig = (options) => {
         '@lynx-js/lynx-environment/env/vitest',
       ),
       globals: true,
-      setupFiles: [path.posix.join(__dirname, 'vitest-global-setup')],
+      setupFiles: [path.join(__dirname, 'vitest-global-setup')],
     },
   });
 };

@@ -28,7 +28,7 @@ const config = defineConfig({
   },
 });
 
-export default defineConfig(mergeConfig(defaultConfig, config));
+export default mergeConfig(defaultConfig, config);
 ```
 
 Then you can start writing tests and run them with vitest!
@@ -69,7 +69,7 @@ test('renders options.wrapper around node', async () => {
 
 ## Examples
 
-See our [examples](https://github.com/lynx-family/lynx-stack/tree/main/packages/testing-library/react-lynx-testing-library/src/__tests__) for more usage.
+See our [examples](https://github.com/lynx-family/lynx-stack/tree/main/packages/react/testing-library/src/__tests__) for more usage.
 
 ## Credits
 

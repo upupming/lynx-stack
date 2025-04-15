@@ -10,4 +10,4 @@ const config = defineConfig({
   },
 });
 
-export default defineConfig(mergeConfig(defaultConfig, config));
+export default mergeConfig(defaultConfig, config);
