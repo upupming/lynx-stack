@@ -1,6 +1,6 @@
 ---
 "@lynx-js/react": patch
-"@lynx-js/lynx-environment": patch
+"@lynx-js/test-environment": patch
 ---
 
 Add testing library for ReactLynx

@@ -1,5 +1,5 @@
 {
-  "name": "@lynx-js/lynx-environment",
+  "name": "@lynx-js/test-environment",
   "version": "0.0.0",
   "exports": {
     ".": {

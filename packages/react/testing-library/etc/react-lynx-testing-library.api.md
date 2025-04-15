@@ -7,7 +7,7 @@
 import { BoundFunction } from '@testing-library/dom';
 import { ComponentChild } from 'preact';
 import { ComponentType } from 'preact';
-import { LynxElement } from '@lynx-js/lynx-environment';
+import { LynxElement } from '@lynx-js/test-environment';
 import { Queries } from '@testing-library/dom';
 import { queries } from '@testing-library/dom';
 

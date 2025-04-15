@@ -88,7 +88,7 @@ export const createVitestConfig = (options) => {
     ],
     test: {
       environment: require.resolve(
-        '@lynx-js/lynx-environment/env/vitest',
+        '@lynx-js/test-environment/env/vitest',
       ),
       globals: true,
       setupFiles: [path.join(__dirname, 'vitest-global-setup')],

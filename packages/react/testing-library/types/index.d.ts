@@ -8,7 +8,7 @@
  */
 
 import { queries, Queries, BoundFunction } from '@testing-library/dom';
-import { LynxElement } from '@lynx-js/lynx-environment';
+import { LynxElement } from '@lynx-js/test-environment';
 import { ComponentChild, ComponentType } from 'preact';
 export * from '@testing-library/dom';
 

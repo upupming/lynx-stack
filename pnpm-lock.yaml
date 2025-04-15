@@ -179,7 +179,7 @@ importers:
 
   packages/react:
     dependencies:
-      '@lynx-js/lynx-environment':
+      '@lynx-js/test-environment':
         specifier: workspace:*
         version: link:../testing-library/lynx-environment
       '@testing-library/jest-dom':
@@ -567,7 +567,7 @@ importers:
         specifier: workspace:*
         version: link:../../../react
     devDependencies:
-      '@lynx-js/lynx-environment':
+      '@lynx-js/test-environment':
         specifier: workspace:*
         version: link:../../lynx-environment
       '@lynx-js/react-rsbuild-plugin':

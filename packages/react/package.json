@@ -161,12 +161,12 @@
     "api-extractor": "api-extractor run --verbose"
   },
   "dependencies": {
-    "@lynx-js/lynx-environment": "workspace:*",
+    "@lynx-js/test-environment": "workspace:*",
     "@testing-library/jest-dom": "^6.6.3",
     "preact": "npm:@hongzhiyuan/preact@10.24.0-319c684e"
   },
   "devDependencies": {
-    "@lynx-js/lynx-environment": "workspace:*",
+    "@lynx-js/test-environment": "workspace:*",
     "@lynx-js/types": "^3.2.1",
     "@microsoft/api-extractor": "catalog:",
     "@testing-library/dom": "^10.4.0",

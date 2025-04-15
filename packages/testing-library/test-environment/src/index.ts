@@ -359,7 +359,7 @@ function injectBackgroundThreadGlobals(target?: any, polyfills?: any) {
  * @example
  *
  * ```ts
- * import { LynxEnv } from '@lynx-js/lynx-environment';
+ * import { LynxEnv } from '@lynx-js/test-environment';
  *
  * const lynxEnv = new LynxEnv();
  *
@@ -381,7 +381,7 @@ export class LynxEnv {
    * @example
    *
    * ```ts
-   * import { LynxEnv } from '@lynx-js/lynx-environment';
+   * import { LynxEnv } from '@lynx-js/test-environment';
    *
    * const lynxEnv = new LynxEnv();
    *
@@ -397,7 +397,7 @@ export class LynxEnv {
    * @example
    *
    * ```ts
-   * import { LynxEnv } from '@lynx-js/lynx-environment';
+   * import { LynxEnv } from '@lynx-js/test-environment';
    *
    * const lynxEnv = new LynxEnv();
    *

@@ -3,7 +3,7 @@ const env = {
   transformMode: 'web',
   async setup(global) {
     const { LynxEnv } = await import(
-      '@lynx-js/lynx-environment'
+      '@lynx-js/test-environment'
     );
     const lynxEnv = new LynxEnv();
     global.lynxEnv = lynxEnv;
