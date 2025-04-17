@@ -162,7 +162,7 @@
   },
   "dependencies": {
     "@lynx-js/test-environment": "workspace:*",
-    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/dom": "^10.4.0",
     "preact": "npm:@hongzhiyuan/preact@10.24.0-319c684e"
   },
   "devDependencies": {
