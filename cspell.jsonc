@@ -99,6 +99,7 @@
     "rustc",
     "samchon", // https://github.com/samchon/openapi
     "serde", // https://github.com/serde-rs/serde
+    "SARIF", // https://sarifweb.azurewebsites.net/
     "turborepo", // https://github.com/vercel/turbo
     "typecheck", // vitest uses `--typecheck`
     "typeof",
@@ -129,6 +130,7 @@
     "scrolltoupperedge",
     "scrolltoloweredge",
     "scrolltonormalstate",
+    "zizmor", // https://github.com/woodruffw/zizmor
   ],
   // Glob
   "ignorePaths": [

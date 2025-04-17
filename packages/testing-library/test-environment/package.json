@@ -30,7 +30,6 @@
     "pretty-format": "^29.7.0"
   },
   "devDependencies": {
-    "@rslib/core": "^0.6.2",
     "@testing-library/jest-dom": "^6.6.3",
     "@types/jsdom": "^21.1.7",
     "@vitest/ui": "^3.1.1",
