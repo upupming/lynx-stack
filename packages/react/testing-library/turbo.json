@@ -3,6 +3,12 @@
   "extends": ["//"],
   "tasks": {
     "build": {
+      "dependsOn": [
+        "@lynx-js/react-transform#build:wasm"
+      ],
+      "inputs": [
+        "src"
+      ],
       "outputs": ["dist/**"]
     }
   }

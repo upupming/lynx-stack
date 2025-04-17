@@ -179,22 +179,22 @@ importers:
 
   packages/react:
     dependencies:
-      '@lynx-js/test-environment':
-        specifier: workspace:*
-        version: link:../testing-library/test-environment
-      '@testing-library/dom':
-        specifier: ^10.4.0
-        version: 10.4.0
       preact:
         specifier: npm:@hongzhiyuan/preact@10.24.0-319c684e
         version: '@hongzhiyuan/preact@10.24.0-319c684e'
     devDependencies:
+      '@lynx-js/test-environment':
+        specifier: workspace:*
+        version: link:../testing-library/test-environment
       '@lynx-js/types':
         specifier: ^3.2.1
         version: 3.2.1
       '@microsoft/api-extractor':
         specifier: 'catalog:'
         version: 7.52.3(@types/node@22.14.1)
+      '@testing-library/dom':
+        specifier: ^10.4.0
+        version: 10.4.0
       '@testing-library/jest-dom':
         specifier: ^6.6.3
         version: 6.6.3

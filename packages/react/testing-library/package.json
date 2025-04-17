@@ -5,6 +5,8 @@
   "type": "module",
   "scripts": {
     "api-extractor": "api-extractor run --verbose",
+    "build": "rslib build",
+    "dev": "rslib build --watch",
     "test": "vitest",
     "test:ui": "vitest --ui"
   },

@@ -6,6 +6,7 @@
  */
 
 import EventEmitter from 'events';
+import { JSDOM } from 'jsdom';
 import { createGlobalThis, LynxGlobalThis } from './lynx/GlobalThis';
 import { initElementTree } from './lynx/ElementPAPI';
 export { initElementTree } from './lynx/ElementPAPI';
@@ -408,7 +409,7 @@ export class LynxEnv {
    * ```
    */
   mainThread: LynxGlobalThis & ElementTreeGlobals;
-  jsdom = global.jsdom;
+  jsdom: JSDOM = global.jsdom;
   constructor() {
     this.backgroundThread = createGlobalThis() as any;
     this.mainThread = createGlobalThis() as any;
