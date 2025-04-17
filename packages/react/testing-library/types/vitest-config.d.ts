@@ -9,4 +9,4 @@ export interface CreateVitestConfigOptions {
   runtimePkgName?: string;
 }
 
-export function createVitestConfig(options?: CreateVitestConfigOptions): ViteUserConfig;
+export function createVitestConfig(options?: CreateVitestConfigOptions): Promise<ViteUserConfig>;

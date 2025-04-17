@@ -1,4 +1,5 @@
 import { defineConfig } from 'vitest/config';
+import { VitestPackageInstaller } from 'vitest/node';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { createRequire } from 'module';
@@ -7,10 +8,24 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const require = createRequire(import.meta.url);
 
+async function ensurePackagesInstalled() {
+  const installer = new VitestPackageInstaller();
+  const installed = await installer.ensureInstalled(
+    'jsdom',
+    process.cwd(),
+  );
+  if (!installed) {
+    console.log('ReactLynx Testing Library requires jsdom to be installed.');
+    process.exit(1);
+  }
+}
+
 /**
  * @returns {import('vitest/config').ViteUserConfig}
  */
-export const createVitestConfig = (options) => {
+export const createVitestConfig = async (options) => {
+  await ensurePackagesInstalled();
+
   const runtimePkgName = options?.runtimePkgName ?? '@lynx-js/react';
 
   function transformReactLynxPlugin() {
