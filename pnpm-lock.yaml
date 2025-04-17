@@ -596,16 +596,6 @@ importers:
         version: 3.1.1(@types/debug@4.1.12)(@types/node@22.14.1)(@vitest/ui@3.1.1)(jsdom@26.0.0)(sass-embedded@1.86.0)(terser@5.31.6)
 
   packages/testing-library/test-environment:
-    dependencies:
-      css-what:
-        specifier: ^6.1.0
-        version: 6.1.0
-      jsdom:
-        specifier: ^26.0.0
-        version: 26.0.0
-      pretty-format:
-        specifier: ^29.7.0
-        version: 29.7.0
     devDependencies:
       '@testing-library/jest-dom':
         specifier: ^6.6.3

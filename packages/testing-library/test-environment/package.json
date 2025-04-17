@@ -3,11 +3,13 @@
   "version": "0.0.0",
   "exports": {
     ".": {
+      "default": "./dist/index.mjs",
       "types": "./dist/index.d.ts",
       "import": "./dist/index.mjs",
       "require": "./dist/index.js"
     },
     "./env/vitest": {
+      "default": "./dist/env/vitest/index.mjs",
       "types": "./dist/env/vitest/index.d.ts",
       "import": "./dist/env/vitest/index.mjs",
       "require": "./dist/env/vitest/index.js"
@@ -23,11 +25,6 @@
     "api-extractor": "api-extractor run --verbose",
     "build": "rslib build",
     "dev": "rslib build --watch"
-  },
-  "dependencies": {
-    "css-what": "^6.1.0",
-    "jsdom": "^26.0.0",
-    "pretty-format": "^29.7.0"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.6.3",
