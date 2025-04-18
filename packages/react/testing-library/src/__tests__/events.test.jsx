@@ -1,3 +1,4 @@
+// cspell:disable
 import '@testing-library/jest-dom';
 import { test } from 'vitest';
 import { fireEvent, render } from '..';
@@ -179,4 +180,41 @@ test('calling `fireEvent` directly works too', () => {
     "isTrusted": false,
   }
 `);
+});
+
+test('customEvent not in internal eventMap', () => {
+  const handler = vi.fn();
+
+  const Comp = () => {
+    return <text catchcustomevent={handler} />;
+  };
+
+  const { container: { firstChild: button } } = render(<Comp />);
+
+  expect(handler).toHaveBeenCalledTimes(0);
+  const event = new Event('catchEvent:customevent');
+  Object.assign(
+    event,
+    {
+      eventType: 'catchEvent',
+      eventName: 'customevent',
+      key: 'value',
+    },
+  );
+  // Use fireEvent directly
+  expect(fireEvent(button, event)).toBe(true);
+
+  expect(handler).toHaveBeenCalledTimes(1);
+  expect(handler).toHaveBeenCalledWith(event);
+  expect(handler.mock.calls[0][0].type).toMatchInlineSnapshot(
+    `"catchEvent:customevent"`,
+  );
+  expect(handler.mock.calls[0][0]).toMatchInlineSnapshot(`
+    Event {
+      "eventName": "customevent",
+      "eventType": "catchEvent",
+      "isTrusted": false,
+      "key": "value",
+    }
+  `);
 });

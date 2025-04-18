@@ -1,8 +1,9 @@
 // @ts-nocheck
 import { fireEvent as domFireEvent, createEvent } from '@testing-library/dom';
 
+let NodesRef = lynx.createSelectorQuery().selectUniqueID(-1).constructor;
 function getElement(elemOrNodesRef) {
-  if (elemOrNodesRef?.constructor?.name === 'NodesRef') {
+  if (elemOrNodesRef instanceof NodesRef) {
     return __GetElementByUniqueId(
       Number(elemOrNodesRef._nodeSelectToken.identifier),
     );

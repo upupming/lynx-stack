@@ -243,6 +243,30 @@ const IGNORE_LIST_GLOBALS = [
   'global',
 ];
 
+class NodesRef {
+  // @ts-ignore
+  private readonly _nodeSelectToken: any;
+  // @ts-ignore
+  private readonly _selectorQuery: any;
+
+  constructor(selectorQuery: any, nodeSelectToken: any) {
+    this._nodeSelectToken = nodeSelectToken;
+    this._selectorQuery = selectorQuery;
+  }
+  invoke() {
+    throw new Error('not implemented');
+  }
+  path() {
+    throw new Error('not implemented');
+  }
+  fields() {
+    throw new Error('not implemented');
+  }
+  setNativeProps() {
+    throw new Error('not implemented');
+  }
+}
+
 function injectBackgroundThreadGlobals(target?: any, polyfills?: any) {
   const {
     app,
@@ -270,29 +294,6 @@ function injectBackgroundThreadGlobals(target?: any, polyfills?: any) {
     },
   };
 
-  class NodesRef {
-    // @ts-ignore
-    private readonly _nodeSelectToken: any;
-    // @ts-ignore
-    private readonly _selectorQuery: any;
-
-    constructor(selectorQuery: any, nodeSelectToken: any) {
-      this._nodeSelectToken = nodeSelectToken;
-      this._selectorQuery = selectorQuery;
-    }
-    invoke() {
-      throw new Error('not implemented');
-    }
-    path() {
-      throw new Error('not implemented');
-    }
-    fields() {
-      throw new Error('not implemented');
-    }
-    setNativeProps() {
-      throw new Error('not implemented');
-    }
-  }
   const enum IdentifierType {
     ID_SELECTOR, // css selector
     REF_ID, // for react ref

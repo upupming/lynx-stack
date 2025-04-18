@@ -1,7 +1,7 @@
 // Copyright 2024 The Lynx Authors. All rights reserved.
 // Licensed under the Apache License Version 2.0 that can be found in the
 // LICENSE file in the root directory of this source tree.
-import { configure as configureDTL, getQueriesForElement, queries } from '@testing-library/dom';
+import { configure as configureDTL, getQueriesForElement } from '@testing-library/dom';
 import { cloneElement, createRef, h, render as preactRender } from 'preact';
 import { useEffect } from 'preact/hooks';
 import { act } from 'preact/test-utils';
@@ -74,7 +74,12 @@ export function render(
     unmount: cleanup,
     rerender: (rerenderUi) => {
       lynxEnv.resetLynxEnv();
-      return render(wrapUiIfNeeded(rerenderUi), {});
+      return render(wrapUiIfNeeded(rerenderUi), {
+        queries,
+        wrapper: WrapperComponent,
+        enableMainThread,
+        enableBackgroundThread,
+      });
     },
     ...getQueriesForElement(lynxEnv.mainThread.elementTree.root, queries),
   };
