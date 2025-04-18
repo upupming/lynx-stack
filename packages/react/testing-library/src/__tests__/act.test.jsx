@@ -225,7 +225,6 @@ test('fireEvent triggers useEffect calls', async () => {
     }
   `);
   expect(__globalSnapshotPatch).toMatchInlineSnapshot(`[]`);
-  debugger;
   fireEvent.tap(buttonNode);
   expect(__globalSnapshotPatch).toMatchInlineSnapshot(`[]`);
   expect(callLepusMethodCalls).toMatchInlineSnapshot(`

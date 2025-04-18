@@ -1,5 +1,5 @@
 {
-  "extends": ["@tsconfig/node18", "@tsconfig/strictest"],
+  "extends": "../../../../tsconfig.json",
   "compilerOptions": {
     /* Specify what JSX code is generated. */
     "jsx": "preserve",
@@ -7,4 +7,5 @@
     /* Disable emitting files from a compilation. */
     "noEmit": true,
   },
+  "include": ["src"],
 }

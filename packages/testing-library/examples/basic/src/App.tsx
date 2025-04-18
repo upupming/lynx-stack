@@ -5,11 +5,11 @@ export interface IProps {
 }
 
 export class App extends Component<IProps> {
-  override componentDidMount() {
+  override componentDidMount(): void {
     this.props?.onMounted?.();
   }
 
-  override render() {
+  override render(): JSX.Element {
     return (
       <view>
         <text id='app-text'>Hello World!</text>

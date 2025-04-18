@@ -573,27 +573,9 @@ importers:
       '@lynx-js/rspeedy':
         specifier: workspace:*
         version: link:../../../rspeedy/core
-      '@lynx-js/test-environment':
-        specifier: workspace:*
-        version: link:../../test-environment
       '@testing-library/jest-dom':
         specifier: ^6.6.3
         version: 6.6.3
-      '@tsconfig/node18':
-        specifier: ^18.2.4
-        version: 18.2.4
-      '@tsconfig/strictest':
-        specifier: ^2.0.5
-        version: 2.0.5
-      '@types/react':
-        specifier: ^18.3.20
-        version: 18.3.20
-      typescript:
-        specifier: ^5.8.3
-        version: 5.8.3
-      vitest:
-        specifier: ^3.1.1
-        version: 3.1.1(@types/debug@4.1.12)(@types/node@22.14.1)(@vitest/ui@3.1.1)(jsdom@26.0.0)(sass-embedded@1.86.0)(terser@5.31.6)
 
   packages/testing-library/test-environment:
     devDependencies:
@@ -603,15 +585,6 @@ importers:
       '@types/jsdom':
         specifier: ^21.1.7
         version: 21.1.7
-      '@vitest/ui':
-        specifier: ^3.1.1
-        version: 3.1.1(vitest@3.1.1)
-      typescript:
-        specifier: ^5.8.3
-        version: 5.8.3
-      vitest:
-        specifier: ^3.1.1
-        version: 3.1.1(@types/debug@4.1.12)(@types/node@22.14.1)(@vitest/ui@3.1.1)(jsdom@26.0.0)(sass-embedded@1.86.0)(terser@5.31.6)
 
   packages/third-party/tailwind-preset:
     devDependencies:
@@ -3115,9 +3088,6 @@ packages:
   '@trysound/sax@0.2.0':
     resolution: {integrity: sha512-L7z9BgrNEcYyUYtF+HaEfiS5ebkh9jXqbszz7pC0hRBPaatV0XjSD3+eHrpqFemQfgwiFF0QPIarnIihIDn7OA==}
     engines: {node: '>=10.13.0'}
-
-  '@tsconfig/node18@18.2.4':
-    resolution: {integrity: sha512-5xxU8vVs9/FNcvm3gE07fPbn9tl6tqGGWA9tSlwsUEkBxtRnTsNmwrV8gasZ9F/EobaSv9+nu8AxUKccw77JpQ==}
 
   '@tsconfig/node20@20.1.5':
     resolution: {integrity: sha512-Vm8e3WxDTqMGPU4GATF9keQAIy1Drd7bPwlgzKJnZtoOsTm1tduUTbDjg0W5qERvGuxPI2h9RbMufH0YdfBylA==}
@@ -10797,8 +10767,6 @@ snapshots:
       redent: 3.0.0
 
   '@trysound/sax@0.2.0': {}
-
-  '@tsconfig/node18@18.2.4': {}
 
   '@tsconfig/node20@20.1.5': {}
 
