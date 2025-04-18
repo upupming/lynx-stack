@@ -30,7 +30,7 @@ export const initElementTree: () => {
     __CreateScrollView(parentComponentUniqueId: number): LynxElement;
     __FirstElement(e: LynxElement): LynxElement;
     __CreateText(parentComponentUniqueId: number): LynxElement;
-    __CreateImage(parentComponentUniqueId: number): void;
+    __CreateImage(parentComponentUniqueId: number): LynxElement;
     __CreateWrapperElement(parentComponentUniqueId: number): LynxElement;
     __AddInlineStyle(e: HTMLElement, key: number, value: string): void;
     __AppendElement(parent: LynxElement, child: LynxElement): void;

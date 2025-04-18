@@ -10,13 +10,15 @@ export default defineConfig({
       source: {
         entry: {
           'pure': './src/pure.jsx',
+          'env/vitest': './src/env/vitest.ts',
         },
       },
       output: {
         externals: [
-          /@lynx-js\/react/,
-          /\.\.\/\.\.\/runtime\/lib/,
-          /preact/,
+          /^@lynx-js\/react/,
+          /^\.\.\/\.\.\/runtime\/lib/,
+          /^preact/,
+          /^vitest/,
         ],
       },
     },

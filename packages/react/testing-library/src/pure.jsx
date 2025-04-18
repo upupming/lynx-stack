@@ -126,20 +126,3 @@ export function renderHook(renderCallback, options) {
 
 export * from '@testing-library/dom';
 export { fireEvent } from './fire-event';
-
-export const getScreen = () => {
-  const initialValue = {};
-
-  return getQueriesForElement(
-    lynxEnv.mainThread.elementTree.root,
-    queries,
-    initialValue,
-  );
-};
-
-/**
- * @deprecated use `getScreen` instead
- *
- * `screen` depends on global `document`, but in Lynx Environment, `document` will change upon different render
- */
-// export const screen = null

@@ -1,4 +1,5 @@
 import { builtinEnvironments } from 'vitest/environments';
+import { LynxEnv } from '@lynx-js/test-environment';
 
 const env = {
   name: 'lynxEnv',
@@ -10,9 +11,6 @@ const env = {
     await builtinEnvironments.jsdom.setup(fakeGlobal, {});
     global.jsdom = fakeGlobal.jsdom;
 
-    const { LynxEnv } = await import(
-      '@lynx-js/test-environment'
-    );
     const lynxEnv = new LynxEnv();
     global.lynxEnv = lynxEnv;
 

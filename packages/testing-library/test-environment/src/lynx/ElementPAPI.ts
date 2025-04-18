@@ -143,7 +143,7 @@ export const initElementTree = () => {
     }
 
     __CreateImage(parentComponentUniqueId: number) {
-      this.__CreateElement('image', parentComponentUniqueId);
+      return this.__CreateElement('image', parentComponentUniqueId);
     }
 
     __CreateWrapperElement(parentComponentUniqueId: number) {

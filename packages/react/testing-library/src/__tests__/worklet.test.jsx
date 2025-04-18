@@ -77,7 +77,7 @@ describe('worklet', () => {
         [
           "rLynxChange",
           {
-            "data": "{"patchList":[{"snapshotPatch":[3,-2,0,{"_wkltId":"a5c2:test:2","_workletType":"main-thread","_execId":1}],"id":2}]}",
+            "data": "{"patchList":[{"snapshotPatch":[3,-2,0,{"_wkltId":"a45f:test:2","_workletType":"main-thread","_execId":1}],"id":2}]}",
             "patchOptions": {
               "isHydration": true,
               "pipelineOptions": {
@@ -156,7 +156,7 @@ describe('worklet', () => {
         [
           "rLynxChange",
           {
-            "data": "{"patchList":[{"snapshotPatch":[3,-2,1,{"_c":{"props":{"main-thread:onClick":{"_wkltId":"a5c2:test:3"}}},"_wkltId":"a5c2:test:4","_execId":1}],"id":2}]}",
+            "data": "{"patchList":[{"snapshotPatch":[3,-2,1,{"_c":{"props":{"main-thread:onClick":{"_wkltId":"a45f:test:3"}}},"_wkltId":"a45f:test:4","_execId":1}],"id":2}]}",
             "patchOptions": {
               "isHydration": true,
               "pipelineOptions": {
@@ -243,7 +243,7 @@ describe('worklet', () => {
         [
           "rLynxChange",
           {
-            "data": "{"patchList":[{"snapshotPatch":[3,-2,0,{"_c":{"props":{"main-thread:onScroll":{"_wkltId":"a5c2:test:5"}}},"_wkltId":"a5c2:test:6","_execId":1}],"id":2}]}",
+            "data": "{"patchList":[{"snapshotPatch":[3,-2,0,{"_c":{"props":{"main-thread:onScroll":{"_wkltId":"a45f:test:5"}}},"_wkltId":"a45f:test:6","_execId":1}],"id":2}]}",
             "patchOptions": {
               "isHydration": true,
               "pipelineOptions": {
@@ -334,7 +334,7 @@ describe('worklet', () => {
         [
           "rLynxChange",
           {
-            "data": "{"patchList":[{"snapshotPatch":[3,-2,0,{"_wkltId":"a5c2:test:8","_jsFn":{"_jsFn1":{"_jsFnId":2}},"_execId":1}],"id":2}]}",
+            "data": "{"patchList":[{"snapshotPatch":[3,-2,0,{"_wkltId":"a45f:test:8","_jsFn":{"_jsFn1":{"_jsFnId":2}},"_execId":1}],"id":2}]}",
             "patchOptions": {
               "isHydration": true,
               "pipelineOptions": {
@@ -429,7 +429,7 @@ describe('worklet', () => {
         [
           "rLynxChange",
           {
-            "data": "{"patchList":[{"id":1,"workletRefInitValuePatch":[[1,null],[2,0]]},{"snapshotPatch":[3,-2,0,{"_wvid":1},3,-2,1,{"_c":{"ref":{"_wvid":1},"num":{"_wvid":2}},"_wkltId":"a5c2:test:9","_execId":1}],"id":2}]}",
+            "data": "{"patchList":[{"id":1,"workletRefInitValuePatch":[[1,null],[2,0]]},{"snapshotPatch":[3,-2,0,{"_wvid":1},3,-2,1,{"_c":{"ref":{"_wvid":1},"num":{"_wvid":2}},"_wkltId":"a45f:test:9","_execId":1}],"id":2}]}",
             "patchOptions": {
               "isHydration": true,
               "pipelineOptions": {

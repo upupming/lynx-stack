@@ -1,5 +1,5 @@
 import { defineConfig, mergeConfig } from 'vitest/config';
-import { createVitestConfig } from './src/vitest.config';
+import { createVitestConfig } from './dist/vitest.config';
 
 const defaultConfig = await createVitestConfig({
   runtimePkgName: '@lynx-js/react',

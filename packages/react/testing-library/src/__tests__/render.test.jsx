@@ -6,7 +6,14 @@ import { createRef } from '@lynx-js/react';
 test('renders view into page', async () => {
   const ref = createRef();
   const Comp = () => {
-    return <view ref={ref} />;
+    return (
+      <view ref={ref}>
+        <image />
+        <text />
+        <view />
+        <scroll-view />
+      </view>
+    );
   };
   render(<Comp />);
   expect(ref.current).toMatchInlineSnapshot(`
