@@ -340,8 +340,19 @@ test.describe('reactlynx3 tests', () => {
       });
       expect(computedStyle.backgroundColor).toBe('rgb(255, 192, 203)');
     });
+    test('basic-color-not-inherit', async ({ page }, { title }) => {
+      await goto(page, title);
+      await wait(100);
+      await expect(page.locator('#target')).toHaveCSS('color', 'rgb(0, 0, 0)');
+    });
   });
   test.describe('apis', () => {
+    test('api-custom-template-loader', async ({ page }, { title }) => {
+      await goto(page, title);
+      await wait(100);
+      const target = page.locator('#target');
+      await expect(target).toHaveCSS('background-color', 'rgb(0, 128, 0)'); // green
+    });
     test('api-animation-event', async ({ page }, { title }) => {
       await goto(page, title);
       await page.locator('#tap1').click();
@@ -1528,6 +1539,17 @@ test.describe('reactlynx3 tests', () => {
       });
     });
     test.describe('scroll-view', () => {
+      const elementName = 'scroll-view';
+      test('basic-element-scroll-view-fixed', async ({ page }, { title }) => {
+        await goto(page, title);
+        await diffScreenShot(
+          page,
+          elementName,
+          title,
+          'initial',
+        );
+      });
+
       test(
         'basic-element-scroll-view-scrollable',
         async ({ page }, { title }) => {
