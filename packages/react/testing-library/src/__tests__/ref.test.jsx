@@ -1,6 +1,6 @@
 import { createRef, Component, useState } from '@lynx-js/react';
 import { render } from '..';
-import { expect } from 'vitest';
+import { expect, vi } from 'vitest';
 import { act } from 'preact/test-utils';
 
 describe('component ref', () => {
@@ -291,6 +291,10 @@ describe('element ref', () => {
   });
 
   it('remove with cleanup function', async () => {
+    vi.spyOn(lynx.getNativeApp(), 'callLepusMethod');
+    const callLepusMethodCalls = lynx.getNativeApp().callLepusMethod.mock.calls;
+    expect(callLepusMethodCalls).toMatchInlineSnapshot(`[]`);
+
     const cleanup = vi.fn();
     const ref1 = vi.fn(() => {
       return cleanup;
@@ -359,5 +363,115 @@ describe('element ref', () => {
         [],
       ]
     `);
+    expect(callLepusMethodCalls).toMatchInlineSnapshot(`
+      [
+        [
+          "rLynxChange",
+          {
+            "data": "{"patchList":[{"snapshotPatch":[0,"__Card__:__snapshot_f6cf8_test_6",2,4,2,[9],1,-1,2,null],"id":2}]}",
+            "patchOptions": {
+              "isHydration": true,
+              "pipelineOptions": {
+                "needTimestamps": true,
+                "pipelineID": "pipelineID",
+              },
+              "reloadVersion": 0,
+            },
+          },
+          [Function],
+        ],
+        [
+          "rLynxChange",
+          {
+            "data": "{"patchList":[{"id":3,"snapshotPatch":[2,-1,2]}]}",
+            "patchOptions": {
+              "pipelineOptions": {
+                "needTimestamps": true,
+                "pipelineID": "pipelineID",
+              },
+              "reloadVersion": 0,
+            },
+          },
+          [Function],
+        ],
+      ]
+    `);
+  });
+
+  it('unmount', async () => {
+    vi.spyOn(lynx.getNativeApp(), 'callLepusMethod');
+    expect(lynx.getNativeApp().callLepusMethod).toBeCalledTimes(0);
+
+    const cleanup = vi.fn();
+    const ref1 = vi.fn(() => {
+      return cleanup;
+    });
+    const ref2 = createRef();
+
+    function App() {
+      return <Comp show={true} />;
+    }
+
+    class Comp extends Component {
+      name = 'comp';
+      render() {
+        return (
+          this.props.show && (
+            <view>
+              <view ref={ref1} />
+              <view ref={ref2} />
+            </view>
+          )
+        );
+      }
+    }
+    const { unmount } = render(<App />);
+    expect(elementTree).toMatchInlineSnapshot(`
+      <page>
+        <view>
+          <view
+            has-react-ref="true"
+          />
+          <view
+            has-react-ref="true"
+          />
+        </view>
+      </page>
+    `);
+    expect(ref1.mock.calls).toMatchInlineSnapshot(`
+      [
+        [
+          NodesRef {
+            "_nodeSelectToken": {
+              "identifier": "2",
+              "type": 2,
+            },
+            "_selectorQuery": {},
+          },
+        ],
+      ]
+    `);
+    expect(ref2.current).toMatchInlineSnapshot(`
+      NodesRef {
+        "_nodeSelectToken": {
+          "identifier": "3",
+          "type": 2,
+        },
+        "_selectorQuery": {},
+      }
+    `);
+    ref1.mockClear();
+    ref2.current = null;
+    expect(lynx.getNativeApp().callLepusMethod).toBeCalledTimes(1);
+    unmount();
+    expect(ref1.mock.calls).toMatchInlineSnapshot(`[]`);
+    expect(ref2.current).toBeNull();
+    expect(cleanup.mock.calls).toMatchInlineSnapshot(`
+      [
+        [],
+      ]
+    `);
+    expect(lynx.getNativeApp().callLepusMethod).toBeCalledTimes(2);
+    vi.resetAllMocks();
   });
 });

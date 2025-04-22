@@ -10,6 +10,7 @@ import { __root } from '@lynx-js/react/internal';
 
 import { flushDelayedLifecycleEvents } from '../../runtime/lib/lynx/tt.js';
 import { clearPage } from '../../runtime/lib/snapshot.js';
+import { commitToMainThread } from '../../runtime/lib/lifecycle/patch/commit.js';
 
 export function waitSchedule() {
   return new Promise(resolve => {
@@ -86,11 +87,15 @@ export function render(
 }
 
 export function cleanup() {
-  const isMainThread = !__MAIN_THREAD__;
+  const isMainThread = __MAIN_THREAD__;
 
   // Ensure componentWillUnmount is called
   globalThis.lynxEnv.switchToBackgroundThread();
-  preactRender(null, __root);
+  act(() => {
+    preactRender(null, __root);
+    // This is needed to ensure that the ui updates are sent to the main thread
+    commitToMainThread();
+  });
 
   lynxEnv.mainThread.elementTree.root = undefined;
   clearPage();
