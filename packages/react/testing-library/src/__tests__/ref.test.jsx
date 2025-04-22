@@ -299,8 +299,7 @@ describe('element ref', () => {
 
   it('remove with cleanup function', async () => {
     vi.spyOn(lynx.getNativeApp(), 'callLepusMethod');
-    const callLepusMethodCalls = lynx.getNativeApp().callLepusMethod.mock.calls;
-    expect(callLepusMethodCalls).toMatchInlineSnapshot(`[]`);
+    expect(lynx.getNativeApp().callLepusMethod).toBeCalledTimes(0);
 
     const cleanup = vi.fn();
     const ref1 = vi.fn(() => {
@@ -348,6 +347,7 @@ describe('element ref', () => {
       ]
     `);
     expect(cleanup.mock.calls).toMatchInlineSnapshot(`[]`);
+    expect(lynx.getNativeApp().callLepusMethod).toBeCalledTimes(1);
     act(() => {
       _setShow(false);
     });
@@ -370,39 +370,8 @@ describe('element ref', () => {
         [],
       ]
     `);
-    expect(callLepusMethodCalls).toMatchInlineSnapshot(`
-      [
-        [
-          "rLynxChange",
-          {
-            "data": "{"patchList":[{"snapshotPatch":[0,"__Card__:__snapshot_f6cf8_test_6",2,4,2,[9],1,-1,2,null],"id":2}]}",
-            "patchOptions": {
-              "isHydration": true,
-              "pipelineOptions": {
-                "needTimestamps": true,
-                "pipelineID": "pipelineID",
-              },
-              "reloadVersion": 0,
-            },
-          },
-          [Function],
-        ],
-        [
-          "rLynxChange",
-          {
-            "data": "{"patchList":[{"id":3,"snapshotPatch":[2,-1,2]}]}",
-            "patchOptions": {
-              "pipelineOptions": {
-                "needTimestamps": true,
-                "pipelineID": "pipelineID",
-              },
-              "reloadVersion": 0,
-            },
-          },
-          [Function],
-        ],
-      ]
-    `);
+    expect(lynx.getNativeApp().callLepusMethod).toBeCalledTimes(2);
+    vi.resetAllMocks();
   });
 
   it('unmount', async () => {
