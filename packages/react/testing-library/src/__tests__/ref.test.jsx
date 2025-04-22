@@ -274,14 +274,21 @@ describe('element ref', () => {
         "_selectorQuery": {},
       }
     `);
-    ref1.mockClear();
-    ref2.current = null;
     act(() => {
       _setShow(false);
     });
     expect(elementTree).toMatchInlineSnapshot(`<page />`);
     expect(ref1.mock.calls).toMatchInlineSnapshot(`
       [
+        [
+          NodesRef {
+            "_nodeSelectToken": {
+              "identifier": "2",
+              "type": 2,
+            },
+            "_selectorQuery": {},
+          },
+        ],
         [
           null,
         ],
@@ -460,11 +467,21 @@ describe('element ref', () => {
         "_selectorQuery": {},
       }
     `);
-    ref1.mockClear();
-    ref2.current = null;
     expect(lynx.getNativeApp().callLepusMethod).toBeCalledTimes(1);
     unmount();
-    expect(ref1.mock.calls).toMatchInlineSnapshot(`[]`);
+    expect(ref1.mock.calls).toMatchInlineSnapshot(`
+      [
+        [
+          NodesRef {
+            "_nodeSelectToken": {
+              "identifier": "2",
+              "type": 2,
+            },
+            "_selectorQuery": {},
+          },
+        ],
+      ]
+    `);
     expect(ref2.current).toBeNull();
     expect(cleanup.mock.calls).toMatchInlineSnapshot(`
       [
