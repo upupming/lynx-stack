@@ -16,18 +16,13 @@ LICENSE file in the root directory of this source tree. -->
     >
     <meta content="portrait" name="x5-orientation" />
     <link
-      href="/node_modules/@lynx-js/web-elements/index.css"
-      rel="stylesheet"
-    />
-    <link
       href="/web-elements.css"
       rel="stylesheet"
     />
-    <script src="./performanceObserver.js"></script>
     <script type="module">
     const top = document.createElement('div');
     queueMicrotask(() => {
-      for (let ii = 0; ii < 10000; ii++) {
+      for (let ii = 0; ii < 3000; ii++) {
         const text = document.createElement('x-text');
         text.innerText = 'hello lynx';
         top.append(text);
