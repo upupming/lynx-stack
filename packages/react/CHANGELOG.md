@@ -1,5 +1,19 @@
 # @lynx-js/react
 
+## 0.106.5
+
+### Patch Changes
+
+- Fix `lynx.loadLazyBundle` is not a function ([#568](https://github.com/lynx-family/lynx-stack/pull/568))
+
+- fix: flushDelayedLifecycleEvents stack overflow error ([#540](https://github.com/lynx-family/lynx-stack/pull/540))
+
+## 0.106.4
+
+### Patch Changes
+
+- Disable MTS HMR functionality temporarily to address stability issues. This is a temporary fix while we work on a more robust solution. ([#512](https://github.com/lynx-family/lynx-stack/pull/512))
+
 ## 0.106.3
 
 ### Patch Changes

@@ -15,9 +15,10 @@ import {
   type publishEventEndpoint,
   type publicComponentEventEndpoint,
   type reportErrorEndpoint,
-  type onLifecycleEventEndpoint,
   type RpcCallType,
   type postExposureEndpoint,
+  type LynxContextEventTarget,
+  type LynxJSModule,
 } from '@lynx-js/web-constants';
 import { globalMuteableVars } from '@lynx-js/web-constants';
 import { createMainThreadLynx, type MainThreadLynx } from './MainThreadLynx.js';
@@ -42,7 +43,7 @@ export interface MainThreadRuntimeCallbacks {
     timingFlags: string[],
   ) => void;
   _ReportError: RpcCallType<typeof reportErrorEndpoint>;
-  __OnLifecycleEvent: RpcCallType<typeof onLifecycleEventEndpoint>;
+  __OnLifecycleEvent: (lifeCycleEvent: Cloneable) => void;
   markTiming: (pipelineId: string, timingKey: string) => void;
   publishEvent: RpcCallType<typeof publishEventEndpoint>;
   publicComponentEvent: RpcCallType<typeof publicComponentEventEndpoint>;
@@ -59,6 +60,7 @@ export interface MainThreadConfig {
   browserConfig: BrowserConfig;
   tagMap: Record<string, string>;
   docu: Pick<Document, 'append' | 'createElement' | 'addEventListener'>;
+  jsContext: LynxContextEventTarget;
 }
 
 export const elementToRuntimeInfoMap = Symbol('elementToRuntimeInfoMap');
@@ -105,7 +107,7 @@ export class MainThreadRuntime {
     public config: MainThreadConfig,
   ) {
     this.__globalProps = config.globalProps;
-    this.lynx = createMainThreadLynx(config, this);
+    this.lynx = createMainThreadLynx(config);
     /**
      * now create the style content
      * 1. flatten the styleInfo
@@ -119,7 +121,6 @@ export class MainThreadRuntime {
     const cssInJsInfo: CssInJsInfo = this.config.pageConfig.enableCSSSelector
       ? {}
       : genCssInJsInfo(this.config.styleInfo);
-    this._rootDom = this.config.docu.createElement('div');
     const cardStyleElement = this.config.docu.createElement('style');
     cardStyleElement.innerHTML = genCssContent(
       this.config.styleInfo,
@@ -215,11 +216,23 @@ export class MainThreadRuntime {
 
   _ReportError: RpcCallType<typeof reportErrorEndpoint>;
 
-  __OnLifecycleEvent: RpcCallType<typeof onLifecycleEventEndpoint>;
+  __OnLifecycleEvent: (lifeCycleEvent: Cloneable) => void;
 
   __LoadLepusChunk: (path: string) => boolean = (path) => {
     try {
-      this.lynx.requireModule(path);
+      // @ts-expect-error
+      if (self.WorkerGlobalScope) {
+        const lepusChunkUrl = this.config.lepusCode[`${path}`];
+        if (lepusChunkUrl) path = lepusChunkUrl;
+        // @ts-expect-error
+        importScripts(path);
+        const entry = (globalThis.module as LynxJSModule).exports;
+        entry?.(this);
+      } else {
+        throw new Error(
+          'importing scripts synchronously is only available for the multi-thread running mode',
+        );
+      }
       return true;
     } catch {
     }

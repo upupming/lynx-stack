@@ -13,11 +13,10 @@ import { createDispose } from './crossThreadHandlers/createDispose.js';
 import { registerTriggerComponentEventHandler } from './crossThreadHandlers/registerTriggerComponentEventHandler.js';
 import { registerSelectComponentHandler } from './crossThreadHandlers/registerSelectComponentHandler.js';
 import {
-  mainThreadChunkReadyEndpoint,
   mainThreadStartEndpoint,
   markTimingEndpoint,
   sendGlobalEventEndpoint,
-  uiThreadFpReadyEndpoint,
+  type LynxTemplate,
   type MainThreadStartConfigs,
   type NapiModulesCall,
   type NativeModulesCall,
@@ -31,21 +30,21 @@ export function startUIThread(
   templateUrl: string,
   configs: Omit<MainThreadStartConfigs, 'template'>,
   shadowRoot: ShadowRoot,
+  lynxGroupId: number | undefined,
   callbacks: {
     nativeModulesCall: NativeModulesCall;
     napiModulesCall: NapiModulesCall;
     onError?: () => void;
+    customTemplateLoader?: (url: string) => Promise<LynxTemplate>;
   },
 ): LynxView {
   const createLynxStartTiming = performance.now() + performance.timeOrigin;
-  const { nativeModulesMap, napiModulesMap } = configs;
   const {
     mainThreadRpc,
     backgroundRpc,
     terminateWorkers,
-  } = bootWorkers();
+  } = bootWorkers(lynxGroupId);
   const sendGlobalEvent = backgroundRpc.createCall(sendGlobalEventEndpoint);
-  const uiThreadFpReady = backgroundRpc.createCall(uiThreadFpReadyEndpoint);
   const mainThreadStart = mainThreadRpc.createCall(mainThreadStartEndpoint);
   const markTiming = backgroundRpc.createCall(markTimingEndpoint);
   const markTimingInternal = (
@@ -58,13 +57,11 @@ export function startUIThread(
   };
   markTimingInternal('create_lynx_start', undefined, createLynxStartTiming);
   markTimingInternal('load_template_start');
-  loadTemplate(templateUrl).then((template) => {
+  loadTemplate(templateUrl, callbacks.customTemplateLoader).then((template) => {
     markTimingInternal('load_template_end');
     mainThreadStart({
       ...configs,
       template,
-      nativeModulesMap,
-      napiModulesMap,
     });
   });
   registerReportErrorHandler(
@@ -72,38 +69,27 @@ export function startUIThread(
     callbacks.onError,
   );
   registerDispatchLynxViewEventHandler(backgroundRpc, shadowRoot);
-  mainThreadRpc.registerHandler(
-    mainThreadChunkReadyEndpoint,
-    () => {
-      registerFlushElementTreeHandler(
-        mainThreadRpc,
-        {
-          shadowRoot,
-        },
-        (info) => {
-          const { isFP } = info;
-          if (isFP) {
-            registerInvokeUIMethodHandler(
-              backgroundRpc,
-              shadowRoot,
-            );
-            registerNativePropsHandler(
-              backgroundRpc,
-              shadowRoot,
-            );
-            registerTriggerComponentEventHandler(
-              backgroundRpc,
-              shadowRoot,
-            );
-            registerSelectComponentHandler(
-              backgroundRpc,
-              shadowRoot,
-            );
-            uiThreadFpReady();
-          }
-        },
-      );
+  registerFlushElementTreeHandler(
+    mainThreadRpc,
+    {
+      shadowRoot,
     },
+  );
+  registerInvokeUIMethodHandler(
+    backgroundRpc,
+    shadowRoot,
+  );
+  registerNativePropsHandler(
+    backgroundRpc,
+    shadowRoot,
+  );
+  registerTriggerComponentEventHandler(
+    backgroundRpc,
+    shadowRoot,
+  );
+  registerSelectComponentHandler(
+    backgroundRpc,
+    shadowRoot,
   );
   registerNativeModulesCallHandler(
     backgroundRpc,

@@ -176,13 +176,13 @@ export function pluginReactAlias(options: Options): RsbuildPlugin {
   }
 }
 
-function createLazyResolver(context: string, conditionNames: string[]) {
+export function createLazyResolver(context: string, conditionNames: string[]) {
   let lazyExports: Record<string, string | false>
   let resolverLazy: ResolveFunction
 
   return async (
     request: string,
-  ) => {
+  ): Promise<string> => {
     const { default: resolver } = await import('enhanced-resolve')
 
     return (
@@ -191,6 +191,6 @@ function createLazyResolver(context: string, conditionNames: string[]) {
           context,
           request,
         )
-    )
+    ) as string
   }
 }

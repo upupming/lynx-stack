@@ -4,9 +4,7 @@
 
 import {
   BackgroundThreadStartEndpoint,
-  mainThreadChunkReadyEndpoint,
   mainThreadStartEndpoint,
-  onLifecycleEventEndpoint,
   type LynxJSModule,
   flushElementTreeEndpoint,
   reportErrorEndpoint,
@@ -16,6 +14,8 @@ import {
   postOffscreenEventEndpoint,
   switchExposureServiceEndpoint,
   postTimingFlagsEndpoint,
+  dispatchCoreContextOnBackgroundEndpoint,
+  dispatchJSContextOnMainThreadEndpoint,
 } from '@lynx-js/web-constants';
 import { Rpc } from '@lynx-js/web-worker-rpc';
 import {
@@ -31,6 +31,7 @@ import {
   type ElementOperation,
   _onEvent,
 } from '@lynx-js/offscreen-document/webworker';
+import { LynxCrossThreadContext } from '../common/LynxCrossThreadContext.js';
 
 export function startMainThread(
   uiThreadPort: MessagePort,
@@ -45,9 +46,6 @@ export function startMainThread(
   const backgroundStart = backgroundThreadRpc.createCall(
     BackgroundThreadStartEndpoint,
   );
-  const __OnLifecycleEvent = backgroundThreadRpc.createCall(
-    onLifecycleEventEndpoint,
-  );
   const publishEvent = backgroundThreadRpc.createCall(
     publishEventEndpoint,
   );
@@ -55,9 +53,6 @@ export function startMainThread(
     publicComponentEventEndpoint,
   );
   const postExposure = backgroundThreadRpc.createCall(postExposureEndpoint);
-  const mainThreadChunkReady = uiThreadRpc.createCall(
-    mainThreadChunkReadyEndpoint,
-  );
   let operations: ElementOperation[] = [];
   const flushElementTree = uiThreadRpc.createCall(flushElementTreeEndpoint);
   const reportError = uiThreadRpc.createCall(reportErrorEndpoint);
@@ -65,6 +60,7 @@ export function startMainThread(
   uiThreadRpc.registerHandler(
     mainThreadStartEndpoint,
     async (config) => {
+      let isFp = true;
       const {
         globalProps,
         template,
@@ -86,7 +82,13 @@ export function startMainThread(
         },
       });
       uiThreadRpc.registerHandler(postOffscreenEventEndpoint, docu[_onEvent]);
+      const jsContext = new LynxCrossThreadContext({
+        rpc: backgroundThreadRpc,
+        receiveEventEndpoint: dispatchJSContextOnMainThreadEndpoint,
+        sendEventEndpoint: dispatchCoreContextOnBackgroundEndpoint,
+      });
       const runtime = new MainThreadRuntime({
+        jsContext,
         tagMap,
         browserConfig,
         customSections,
@@ -96,8 +98,7 @@ export function startMainThread(
         lepusCode,
         docu,
         callbacks: {
-          mainChunkReady: function(): void {
-            mainThreadChunkReady();
+          mainChunkReady: () => {
             markTimingInternal('data_processor_start');
             const initData = runtime.processData
               ? runtime.processData(config.initData)
@@ -137,6 +138,13 @@ export function startMainThread(
             const pipelineId = options?.pipelineOptions?.pipelineID;
             markTimingInternal('dispatch_start', pipelineId);
             docu.commit();
+            if (isFp) {
+              isFp = false;
+              jsContext.dispatchEvent({
+                type: '__OnNativeAppReady',
+                data: undefined,
+              });
+            }
             markTimingInternal('layout_start', pipelineId);
             markTimingInternal('ui_operation_flush_start', pipelineId);
             await flushElementTree(operations);
@@ -146,7 +154,12 @@ export function startMainThread(
             postTimingFlags(timingFlags, pipelineId);
           },
           _ReportError: reportError,
-          __OnLifecycleEvent,
+          __OnLifecycleEvent: (data) => {
+            jsContext.dispatchEvent({
+              type: '__OnLifecycleEvent',
+              data,
+            });
+          },
           /**
            * Note :
            * The parameter of lynx.performance.markTiming is (pipelineId:string, timingFlag:string)=>void
@@ -158,9 +171,9 @@ export function startMainThread(
           postExposure,
         },
       }).globalThis;
-
       markTimingInternal('decode_end');
       entry!(runtime);
+      jsContext.__start(); // start the jsContext after the runtime is created
     },
   );
 }

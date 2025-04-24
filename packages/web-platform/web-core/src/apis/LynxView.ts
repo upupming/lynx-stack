@@ -8,6 +8,7 @@ import {
 } from './createLynxView.js';
 import {
   type Cloneable,
+  type LynxTemplate,
   type NapiModulesCall,
   type NapiModulesMap,
   type NativeModulesCall,
@@ -43,6 +44,8 @@ export type INapiModulesCall = (
  * @property {NapiModulesMap} napiModulesMap [optional] the napiModule which is called in lynx-core. key is module-name, value is esm url.
  * @property {INapiModulesCall} onNapiModulesCall [optional] the NapiModule value handler.
  * @property {"false" | "true" | null} injectHeadLinks [optional] @default true set it to "false" to disable injecting the <link href="" ref="stylesheet"> styles into shadowroot
+ * @property {number} lynxGroupId [optional] (attribute: "lynx-group-id") the background shared context id, which is used to share webworker between different lynx cards
+ * @property {(string)=>Promise<LynxTemplate>} customTemplateLoader [optional] the custom template loader, which is used to load the template
  *
  * @event error lynx card fired an error
  *
@@ -201,6 +204,23 @@ export class LynxView extends HTMLElement {
   }
 
   /**
+   * @param
+   * @property
+   */
+  get lynxGroupId(): number | undefined {
+    return this.getAttribute('lynx-group-id')
+      ? Number(this.getAttribute('lynx-group-id')!)
+      : undefined;
+  }
+  set lynxGroupId(val: number | undefined) {
+    if (val) {
+      this.setAttribute('lynx-group-id', val.toString());
+    } else {
+      this.removeAttribute('lynx-group-id');
+    }
+  }
+
+  /**
    * @public
    * @method
    * update the `__initData` and trigger essential flow
@@ -276,6 +296,13 @@ export class LynxView extends HTMLElement {
   }
 
   /**
+   * @public
+   * allow user to customize the template loader
+   * @param url the url of the template
+   */
+  customTemplateLoader?: (url: string) => Promise<LynxTemplate>;
+
+  /**
    * @private the flag to group all changes into one render operation
    */
   #rendering = false;
@@ -304,6 +331,7 @@ export class LynxView extends HTMLElement {
           if (!this.shadowRoot) {
             this.attachShadow({ mode: 'open' });
           }
+          const lynxGroupId = this.lynxGroupId;
           const lynxView = createLynxView({
             tagMap,
             shadowRoot: this.shadowRoot!,
@@ -312,6 +340,7 @@ export class LynxView extends HTMLElement {
             initData: this.#initData,
             nativeModulesMap: this.#nativeModulesMap,
             napiModulesMap: this.#napiModulesMap,
+            lynxGroupId,
             callbacks: {
               nativeModulesCall: (
                 ...args: [name: string, data: any, moduleName: string]
@@ -332,6 +361,7 @@ export class LynxView extends HTMLElement {
                   new CustomEvent('error', {}),
                 );
               },
+              customTemplateLoader: this.customTemplateLoader,
             },
           });
           this.#instance = lynxView;
