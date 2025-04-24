@@ -7,24 +7,11 @@
 /**
  * Any Lynx Element, such as `view`, `text`, `image`, etc.
  *
- * [Lynx Spec Reference](https://lynxjs.org/living-spec/index.html?ts=1743416098203#element%E2%91%A0)
+ * {@link https://lynxjs.org/living-spec/index.html?ts=1743416098203#element%E2%91%A0 | Lynx Spec Reference}
  *
  * @public
  */
 export interface LynxElement extends HTMLElement {
-  // /**
-  //  * The props of the element.
-  //  */
-  // props: {
-  //   cssId?: string;
-  //   event?: {
-  //     [key: string]: any;
-  //   };
-  //   gesture?: {
-  //     [key: string]: any;
-  //   };
-  //   [key: string]: any;
-  // };
   /**
    * The unique id of the element.
    *
@@ -56,19 +43,19 @@ export interface LynxElement extends HTMLElement {
   /**
    * Returns the first child.
    *
-   * [MDN Reference](https://developer.mozilla.org/docs/Web/API/Node/firstChild)
+   * {@link https://developer.mozilla.org/docs/Web/API/Node/firstChild | MDN Reference}
    */
   firstChild: LynxElement;
   /**
    * Returns the next sibling.
    *
-   * [MDN Reference](https://developer.mozilla.org/docs/Web/API/Node/nextSibling)
+   * {@link https://developer.mozilla.org/docs/Web/API/Node/nextSibling | MDN Reference}
    */
   nextSibling: LynxElement;
   /**
    * Returns the parent.
    *
-   * [MDN Reference](https://developer.mozilla.org/docs/Web/API/Node/parentNode)
+   * {@link https://developer.mozilla.org/docs/Web/API/Node/parentNode | MDN Reference}
    */
   parentNode: LynxElement;
 }
