@@ -29,11 +29,10 @@ function updateMainThread(
   }
 
   setPipeline(patchOptions.pipelineOptions);
-  markMainThreadTiming(MainThreadPerformanceTimingKeys.parse_changes_start);
-  const { patchList, flushOptions = {} } = JSON.parse(data) as PatchList;
 
   markMainThreadTiming(MainThreadPerformanceTimingKeys.parse_changes_end);
   markMainThreadTiming(MainThreadPerformanceTimingKeys.patch_changes_start);
+  const { patchList, flushOptions = {} } = JSON.parse(data) as PatchList;
 
   for (const { snapshotPatch, workletRefInitValuePatch, id } of patchList) {
     updateWorkletRefInitValueChanges(workletRefInitValuePatch);

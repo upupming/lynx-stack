@@ -7,12 +7,18 @@
 import { BoundFunction } from '@testing-library/dom';
 import { ComponentChild } from 'preact';
 import { ComponentType } from 'preact';
+import { ElementTree } from '@lynx-js/test-environment';
 import { LynxElement } from '@lynx-js/test-environment';
+import { LynxEnv } from '@lynx-js/test-environment';
 import { Queries } from '@testing-library/dom';
 import { queries } from '@testing-library/dom';
 
 // @public
 export function cleanup(): void;
+
+export { ElementTree }
+
+export { LynxEnv }
 
 // @public
 export function render<Q extends Queries>(
