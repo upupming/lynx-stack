@@ -101,7 +101,12 @@ export function applyEntry(
           // For non-Lynx environment, the entry is not deleted.
           // So we do not put it in the intermediate.
           : '',
-        getBackgroundFilename(entryName, environment.config, isProd),
+        getBackgroundFilename(
+          entryName,
+          environment.config,
+          isProd,
+          experimental_isLazyBundle,
+        ),
       )
       const backgroundEntry = entryName
 
@@ -114,7 +119,9 @@ export function applyEntry(
           import: imports,
           filename: mainThreadName,
         })
-        .when(isDev && !isWeb, entry => {
+        // in standalone lazy bundle mode, we do not add
+        // other entries to avoid wrongly exporting from other entries
+        .when(isDev && !experimental_isLazyBundle && !isWeb, entry => {
           const require = createRequire(import.meta.url)
           entry
             .add({
@@ -131,7 +138,9 @@ export function applyEntry(
           import: imports,
           filename: backgroundName,
         })
-        .when(isDev && !isWeb, entry => {
+        // in standalone lazy bundle mode, we do not add
+        // other entries to avoid wrongly exporting from other entries
+        .when(isDev && !experimental_isLazyBundle && !isWeb, entry => {
           entry
             // This is aliased in `@lynx-js/rspeedy`
             .add({
@@ -201,6 +210,7 @@ export function applyEntry(
           targetSdkVersion,
           // Inject runtime wrapper for all `.js` but not `main-thread.js` and `main-thread.[hash].js`.
           test: /^(?!.*main-thread(?:\.[A-Fa-f0-9]*)?\.js$).*\.js$/,
+          experimental_isLazyBundle,
         }])
         .end()
         .plugin(`${LynxEncodePlugin.name}`)
@@ -276,6 +286,7 @@ function getBackgroundFilename(
   entryName: string,
   config: NormalizedEnvironmentConfig,
   isProd: boolean,
+  experimental_isLazyBundle: boolean,
 ): string {
   const { filename } = config.output
 
@@ -284,18 +295,26 @@ function getBackgroundFilename(
       .replaceAll('[name]', entryName)
       .replaceAll('.js', '/background.js')
   } else {
-    return `${entryName}/background${getHash(config, isProd)}.js`
+    return `${entryName}/background${
+      getHash(config, isProd, experimental_isLazyBundle)
+    }.js`
   }
 }
 
-function getHash(config: NormalizedEnvironmentConfig, isProd: boolean): string {
+function getHash(
+  config: NormalizedEnvironmentConfig,
+  isProd: boolean,
+  experimental_isLazyBundle: boolean,
+): string {
   if (typeof config.output?.filenameHash === 'string') {
     return config.output.filenameHash
       ? `.[${config.output.filenameHash}]`
       : EMPTY_HASH
   } else if (config.output?.filenameHash === false) {
     return EMPTY_HASH
-  } else if (isProd) {
+  } else if (isProd || experimental_isLazyBundle) {
+    // In standalone lazy bundle mode, we need add hash to avoid
+    // module conflict with the consumer.
     return DEFAULT_FILENAME_HASH
   } else {
     return EMPTY_HASH
