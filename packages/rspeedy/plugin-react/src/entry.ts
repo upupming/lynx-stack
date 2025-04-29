@@ -119,12 +119,12 @@ export function applyEntry(
           import: imports,
           filename: mainThreadName,
         })
-        // in standalone lazy bundle mode, we do not add
-        // other entries to avoid wrongly exporting from other entries
-        .when(isDev && !experimental_isLazyBundle && !isWeb, entry => {
+        .when(isDev && !isWeb, entry => {
           const require = createRequire(import.meta.url)
+          // use prepend to make sure it does not affect the exports
+          // from the entry
           entry
-            .add({
+            .prepend({
               layer: LAYERS.MAIN_THREAD,
               import: require.resolve(
                 '@lynx-js/css-extract-webpack-plugin/runtime/hotModuleReplacement.lepus.cjs',
@@ -140,19 +140,21 @@ export function applyEntry(
         })
         // in standalone lazy bundle mode, we do not add
         // other entries to avoid wrongly exporting from other entries
-        .when(isDev && !experimental_isLazyBundle && !isWeb, entry => {
+        .when(isDev && !isWeb, entry => {
+          // use prepend to make sure it does not affect the exports
+          // from the entry
           entry
             // This is aliased in `@lynx-js/rspeedy`
-            .add({
+            .prepend({
               layer: LAYERS.BACKGROUND,
               import: '@rspack/core/hot/dev-server',
             })
-            .add({
+            .prepend({
               layer: LAYERS.BACKGROUND,
               import: '@lynx-js/webpack-dev-transport/client',
             })
             // This is aliased in `./refresh.ts`
-            .add({
+            .prepend({
               layer: LAYERS.BACKGROUND,
               import: '@lynx-js/react/refresh',
             })
@@ -313,8 +315,10 @@ function getHash(
   } else if (config.output?.filenameHash === false) {
     return EMPTY_HASH
   } else if (isProd || experimental_isLazyBundle) {
-    // In standalone lazy bundle mode, we need add hash to avoid
-    // module conflict with the consumer.
+    // In standalone lazy bundle mode, due to an internal bug of `lynx.requireModule`,
+    // it will cache module with same path (eg. `/.rspeedy/main/background.js`)
+    // even they have different entryName (eg. `__Card__` and `http://[ip]:[port]/main/template.js`)
+    // we need add hash (`/.rspeedy/main/background.[hash].js`) to avoid module conflict with the lazy bundle consumer.
     return DEFAULT_FILENAME_HASH
   } else {
     return EMPTY_HASH
