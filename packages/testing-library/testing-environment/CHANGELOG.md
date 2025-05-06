@@ -1,4 +1,4 @@
-# @lynx-js/test-environment
+# @lynx-js/testing-environment
 
 ## 0.0.1
 

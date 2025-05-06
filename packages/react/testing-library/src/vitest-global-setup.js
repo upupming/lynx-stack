@@ -20,7 +20,7 @@ import { initWorklet } from '../../worklet-runtime/lib/workletRuntime.js';
 const {
   onInjectMainThreadGlobals,
   onInjectBackgroundThreadGlobals,
-  onResetLynxEnv,
+  onResetLynxTestingEnvironment,
   onSwitchedToMainThread,
   onSwitchedToBackgroundThread,
   onInitWorkletRuntime,
@@ -123,7 +123,7 @@ globalThis.onInjectBackgroundThreadGlobals = (target) => {
 
   // TODO: can we only inject to target(mainThread.globalThis) instead of globalThis?
   // packages/react/runtime/src/lynx.ts
-  // intercept lynxCoreInject assignments to lynxEnv.backgroundThread.globalThis.lynxCoreInject
+  // intercept lynxCoreInject assignments to lynxTestingEnvironment.backgroundThread.globalThis.lynxCoreInject
   const oldLynxCoreInject = globalThis.lynxCoreInject;
   globalThis.lynxCoreInject = target.lynxCoreInject;
   injectTt();
@@ -133,20 +133,20 @@ globalThis.onInjectBackgroundThreadGlobals = (target) => {
   deinitGlobalSnapshotPatch();
   clearCommitTaskId();
 };
-globalThis.onResetLynxEnv = () => {
-  if (onResetLynxEnv) {
-    onResetLynxEnv();
+globalThis.onResetLynxTestingEnvironment = () => {
+  if (onResetLynxTestingEnvironment) {
+    onResetLynxTestingEnvironment();
   }
   if (process.env.DEBUG) {
-    console.log('onResetLynxEnv');
+    console.log('onResetLynxTestingEnvironment');
   }
 
   flushDelayedLifecycleEvents();
   destroyWorklet();
 
-  lynxEnv.switchToMainThread();
+  lynxTestingEnvironment.switchToMainThread();
   initEventListeners();
-  lynxEnv.switchToBackgroundThread();
+  lynxTestingEnvironment.switchToBackgroundThread();
 };
 
 globalThis.onSwitchedToMainThread = () => {
@@ -173,8 +173,8 @@ globalThis.onSwitchedToBackgroundThread = () => {
 };
 
 globalThis.onInjectMainThreadGlobals(
-  globalThis.lynxEnv.mainThread.globalThis,
+  globalThis.lynxTestingEnvironment.mainThread.globalThis,
 );
 globalThis.onInjectBackgroundThreadGlobals(
-  globalThis.lynxEnv.backgroundThread.globalThis,
+  globalThis.lynxTestingEnvironment.backgroundThread.globalThis,
 );

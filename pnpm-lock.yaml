@@ -243,9 +243,9 @@ importers:
       '@lynx-js/react':
         specifier: workspace:*
         version: link:..
-      '@lynx-js/test-environment':
+      '@lynx-js/testing-environment':
         specifier: workspace:*
-        version: link:../../testing-library/test-environment
+        version: link:../../testing-library/testing-environment
       '@testing-library/dom':
         specifier: ^10.4.0
         version: 10.4.0
@@ -580,7 +580,7 @@ importers:
         specifier: ^6.6.3
         version: 6.6.3
 
-  packages/testing-library/test-environment:
+  packages/testing-library/testing-environment:
     devDependencies:
       '@testing-library/jest-dom':
         specifier: ^6.6.3

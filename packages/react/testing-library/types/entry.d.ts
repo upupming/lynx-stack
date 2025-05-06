@@ -8,10 +8,10 @@
  */
 
 import { queries, Queries, BoundFunction } from '@testing-library/dom';
-import { LynxElement, type ElementTree, type LynxEnv } from '@lynx-js/test-environment';
+import { LynxElement, type ElementTree, type LynxTestingEnvironment } from '@lynx-js/testing-environment';
 import { ComponentChild, ComponentType } from 'preact';
 export * from '@testing-library/dom';
-export { ElementTree, LynxEnv };
+export { ElementTree, LynxTestingEnvironment };
 
 /**
  * The options for {@link render}.
