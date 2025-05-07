@@ -11,7 +11,7 @@ import { initDelayUnmount } from './lifecycle/delayUnmount.js';
 import { replaceCommitHook, replaceRequestAnimationFrame } from './lifecycle/patch/commit.js';
 import { injectUpdateMainThread } from './lifecycle/patch/updateMainThread.js';
 import { injectCalledByNative } from './lynx/calledByNative.js';
-import { setupLynxTestingEnvironment } from './lynx/env.js';
+import { setupLynxTestingEnv } from './lynx/env.js';
 import { injectLepusMethods } from './lynx/injectLepusMethods.js';
 import { initTimingAPI } from './lynx/performance.js';
 import { injectTt } from './lynx/tt.js';
@@ -53,4 +53,4 @@ if (__JS__) {
   }
 }
 
-setupLynxTestingEnvironment();
+setupLynxTestingEnv();

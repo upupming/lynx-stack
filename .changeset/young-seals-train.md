@@ -1,5 +1,5 @@
 ---
-"@lynx-js/test-environment": minor
+"@lynx-js/testing-environment": minor
 ---
 
 Switch to ESM package format by setting `"type": "module"`.

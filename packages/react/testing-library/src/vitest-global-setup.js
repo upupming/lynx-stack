@@ -20,7 +20,7 @@ import { initWorklet } from '../../worklet-runtime/lib/workletRuntime.js';
 const {
   onInjectMainThreadGlobals,
   onInjectBackgroundThreadGlobals,
-  onResetLynxTestingEnvironment,
+  onResetLynxTestingEnv,
   onSwitchedToMainThread,
   onSwitchedToBackgroundThread,
   onInitWorkletRuntime,
@@ -123,7 +123,7 @@ globalThis.onInjectBackgroundThreadGlobals = (target) => {
 
   // TODO: can we only inject to target(mainThread.globalThis) instead of globalThis?
   // packages/react/runtime/src/lynx.ts
-  // intercept lynxCoreInject assignments to lynxTestingEnvironment.backgroundThread.globalThis.lynxCoreInject
+  // intercept lynxCoreInject assignments to lynxTestingEnv.backgroundThread.globalThis.lynxCoreInject
   const oldLynxCoreInject = globalThis.lynxCoreInject;
   globalThis.lynxCoreInject = target.lynxCoreInject;
   injectTt();
@@ -133,20 +133,20 @@ globalThis.onInjectBackgroundThreadGlobals = (target) => {
   deinitGlobalSnapshotPatch();
   clearCommitTaskId();
 };
-globalThis.onResetLynxTestingEnvironment = () => {
-  if (onResetLynxTestingEnvironment) {
-    onResetLynxTestingEnvironment();
+globalThis.onResetLynxTestingEnv = () => {
+  if (onResetLynxTestingEnv) {
+    onResetLynxTestingEnv();
   }
   if (process.env.DEBUG) {
-    console.log('onResetLynxTestingEnvironment');
+    console.log('onResetLynxTestingEnv');
   }
 
   flushDelayedLifecycleEvents();
   destroyWorklet();
 
-  lynxTestingEnvironment.switchToMainThread();
+  lynxTestingEnv.switchToMainThread();
   initEventListeners();
-  lynxTestingEnvironment.switchToBackgroundThread();
+  lynxTestingEnv.switchToBackgroundThread();
 };
 
 globalThis.onSwitchedToMainThread = () => {
@@ -173,8 +173,8 @@ globalThis.onSwitchedToBackgroundThread = () => {
 };
 
 globalThis.onInjectMainThreadGlobals(
-  globalThis.lynxTestingEnvironment.mainThread.globalThis,
+  globalThis.lynxTestingEnv.mainThread.globalThis,
 );
 globalThis.onInjectBackgroundThreadGlobals(
-  globalThis.lynxTestingEnvironment.backgroundThread.globalThis,
+  globalThis.lynxTestingEnv.backgroundThread.globalThis,
 );

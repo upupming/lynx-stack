@@ -79,12 +79,12 @@ export const initElementTree = () => {
     __CreatePage(_tag: string, parentComponentUniqueId: number) {
       const page = this.__CreateElement('page', parentComponentUniqueId);
       this.root = page;
-      lynxTestingEnvironment.jsdom.window.document.body.appendChild(page);
+      lynxTestingEnv.jsdom.window.document.body.appendChild(page);
       return page;
     }
 
     __CreateRawText(text: string): LynxElement {
-      const element = lynxTestingEnvironment.jsdom.window.document
+      const element = lynxTestingEnv.jsdom.window.document
         .createTextNode(
           text,
         ) as unknown as LynxElement;
@@ -109,7 +109,7 @@ export const initElementTree = () => {
         return this.__CreateRawText('');
       }
 
-      const element = lynxTestingEnvironment.jsdom.window.document
+      const element = lynxTestingEnv.jsdom.window.document
         .createElement(
           tag,
         ) as LynxElement;
@@ -232,14 +232,14 @@ export const initElementTree = () => {
           typeof eventHandler === 'object' && eventHandler['type'] === 'worklet'
         ) {
           const isBackground = !__MAIN_THREAD__;
-          globalThis.lynxTestingEnvironment.switchToMainThread();
+          globalThis.lynxTestingEnv.switchToMainThread();
 
           // Use Object.assign to convert evt to plain object to avoid infinite transformWorkletInner
           // @ts-ignore
           runWorklet(eventHandler.value, [Object.assign({}, evt)]);
 
           if (isBackground) {
-            globalThis.lynxTestingEnvironment.switchToBackgroundThread();
+            globalThis.lynxTestingEnv.switchToBackgroundThread();
           }
         } else {
           // stop the propagation of the event

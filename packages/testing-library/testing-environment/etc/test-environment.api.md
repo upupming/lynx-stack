@@ -80,7 +80,7 @@ export interface LynxElement extends HTMLElement {
 }
 
 // @public
-export class LynxTestingEnvironment {
+export class LynxTestingEnv {
     constructor();
     backgroundThread: LynxGlobalThis;
     // (undocumented)
