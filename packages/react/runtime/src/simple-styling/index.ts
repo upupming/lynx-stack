@@ -245,9 +245,8 @@ export const SimpleStyleSheet = {
    *
    * Create a simple style object.
    */
-  create<T>(
-    _styleSheet: T extends Record<string, SimpleStyleCSSProperties | ((...args: any[]) => SimpleStyleCSSProperties)> ? T
-      : never,
+  create<T extends Record<string, SimpleStyleCSSProperties | ((...args: any[]) => SimpleStyleCSSProperties)>>(
+    _styleSheet: T,
   ): T {
     throw new Error(
       `\`SimpleStyleSheet.create\` is only supported in Simple Styling mode, please enable Simple Styling by set \`enableSimpleStyling: true\` in pluginReactLynx`,

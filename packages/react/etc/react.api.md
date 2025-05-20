@@ -311,7 +311,7 @@ export type SimpleStyleCSSProperties = Pick<CSSProperties, LonghandProperties[nu
 
 // @public
 export const SimpleStyleSheet: {
-    create<T>(_styleSheet: T extends Record<string, SimpleStyleCSSProperties | ((...args: any[]) => SimpleStyleCSSProperties)> ? T : never): T;
+    create<T extends Record<string, SimpleStyleCSSProperties | ((...args: any[]) => SimpleStyleCSSProperties)>>(_styleSheet: T): T;
 };
 
 export { Suspense }
