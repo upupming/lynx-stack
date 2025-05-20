@@ -573,8 +573,6 @@ importers:
         specifier: ^6.6.3
         version: 6.6.3
 
-  packages/testing-library/test-environment: {}
-
   packages/testing-library/testing-environment:
     devDependencies:
       '@testing-library/jest-dom':

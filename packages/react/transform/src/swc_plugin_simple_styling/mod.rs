@@ -55,7 +55,7 @@ pub struct SimpleStylingVisitor {
   //     main: ["90ad962", "90ad963", "90ad964"]
   //   }
   // }
-  sheet_style_to_hash_set: HashMap<String, HashMap<String, HashSet<String>>>,
+  sheet_style_to_hash_set: HashMap<String, HashMap<String, Vec<String>>>,
   // hash to css key value
   // for example:
   // hash_to_css_key_value: {
@@ -202,7 +202,7 @@ impl SimpleStylingVisitor {
         .entry(stylesheet_ident.sym.to_string())
         .or_insert_with(HashMap::new)
         .entry(style_key.to_string())
-        .or_insert_with(HashSet::new)
+        .or_insert_with(Vec::new)
         .extend(hash_set);
 
       // remove static css in dynamic style object
@@ -390,17 +390,17 @@ impl SimpleStylingVisitor {
     None
   }
 
-  fn get_hash_set(&self, sheet_name: &str, style_key: &str) -> HashSet<String> {
+  fn get_hash_set(&self, sheet_name: &str, style_key: &str) -> Vec<String> {
     let hash_set = self
       .sheet_style_to_hash_set
       .get(sheet_name)
       .and_then(|fields| fields.get(style_key))
-      .unwrap_or(&HashSet::new())
+      .unwrap_or(&Vec::new())
       .clone();
     hash_set
   }
 
-  fn get_css_key_set(&self, sheet_name: &str, style_key: &str) -> HashSet<String> {
+  fn get_css_key_set(&self, sheet_name: &str, style_key: &str) -> Vec<String> {
     let hash_set = self.get_hash_set(sheet_name, style_key);
     let css_key_set = hash_set
       .iter()
@@ -413,11 +413,11 @@ impl SimpleStylingVisitor {
           .0
           .clone()
       })
-      .collect::<HashSet<_>>();
+      .collect::<Vec<_>>();
     css_key_set
   }
 
-  fn get_init_object_lit(&self, css_key_set: &HashSet<String>) -> ObjectLit {
+  fn get_init_object_lit(&self, css_key_set: &Vec<String>) -> ObjectLit {
     ObjectLit {
       span: DUMMY_SP,
       props: css_key_set
@@ -441,7 +441,7 @@ impl SimpleStylingVisitor {
     span: Span,
     sheet_name: &str,
     style_key: &str,
-    css_key_set: &HashSet<String>,
+    css_key_set: &Vec<String>,
     css_key_to_sheet_name_and_style_key: &mut HashMap<String, (String, String)>,
   ) {
     css_key_set.iter().for_each(|css_key| {
@@ -564,9 +564,10 @@ impl SimpleStylingVisitor {
             css_key_to_sheet_name_and_style_key,
           );
           let css_key_set = css_key_set_left
-            .union(&css_key_set_right)
+            .iter()
+            .chain(&css_key_set_right)
             .cloned()
-            .collect::<HashSet<_>>();
+            .collect::<Vec<_>>();
           is_accepted_usage = true;
           *expr = quote!(
             "[$object]" as Expr,

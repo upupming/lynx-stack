@@ -37,22 +37,22 @@ const __snapshot_da39a_test_1 = ReactLynx.createSnapshot("__snapshot_da39a_test_
     __SimpleStyleInject("9cdf81d", "color", "green");
     __SimpleStyleInject("91a8701", "text-align", "center");
     __SimpleStyleInject("75816ca", "display", "flex");
-    __SimpleStyleInject("f61f6f2", "border-left-style", "solid");
     __SimpleStyleInject("bad68fd", "border-left-width", "1px");
+    __SimpleStyleInject("f61f6f2", "border-left-style", "solid");
     snapshotInstance.__dy_init = [
         {
-            118: null,
             21: null,
-            11: null
+            11: null,
+            118: null
         },
         {
-            115: null,
-            18: null
+            18: null,
+            115: null
         },
         {
-            117: null,
+            20: null,
             10: null,
-            20: null
+            117: null
         }
     ];
     snapshotInstance.__dy_styles = snapshotInstance.__dy_init.map(__CreateStyleObject);
@@ -63,8 +63,8 @@ const __snapshot_da39a_test_1 = ReactLynx.createSnapshot("__snapshot_da39a_test_
         "9cdf81d",
         "91a8701",
         "75816ca",
-        "f61f6f2",
         "bad68fd",
+        "f61f6f2",
         ...snapshotInstance.__dy_styles
     ]);
     return [
