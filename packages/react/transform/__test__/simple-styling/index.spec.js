@@ -165,7 +165,7 @@ const styles = SimpleStyleSheet.create({
   }),
 })
   
-export function ReactView({
+export function ComponentWithSimpleStyle({
   color,
   isActive,
 }) {
@@ -205,7 +205,7 @@ export function ReactView({
                   7: color
               })
       };
-      const __snapshot_da39a_45c7c_1 = /*#__PURE__*/ ReactLynx.createSnapshot("__snapshot_da39a_45c7c_1", function(snapshotInstance) {
+      const __snapshot_da39a_429b4_1 = /*#__PURE__*/ ReactLynx.createSnapshot("__snapshot_da39a_429b4_1", function(snapshotInstance) {
           const pageId = ReactLynx.__pageId;
           const el = __CreateView(pageId);
           const el1 = __CreateView(pageId);
@@ -251,8 +251,8 @@ export function ReactView({
               if (ctx.__elements) ReactLynx.updateSimpleStyle(ctx, ctx.__values[0]);
           }
       ], null, undefined, globDynamicComponentEntry);
-      export function ReactView({ color, isActive }) {
-          return /*#__PURE__*/ _jsx(__snapshot_da39a_45c7c_1, {
+      export function ComponentWithSimpleStyle({ color, isActive }) {
+          return /*#__PURE__*/ _jsx(__snapshot_da39a_429b4_1, {
               values: [
                   [
                       isActive && styles.active,

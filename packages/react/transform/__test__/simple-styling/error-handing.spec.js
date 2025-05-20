@@ -332,7 +332,7 @@ const styles = SimpleStyleSheet.create({
   }),
 })
   
-export function ReactView({
+export function ComponentWithSimpleStyle({
   color,
   isActive,
 }) {

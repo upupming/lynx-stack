@@ -28,7 +28,7 @@ function transformReactLynxPlugin(): Plugin {
           jsxImportSource: '@lynx-js/react',
           filename: 'test',
           target: 'MIXED',
-          enableSimpleStyling: false,
+          enableSimpleStyling: true,
         },
         // snapshot: true,
         directiveDCE: false,
@@ -38,7 +38,7 @@ function transformReactLynxPlugin(): Plugin {
         worklet: false,
         refresh: false,
         cssScope: false,
-        simpleStyling: false,
+        simpleStyling: true,
       });
 
       return {

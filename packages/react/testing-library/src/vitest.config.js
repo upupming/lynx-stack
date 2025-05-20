@@ -63,7 +63,7 @@ export const createVitestConfig = async (options) => {
             jsxImportSource: runtimePkgName,
             filename: relativePath,
             target: 'MIXED',
-            enableSimpleStyling: false,
+            enableSimpleStyling: true,
           },
           // snapshot: true,
           directiveDCE: false,
@@ -77,7 +77,7 @@ export const createVitestConfig = async (options) => {
           },
           refresh: false,
           cssScope: false,
-          simpleStyling: false,
+          simpleStyling: true,
         });
         if (result.errors.length > 0) {
           // https://rollupjs.org/plugin-development/#this-error
