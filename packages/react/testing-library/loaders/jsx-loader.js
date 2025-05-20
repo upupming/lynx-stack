@@ -25,6 +25,7 @@ export default function jsxLoader(source) {
       jsxImportSource: runtimePkgName,
       filename: relativePath,
       target: 'MIXED',
+      enableSimpleStyling: false,
     },
     // snapshot: true,
     directiveDCE: false,

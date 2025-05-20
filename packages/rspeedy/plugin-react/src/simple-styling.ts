@@ -2,6 +2,7 @@
 // Licensed under the Apache License Version 2.0 that can be found in the
 // LICENSE file in the root directory of this source tree.
 
+import { createRequire } from 'node:module'
 import path from 'node:path'
 
 import type {
@@ -15,6 +16,7 @@ import {
 } from '@lynx-js/react-simple-styling-webpack-plugin'
 
 const PLUGIN_NAME_REACT_SIMPLE_STYLING = 'lynx:react:simple-styling'
+const require = createRequire(import.meta.url)
 
 export function applySimpleStyling(api: RsbuildPluginAPI): void {
   api.modifyWebpackChain((chain, { CHAIN_ID }) => {
