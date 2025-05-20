@@ -38,6 +38,7 @@ export default function jsxLoader(source) {
     },
     refresh: false,
     cssScope: false,
+    simpleStyling: false,
   });
 
   if (result.errors.length > 0) {
