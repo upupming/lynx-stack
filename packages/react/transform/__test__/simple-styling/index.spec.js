@@ -103,19 +103,19 @@ function ComponentWithSimpleStyle({
           __SimpleStyleInject("356935a", "height", "100px");
           __SimpleStyleInject("fa2e1f7", "background-color", "blue");
           __SimpleStyleInject("9cdf81d", "color", "green");
-          __SimpleStyleInject("75816ca", "display", "flex");
           __SimpleStyleInject("91a8701", "text-align", "center");
-          __SimpleStyleInject("f61f6f2", "border-left-style", "solid");
+          __SimpleStyleInject("75816ca", "display", "flex");
           __SimpleStyleInject("bad68fd", "border-left-width", "1px");
+          __SimpleStyleInject("f61f6f2", "border-left-style", "solid");
           snapshotInstance.__dy_init = [
               {
-                  11: null,
                   21: null,
+                  11: null,
                   118: null
               },
               {
-                  115: null,
-                  18: null
+                  18: null,
+                  115: null
               },
               {
                   20: null,
@@ -129,10 +129,10 @@ function ComponentWithSimpleStyle({
               "356935a",
               "fa2e1f7",
               "9cdf81d",
-              "75816ca",
               "91a8701",
-              "f61f6f2",
+              "75816ca",
               "bad68fd",
+              "f61f6f2",
               ...snapshotInstance.__dy_styles
           ]);
           return [
@@ -209,21 +209,21 @@ export function ReactView({
           const pageId = ReactLynx.__pageId;
           const el = __CreateView(pageId);
           const el1 = __CreateView(pageId);
-          __SimpleStyleInject("356935a", "height", "100px");
           __SimpleStyleInject("db4cf10", "width", "100px");
+          __SimpleStyleInject("356935a", "height", "100px");
           __SimpleStyleInject("e734863", "border-bottom-width", "1px");
           snapshotInstance.__dy_init = [];
           snapshotInstance.__dy_styles = snapshotInstance.__dy_init.map(__CreateStyleObject);
           __SetStyleObject(el1, [
-              "356935a",
               "db4cf10",
+              "356935a",
               "e734863",
               ...snapshotInstance.__dy_styles
           ]);
           __AppendElement(el, el1);
           const el2 = __CreateView(pageId);
-          __SimpleStyleInject("356935a", "height", "100px");
           __SimpleStyleInject("db4cf10", "width", "100px");
+          __SimpleStyleInject("356935a", "height", "100px");
           __SimpleStyleInject("5e26c93", "width", "10px");
           snapshotInstance.__dy_init = [
               {
@@ -235,8 +235,8 @@ export function ReactView({
           ];
           snapshotInstance.__dy_styles = snapshotInstance.__dy_init.map(__CreateStyleObject);
           __SetStyleObject(el2, [
-              "356935a",
               "db4cf10",
+              "356935a",
               "5e26c93",
               ...snapshotInstance.__dy_styles
           ]);

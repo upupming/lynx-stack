@@ -30,7 +30,7 @@
     "lib",
     "!lib/**/*.js.map",
     "runtime",
-    "loader.cjs",
+    "loader.js",
     "CHANGELOG.md",
     "README.md"
   ],
