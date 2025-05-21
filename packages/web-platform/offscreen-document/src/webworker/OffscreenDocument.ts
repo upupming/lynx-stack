@@ -136,6 +136,17 @@ export class OffscreenDocument extends OffscreenNode {
       }
     }
   };
+  /**
+   * Converts the OffscreenDocument instance to a JSON string.
+   * Currently, this method returns an empty string as a placeholder.
+   * This behavior may be updated in the future to provide a meaningful
+   * JSON representation of the OffscreenDocument.
+   *
+   * @returns {string} An empty string.
+   */
+  toJSON(): string {
+    return '';
+  }
 }
 
 type ShadowrootTemplates =
@@ -148,12 +159,8 @@ function getInnerHTMLImpl(
   buffer: string[],
   element: OffscreenElement,
   shadowrootTemplates: Record<string, ShadowrootTemplates>,
-  tagTransformMap: Record<string, string> = {},
 ): void {
   let tagName = element.tagName.toLowerCase();
-  if (tagTransformMap[tagName]) {
-    tagName = tagTransformMap[tagName]!;
-  }
   buffer.push('<');
   buffer.push(tagName);
   for (const [key, value] of Object.entries(element[_attributes])) {
@@ -186,7 +193,6 @@ function getInnerHTMLImpl(
         buffer,
         child as OffscreenElement,
         shadowrootTemplates,
-        tagTransformMap,
       );
     }
   }
@@ -198,7 +204,6 @@ function getInnerHTMLImpl(
 export function dumpHTMLString(
   element: OffscreenDocument,
   shadowrootTemplates: Record<string, ShadowrootTemplates>,
-  tagTransformMap: Record<string, string>,
 ): string {
   const buffer: string[] = [];
   for (const child of element.children) {
@@ -206,7 +211,6 @@ export function dumpHTMLString(
       buffer,
       child as OffscreenElement,
       shadowrootTemplates,
-      tagTransformMap,
     );
   }
   return buffer.join('');
