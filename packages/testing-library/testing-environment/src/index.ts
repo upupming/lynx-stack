@@ -86,7 +86,9 @@ function __injectElementApi(target?: any) {
       globalThis.lynxTestingEnv.switchToMainThread();
     }
   };
-  target._ReportError = () => {};
+  target._ReportError = (e: Error) => {
+    throw e;
+  };
 }
 
 function createPolyfills() {

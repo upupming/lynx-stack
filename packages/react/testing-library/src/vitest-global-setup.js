@@ -84,6 +84,12 @@ globalThis.onInjectMainThreadGlobals = (target) => {
 
   target._document = setupDocument({});
 
+  target.__QueryComponent = (url) => {
+    return {
+      evalResult: __vite_ssr_dynamic_import__(url),
+    };
+  };
+
   target.globalPipelineOptions = undefined;
 };
 globalThis.onInjectBackgroundThreadGlobals = (target) => {
