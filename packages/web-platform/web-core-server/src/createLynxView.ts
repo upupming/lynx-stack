@@ -37,7 +37,7 @@ interface LynxViewConfig extends
   templateName?: string;
   hydrateUrl: string;
   injectStyles: string;
-  overrideElemenTemplates?: Record<
+  overrideElementTemplates?: Record<
     string,
     ((attributes: Record<string, string>) => string) | string
   >;
@@ -85,7 +85,7 @@ export async function createLynxView(
     tagMap,
     initData,
     globalProps,
-    overrideElemenTemplates = {},
+    overrideElementTemplates = {},
     hydrateUrl,
     autoSize,
     injectStyles,
@@ -132,7 +132,7 @@ export async function createLynxView(
 
   const elementTemplates = {
     ...builtinElementTemplates,
-    ...overrideElemenTemplates,
+    ...overrideElementTemplates,
   };
 
   async function renderToString(): Promise<string> {
