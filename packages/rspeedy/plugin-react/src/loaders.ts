@@ -14,7 +14,6 @@ export function applyLoaders(
   const {
     compat,
     enableRemoveCSSScope,
-    jsx,
     shake,
     defineDCE,
     enableSimpleStyling,
@@ -49,7 +48,7 @@ export function applyLoaders(
       // `false`
       || output?.sourceMap?.js === false
       // explicitly disable source content
-      || output?.sourceMap?.js?.includes('nosources') // cSpell:disable-line
+      || output?.sourceMap?.js?.includes('nosources')
     )
 
     const backgroundRule = rule.oneOf(LAYERS.BACKGROUND)
@@ -64,7 +63,6 @@ export function applyLoaders(
         .options({
           compat,
           enableRemoveCSSScope,
-          jsx,
           isDynamicComponent: experimental_isLazyBundle,
           inlineSourcesContent,
           defineDCE,
@@ -104,7 +102,6 @@ export function applyLoaders(
         .options({
           compat,
           enableRemoveCSSScope,
-          jsx,
           inlineSourcesContent,
           isDynamicComponent: experimental_isLazyBundle,
           shake,

@@ -2,23 +2,8 @@
 // Licensed under the Apache License Version 2.0 that can be found in the
 // LICENSE file in the root directory of this source tree.
 
-/// <reference path="../types/elementApi.d.ts" />
-
-import type { ClosureValueType, Worklet, WorkletRefImpl } from './types.js';
+import type { ClosureValueType, JsFnHandle, Worklet, WorkletRefImpl } from './types.js';
 import type { Element } from '../api/element.js';
-
-/**
- * Register a worklet function to the `jsFunctionLifecycleManager`.
- * This function mast be called when a worklet context is updated.
- *
- * @param worklet - The worklet to be updated
- * @param element - The element associated with the worklet
- * @internal
- */
-function onWorkletCtxUpdate(worklet: Worklet, element: ElementNode): void {
-  globalThis.lynxWorkletImpl?._jsFunctionLifecycleManager?.addRef(worklet._execId!, worklet);
-  globalThis.lynxWorkletImpl?._eventDelayImpl.runDelayedWorklet(worklet, element);
-}
 
 /**
  * Executes the worklet ctx.
@@ -52,28 +37,21 @@ function updateWorkletRefInitValueChanges(patch?: [number, unknown][]): void {
 }
 
 /**
- * Clear all delayed worklets to run.
- *
- * @internal
- */
-function onHydrationFinished(): void {
-  globalThis.lynxWorkletImpl?._eventDelayImpl.clearDelayedWorklets();
-}
-
-/**
  * Register a worklet.
  *
  * @internal
  */
-function registerWorklet(type: string, id: string, worklet: (...args: any[]) => any): void {
+function registerWorklet(type: string, id: string, worklet: (...args: unknown[]) => unknown): void {
   globalThis.registerWorklet(type, id, worklet);
 }
 
-export {
-  onWorkletCtxUpdate,
-  runWorkletCtx,
-  updateWorkletRef,
-  updateWorkletRefInitValueChanges,
-  onHydrationFinished,
-  registerWorklet,
-};
+/**
+ * Delay a runOnBackground after hydration.
+ *
+ * @internal
+ */
+function delayRunOnBackground(fnObj: JsFnHandle, fn: (fnId: number, execId: number) => void): void {
+  globalThis.lynxWorkletImpl?._runOnBackgroundDelayImpl.delayRunOnBackground(fnObj, fn);
+}
+
+export { runWorkletCtx, updateWorkletRef, updateWorkletRefInitValueChanges, registerWorklet, delayRunOnBackground };

@@ -122,6 +122,22 @@ describe('Config', () => {
       'preact/compat/scheduler$',
       expect.stringContaining('/preact/compat/scheduler.mjs'),
     )
+    expect(config.resolve.alias).toHaveProperty(
+      'use-sync-external-store$',
+      expect.stringContaining('/use-sync-external-store/index.js'),
+    )
+    expect(config.resolve.alias).toHaveProperty(
+      'use-sync-external-store/with-selector$',
+      expect.stringContaining('/use-sync-external-store/with-selector.js'),
+    )
+    expect(config.resolve.alias).toHaveProperty(
+      'use-sync-external-store/shim$',
+      expect.stringContaining('/use-sync-external-store/index.js'),
+    )
+    expect(config.resolve.alias).toHaveProperty(
+      'use-sync-external-store/shim/with-selector$',
+      expect.stringContaining('/use-sync-external-store/with-selector.js'),
+    )
   })
 
   test('alias with production', async () => {
@@ -175,6 +191,23 @@ describe('Config', () => {
 
     expect(config.resolve.alias).not.toHaveProperty(
       '@lynx-js/react/refresh$',
+    )
+
+    expect(config.resolve.alias).toHaveProperty(
+      'use-sync-external-store$',
+      expect.stringContaining('/use-sync-external-store/index.js'),
+    )
+    expect(config.resolve.alias).toHaveProperty(
+      'use-sync-external-store/with-selector$',
+      expect.stringContaining('/use-sync-external-store/with-selector.js'),
+    )
+    expect(config.resolve.alias).toHaveProperty(
+      'use-sync-external-store/shim$',
+      expect.stringContaining('/use-sync-external-store/index.js'),
+    )
+    expect(config.resolve.alias).toHaveProperty(
+      'use-sync-external-store/shim/with-selector$',
+      expect.stringContaining('/use-sync-external-store/with-selector.js'),
     )
   })
 
@@ -277,7 +310,6 @@ describe('Config', () => {
         "enableSimpleStyling": false,
         "inlineSourcesContent": true,
         "isDynamicComponent": false,
-        "jsx": undefined,
       }
     `)
   })
@@ -305,7 +337,6 @@ describe('Config', () => {
         "enableSimpleStyling": false,
         "inlineSourcesContent": true,
         "isDynamicComponent": false,
-        "jsx": undefined,
       }
     `)
 
@@ -413,6 +444,101 @@ describe('Config', () => {
         plugin && plugin.constructor.name === 'TestPlugin'
       ),
     ).toHaveLength(1)
+  })
+
+  describe('Output inlineScripts', () => {
+    test('defaults', async () => {
+      const { pluginReactLynx } = await import('../src/pluginReactLynx.js')
+      const rsbuild = await createRspeedy({
+        rspeedyConfig: {
+          plugins: [
+            pluginReactLynx(),
+            pluginStubRspeedyAPI(),
+          ],
+        },
+      })
+
+      const [config] = await rsbuild.initConfigs()
+
+      const encodePlugin = config?.plugins?.find(p =>
+        p && p.constructor.name === 'LynxEncodePlugin'
+      )
+
+      expect(encodePlugin).toHaveProperty('options', { inlineScripts: true })
+    })
+
+    test('output.inlineScripts: false', async () => {
+      const { pluginReactLynx } = await import('../src/pluginReactLynx.js')
+      const rsbuild = await createRspeedy({
+        rspeedyConfig: {
+          output: {
+            inlineScripts: false,
+          },
+          plugins: [
+            pluginReactLynx(),
+            pluginStubRspeedyAPI(),
+          ],
+        },
+      })
+
+      const [config] = await rsbuild.initConfigs()
+
+      const encodePlugin = config?.plugins?.find(p =>
+        p && p.constructor.name === 'LynxEncodePlugin'
+      )
+
+      expect(encodePlugin).toHaveProperty('options', { inlineScripts: false })
+    })
+
+    test('environments.lynx.output.inlineScripts: false', async () => {
+      const { pluginReactLynx } = await import('../src/pluginReactLynx.js')
+      const rsbuild = await createRspeedy({
+        rspeedyConfig: {
+          environments: {
+            lynx: {
+              output: {
+                inlineScripts: false,
+              },
+            },
+          },
+          plugins: [
+            pluginReactLynx(),
+            pluginStubRspeedyAPI(),
+          ],
+        },
+      })
+
+      const [config] = await rsbuild.initConfigs()
+
+      const encodePlugin = config?.plugins?.find(p =>
+        p && p.constructor.name === 'LynxEncodePlugin'
+      )
+
+      expect(encodePlugin).toHaveProperty('options', { inlineScripts: false })
+    })
+
+    test('legacy Rspeedy version (with `output.inlineScripts` defaults to `false`)', async () => {
+      const { pluginReactLynx } = await import('../src/pluginReactLynx.js')
+      const rsbuild = await createRsbuild({
+        rsbuildConfig: {
+          plugins: [
+            pluginReactLynx(),
+            pluginStubRspeedyAPI(),
+          ],
+          environments: {
+            lynx: {},
+          },
+        },
+      })
+
+      const [config] = await rsbuild.initConfigs()
+
+      const encodePlugin = config?.plugins?.find(p =>
+        p && p.constructor.name === 'LynxEncodePlugin'
+      )
+
+      expect(encodePlugin).toHaveProperty('options', { inlineScripts: true })
+    })
   })
 
   describe('Output Filename', () => {
@@ -1121,14 +1247,14 @@ describe('Config', () => {
       expect(backgroundConfig).toHaveProperty('inlineSourcesContent', false)
     })
 
-    test('with output.sourceMap.js: "nosources"', async () => { // cSpell:disable-line
+    test('with output.sourceMap.js: "nosources"', async () => {
       const { pluginReactLynx } = await import('../src/pluginReactLynx.js')
 
       const rsbuild = await createRsbuild({
         rsbuildConfig: {
           output: {
             sourceMap: {
-              js: 'nosources-source-map', // cSpell:disable-line
+              js: 'nosources-source-map',
             },
           },
           plugins: [

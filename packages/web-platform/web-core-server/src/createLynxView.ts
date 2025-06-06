@@ -1,12 +1,16 @@
 import {
-  flushElementTreeEndpoint,
-  mainThreadStartEndpoint,
-  type MainThreadStartConfigs,
+  inShadowRootStyles,
+  lynxUniqueIdAttribute,
+  type StartMainThreadContextConfig,
 } from '@lynx-js/web-constants';
 import { Rpc } from '@lynx-js/web-worker-rpc';
-import { startMainThread } from '@lynx-js/web-worker-runtime';
+import { prepareMainThreadAPIs } from '@lynx-js/web-mainthread-apis';
 import { loadTemplate } from './utils/loadTemplate.js';
-import { dumpHTMLString } from '@lynx-js/offscreen-document/webworker';
+import {
+  _attributes,
+  OffscreenDocument,
+  OffscreenElement,
+} from '@lynx-js/offscreen-document/webworker';
 import {
   templateScrollView,
   templateXAudioTT,
@@ -22,22 +26,24 @@ import {
   templateXTextarea,
   templateXViewpageNg,
 } from '@lynx-js/web-elements-template';
+import { dumpHTMLString } from './dumpHTMLString.js';
 
 interface LynxViewConfig extends
   Pick<
-    MainThreadStartConfigs,
+    StartMainThreadContextConfig,
     'browserConfig' | 'tagMap' | 'initData' | 'globalProps' | 'template'
   >
 {
   templateName?: string;
   hydrateUrl: string;
   injectStyles: string;
-  overrideElemenTemplates?: Record<
+  overrideElementTemplates?: Record<
     string,
     ((attributes: Record<string, string>) => string) | string
   >;
-  overrideTagTransformMap?: Record<string, string>;
   autoSize?: boolean;
+  lynxViewStyle?: string;
+  threadStrategy?: 'all-on-ui';
 }
 
 const builtinElementTemplates = {
@@ -64,6 +70,13 @@ const builtinTagTransformMap = {
   'svg': 'x-svg',
 };
 
+// @ts-expect-error
+OffscreenElement.prototype.toJSON = function toJSON(this: OffscreenElement) {
+  return {
+    ssrID: this[_attributes].get(lynxUniqueIdAttribute)!,
+  };
+};
+
 export async function createLynxView(
   config: LynxViewConfig,
 ) {
@@ -73,66 +86,98 @@ export async function createLynxView(
     tagMap,
     initData,
     globalProps,
-    overrideElemenTemplates = {},
-    overrideTagTransformMap = {},
+    overrideElementTemplates = {},
     hydrateUrl,
     autoSize,
     injectStyles,
+    lynxViewStyle,
+    threadStrategy = 'all-on-ui',
   } = config;
-
-  const mainToUIChannel = new MessageChannel();
-  const mainWithBackgroundChannel = new MessageChannel();
-  const mainToUIMessagePort = mainToUIChannel.port2;
-  const uiToMainRpc = new Rpc(mainToUIChannel.port1, 'main-to-ui');
-  const { docu: offscreenDocument } = startMainThread(
-    mainToUIMessagePort,
-    mainWithBackgroundChannel.port2,
-  );
+  const template = await loadTemplate(rawTemplate, config.templateName);
   const { promise: firstPaintReadyPromise, resolve: firstPaintReady } = Promise
     .withResolvers<void>();
-  const template = await loadTemplate(rawTemplate, config.templateName);
-  const mainThreadStart = uiToMainRpc.createCall(mainThreadStartEndpoint);
-  mainThreadStart({
+  const mainWithBackgroundChannel = new MessageChannel();
+  const backgroundThreadRpc = new Rpc(
+    mainWithBackgroundChannel.port1,
+    'background-thread',
+  );
+  const offscreenDocument = new OffscreenDocument({
+    onCommit: () => {
+    },
+  });
+  const { startMainThread } = prepareMainThreadAPIs(
+    backgroundThreadRpc,
+    offscreenDocument,
+    offscreenDocument.createElement.bind(offscreenDocument),
+    () => {
+      firstPaintReady();
+    },
+    () => {
+      // mark timing
+    },
+    () => {
+      // report error
+    },
+  );
+  const runtime = await startMainThread({
     template,
     initData,
     globalProps,
     browserConfig,
     nativeModulesMap: {}, // the bts won't start
     napiModulesMap: {}, // the bts won't start
-    tagMap,
-  });
-  uiToMainRpc.registerHandler(
-    flushElementTreeEndpoint,
-    () => {
-      firstPaintReady();
+    tagMap: {
+      ...builtinTagTransformMap,
+      ...tagMap,
     },
-  );
+  });
 
   const elementTemplates = {
     ...builtinElementTemplates,
-    ...overrideElemenTemplates,
-  };
-  const tagTransformMap = {
-    ...builtinTagTransformMap,
-    ...overrideTagTransformMap,
+    ...overrideElementTemplates,
   };
 
   async function renderToString(): Promise<string> {
     await firstPaintReadyPromise;
-    const innerShadowRootHTML = dumpHTMLString(
+    const ssrEncodeData = runtime?.ssrEncode?.();
+    const buffer: string[] = [];
+    buffer.push(
+      '<lynx-view url="',
+      hydrateUrl,
+      '" ssr ',
+      'thread-strategy="',
+      threadStrategy,
+      '"',
+    );
+    if (autoSize) {
+      buffer.push(' height="auto" width="auto"');
+    }
+    if (lynxViewStyle) {
+      buffer.push(' style="', lynxViewStyle, '"');
+    }
+    buffer.push(
+      '><template shadowrootmode="open">',
+      '<style>',
+      injectStyles,
+      '\n',
+      inShadowRootStyles.join('\n'),
+      '</style>',
+    );
+    dumpHTMLString(
+      buffer,
       offscreenDocument,
       elementTemplates,
-      tagTransformMap,
     );
-    return `
-    <lynx-view url="${hydrateUrl}" ssr ${
-      autoSize ? 'height="auto" width="auto"' : ''
-    }>
-      <template shadowrootmode="open">
-        <style>${injectStyles}</style>
-        ${innerShadowRootHTML}
-      </template>
-    </lynx-view>`;
+    buffer.push(
+      '</template>',
+    );
+
+    if (ssrEncodeData) {
+      const encodeDataEncoded = ssrEncodeData ? encodeURI(ssrEncodeData) : ''; // to avoid XSS
+      buffer.push('<!--', encodeDataEncoded, '-->');
+    }
+    buffer.push('</lynx-view>');
+    return buffer.join('');
   }
   return {
     renderToString,

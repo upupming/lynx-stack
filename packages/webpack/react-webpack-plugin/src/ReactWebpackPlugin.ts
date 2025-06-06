@@ -8,6 +8,7 @@ import { createRequire } from 'node:module';
 import type { Chunk, Compilation, Compiler } from '@rspack/core';
 import invariant from 'tiny-invariant';
 
+import type { ExtractStrConfig } from '@lynx-js/react/transform';
 import { LynxTemplatePlugin } from '@lynx-js/template-webpack-plugin';
 import { RuntimeGlobals } from '@lynx-js/webpack-runtime-globals';
 
@@ -16,23 +17,6 @@ import { createLynxProcessEvalResultRuntimeModule } from './LynxProcessEvalResul
 
 const require = createRequire(import.meta.url);
 
-/**
- * The options for extractStr.
- *
- * @public
- */
-export interface ExtractStrConfig {
-  /**
-   * The minimum length of string literals to be extracted.
-   *
-   * @defaultValue `20`
-   *
-   * @public
-   */
-  strLength: number;
-  /** @internal */
-  extractedStrArr?: string[];
-}
 /**
  * The options for ReactWebpackPlugin
  *
@@ -279,6 +263,7 @@ class ReactWebpackPlugin {
             const runtimeFile = require.resolve(path);
             lepusCode.chunks.push({
               name: 'worklet-runtime',
+              // @ts-expect-error Rspack x Webpack sources not match
               source: new RawSource(fs.readFileSync(
                 runtimeFile,
                 'utf8',
@@ -313,7 +298,7 @@ class ReactWebpackPlugin {
               `\
 (function (globDynamicComponentEntry) {
   const module = { exports: {} }
-  const exports = module.exports
+  const exports = module.exports;
 `,
               old,
               `

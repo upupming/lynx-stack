@@ -30,7 +30,7 @@ export class XInputEvents
   );
 
   @registerEventEnableStatusChangeHandler('input')
-  #handleEnableConfirmEvent(status: boolean) {
+  #handleEnableInputEvent(status: boolean) {
     const input = this.#getInputElement();
     if (status) {
       input.addEventListener(
@@ -82,9 +82,13 @@ export class XInputEvents
         ...commonComponentEventSetting,
         detail: {
           value,
+          /** @deprecated */
           textLength: value.length,
+          /** @deprecated */
           cursor: input.selectionStart,
           isComposing,
+          selectionStart: input.selectionStart,
+          selectionEnd: input.selectionEnd,
         },
       }),
     );
@@ -100,12 +104,48 @@ export class XInputEvents
           ...commonComponentEventSetting,
           detail: {
             value,
+            /** @deprecated */
             textLength: value.length,
+            /** @deprecated */
             cursor: input.selectionStart,
+            isComposing: false,
+            selectionStart: input.selectionStart,
+            selectionEnd: input.selectionEnd,
           },
         }),
       );
     }
+  };
+
+  @registerEventEnableStatusChangeHandler('selection')
+  #handleEnableSelectionEvent(status: boolean) {
+    if (status) {
+      this.#getInputElement().addEventListener(
+        'select',
+        this.#selectEvent,
+        {
+          passive: true,
+        },
+      );
+    } else {
+      this.#getInputElement().removeEventListener(
+        'select',
+        this.#selectEvent,
+      );
+    }
+  }
+
+  #selectEvent = () => {
+    const input = this.#getInputElement();
+    this.#dom.dispatchEvent(
+      new CustomEvent('selection', {
+        ...commonComponentEventSetting,
+        detail: {
+          selectionStart: input.selectionStart,
+          selectionEnd: input.selectionEnd,
+        },
+      }),
+    );
   };
 
   #blockHtmlEvent = (event: InputEvent) => {

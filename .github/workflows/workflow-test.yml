@@ -30,9 +30,14 @@ env:
   TURBO_TELEMETRY_DISABLED: 1
 jobs:
   check:
+    timeout-minutes: 30
     runs-on: ${{ inputs.runs-on }}
     permissions: {}
     steps:
+      - name: set apt sources - use tls
+        run: |
+          sudo sed -i 's|http:|https:|' /etc/apt/sources.list.d/ubuntu.sources
+          sudo sed -i 's|http:|https:|' /etc/apt/sources.list.d/*.list
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
         with:
           # Codecov requires fetch-depth: 0
@@ -42,7 +47,7 @@ jobs:
         with:
           node-version: "22"
       - name: TurboCache
-        uses: lynx-infra/cache@558d7c999f9f97ac02ed7e711503bb81d82ff8ee
+        uses: lynx-infra/cache@5c6160a6a4c7fca80a2f3057bb9dfc9513fcb732
         with:
           path: .turbo
           # We have to be strict here to make sure getting the cache of build-all
@@ -76,7 +81,7 @@ jobs:
           flags: ${{ inputs.codecov-flags }}
       - name: Upload test results to Codecov
         if: ${{ !cancelled() }}
-        uses: codecov/test-results-action@f2dba722c67b86c6caa034178c6e4d35335f6706 # v1
+        uses: codecov/test-results-action@47f89e9acb64b76debcd5ea40642d25a4adced9f # v1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           flags: ${{ inputs.codecov-flags }}

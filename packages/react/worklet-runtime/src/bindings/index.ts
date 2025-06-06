@@ -3,13 +3,9 @@
 // LICENSE file in the root directory of this source tree.
 export { loadWorkletRuntime } from './loadRuntime.js';
 
-export {
-  onWorkletCtxUpdate,
-  runWorkletCtx,
-  updateWorkletRef,
-  updateWorkletRefInitValueChanges,
-  onHydrationFinished,
-} from './bindings.js';
+export * from './bindings.js';
+
+export * from './observers.js';
 
 export type * from './types.js';
 

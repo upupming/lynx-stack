@@ -1242,6 +1242,17 @@ test.describe('web-elements test suite', () => {
         });
       },
     );
+
+    test('x-foldview-ng/item-fixed', async ({ page }, { title }) => {
+      await gotoWebComponentPage(page, title);
+      await wait(100);
+      await diffScreenShot(page, title, 'initial');
+      await page.evaluate(() => {
+        document.querySelector('x-foldview-ng')?.scrollBy(0, 200);
+      });
+      await wait(100);
+      await diffScreenShot(page, title, 'scroll');
+    });
   });
   test.describe('x-viewpager-ng', () => {
     test('x-viewpager-ng/viewpager-size-cyclic-percentage-size', async ({
@@ -2346,6 +2357,39 @@ test.describe('web-elements test suite', () => {
         expect(scrolltolower).toBeTruthy();
       },
     );
+    test('list-item-linear', async ({ page }, { titlePath }) => {
+      const title = getTitle(titlePath);
+      await gotoWebComponentPage(page, title);
+      await diffScreenShot(page, title, 'index');
+    });
+    test('list-type-change', async ({ page }) => {
+      await gotoWebComponentPage(page, 'x-list/basic-waterfall');
+      await diffScreenShot(page, 'x-list/list-type-change', 'index');
+      await page.evaluate(() => {
+        document.querySelector('x-list')?.setAttribute(
+          'list-type',
+          'single',
+        );
+      });
+      await wait(100);
+      await diffScreenShot(page, 'x-list/list-type-change', 'single');
+      await page.evaluate(() => {
+        document.querySelector('x-list')?.setAttribute(
+          'list-type',
+          'flow',
+        );
+      });
+      await wait(100);
+      await diffScreenShot(page, 'x-list/list-type-change', 'flow');
+      await page.evaluate(() => {
+        document.querySelector('x-list')?.setAttribute(
+          'list-type',
+          'waterfall',
+        );
+      });
+      await wait(100);
+      await diffScreenShot(page, 'x-list/list-type-change', 'waterfall');
+    });
   });
   test.describe('x-input', () => {
     test('placeholder', async ({ page }, { titlePath }) => {
@@ -2734,7 +2778,7 @@ test.describe('web-elements test suite', () => {
       async ({ page, browserName }, { titlePath, title: simpleTitle }) => {
         test.skip(
           browserName !== 'chromium',
-          'cannot demostrate the text is selected',
+          'cannot demonstrate the text is selected',
         );
         const title = getTitle(titlePath);
         await gotoWebComponentPage(page, 'x-input/method');
@@ -2754,7 +2798,7 @@ test.describe('web-elements test suite', () => {
       async ({ page, browserName }, { titlePath, title: simpleTitle }) => {
         test.skip(
           browserName === 'firefox',
-          'cannot demostrate the text is selected',
+          'cannot demonstrate the text is selected',
         );
         const title = getTitle(titlePath);
         await gotoWebComponentPage(page, 'x-input/method');
@@ -3863,7 +3907,7 @@ test.describe('web-elements test suite', () => {
       async ({ page, browserName }, { titlePath, title: simpleTitle }) => {
         test.skip(
           browserName === 'chromium',
-          'cannot demostrate the text is selected',
+          'cannot demonstrate the text is selected',
         );
         const title = getTitle(titlePath);
         await gotoWebComponentPage(page, 'x-input/method');
@@ -3883,7 +3927,7 @@ test.describe('web-elements test suite', () => {
       async ({ page, browserName }, { titlePath, title: simpleTitle }) => {
         test.skip(
           browserName === 'firefox',
-          'cannot demostrate the text is selected',
+          'cannot demonstrate the text is selected',
         );
         const title = getTitle(titlePath);
         await gotoWebComponentPage(page, 'x-input/method');
@@ -4160,7 +4204,7 @@ test.describe('web-elements test suite', () => {
     });
 
     test('event-seek', async ({ page }, { titlePath }) => {
-      let seeked = false;
+      let sought = false;
       page.on('console', async (msg) => {
         const event = await msg.args()[0]?.evaluate((e) => ({
           type: e.type,
@@ -4171,7 +4215,7 @@ test.describe('web-elements test suite', () => {
         }));
         if (!event) return;
         if (event.detail.seekresult === 1) {
-          seeked = true;
+          sought = true;
         }
       });
 
@@ -4182,7 +4226,7 @@ test.describe('web-elements test suite', () => {
       await wait(1000);
       await page.locator('#seek').click();
       await wait(1000);
-      expect(seeked).toBe(true);
+      expect(sought).toBe(true);
     });
 
     test('event-error-src', async ({ page }, { titlePath }) => {

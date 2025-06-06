@@ -1,5 +1,15 @@
 # @lynx-js/react-alias-rsbuild-plugin
 
+## 0.10.2
+
+### Patch Changes
+
+- Resolve runtime packages in parallel using `Promise.all`. ([#955](https://github.com/lynx-family/lynx-stack/pull/955))
+
+## 0.10.1
+
+## 0.10.0
+
 ## 0.9.10
 
 ## 0.9.9

@@ -358,6 +358,7 @@ describe('Config - toRsBuildConfig', () => {
           "dataUriLimit": 2048,
           "distPath": undefined,
           "filenameHash": undefined,
+          "inlineScripts": undefined,
           "legalComments": "none",
           "polyfill": "off",
           "sourceMap": undefined,
@@ -404,6 +405,17 @@ describe('Config - toRsBuildConfig', () => {
       })
 
       expect(rsbuildConfig.output?.distPath?.root).toBe('foo')
+    })
+
+    test('transform output.inlineScripts', () => {
+      const rsbuildConfig = toRsbuildConfig({
+        output: {
+          inlineScripts: false,
+        },
+      })
+      expect(rsbuildConfig.output?.inlineScripts).toMatchInlineSnapshot(
+        `false`,
+      )
     })
 
     test('transform output.legalComments', () => {
@@ -547,7 +559,7 @@ describe('Config - toRsBuildConfig', () => {
           alias: {},
         },
       })
-      expect(rsbuildConfig.source?.alias).toStrictEqual(
+      expect(rsbuildConfig.resolve?.alias).toStrictEqual(
         {},
       )
     })
@@ -560,10 +572,10 @@ describe('Config - toRsBuildConfig', () => {
           },
         },
       })
-      expect(rsbuildConfig.source?.alias).toStrictEqual(
+      expect(rsbuildConfig.resolve?.alias).toStrictEqual(
         { foo: 'bar' },
       )
-      expect(rsbuildConfig.source?.alias).not.toStrictEqual({
+      expect(rsbuildConfig.resolve?.alias).not.toStrictEqual({
         foo: 'baz',
       })
     })

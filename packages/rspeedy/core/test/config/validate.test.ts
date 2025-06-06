@@ -833,6 +833,8 @@ describe('Config Validation', () => {
         { distPath: { image: 'image' } },
         { distPath: { font: 'font' } },
         { distPath: { svg: 'svg' } },
+        { inlineScripts: true },
+        { inlineScripts: false },
         { legalComments: 'inline' },
         { legalComments: 'none' },
         { legalComments: 'linked' },
@@ -941,7 +943,7 @@ describe('Config Validation', () => {
             - Got: undefined
 
           Invalid config on \`$input.output.copy.patterns\`.
-            - Expect to be Array<string | ({ from: string; } & Partial<RawCopyPattern>)>
+            - Expect to be Array<string | (Pick<RawCopyPattern, "from"> & Partial<Omit<RawCopyPattern, "from">>)>
             - Got: undefined
           ]
         `)
@@ -955,7 +957,7 @@ describe('Config Validation', () => {
             - Got: null
 
           Invalid config on \`$input.output.copy.patterns\`.
-            - Expect to be Array<string | ({ from: string; } & Partial<RawCopyPattern>)>
+            - Expect to be Array<string | (Pick<RawCopyPattern, "from"> & Partial<Omit<RawCopyPattern, "from">>)>
             - Got: undefined
           ]
         `)
@@ -969,7 +971,7 @@ describe('Config Validation', () => {
             - Got: undefined
 
           Invalid config on \`$input.output.copy.patterns\`.
-            - Expect to be Array<string | ({ from: string; } & Partial<RawCopyPattern>)>
+            - Expect to be Array<string | (Pick<RawCopyPattern, "from"> & Partial<Omit<RawCopyPattern, "from">>)>
             - Got: undefined
           ]
         `)
@@ -983,7 +985,7 @@ describe('Config Validation', () => {
             - Got: undefined
 
           Invalid config on \`$input.output.copy.patterns\`.
-            - Expect to be Array<string | ({ from: string; } & Partial<RawCopyPattern>)>
+            - Expect to be Array<string | (Pick<RawCopyPattern, "from"> & Partial<Omit<RawCopyPattern, "from">>)>
             - Got: undefined
           ]
         `)
@@ -997,7 +999,7 @@ describe('Config Validation', () => {
           Unknown property: \`$input.output.copy[0].dist\` in configuration
 
           Invalid config on \`$input.output.copy.patterns\`.
-            - Expect to be Array<string | ({ from: string; } & Partial<RawCopyPattern>)>
+            - Expect to be Array<string | (Pick<RawCopyPattern, "from"> & Partial<Omit<RawCopyPattern, "from">>)>
             - Got: undefined
           ]
         `)
@@ -1011,7 +1013,7 @@ describe('Config Validation', () => {
             - Got: null
 
           Invalid config on \`$input.output.copy.patterns\`.
-            - Expect to be Array<string | ({ from: string; } & Partial<RawCopyPattern>)>
+            - Expect to be Array<string | (Pick<RawCopyPattern, "from"> & Partial<Omit<RawCopyPattern, "from">>)>
             - Got: undefined
           ]
         `)
@@ -1094,6 +1096,16 @@ describe('Config Validation', () => {
           [Error: Invalid configuration.
 
           Unknown property: \`$input.output.distPath.nonExistent\` in configuration
+          ]
+        `)
+
+      expect(() => validate({ output: { inlineScripts: null } }))
+        .toThrowErrorMatchingInlineSnapshot(`
+          [Error: Invalid configuration.
+
+          Invalid config on \`$input.output.inlineScripts\`.
+            - Expect to be (boolean | undefined)
+            - Got: null
           ]
         `)
 
@@ -2727,7 +2739,6 @@ describe('Config Validation', () => {
             },
           },
         })
-        // cSpell:disable
       ).toThrowErrorMatchingInlineSnapshot(`
         [Error: Invalid configuration.
 
@@ -2736,7 +2747,6 @@ describe('Config Validation', () => {
           - Got: string
         ]
       `)
-      // cSpell:enable
     })
   })
 })

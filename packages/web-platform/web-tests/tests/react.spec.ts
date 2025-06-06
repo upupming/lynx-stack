@@ -1002,6 +1002,32 @@ test.describe('reactlynx3 tests', () => {
         await expect(target).toHaveCSS('background-color', 'rgb(0, 128, 0)'); // green
       },
     );
+    test(
+      'api-animate',
+      async ({ page }, { title }) => {
+        await goto(page, title);
+        await wait(500);
+        await diffScreenShot(page, title, 'initial');
+        await page.locator('#target').click();
+        await wait(2000);
+        await diffScreenShot(page, title, 'animate');
+      },
+    );
+    test(
+      'api-updateGlobalProps',
+      async ({ page }, { title }) => {
+        await goto(page, title);
+        await wait(200);
+        await diffScreenShot(page, title, 'initial');
+        await page.evaluate(() => {
+          (document.querySelector('lynx-view') as any)?.updateGlobalProps({
+            backgroundColor: 'blue',
+          });
+        });
+        await wait(500);
+        await diffScreenShot(page, title, 'blue');
+      },
+    );
   });
 
   test.describe('configs', () => {
@@ -1197,6 +1223,16 @@ test.describe('reactlynx3 tests', () => {
           title,
           'index',
         );
+      },
+    );
+
+    test(
+      'config-mixed-01',
+      async ({ page }, { title }) => {
+        await goto(page, title);
+        await wait(100);
+        const target = page.locator('#target');
+        await expect(target).toHaveCSS('background-color', 'rgb(0, 128, 0)'); // green
       },
     );
   });
@@ -2159,9 +2195,63 @@ test.describe('reactlynx3 tests', () => {
         await page.locator('input').fill('foobar');
         await wait(200);
         const result = await page.locator('.result').first().innerText();
-        expect(result).toBe('foobar');
+        expect(result).toBe('foobar-6-6');
       });
       // input/bindinput test-case end
+      test(
+        'basic-element-x-input-getValue',
+        async ({ page }, { title }) => {
+          await goto(page, title);
+          await wait(200);
+          let val = false;
+          let selectionBegin = false;
+          let selectionEnd = false;
+          await page.on('console', async (msg) => {
+            const event = await msg.args()[0]?.evaluate((e) => ({
+              ...e,
+            }));
+            if (!event) return;
+            if (event.value === 'hello') {
+              val = true;
+            }
+            if (event.selectionBegin === 2) {
+              selectionBegin = true;
+            }
+            if (event.selectionEnd === 5) {
+              selectionEnd = true;
+            }
+          });
+          await page.evaluate(() => {
+            const inputDom = document.querySelector('lynx-view')?.shadowRoot
+              ?.querySelector('x-input')?.shadowRoot?.querySelector('input');
+            inputDom?.focus();
+            inputDom?.setSelectionRange(2, 5);
+            document.querySelector('lynx-view')?.shadowRoot
+              ?.querySelector(
+                '#target',
+              )?.click();
+          });
+          await wait(200);
+          expect(val).toBe(true);
+          expect(selectionBegin).toBe(true);
+          expect(selectionEnd).toBe(true);
+        },
+      );
+      test(
+        'basic-element-x-input-bindselection',
+        async ({ page }, { title }) => {
+          await goto(page, title);
+          await wait(200);
+          await page.evaluate(() => {
+            const inputDom = document.querySelector('lynx-view')?.shadowRoot
+              ?.querySelector('x-input')?.shadowRoot?.querySelector('input');
+            inputDom?.focus();
+            inputDom?.setSelectionRange(2, 5);
+          });
+          const result = await page.locator('.result').first().innerText();
+          expect(result).toBe('2-5');
+        },
+      );
     });
     test.describe('x-overlay-ng', () => {
       test('basic-element-x-overlay-ng-demo', async ({ page }, { title }) => {
@@ -3402,6 +3492,8 @@ test.describe('reactlynx3 tests', () => {
               event.type === 'input'
               && dataset.testid === 'textarea'
               && event.detail.value === 'value'
+              && event.detail.selectionStart === 5
+              && event.detail.selectionEnd === 5
             ) {
               bindinput = true;
             }
@@ -3419,6 +3511,64 @@ test.describe('reactlynx3 tests', () => {
         },
       );
       // x-textarea/bindinput test-case end
+      test(
+        'basic-element-x-textarea-getValue',
+        async ({ page, browserName }, { title }) => {
+          test.skip(browserName === 'webkit');
+          await goto(page, title);
+          await wait(200);
+          let val = false;
+          let selectionBegin = false;
+          let selectionEnd = false;
+          await page.on('console', async (msg) => {
+            const event = await msg.args()[0]?.evaluate((e) => ({
+              ...e,
+            }));
+            if (!event) return;
+            if (event.value === 'hello') {
+              val = true;
+            }
+            if (event.selectionBegin === 2) {
+              selectionBegin = true;
+            }
+            if (event.selectionEnd === 5) {
+              selectionEnd = true;
+            }
+          });
+          await page.evaluate(() => {
+            const inputDom = document.querySelector('lynx-view')?.shadowRoot
+              ?.querySelector('x-textarea')?.shadowRoot?.querySelector(
+                'textarea',
+              );
+            inputDom?.focus();
+            inputDom?.setSelectionRange(2, 5);
+            document.querySelector('lynx-view')?.shadowRoot?.querySelector(
+              '#target',
+            )?.click();
+          });
+          await wait(200);
+          expect(val).toBe(true);
+          expect(selectionBegin).toBe(true);
+          expect(selectionEnd).toBe(true);
+        },
+      );
+      test(
+        'basic-element-x-textarea-bindselection',
+        async ({ page }, { title }) => {
+          await goto(page, title);
+          await wait(200);
+          await page.evaluate(() => {
+            const textareaDom = document.querySelector('lynx-view')?.shadowRoot
+              ?.querySelector('x-textarea')?.shadowRoot?.querySelector(
+                'textarea',
+              );
+            textareaDom?.focus();
+            textareaDom?.setSelectionRange(2, 5);
+          });
+          const result = await page.locator('.result').first().innerText();
+          expect(result).toBe('2-5');
+        },
+      );
     });
     test.describe('x-audio-tt', () => {
       test('basic-element-x-audio-tt-play', async ({ page }, { title }) => {

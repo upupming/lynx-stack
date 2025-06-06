@@ -2,10 +2,7 @@
 // Licensed under the Apache License Version 2.0 that can be found in the
 // LICENSE file in the root directory of this source tree.
 
-import {
-  getElementByUniqueId,
-  MainThreadRuntime,
-} from '@lynx-js/web-mainthread-apis';
+import { createMainThreadGlobalThis } from '@lynx-js/web-mainthread-apis';
 import { initOffscreenDocument } from '@lynx-js/offscreen-document/main';
 import {
   _onEvent,
@@ -15,13 +12,19 @@ import type {
   ElementOperation,
   OffscreenElement,
 } from '@lynx-js/offscreen-document';
+import {
+  lynxTagAttribute,
+  lynxUniqueIdAttribute,
+  type MainThreadGlobalThis,
+  type WebFiberElementImpl,
+} from '@lynx-js/web-constants';
 
-type CompareableElementJson = {
+type ComparableElementJson = {
   tag: string;
-  children: CompareableElementJson[];
+  children: ComparableElementJson[];
   parentUid?: number;
 };
-let runtime: any;
+let runtime!: MainThreadGlobalThis;
 let elementOperations: ElementOperation[] = [];
 
 const div: HTMLElement = document.createElement('div');
@@ -39,8 +42,8 @@ const { decodeOperation } = initOffscreenDocument({
 });
 
 function serializeElementThreadElement(
-  element: OffscreenElement,
-): CompareableElementJson {
+  element: WebFiberElementImpl,
+): ComparableElementJson {
   const parent = runtime.__GetParent(element);
   const tag = runtime.__GetTag(element);
   const parentUid = parent && runtime.__GetTag(element) !== 'page'
@@ -56,29 +59,28 @@ function serializeElementThreadElement(
   };
 }
 
-function serializeDomElement(element: Element): CompareableElementJson {
+function serializeDomElement(element: Element): ComparableElementJson {
   const attributes: Record<string, string> = {};
   for (const attr of element.attributes) {
     if (attr.value) {
       attributes[attr.name] = attr.value;
     }
   }
-  const parentUid = element?.parentElement?.getAttribute('lynx-unique-id');
+  const parentUid = element?.parentElement?.getAttribute(lynxUniqueIdAttribute);
   return {
-    tag: element.getAttribute('lynx-tag')!,
+    tag: element.getAttribute(lynxTagAttribute)!,
     children: [...element.children].map(e => serializeDomElement(e)),
     parentUid: parentUid ? parseFloat(parentUid) : undefined,
   };
 }
 
 function genFiberElementTree() {
-  const page = runtime[getElementByUniqueId](1) as unknown as OffscreenElement;
-  if (runtime.__GetTag(page) === 'page') {
-    return serializeElementThreadElement(page);
+  const page = runtime.__GetPageElement()!;
+  if (page && runtime.__GetTag(page) === 'page') {
+    return serializeElementThreadElement(page as any);
   } else {
     return {};
   }
-  return serializeElementThreadElement(page);
 }
 
 function genDomElementTree() {
@@ -91,7 +93,7 @@ function genDomElementTree() {
 }
 
 function initializeMainThreadTest() {
-  runtime = new MainThreadRuntime({
+  runtime = createMainThreadGlobalThis({
     tagMap: {
       'page': 'div',
       'view': 'x-view',
@@ -100,15 +102,25 @@ function initializeMainThreadTest() {
       'list': 'x-list',
       'svg': 'x-svg',
     },
-    lepusCode: { root: '' },
+    lepusCode: {
+      // @ts-expect-error
+      root: '',
+    },
     customSections: {},
-    browserConfig: {},
+    browserConfig: {
+      pixelRatio: 0,
+      pixelWidth: 0,
+      pixelHeight: 0,
+    },
     pageConfig: {
       enableCSSSelector: true,
       enableRemoveCSSScope: true,
       defaultDisplayLinear: true,
+      defaultOverflowVisible: false,
+      enableJSDataProcessor: false,
     },
-    docu,
+    // @ts-expect-error
+    rootDom: docu,
     styleInfo: {},
     globalProps: {},
     callbacks: {
@@ -133,10 +145,13 @@ function initializeMainThreadTest() {
           publicComponentEvent: { componentId, hname, ev },
         });
       },
-      postExposure: () => {},
+      createElement: docu.createElement.bind(docu),
     },
-  }).globalThis;
+  });
+  const originalGlobalThis = globalThis;
   Object.assign(globalThis, runtime);
+  // @ts-ignore
+  globalThis = originalGlobalThis;
   Object.assign(globalThis, {
     genFiberElementTree,
     genDomElementTree,

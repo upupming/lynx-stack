@@ -46,6 +46,14 @@ const SIDEBARS = {
     createAPI({
       name: 'react-rsbuild-plugin',
       skips: [
+        // Transform options
+        'AddComponentElementConfig',
+        'CompatVisitorConfig',
+        'DefineDceVisitorConfig',
+        'ExtractStrConfig',
+        'JsxTransformerConfig',
+        'ShakeVisitorConfig',
+
         'PluginReactLynxOptions',
       ],
     }),
@@ -69,7 +77,6 @@ const SIDEBARS = {
     createAPI({ name: 'runtime-wrapper-webpack-plugin' }),
     createAPI({ name: 'template-webpack-plugin' }),
     createAPI({ name: 'webpack-runtime-globals' }),
-    createAPI({ name: 'web-webpack-plugin' }),
   ],
   Config: [
     {
@@ -169,6 +176,14 @@ const SIDEBARS_ZH = {
       base: 'zh/api',
       name: 'react-rsbuild-plugin',
       skips: [
+        // Transform options
+        'AddComponentElementConfig',
+        'CompatVisitorConfig',
+        'DefineDceVisitorConfig',
+        'ExtractStrConfig',
+        'JsxTransformerConfig',
+        'ShakeVisitorConfig',
+
         'PluginReactLynxOptions',
       ],
     }),
@@ -193,7 +208,6 @@ const SIDEBARS_ZH = {
     createAPI({ base: 'zh/api', name: 'runtime-wrapper-webpack-plugin' }),
     createAPI({ base: 'zh/api', name: 'template-webpack-plugin' }),
     createAPI({ base: 'zh/api', name: 'webpack-runtime-globals' }),
-    createAPI({ base: 'zh/api', name: 'web-webpack-plugin' }),
   ],
   Config: [
     {
@@ -298,7 +312,6 @@ const CHANGELOG = {
       '@lynx-js/react-webpack-plugin',
       '@lynx-js/runtime-wrapper-webpack-plugin',
       '@lynx-js/template-webpack-plugin',
-      '@lynx-js/web-webpack-plugin',
     ],
   ),
 };
@@ -328,7 +341,6 @@ const CHANGELOG_ZH = {
       '@lynx-js/react-webpack-plugin',
       '@lynx-js/runtime-wrapper-webpack-plugin',
       '@lynx-js/template-webpack-plugin',
-      '@lynx-js/web-webpack-plugin',
     ],
     'zh',
   ),
@@ -371,7 +383,7 @@ export default defineConfig({
         editLink: {
           docRepoBaseUrl:
             'https://github.com/lynx-family/lynx-stack/tree/main/website/docs',
-          text: '📝 在 GitHub 上编辑此页',
+          text: '在 GitHub 上编辑此页',
         },
         searchNoResultsText: '未搜索到相关结果',
         searchPlaceholderText: '搜索文档',
@@ -390,7 +402,7 @@ export default defineConfig({
         editLink: {
           docRepoBaseUrl:
             'https://github.com/lynx-family/lynx-stack/tree/main/website/docs',
-          text: '📝 Edit this page on GitHub',
+          text: 'Edit this page on GitHub',
         },
       },
     ],
@@ -639,8 +651,6 @@ export default defineConfig({
     enableScrollToTop: true,
   },
   ssg: true,
-  // We use GitHub Pages to host the website, so we need to set the base path to `/lynx-stack/`
-  base: '/lynx-stack/',
   globalStyles: join(__dirname, 'src', 'styles', 'global.scss'),
   builderConfig: {
     output: {

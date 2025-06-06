@@ -7,7 +7,7 @@ const __dirname = path.dirname(__filename);
 export async function loadTemplate(caseName) {
   return JSON.parse(
     await readFile(
-      path.join(__dirname, 'dist', caseName, 'index.web.json'),
+      path.join(__dirname, 'dist', 'ssr', caseName, 'index.web.json'),
       'utf-8',
     ),
   );
@@ -20,13 +20,14 @@ export async function SSR(rawTemplate, caseName, projectName = 'fp-only') {
       pixelWidth: 375,
     },
     tagMap: {},
-    initData: {},
+    initData: { mockData: 'mockData' },
     globalProps: {},
     template: rawTemplate,
     templateName: caseName,
     hydrateUrl: `/dist/${caseName}/index.web.json`,
     injectStyles: `@import url("/${projectName}.css");`,
     autoSize: true,
+    lynxViewStyle: 'width:100vw; max-width: 500px;',
   });
   const ssrHtml = await lynxView.renderToString();
   return ssrHtml;

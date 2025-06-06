@@ -7,6 +7,8 @@ name: NodeJS Dependencies
       - package.json
       - pnpm-lock.yaml
       - "**/package.json"
+  merge_group:
+    types: [checks_requested]
 
 # Set minimum permissions to prevent unnecessary access
 permissions: {}
@@ -20,6 +22,7 @@ concurrency:
 jobs:
   sherif:
     runs-on: lynx-ubuntu-24.04-medium
+    timeout-minutes: 10
     permissions:
       contents: read
     steps:

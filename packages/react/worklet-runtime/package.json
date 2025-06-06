@@ -35,6 +35,7 @@
     "test": "vitest run --coverage"
   },
   "devDependencies": {
-    "esbuild": "^0.25.4"
+    "@lynx-js/types": "3.3.0",
+    "esbuild": "^0.25.5"
   }
 }

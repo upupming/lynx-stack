@@ -1,7 +1,7 @@
 // Copyright 2024 The Lynx Authors. All rights reserved.
 // Licensed under the Apache License Version 2.0 that can be found in the
 // LICENSE file in the root directory of this source tree.
-// cSpell:disable
+
 import { formatMessages } from 'esbuild';
 import { describe, expect, it } from 'vitest';
 
@@ -472,7 +472,7 @@ Component, View
 describe('transformBundle', () => {
   it('should extract lepus str', async () => {
     const inputContent = `
-    gloablThis.processData = ()=>{
+    globalThis.processData = ()=>{
       if (true) {
         return {
           _EXTRACT_STR: __EXTRACT_STR_IDENT_FLAG__,
@@ -504,7 +504,7 @@ describe('transformBundle', () => {
           "111",
           "000"
       ];
-      gloablThis.processData = ()=>{
+      globalThis.processData = ()=>{
           if (true) {
               return {
                   _EXTRACT_STR: _EXTRACT_STR
@@ -906,31 +906,34 @@ describe('dynamic import', () => {
       })();
       "
     `);
+    // esbuild uses different icon on Windows
+    // See https://github.com/evanw/esbuild/blob/f4159a7b823cd5fe2217da2c30e8873d2f319667/internal/logger/logger.go#L82
+    const errorIcon = process.platform === 'win32' ? 'X' : '✘';
     expect(await formatMessages(result.errors, { kind: 'error', color: false }))
       .toMatchInlineSnapshot(`
         [
-          "✘ [ERROR] \`import()\` with no argument is not allowed
+          "${errorIcon} [ERROR] \`import()\` with no argument is not allowed
 
             :2:8:
               2 │   await import();
                 ╵         ~~~~~~~~
 
         ",
-          "✘ [ERROR] \`import(...)\` call with non-string literal module id is not allowed
+          "${errorIcon} [ERROR] \`import(...)\` call with non-string literal module id is not allowed
 
             :3:8:
               3 │   await import(0);
                 ╵         ~~~~~~~~~
 
         ",
-          "✘ [ERROR] \`import(...)\` call with non-string literal module id is not allowed
+          "${errorIcon} [ERROR] \`import(...)\` call with non-string literal module id is not allowed
 
             :4:8:
               4 │   await import(0, 0);
                 ╵         ~~~~~~~~~~~~
 
         ",
-          "✘ [ERROR] \`import("...", ...)\` with invalid options is not allowed
+          "${errorIcon} [ERROR] \`import("...", ...)\` with invalid options is not allowed
 
             :5:8:
               5 │   await import("./index.js", { with: { typo: "component" } });
@@ -1373,7 +1376,7 @@ describe('worklet', () => {
                       }
                   }
               },
-              _lepusWorkletHash: "da39:75a1b:1"
+              _wkltId: "da39:75a1b:1"
           };
           loadWorkletRuntime(typeof globDynamicComponentEntry === 'undefined' ? undefined : globDynamicComponentEntry) && registerWorkletInternal("main-thread", "da39:75a1b:1", function(event) {
               const getCurrentDelta = lynxWorkletImpl._workletMap["da39:75a1b:1"].bind(this);
@@ -1475,7 +1478,7 @@ export function foo(event) {
                   }
               }
           },
-          _lepusWorkletHash: "da39:64631:1"
+          _wkltId: "da39:64631:1"
       };
       loadWorkletRuntime(typeof globDynamicComponentEntry === 'undefined' ? undefined : globDynamicComponentEntry) && registerWorkletInternal("main-thread", "da39:64631:1", function(event) {
           const foo = lynxWorkletImpl._workletMap["da39:64631:1"].bind(this);
@@ -1529,13 +1532,13 @@ console.log(bar)
       "import { loadWorkletRuntime as __loadWorkletRuntime } from "@lynx-js/react";
       var loadWorkletRuntime = __loadWorkletRuntime;
       let foo = {
-          _lepusWorkletHash: "da39:80ef4:1"
+          _wkltId: "da39:80ef4:1"
       };
       let bar = {
           _c: {
               foo
           },
-          _lepusWorkletHash: "da39:80ef4:2"
+          _wkltId: "da39:80ef4:2"
       };
       console.log(bar);
       loadWorkletRuntime(typeof globDynamicComponentEntry === 'undefined' ? undefined : globDynamicComponentEntry) && registerWorkletInternal("main-thread", "da39:80ef4:1", function() {
