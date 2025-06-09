@@ -47,10 +47,10 @@ export const createVitestConfig = async (options) => {
           '@lynx-js/react/transform',
         );
         // relativePath should be stable between different runs with different cwd
-        const relativePath = path.relative(
+        const relativePath = normalizeSlashes(path.relative(
           __dirname,
           sourcePath,
-        );
+        ));
         const basename = path.basename(sourcePath);
         const result = transformReactLynxSync(sourceText, {
           mode: 'test',
@@ -125,3 +125,7 @@ export const createVitestConfig = async (options) => {
     },
   });
 };
+
+function normalizeSlashes(file) {
+  return file.replaceAll(path.win32.sep, '/');
+}
