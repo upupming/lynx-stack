@@ -31,49 +31,18 @@ const styles = {
 const __snapshot_da39a_test_1 = ReactLynx.createSnapshot("__snapshot_da39a_test_1", function(snapshotInstance) {
     const pageId = ReactLynx.__pageId;
     const el = __CreateView(pageId);
-    __SimpleStyleInject("db4cf10", "width", "100px");
-    __SimpleStyleInject("356935a", "height", "100px");
-    __SimpleStyleInject("fa2e1f7", "background-color", "blue");
-    __SimpleStyleInject("9cdf81d", "color", "green");
-    __SimpleStyleInject("91a8701", "text-align", "center");
-    __SimpleStyleInject("75816ca", "display", "flex");
-    __SimpleStyleInject("bad68fd", "border-left-width", "1px");
-    __SimpleStyleInject("f61f6f2", "border-left-style", "solid");
-    snapshotInstance.__dy_init = [
-        {
-            21: null,
-            11: null,
-            118: null
-        },
-        {
-            18: null,
-            115: null
-        },
-        {
-            20: null,
-            10: null,
-            117: null
-        }
-    ];
-    snapshotInstance.__dy_styles = snapshotInstance.__dy_init.map(__CreateStyleObject);
-    __SetStyleObject(el, [
-        "db4cf10",
-        "356935a",
-        "fa2e1f7",
-        "9cdf81d",
-        "91a8701",
-        "75816ca",
-        "bad68fd",
-        "f61f6f2",
-        ...snapshotInstance.__dy_styles
-    ]);
+    __DefineSimpleStyle(snapshotInstance, el, 0, [
+        styles.static1,
+        styles.static2,
+        styles.static3
+    ], true);
     return [
         el
     ];
 }, [
     function(ctx) {
         if (ctx.__elements) {
-            ReactLynx.updateSimpleStyle(ctx, ctx.__values[0]);
+            ReactLynx.updateSimpleStyle(ctx, $element_index, 0);
         }
     }
 ], null, undefined, globDynamicComponentEntry);

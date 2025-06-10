@@ -4,6 +4,7 @@
 extern crate napi_derive;
 mod bundle;
 mod css;
+mod css_property;
 mod esbuild;
 mod swc_plugin_compat;
 mod swc_plugin_compat_post;

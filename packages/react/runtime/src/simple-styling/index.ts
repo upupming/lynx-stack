@@ -4,6 +4,8 @@ import type { CSSProperties } from '@lynx-js/types';
  * @public
  *
  * Longhand css properties that are supported by Lynx
+ *
+ * TODO: remove this after https://github.com/lynx-family/lynx/pull/1190 is published
  */
 export type LonghandProperties = [
   'top',

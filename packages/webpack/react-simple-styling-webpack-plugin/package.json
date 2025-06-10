@@ -49,6 +49,6 @@
     "@lynx-js/test-tools": "workspace:*",
     "@lynx-js/vitest-setup": "workspace:*",
     "@rspack/core": "catalog:rspack",
-    "webpack": "^5.99.8"
+    "webpack": "^5.99.9"
   }
 }
