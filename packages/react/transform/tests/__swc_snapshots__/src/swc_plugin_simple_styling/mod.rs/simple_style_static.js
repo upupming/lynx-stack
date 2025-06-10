@@ -35,12 +35,6 @@ const __snapshot_da39a_test_1 = ReactLynx.createSnapshot("__snapshot_da39a_test_
     ]);
     __AppendElement(el, el1);
     const el2 = __CreateView(pageId);
-    __SimpleStyleInject("db4cf10", "width", "100px");
-    __SimpleStyleInject("356935a", "height", "100px");
-    __SimpleStyleInject("fa2e1f7", "background-color", "blue");
-    __SimpleStyleInject("9cdf81d", "color", "green");
-    __SimpleStyleInject("91a8701", "text-align", "center");
-    __SimpleStyleInject("75816ca", "display", "flex");
     __SetStyleObject(el2, [
         "db4cf10",
         "356935a",

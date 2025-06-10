@@ -51,6 +51,18 @@ const __snapshot_da39a_test_1 = ReactLynx.createSnapshot("__snapshot_da39a_test_
     __SimpleStyleInject("9cdf81d", "color", "green");
     __SimpleStyleInject("91a8701", "text-align", "center");
     __SimpleStyleInject("75816ca", "display", "flex");
+    __SimpleStyleInject("e734863", "border-bottom-width", "1px");
+    __SimpleStyleInject("81b9601", "border-bottom-color", "red");
+    __SimpleStyleInject("b692b3c", "border-bottom-style", "solid");
+    __SimpleStyleInject("84d5022", "border-top-width", "1px");
+    __SimpleStyleInject("6bffc6e", "border-top-color", "red");
+    __SimpleStyleInject("005f2ef", "border-top-style", "solid");
+    __SimpleStyleInject("2d662a9", "border-right-width", "1px");
+    __SimpleStyleInject("e747b32", "border-right-color", "red");
+    __SimpleStyleInject("a8be028", "border-right-style", "solid");
+    __SimpleStyleInject("1fad3eb", "border-right-width", "2px");
+    __SimpleStyleInject("f71c730", "border-right-color", "blue");
+    __SimpleStyleInject("3cefb4b", "border-right-style", "dashed");
     snapshotInstance.__styles[1] = [
         "db4cf10",
         "356935a",

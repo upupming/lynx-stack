@@ -1,4 +1,5 @@
 use std::collections::{HashMap, HashSet};
+use std::vec;
 
 use convert_case::{Case, Casing};
 use swc_core::common::util::take::Take;
@@ -72,6 +73,7 @@ pub struct SimpleStylingVisitor {
   sheet_style_to_is_dynamic: HashMap<String, HashMap<String, bool>>,
   is_inside_define_simple_style_block: bool,
   has_block_injected_style_objects: bool,
+  injected_style_object_hash_set: HashSet<String>,
 }
 
 impl Default for SimpleStylingVisitor {
@@ -92,6 +94,7 @@ impl SimpleStylingVisitor {
       sheet_style_to_is_dynamic: HashMap::new(),
       is_inside_define_simple_style_block: false,
       has_block_injected_style_objects: false,
+      injected_style_object_hash_set: HashSet::new(),
     }
   }
 
@@ -508,7 +511,8 @@ impl SimpleStylingVisitor {
     sheet_name: &str,
     style_key: &str,
     css_key_to_sheet_name_and_style_key: &mut HashMap<String, (String, String)>,
-  ) {
+  ) -> Vec<String> {
+    let mut style_object_hash_list = vec![];
     if let Some(fields) = self.sheet_style_to_hash_set.get(sheet_name) {
       if let Some(hashes) = fields.get(style_key) {
         self.check_dynamic_style_used_as_static(expr, sheet_name, style_key);
@@ -533,8 +537,10 @@ impl SimpleStylingVisitor {
             })
             .collect(),
         });
+        style_object_hash_list.extend(hashes.clone());
       }
     }
+    style_object_hash_list
   }
 
   fn transform_conditional_bin_expr_style_object_usage(
@@ -542,16 +548,18 @@ impl SimpleStylingVisitor {
     bin_expr: &mut BinExpr,
     css_key_to_sheet_name_and_style_key: &mut HashMap<String, (String, String)>,
     is_accepted_usage: &mut bool,
-  ) {
+  ) -> Vec<String> {
+    let mut style_object_hash_list = vec![];
     if let Some((sheet_name, style_key)) = self.get_sheet_name_and_style_key(&mut *bin_expr.right) {
       *is_accepted_usage = true;
-      self.transform_static_usage_to_hash_list(
+      style_object_hash_list.extend(self.transform_static_usage_to_hash_list(
         &mut bin_expr.right,
         sheet_name.as_str(),
         style_key.as_str(),
         css_key_to_sheet_name_and_style_key,
-      );
+      ));
     }
+    style_object_hash_list
   }
 
   fn transform_conditional_cond_expr_style_object_usage(
@@ -559,7 +567,9 @@ impl SimpleStylingVisitor {
     cond_expr: &mut CondExpr,
     css_key_to_sheet_name_and_style_key: &mut HashMap<String, (String, String)>,
     is_accepted_usage: &mut bool,
-  ) {
+  ) -> Vec<String> {
+    let mut style_object_hash_list = vec![];
+
     let mut css_key_to_sheet_name_and_style_key_left = css_key_to_sheet_name_and_style_key.clone();
     let mut css_key_to_sheet_name_and_style_key_right = css_key_to_sheet_name_and_style_key.clone();
     if let Some((sheet_name_left, style_key_left)) =
@@ -570,18 +580,18 @@ impl SimpleStylingVisitor {
       {
         *is_accepted_usage = true;
 
-        self.transform_static_usage_to_hash_list(
+        style_object_hash_list.extend(self.transform_static_usage_to_hash_list(
           &mut *cond_expr.cons,
           sheet_name_left.as_str(),
           style_key_left.as_str(),
           &mut css_key_to_sheet_name_and_style_key_left,
-        );
-        self.transform_static_usage_to_hash_list(
+        ));
+        style_object_hash_list.extend(self.transform_static_usage_to_hash_list(
           &mut *cond_expr.alt,
           sheet_name_right.as_str(),
           style_key_right.as_str(),
           &mut css_key_to_sheet_name_and_style_key_right,
-        );
+        ));
       }
     }
     if *is_accepted_usage {
@@ -590,41 +600,43 @@ impl SimpleStylingVisitor {
         .chain(css_key_to_sheet_name_and_style_key_right.into_iter())
         .collect();
     }
+    style_object_hash_list
   }
 
   fn visit_mut_style_object_usage(
     &mut self,
     expr: &mut Expr,
     css_key_to_sheet_name_and_style_key: &mut HashMap<String, (String, String)>,
-  ) {
+  ) -> Vec<String> {
     let mut is_accepted_usage = false;
+    let mut style_object_hash_list = vec![];
 
     // static style such as `styles.static`
     if let Some((sheet_name, style_key)) = self.get_sheet_name_and_style_key(expr) {
       is_accepted_usage = true;
-      self.transform_static_usage_to_hash_list(
+      style_object_hash_list.extend(self.transform_static_usage_to_hash_list(
         expr,
         sheet_name.as_str(),
         style_key.as_str(),
         css_key_to_sheet_name_and_style_key,
-      );
+      ));
     }
     // conditional style using `&&`, such as `isActive && styles.active`
     else if let Expr::Bin(bin_expr) = expr {
-      self.transform_conditional_bin_expr_style_object_usage(
+      style_object_hash_list.extend(self.transform_conditional_bin_expr_style_object_usage(
         bin_expr,
         css_key_to_sheet_name_and_style_key,
         &mut is_accepted_usage,
-      );
+      ));
     }
     // conditional style using `?`, such as `isDisabled ? styles.disabled : styles.enabled`
     // note that we allow duplicate keys between `styles.disabled` and `styles.enabled`
     else if let Expr::Cond(cond_expr) = expr {
-      self.transform_conditional_cond_expr_style_object_usage(
+      style_object_hash_list.extend(self.transform_conditional_cond_expr_style_object_usage(
         cond_expr,
         css_key_to_sheet_name_and_style_key,
         &mut is_accepted_usage,
-      );
+      ));
     }
     // dynamic style, such as `styles.withColor(color)`
     else if let Expr::Call(call_expr) = expr {
@@ -655,6 +667,7 @@ impl SimpleStylingVisitor {
           .emit()
       });
     }
+    style_object_hash_list
   }
 }
 
@@ -824,61 +837,84 @@ impl VisitMut for SimpleStylingVisitor {
                               (String, String),
                             > = HashMap::new();
 
-                            let mut static_hash_list = vec![];
+                            let mut static_style_object_hash_list = vec![];
+                            let mut cond_style_object_hash_list = vec![];
 
                             static_styles.elems.iter_mut().for_each(|elem| {
                               if let Some(ExprOrSpread { expr, .. }) = elem {
-                                self.visit_mut_style_object_usage(
-                                  expr,
-                                  &mut css_key_to_sheet_name_and_style_key,
+                                static_style_object_hash_list.extend(
+                                  self.visit_mut_style_object_usage(
+                                    expr,
+                                    &mut css_key_to_sheet_name_and_style_key,
+                                  ),
                                 );
-                                if let Expr::Array(array_lit) = &mut **expr {
-                                  array_lit.elems.iter_mut().for_each(|elem| {
-                                    if let Some(ExprOrSpread { expr, .. }) = elem {
-                                      if let Expr::Lit(Lit::Str(str)) = &mut **expr {
-                                        static_hash_list.push(str.value.to_string());
-                                      }
-                                    }
-                                  });
-                                }
                               }
                             });
                             // Only used to check if duplicate style keys exist
                             dynamic_styles.elems.iter_mut().for_each(|elem| {
                               if let Some(ExprOrSpread { expr, .. }) = elem {
-                                self.visit_mut_style_object_usage(
-                                  expr,
-                                  &mut css_key_to_sheet_name_and_style_key,
+                                cond_style_object_hash_list.extend(
+                                  self.visit_mut_style_object_usage(
+                                    expr,
+                                    &mut css_key_to_sheet_name_and_style_key,
+                                  ),
                                 );
                               }
                             });
 
                             let mut elements = vec![];
-                            static_hash_list.iter().for_each(|hash| {
+                            static_style_object_hash_list.iter().for_each(|hash| {
                               let (css_key, value) = self
                                 .hash_to_css_key_value
                                 .get(hash)
                                 .unwrap_or(&(String::new(), String::new()))
                                 .clone();
-                              self.inject_stmts.push(
-                                quote!("__SimpleStyleInject($hash, $css_key, $value)" as Stmt,
-                                  hash: Expr = Expr::Lit(
-                                    hash.as_str().into()
-                                  ).into(),
-                                  css_key: Expr = Expr::Lit(
-                                    css_key.as_str().into()
-                                  ).into(),
-                                  value: Expr = Expr::Lit(
-                                    value.as_str().into()
-                                  ).into(),
-                                )
-                                .into(),
-                              );
+                              if !self.injected_style_object_hash_set.contains(hash) {
+                                self.inject_stmts.push(
+                                  quote!("__SimpleStyleInject($hash, $css_key, $value)" as Stmt,
+                                    hash: Expr = Expr::Lit(
+                                      hash.as_str().into()
+                                    ).into(),
+                                    css_key: Expr = Expr::Lit(
+                                      css_key.as_str().into()
+                                    ).into(),
+                                    value: Expr = Expr::Lit(
+                                      value.as_str().into()
+                                    ).into(),
+                                  )
+                                  .into(),
+                                );
+                                self.injected_style_object_hash_set.insert(hash.clone());
+                              }
 
                               elements.push(Some(ExprOrSpread {
                                 spread: None,
                                 expr: Expr::Lit(Lit::Str(quote_str!(hash.clone()))).into(),
                               }));
+                            });
+                            cond_style_object_hash_list.iter().for_each(|hash| {
+                              let (css_key, value) = self
+                                .hash_to_css_key_value
+                                .get(hash)
+                                .unwrap_or(&(String::new(), String::new()))
+                                .clone();
+                              if !self.injected_style_object_hash_set.contains(hash) {
+                                self.inject_stmts.push(
+                                  quote!("__SimpleStyleInject($hash, $css_key, $value)" as Stmt,
+                                    hash: Expr = Expr::Lit(
+                                      hash.as_str().into()
+                                    ).into(),
+                                    css_key: Expr = Expr::Lit(
+                                      css_key.as_str().into()
+                                    ).into(),
+                                    value: Expr = Expr::Lit(
+                                      value.as_str().into()
+                                    ).into(),
+                                  )
+                                  .into(),
+                                );
+                                self.injected_style_object_hash_set.insert(hash.clone());
+                              }
                             });
 
                             static_styles.elems = elements;
