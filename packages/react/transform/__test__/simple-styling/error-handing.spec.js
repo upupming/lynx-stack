@@ -229,6 +229,13 @@ const jsx = <view simpleStyle={[styles[key]]} />
               ╵                                        ~~~
 
       ",
+        "✘ [ERROR] The usage of SimpleStyleSheet is not supported, please check [plugin transform]
+
+          :9:32:
+            9 │ const jsx = <view simpleStyle={[styles[key]]} />
+              ╵                                 ~~~~~~~~~~~
+
+      ",
       ]
     `);
   });
@@ -307,6 +314,13 @@ const jsx = <view simpleStyle={[styles.main]} />
               ╵     ~~~~~~~
 
       ",
+        "✘ [ERROR] The usage of SimpleStyleSheet is not supported, please check [plugin transform]
+
+          :8:32:
+            8 │ const jsx = <view simpleStyle={[styles.main]} />
+              ╵                                 ~~~~~~~~~~~
+
+      ",
       ]
     `);
   });
@@ -369,9 +383,9 @@ export function ComponentWithSimpleStyle({
       ",
         "✘ [ERROR] Duplicate css property is not supported in Simple Styling, found \`width\` in SimpleStyleSheet \`styles.main\` and \`styles.active\` [plugin transform]
 
-          :36:10:
+          :36:22:
             36 │           isActive && styles.active,
-               ╵           ~~~~~~~~~~~~~~~~~~~~~~~~~
+               ╵                       ~~~~~~~~~~~~~
 
       ",
         "✘ [ERROR] Duplicate css property is not supported in Simple Styling, found \`width\` in SimpleStyleSheet \`styles.active\` and \`styles.withColor\` [plugin transform]

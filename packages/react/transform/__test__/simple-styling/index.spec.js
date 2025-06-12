@@ -105,42 +105,18 @@ function ComponentWithSimpleStyle({
           __SimpleStyleInject("9cdf81d", "color", "green");
           __SimpleStyleInject("91a8701", "text-align", "center");
           __SimpleStyleInject("75816ca", "display", "flex");
-          __SimpleStyleInject("bad68fd", "border-left-width", "1px");
-          __SimpleStyleInject("f61f6f2", "border-left-style", "solid");
-          snapshotInstance.__dy_init = [
-              {
-                  21: null,
-                  11: null,
-                  118: null
-              },
-              {
-                  18: null,
-                  115: null
-              },
-              {
-                  20: null,
-                  10: null,
-                  117: null
-              }
-          ];
-          snapshotInstance.__dy_styles = snapshotInstance.__dy_init.map(__CreateStyleObject);
-          __SetStyleObject(el, [
-              "db4cf10",
-              "356935a",
-              "fa2e1f7",
-              "9cdf81d",
-              "91a8701",
-              "75816ca",
-              "bad68fd",
-              "f61f6f2",
-              ...snapshotInstance.__dy_styles
-          ]);
+          __SimpleStyleInject("e734863", "border-bottom-width", "1px");
+          __SimpleStyleInject("81b9601", "border-bottom-color", "red");
+          __SimpleStyleInject("b692b3c", "border-bottom-style", "solid");
+          __SimpleStyleInject("84d5022", "border-top-width", "1px");
+          __SimpleStyleInject("6bffc6e", "border-top-color", "red");
+          __SimpleStyleInject("005f2ef", "border-top-style", "solid");
           return [
               el
           ];
       }, [
           function(ctx) {
-              if (ctx.__elements) ReactLynx.updateSimpleStyle(ctx, ctx.__values[0]);
+              if (ctx.__elements) __SetStyleObject(ctx.__elements[0], ctx.__values[0]);
           }
       ], null, undefined, globDynamicComponentEntry);
       "
@@ -212,34 +188,13 @@ export function ComponentWithSimpleStyle({
           __SimpleStyleInject("db4cf10", "width", "100px");
           __SimpleStyleInject("356935a", "height", "100px");
           __SimpleStyleInject("e734863", "border-bottom-width", "1px");
-          snapshotInstance.__dy_init = [];
-          snapshotInstance.__dy_styles = snapshotInstance.__dy_init.map(__CreateStyleObject);
           __SetStyleObject(el1, [
               "db4cf10",
               "356935a",
-              "e734863",
-              ...snapshotInstance.__dy_styles
+              "e734863"
           ]);
           __AppendElement(el, el1);
           const el2 = __CreateView(pageId);
-          __SimpleStyleInject("db4cf10", "width", "100px");
-          __SimpleStyleInject("356935a", "height", "100px");
-          __SimpleStyleInject("5e26c93", "width", "10px");
-          snapshotInstance.__dy_init = [
-              {
-                  21: null
-              },
-              {
-                  27: null
-              }
-          ];
-          snapshotInstance.__dy_styles = snapshotInstance.__dy_init.map(__CreateStyleObject);
-          __SetStyleObject(el2, [
-              "db4cf10",
-              "356935a",
-              "5e26c93",
-              ...snapshotInstance.__dy_styles
-          ]);
           __AppendElement(el, el2);
           return [
               el,
@@ -248,14 +203,17 @@ export function ComponentWithSimpleStyle({
           ];
       }, [
           function(ctx) {
-              if (ctx.__elements) ReactLynx.updateSimpleStyle(ctx, ctx.__values[0]);
+              if (ctx.__elements) __SetStyleObject(ctx.__elements[2], ctx.__values[0]);
           }
       ], null, undefined, globDynamicComponentEntry);
       export function ComponentWithSimpleStyle({ color, isActive }) {
           return /*#__PURE__*/ _jsx(__snapshot_da39a_429b4_1, {
               values: [
                   [
-                      isActive && styles.active,
+                      styles.main,
+                      isActive && [
+                          "e734863"
+                      ],
                       styles.withColor(color)
                   ]
               ]
