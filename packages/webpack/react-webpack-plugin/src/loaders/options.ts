@@ -90,11 +90,17 @@ export interface ReactLoaderOptions {
   simpleStyling?: SimpleStylingVisitorConfig | undefined;
 }
 
+function normalizeSlashes(file: string) {
+  return file.replaceAll(path.win32.sep, '/');
+}
+
 function getCommonOptions(
   this: LoaderContext<ReactLoaderOptions>,
 ) {
   const { simpleStyling } = this.getOptions();
-  const filename = path.relative(this.rootContext, this.resourcePath);
+  const filename = normalizeSlashes(
+    path.relative(this.rootContext, this.resourcePath),
+  );
 
   const {
     compat,
