@@ -68,12 +68,19 @@ const __snapshot_da39a_test_1 = ReactLynx.createSnapshot("__snapshot_da39a_test_
     ];
 }, [
     (snapshot, index, oldValue)=>ReactLynx.updateEvent(snapshot, index, oldValue, 0, "bindEvent", "tap", ''),
-    (snapshot)=>ReactLynx.updateSimpleStyle(snapshot, 1, 1)
+    function(ctx) {
+        if (ctx.__elements) {
+            __SetStyleObject(ctx.__elements[1], ctx.__values[1]);
+        }
+    }
 ], null, undefined, globDynamicComponentEntry);
 function ComponentWithSimpleStyle({ condition1, condition2, condition3, dynamicStyleArgs }) {
     return <__snapshot_da39a_test_1 values={[
         1,
         [
+            styles.static1,
+            styles.static2,
+            styles['static3'],
             condition1 && styles.conditional1,
             styles.dynamic(...dynamicStyleArgs),
             condition2 && styles.conditional2,

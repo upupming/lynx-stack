@@ -15,16 +15,16 @@ const styles = {
     }
 };
 const __snapshot_da39a_test_1 = ReactLynx.createSnapshot("__snapshot_da39a_test_1", function(snapshotInstance) {
-    const pageId = ReactLynx.__pageId;
-    const el = __CreateView(pageId);
-    __SetClasses(el, "root");
-    const el1 = __CreateView(pageId);
     __SimpleStyleInject("db4cf10", "width", "100px");
     __SimpleStyleInject("356935a", "height", "100px");
     __SimpleStyleInject("fa2e1f7", "background-color", "blue");
     __SimpleStyleInject("9cdf81d", "color", "green");
     __SimpleStyleInject("91a8701", "text-align", "center");
     __SimpleStyleInject("75816ca", "display", "flex");
+    const pageId = ReactLynx.__pageId;
+    const el = __CreateView(pageId);
+    __SetClasses(el, "root");
+    const el1 = __CreateView(pageId);
     __SetStyleObject(el1, [
         "db4cf10",
         "356935a",

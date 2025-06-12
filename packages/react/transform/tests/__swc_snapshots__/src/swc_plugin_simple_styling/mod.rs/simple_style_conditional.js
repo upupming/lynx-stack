@@ -13,22 +13,18 @@ const styles = {
     }
 };
 const __snapshot_da39a_test_1 = ReactLynx.createSnapshot("__snapshot_da39a_test_1", function(snapshotInstance) {
-    const pageId = ReactLynx.__pageId;
-    const el = __CreateView(pageId);
-    __SetClasses(el, "root");
-    const el1 = __CreateView(pageId);
-    snapshotInstance.__styles_st_len = [];
-    snapshotInstance.__styles = [];
     __SimpleStyleInject("e734863", "border-bottom-width", "1px");
     __SimpleStyleInject("81b9601", "border-bottom-color", "red");
     __SimpleStyleInject("b692b3c", "border-bottom-style", "solid");
     __SimpleStyleInject("84d5022", "border-top-width", "1px");
     __SimpleStyleInject("6bffc6e", "border-top-color", "red");
     __SimpleStyleInject("005f2ef", "border-top-style", "solid");
-    snapshotInstance.__styles[1] = [];
+    const pageId = ReactLynx.__pageId;
+    const el = __CreateView(pageId);
+    __SetClasses(el, "root");
+    const el1 = __CreateView(pageId);
     __AppendElement(el, el1);
     const el2 = __CreateView(pageId);
-    snapshotInstance.__styles[2] = [];
     __AppendElement(el, el2);
     return [
         el,
@@ -37,10 +33,24 @@ const __snapshot_da39a_test_1 = ReactLynx.createSnapshot("__snapshot_da39a_test_
     ];
 }, [
     (snapshot, index, oldValue)=>ReactLynx.updateEvent(snapshot, index, oldValue, 0, "bindEvent", "tap", ''),
-    (snapshot)=>ReactLynx.updateSimpleStyle(snapshot, 1, 1),
-    (snapshot)=>ReactLynx.updateSimpleStyle(snapshot, 2, 2)
+    function(ctx) {
+        if (ctx.__elements) {
+            __SetStyleObject(ctx.__elements[1], ctx.__values[1]);
+        }
+    },
+    function(ctx) {
+        if (ctx.__elements) {
+            __SetStyleObject(ctx.__elements[2], ctx.__values[2]);
+        }
+    }
 ], null, undefined, globDynamicComponentEntry);
 function ComponentWithSimpleStyle({ condition1, condition2 }) {
+    __SimpleStyleInject("e734863", "border-bottom-width", "1px");
+    __SimpleStyleInject("81b9601", "border-bottom-color", "red");
+    __SimpleStyleInject("b692b3c", "border-bottom-style", "solid");
+    __SimpleStyleInject("84d5022", "border-top-width", "1px");
+    __SimpleStyleInject("6bffc6e", "border-top-color", "red");
+    __SimpleStyleInject("005f2ef", "border-top-style", "solid");
     return <__snapshot_da39a_test_1 values={[
         1,
         [

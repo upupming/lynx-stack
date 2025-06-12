@@ -216,8 +216,11 @@ impl DynamicPart {
             ns: Expr = Expr::Lit(Lit::Str(ns.clone().into())),
           ),
           AttrName::SimpleStyle => quote!(
-            "(snapshot) => $runtime_id.updateSimpleStyle(snapshot, $element_index, $exp_index)" as Expr,
-            runtime_id: Expr = runtime_id.clone(),
+            "function (ctx) {
+              if (ctx.__elements) {
+                __SetStyleObject(ctx.__elements[$element_index], ctx.__values[$exp_index])
+              }
+            }" as Expr,
             element_index: Expr = i32_to_expr(element_index),
             exp_index: Expr = i32_to_expr(&exp_index),
           ),
@@ -850,7 +853,9 @@ where
                               self.dynamic_parts.push(DynamicPart::Attr(
                                 Expr::Array(ArrayLit {
                                   span: DUMMY_SP,
-                                  elems: dynamic_styles.clone()
+                                  elems: static_styles.clone().into_iter().chain(
+                                    dynamic_styles.clone().into_iter()
+                                  ).collect(),
                                 }),
                                 self.element_index,
                                 attr_name.clone(),
