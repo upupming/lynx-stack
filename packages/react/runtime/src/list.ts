@@ -3,7 +3,7 @@
 // LICENSE file in the root directory of this source tree.
 import { hydrate } from './hydrate.js';
 import { applyRefQueue } from './snapshot/workletRef.js';
-import type { SnapshotInstance } from './snapshot.js';
+import { traverseSnapshotInstance, type SnapshotInstance } from './snapshot.js';
 
 export interface ListUpdateInfo {
   flush(): void;
@@ -311,6 +311,16 @@ export function componentAtIndexFactory(
       recycleSignMap.delete(sign);
       hydrate(oldCtx, childCtx);
       oldCtx.unRenderElements();
+      if (!oldCtx.__id) {
+        traverseSnapshotInstance(oldCtx, (v) => {
+          // @ts-ignore
+          v.__parent = undefined;
+          // @ts-ignore
+          v.__previousSibling = undefined;
+          // @ts-ignore
+          v.__nextSibling = undefined;
+        });
+      }
       const root = childCtx.__element_root!;
       applyRefQueue();
       if (!enableBatchRender) {
