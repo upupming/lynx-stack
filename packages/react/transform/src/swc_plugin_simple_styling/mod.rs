@@ -994,49 +994,6 @@ impl VisitMut for SimpleStylingVisitor {
         self.is_inside_define_simple_style_block = true;
       }
     }
-
-    // else if let Expr::Member(_member) = expr {
-    //   if self.is_inside_define_simple_style_block {
-    //     return;
-    //   }
-    //   // static style such as `styles.static`
-    //   if let Some((sheet_name, style_key)) = self.get_sheet_name_and_style_key(expr) {
-    //     let style_object_hash_list = self.transform_static_usage_to_hash_list(
-    //       expr,
-    //       sheet_name.as_str(),
-    //       style_key.as_str(),
-    //       &mut HashMap::new(),
-    //     );
-    //     self.inject_static_style_object_hash_list(&style_object_hash_list);
-    //   }
-    // } else if let Expr::Bin(bin) = expr {
-    //   if self.is_inside_define_simple_style_block {
-    //     return;
-    //   }
-    //   if bin.op == op!("&&") {
-    //     let cond_style_object_hash_list = self.transform_conditional_bin_expr_style_object_usage(
-    //       bin,
-    //       // As we have checked in the creator function,
-    //       // we pass empty hap to skip duplicate checking here
-    //       &mut HashMap::new(),
-    //       &mut false,
-    //     );
-    //     self.inject_static_style_object_hash_list(&cond_style_object_hash_list);
-    //   }
-    // } else if let Expr::Cond(cond) = expr {
-    //   if self.is_inside_define_simple_style_block {
-    //     return;
-    //   }
-
-    //   let cond_style_object_hash_list = self.transform_conditional_cond_expr_style_object_usage(
-    //     cond,
-    //     // As we have checked in the creator function,
-    //     // we pass empty hap to skip duplicate checking here
-    //     &mut HashMap::new(),
-    //     &mut false,
-    //   );
-    //   self.inject_static_style_object_hash_list(&cond_style_object_hash_list);
-    // }
   }
 }
 

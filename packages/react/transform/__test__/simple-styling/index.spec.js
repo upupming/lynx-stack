@@ -99,18 +99,6 @@ function ComponentWithSimpleStyle({
       /*#__PURE__*/ ReactLynx.createSnapshot("__snapshot_da39a_be203_1", function(snapshotInstance) {
           const pageId = ReactLynx.__pageId;
           const el = __CreateView(pageId);
-          __SimpleStyleInject("db4cf10", "width", "100px");
-          __SimpleStyleInject("356935a", "height", "100px");
-          __SimpleStyleInject("fa2e1f7", "background-color", "blue");
-          __SimpleStyleInject("9cdf81d", "color", "green");
-          __SimpleStyleInject("91a8701", "text-align", "center");
-          __SimpleStyleInject("75816ca", "display", "flex");
-          __SimpleStyleInject("e734863", "border-bottom-width", "1px");
-          __SimpleStyleInject("81b9601", "border-bottom-color", "red");
-          __SimpleStyleInject("b692b3c", "border-bottom-style", "solid");
-          __SimpleStyleInject("84d5022", "border-top-width", "1px");
-          __SimpleStyleInject("6bffc6e", "border-top-color", "red");
-          __SimpleStyleInject("005f2ef", "border-top-style", "solid");
           return [
               el
           ];
@@ -118,7 +106,7 @@ function ComponentWithSimpleStyle({
           function(ctx) {
               if (ctx.__elements) __SetStyleObject(ctx.__elements[0], ctx.__values[0]);
           }
-      ], null, undefined, globDynamicComponentEntry);
+      ], null, undefined, globDynamicComponentEntry, null);
       "
     `);
   });
@@ -182,12 +170,12 @@ export function ComponentWithSimpleStyle({
               })
       };
       const __snapshot_da39a_429b4_1 = /*#__PURE__*/ ReactLynx.createSnapshot("__snapshot_da39a_429b4_1", function(snapshotInstance) {
-          const pageId = ReactLynx.__pageId;
-          const el = __CreateView(pageId);
-          const el1 = __CreateView(pageId);
           __SimpleStyleInject("db4cf10", "width", "100px");
           __SimpleStyleInject("356935a", "height", "100px");
           __SimpleStyleInject("e734863", "border-bottom-width", "1px");
+          const pageId = ReactLynx.__pageId;
+          const el = __CreateView(pageId);
+          const el1 = __CreateView(pageId);
           __SetStyleObject(el1, [
               "db4cf10",
               "356935a",
@@ -205,12 +193,16 @@ export function ComponentWithSimpleStyle({
           function(ctx) {
               if (ctx.__elements) __SetStyleObject(ctx.__elements[2], ctx.__values[0]);
           }
-      ], null, undefined, globDynamicComponentEntry);
+      ], null, undefined, globDynamicComponentEntry, null);
       export function ComponentWithSimpleStyle({ color, isActive }) {
+          __SimpleStyleInject("db4cf10", "width", "100px");
+          __SimpleStyleInject("356935a", "height", "100px");
+          __SimpleStyleInject("e734863", "border-bottom-width", "1px");
           return /*#__PURE__*/ _jsx(__snapshot_da39a_429b4_1, {
               values: [
                   [
-                      styles.main,
+                      "db4cf10",
+                      "356935a",
                       isActive && [
                           "e734863"
                       ],

@@ -314,13 +314,6 @@ const jsx = <view simpleStyle={[styles.main]} />
               ╵     ~~~~~~~
 
       ",
-        "✘ [ERROR] The usage of SimpleStyleSheet is not supported, please check [plugin transform]
-
-          :8:32:
-            8 │ const jsx = <view simpleStyle={[styles.main]} />
-              ╵                                 ~~~~~~~~~~~
-
-      ",
       ]
     `);
   });
