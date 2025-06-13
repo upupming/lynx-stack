@@ -847,16 +847,30 @@ where
                               }
                             }
 
-                            // dynamic styles will handled by 
-                            // the updater function of current snapshot
+                            let static_styles_expr = Expr::Array(ArrayLit {
+                                span: DUMMY_SP,
+                                // note that we extract all static styles
+                                // to the front of the array, it makes 
+                                // handling dynamic styles easier.
+                                // it is based on the assumption that no
+                                // duplicate style property is allowed.
+                                elems: static_styles
+                                  .clone()
+                              });
+                            let dynamic_styles_expr = Expr::Array(ArrayLit {
+                                span: DUMMY_SP,
+                                elems: dynamic_styles
+                                  .clone()
+                              });
                             if dynamic_styles.len() > 0 {
                               self.dynamic_parts.push(DynamicPart::Attr(
-                                Expr::Array(ArrayLit {
-                                  span: DUMMY_SP,
-                                  elems: static_styles.clone().into_iter().chain(
-                                    dynamic_styles.clone().into_iter()
-                                  ).collect(),
-                                }),
+                                quote!(r#"__ConsumeSimpleStyle({
+                                  staticStyles: $static_styles,
+                                  dynamicStyles: $dynamic_styles
+                                })"# as Expr, 
+                                static_styles: Expr = static_styles_expr.clone(),
+                                dynamic_styles: Expr = dynamic_styles_expr.clone(),
+                              ),
                                 self.element_index,
                                 attr_name.clone(),
                               ))
@@ -874,21 +888,8 @@ where
                               snapshot_instance = self.si_id.clone(),
                               element: Expr = el.clone(),
                               element_index: Expr = i32_to_expr(&self.element_index),
-                              static_styles: Expr = Expr::Array(ArrayLit {
-                                span: DUMMY_SP,
-                                // note that we extract all static styles
-                                // to the front of the array, it makes 
-                                // handling dynamic styles easier.
-                                // it is based on the assumption that no
-                                // duplicate style property is allowed.
-                                elems: static_styles
-                                  .clone()
-                              }),
-                              dynamic_styles: Expr = Expr::Array(ArrayLit {
-                                span: DUMMY_SP,
-                                elems: dynamic_styles
-                                  .clone()
-                              }),
+                              static_styles: Expr = static_styles_expr.clone(),
+                              dynamic_styles: Expr = dynamic_styles_expr.clone(),
                             );
                             self.static_stmts.push(RefCell::new(stmt));
                           },
@@ -3265,6 +3266,10 @@ aaaaa
         borderRightColor: 'blue',
         borderRightStyle: 'dashed',
       },
+      conditional5: {
+        fontSize: '12px'
+      },
+      conditional6: {},
       dynamic: (color, size) => ({
         borderLeftColor: color,
         borderLeftWidth: '1px',
@@ -3277,6 +3282,7 @@ aaaaa
       condition1,
       condition2,
       condition3,
+      condition5,
       dynamicStyleArgs,
     }) {
       return (
@@ -3289,6 +3295,7 @@ aaaaa
               condition2 && styles.conditional2,
               styles['static3'],
               condition3 ? styles.conditional3 : styles.conditional4,
+              condition5 ? styles.conditional5 : styles.conditional6,
             ]}
           />
         </view>

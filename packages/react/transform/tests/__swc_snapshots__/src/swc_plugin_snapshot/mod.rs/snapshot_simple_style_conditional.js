@@ -57,17 +57,23 @@ const __snapshot_da39a_test_1 = ReactLynx.createSnapshot("__snapshot_da39a_test_
             __SetStyleObject(ctx.__elements[2], ctx.__values[2]);
         }
     }
-], null, undefined, globDynamicComponentEntry);
+], null, undefined, globDynamicComponentEntry, null);
 function ComponentWithSimpleStyle({ condition1, condition2 }) {
     return <__snapshot_da39a_test_1 values={[
         1,
-        [
-            condition1 && styles.conditional1,
-            condition2 && styles.conditional2
-        ],
-        [
-            condition1 && styles.conditional1,
-            condition2 && styles.conditional2
-        ]
+        __ConsumeSimpleStyle({
+            staticStyles: [],
+            dynamicStyles: [
+                condition1 && styles.conditional1,
+                condition2 && styles.conditional2
+            ]
+        }),
+        __ConsumeSimpleStyle({
+            staticStyles: [],
+            dynamicStyles: [
+                condition1 && styles.conditional1,
+                condition2 && styles.conditional2
+            ]
+        })
     ]}/>;
 }

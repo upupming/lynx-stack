@@ -51,7 +51,7 @@ const __snapshot_da39a_test_1 = ReactLynx.createSnapshot("__snapshot_da39a_test_
     ];
 }, [
     (snapshot, index, oldValue)=>ReactLynx.updateEvent(snapshot, index, oldValue, 0, "bindEvent", "tap", '')
-], null, undefined, globDynamicComponentEntry);
+], null, undefined, globDynamicComponentEntry, null);
 function ComponentWithSimpleStyle() {
     return <__snapshot_da39a_test_1 values={[
         1

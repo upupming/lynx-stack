@@ -33,12 +33,34 @@ const styles = {
         9: 'blue',
         116: 'dashed'
     },
+    conditional5: {
+        47: '12px'
+    },
+    conditional6: {},
     dynamic: (color, size)=>({
             8: color,
             35: size
         })
 };
 const __snapshot_da39a_test_1 = ReactLynx.createSnapshot("__snapshot_da39a_test_1", function(snapshotInstance) {
+    const pageId = ReactLynx.__pageId;
+    const el = __CreateView(pageId);
+    __SetClasses(el, "root");
+    const el1 = __CreateView(pageId);
+    __AppendElement(el, el1);
+    return [
+        el,
+        el1
+    ];
+}, [
+    (snapshot, index, oldValue)=>ReactLynx.updateEvent(snapshot, index, oldValue, 0, "bindEvent", "tap", ''),
+    function(ctx) {
+        if (ctx.__elements) {
+            __SetStyleObject(ctx.__elements[1], ctx.__values[1]);
+        }
+    }
+], null, undefined, globDynamicComponentEntry, null);
+function ComponentWithSimpleStyle({ condition1, condition2, condition3, condition5, dynamicStyleArgs }) {
     __SimpleStyleInject("db4cf10", "width", "100px");
     __SimpleStyleInject("356935a", "height", "100px");
     __SimpleStyleInject("fa2e1f7", "background-color", "blue");
@@ -57,42 +79,16 @@ const __snapshot_da39a_test_1 = ReactLynx.createSnapshot("__snapshot_da39a_test_
     __SimpleStyleInject("1fad3eb", "border-right-width", "2px");
     __SimpleStyleInject("f71c730", "border-right-color", "blue");
     __SimpleStyleInject("3cefb4b", "border-right-style", "dashed");
-    const pageId = ReactLynx.__pageId;
-    const el = __CreateView(pageId);
-    __SetClasses(el, "root");
-    const el1 = __CreateView(pageId);
-    __AppendElement(el, el1);
-    return [
-        el,
-        el1
-    ];
-}, [
-    (snapshot, index, oldValue)=>ReactLynx.updateEvent(snapshot, index, oldValue, 0, "bindEvent", "tap", ''),
-    function(ctx) {
-        if (ctx.__elements) {
-            __SetStyleObject(ctx.__elements[1], ctx.__values[1]);
-        }
-    }
-], null, undefined, globDynamicComponentEntry);
-function ComponentWithSimpleStyle({ condition1, condition2, condition3, dynamicStyleArgs }) {
-    __SimpleStyleInject("e734863", "border-bottom-width", "1px");
-    __SimpleStyleInject("81b9601", "border-bottom-color", "red");
-    __SimpleStyleInject("b692b3c", "border-bottom-style", "solid");
-    __SimpleStyleInject("84d5022", "border-top-width", "1px");
-    __SimpleStyleInject("6bffc6e", "border-top-color", "red");
-    __SimpleStyleInject("005f2ef", "border-top-style", "solid");
-    __SimpleStyleInject("2d662a9", "border-right-width", "1px");
-    __SimpleStyleInject("e747b32", "border-right-color", "red");
-    __SimpleStyleInject("a8be028", "border-right-style", "solid");
-    __SimpleStyleInject("1fad3eb", "border-right-width", "2px");
-    __SimpleStyleInject("f71c730", "border-right-color", "blue");
-    __SimpleStyleInject("3cefb4b", "border-right-style", "dashed");
+    __SimpleStyleInject("6cb285c", "font-size", "12px");
     return <__snapshot_da39a_test_1 values={[
         1,
         [
-            styles.static1,
-            styles.static2,
-            styles['static3'],
+            "db4cf10",
+            "356935a",
+            "fa2e1f7",
+            "9cdf81d",
+            "91a8701",
+            "75816ca",
             condition1 && [
                 "e734863",
                 "81b9601",
@@ -112,7 +108,10 @@ function ComponentWithSimpleStyle({ condition1, condition2, condition3, dynamicS
                 "1fad3eb",
                 "f71c730",
                 "3cefb4b"
-            ]
+            ],
+            condition5 ? [
+                "6cb285c"
+            ] : []
         ]
     ]}/>;
 }

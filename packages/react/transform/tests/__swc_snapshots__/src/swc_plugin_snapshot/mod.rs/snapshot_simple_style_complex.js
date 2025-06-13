@@ -33,6 +33,10 @@ const styles = SimpleStyleSheet.create({
         borderRightColor: 'blue',
         borderRightStyle: 'dashed'
     },
+    conditional5: {
+        fontSize: '12px'
+    },
+    conditional6: {},
     dynamic: (color, size)=>({
             borderLeftColor: color,
             borderLeftWidth: '1px',
@@ -58,7 +62,8 @@ const __snapshot_da39a_test_1 = ReactLynx.createSnapshot("__snapshot_da39a_test_
             condition1 && styles.conditional1,
             styles.dynamic(...dynamicStyleArgs),
             condition2 && styles.conditional2,
-            condition3 ? styles.conditional3 : styles.conditional4
+            condition3 ? styles.conditional3 : styles.conditional4,
+            condition5 ? styles.conditional5 : styles.conditional6
         ]
     });
     __AppendElement(el, el1);
@@ -73,18 +78,23 @@ const __snapshot_da39a_test_1 = ReactLynx.createSnapshot("__snapshot_da39a_test_
             __SetStyleObject(ctx.__elements[1], ctx.__values[1]);
         }
     }
-], null, undefined, globDynamicComponentEntry);
-function ComponentWithSimpleStyle({ condition1, condition2, condition3, dynamicStyleArgs }) {
+], null, undefined, globDynamicComponentEntry, null);
+function ComponentWithSimpleStyle({ condition1, condition2, condition3, condition5, dynamicStyleArgs }) {
     return <__snapshot_da39a_test_1 values={[
         1,
-        [
-            styles.static1,
-            styles.static2,
-            styles['static3'],
-            condition1 && styles.conditional1,
-            styles.dynamic(...dynamicStyleArgs),
-            condition2 && styles.conditional2,
-            condition3 ? styles.conditional3 : styles.conditional4
-        ]
+        __ConsumeSimpleStyle({
+            staticStyles: [
+                styles.static1,
+                styles.static2,
+                styles['static3']
+            ],
+            dynamicStyles: [
+                condition1 && styles.conditional1,
+                styles.dynamic(...dynamicStyleArgs),
+                condition2 && styles.conditional2,
+                condition3 ? styles.conditional3 : styles.conditional4,
+                condition5 ? styles.conditional5 : styles.conditional6
+            ]
+        })
     ]}/>;
 }

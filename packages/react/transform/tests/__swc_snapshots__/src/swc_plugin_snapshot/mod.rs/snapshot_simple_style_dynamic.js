@@ -51,15 +51,21 @@ const __snapshot_da39a_test_1 = ReactLynx.createSnapshot("__snapshot_da39a_test_
             __SetStyleObject(ctx.__elements[2], ctx.__values[2]);
         }
     }
-], null, undefined, globDynamicComponentEntry);
+], null, undefined, globDynamicComponentEntry, null);
 function ComponentWithSimpleStyle({ dynamicStyleArgs }) {
     return <__snapshot_da39a_test_1 values={[
         1,
-        [
-            styles.dynamic(...dynamicStyleArgs)
-        ],
-        [
-            styles.dynamic(...dynamicStyleArgs)
-        ]
+        __ConsumeSimpleStyle({
+            staticStyles: [],
+            dynamicStyles: [
+                styles.dynamic(...dynamicStyleArgs)
+            ]
+        }),
+        __ConsumeSimpleStyle({
+            staticStyles: [],
+            dynamicStyles: [
+                styles.dynamic(...dynamicStyleArgs)
+            ]
+        })
     ]}/>;
 }
