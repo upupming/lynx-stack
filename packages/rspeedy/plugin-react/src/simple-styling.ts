@@ -19,17 +19,21 @@ const PLUGIN_NAME_REACT_SIMPLE_STYLING = 'lynx:react:simple-styling'
 const require = createRequire(import.meta.url)
 
 export function applySimpleStyling(api: RsbuildPluginAPI): void {
-  api.modifyWebpackChain((chain, { CHAIN_ID }) => {
-    applySimpleStylingRules(
-      chain,
-      CHAIN_ID,
-    )
+  api.modifyWebpackChain((chain, { CHAIN_ID, isProd }) => {
+    if (isProd) {
+      applySimpleStylingRules(
+        chain,
+        CHAIN_ID,
+      )
+    }
   })
-  api.modifyBundlerChain((chain, { CHAIN_ID }) => {
-    applySimpleStylingRules(
-      chain,
-      CHAIN_ID,
-    )
+  api.modifyBundlerChain((chain, { CHAIN_ID, isProd }) => {
+    if (isProd) {
+      applySimpleStylingRules(
+        chain,
+        CHAIN_ID,
+      )
+    }
   })
 }
 

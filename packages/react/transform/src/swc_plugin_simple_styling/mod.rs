@@ -23,6 +23,14 @@ use swc_core::{
 
 use crate::css_property::{CSS_PROPERTY_MAP, LONGHAND_CSS_PROPERTIES};
 use crate::utils::calc_hash_with_len;
+use crate::TransformMode;
+
+#[derive(Debug, PartialEq, Clone, Copy)]
+enum StyleType {
+  Static,
+  Conditional,
+  Dynamic,
+}
 
 #[derive(Clone, Debug)]
 #[napi(object)]
@@ -43,6 +51,7 @@ impl Default for SimpleStylingVisitorConfig {
 }
 
 pub struct SimpleStylingVisitor {
+  mode: TransformMode,
   cfg: SimpleStylingVisitorConfig,
   // import { SimpleStyleSheet as css } from '@lynx-js/react'
   // will add `css` to `simple_stylesheet_import_set
@@ -72,18 +81,21 @@ pub struct SimpleStylingVisitor {
   //   }
   // }
   sheet_style_to_is_dynamic: HashMap<String, HashMap<String, bool>>,
-  is_inside_define_simple_style_block: bool,
   injected_style_object_hash_set: HashSet<String>,
 }
 
 impl Default for SimpleStylingVisitor {
   fn default() -> Self {
-    SimpleStylingVisitor::new(SimpleStylingVisitorConfig::default())
+    SimpleStylingVisitor::new(
+      TransformMode::Production,
+      SimpleStylingVisitorConfig::default(),
+    )
   }
 }
 impl SimpleStylingVisitor {
-  pub fn new(cfg: SimpleStylingVisitorConfig) -> Self {
+  pub fn new(mode: TransformMode, cfg: SimpleStylingVisitorConfig) -> Self {
     SimpleStylingVisitor {
+      mode,
       cfg,
       simple_stylesheet_imported_exprs: HashSet::new(),
       inject_front_stmts: vec![],
@@ -93,7 +105,6 @@ impl SimpleStylingVisitor {
       sheet_style_to_hash_set: HashMap::new(),
       hash_to_css_key_value: HashMap::new(),
       sheet_style_to_is_dynamic: HashMap::new(),
-      is_inside_define_simple_style_block: false,
       injected_style_object_hash_set: HashSet::new(),
     }
   }
@@ -211,7 +222,7 @@ impl SimpleStylingVisitor {
         }
       }
       // remove static css in dynamic style object
-      if is_dynamic {
+      if is_dynamic && self.mode != TransformMode::Development {
         return None;
       }
       return Some(prop_or_spread.take());
@@ -338,7 +349,7 @@ impl SimpleStylingVisitor {
 
           // remove the `SimpleStyleSheet.create` call
           // keep only the object
-          return Some(Expr::Object(obj.take()));
+          return Some(Expr::Object(obj.clone()));
         } else {
           HANDLER.with(|handler| {
             handler
@@ -524,18 +535,20 @@ impl SimpleStylingVisitor {
           &css_key_set,
           css_key_to_sheet_name_and_style_key,
         );
-        *expr = Expr::Array(ArrayLit {
-          span: DUMMY_SP,
-          elems: hashes
-            .iter()
-            .map(|hash| {
-              Some(ExprOrSpread {
-                spread: None,
-                expr: Expr::Lit(Lit::Str(quote_str!(*hash.clone()))).into(),
+        if self.mode != TransformMode::Development {
+          *expr = Expr::Array(ArrayLit {
+            span: DUMMY_SP,
+            elems: hashes
+              .iter()
+              .map(|hash| {
+                Some(ExprOrSpread {
+                  spread: None,
+                  expr: Expr::Lit(Lit::Str(quote_str!(*hash.clone()))).into(),
+                })
               })
-            })
-            .collect(),
-        });
+              .collect(),
+          });
+        }
         style_object_hash_list.extend(hashes.clone());
       }
     }
@@ -606,9 +619,10 @@ impl SimpleStylingVisitor {
     &mut self,
     expr: &mut Expr,
     css_key_to_sheet_name_and_style_key: &mut HashMap<String, (String, String)>,
-  ) -> Vec<String> {
+  ) -> (StyleType, Vec<String>) {
     let mut is_accepted_usage = false;
     let mut style_object_hash_list = vec![];
+    let mut style_type = StyleType::Static;
 
     // static style such as `styles.static`
     if let Some((sheet_name, style_key)) = self.get_sheet_name_and_style_key(expr) {
@@ -622,6 +636,7 @@ impl SimpleStylingVisitor {
     }
     // conditional style using `&&`, such as `isActive && styles.active`
     else if let Expr::Bin(bin_expr) = expr {
+      style_type = StyleType::Conditional;
       style_object_hash_list.extend(self.transform_conditional_bin_expr_style_object_usage(
         bin_expr,
         css_key_to_sheet_name_and_style_key,
@@ -631,6 +646,7 @@ impl SimpleStylingVisitor {
     // conditional style using `?`, such as `isDisabled ? styles.disabled : styles.enabled`
     // note that we allow duplicate keys between `styles.disabled` and `styles.enabled`
     else if let Expr::Cond(cond_expr) = expr {
+      style_type = StyleType::Conditional;
       style_object_hash_list.extend(self.transform_conditional_cond_expr_style_object_usage(
         cond_expr,
         css_key_to_sheet_name_and_style_key,
@@ -639,6 +655,7 @@ impl SimpleStylingVisitor {
     }
     // dynamic style, such as `styles.withColor(color)`
     else if let Expr::Call(call_expr) = expr {
+      style_type = StyleType::Dynamic;
       if let Callee::Expr(callee_expr) = &mut call_expr.callee {
         if let Some((sheet_name, style_key)) = self.get_sheet_name_and_style_key(callee_expr) {
           is_accepted_usage = true;
@@ -651,6 +668,15 @@ impl SimpleStylingVisitor {
             &style_key,
             &css_key_set,
             css_key_to_sheet_name_and_style_key,
+          );
+          style_object_hash_list.extend(
+            self
+              .sheet_style_to_hash_set
+              .get(&sheet_name)
+              .unwrap()
+              .get(&style_key)
+              .unwrap()
+              .clone(),
           );
         }
       }
@@ -666,7 +692,7 @@ impl SimpleStylingVisitor {
           .emit()
       });
     }
-    style_object_hash_list
+    (style_type, style_object_hash_list)
   }
 
   fn inject_static_style_object_hash_list(&mut self, hash_list: &Vec<String>) {
@@ -751,7 +777,6 @@ impl VisitMut for SimpleStylingVisitor {
       new_stmts.extend(self.inject_stmts.drain(..));
     }
 
-    self.is_inside_define_simple_style_block = false;
     self.injected_style_object_hash_set.clear();
     *node = inject_front_stmts.into_iter().chain(new_stmts).collect();
   }
@@ -811,7 +836,9 @@ impl VisitMut for SimpleStylingVisitor {
                 }
 
                 if let Some(expr_new) = self.visit_mut_simple_stylesheet_create(call_expr) {
-                  *expr = expr_new;
+                  if self.mode != TransformMode::Development {
+                    *expr = expr_new;
+                  }
                 }
               }
             }
@@ -869,23 +896,23 @@ impl VisitMut for SimpleStylingVisitor {
 
                             static_styles.elems.iter_mut().for_each(|elem| {
                               if let Some(ExprOrSpread { expr, .. }) = elem {
-                                static_style_object_hash_list.extend(
-                                  self.visit_mut_style_object_usage(
+                                let (_style_type, style_object_hash_list) = self
+                                  .visit_mut_style_object_usage(
                                     expr,
                                     &mut css_key_to_sheet_name_and_style_key,
-                                  ),
-                                );
+                                  );
+                                static_style_object_hash_list.extend(style_object_hash_list);
                               }
                             });
                             // Only used to check if duplicate style keys exist
                             dynamic_styles.elems.iter_mut().for_each(|elem| {
                               if let Some(ExprOrSpread { expr, .. }) = elem {
-                                cond_style_object_hash_list.extend(
-                                  self.visit_mut_style_object_usage(
+                                let (_style_type, style_object_hash_list) = self
+                                  .visit_mut_style_object_usage(
                                     expr,
                                     &mut css_key_to_sheet_name_and_style_key,
-                                  ),
-                                );
+                                  );
+                                cond_style_object_hash_list.extend(style_object_hash_list);
                               }
                             });
 
@@ -903,16 +930,42 @@ impl VisitMut for SimpleStylingVisitor {
                             // mark expr as removed
                             self.should_keep_current_stmt = false;
                             if !has_dynamic_styles {
-                              self.inject_static_style_object_hash_list(
-                                &static_style_object_hash_list,
-                              );
-                              self
-                                .inject_static_style_object_hash_list(&cond_style_object_hash_list);
-                              self.inject_stmts.push(quote!(
-                                "__SetStyleObject($el, $obj)" as Stmt,
-                                el: Expr = Expr::Ident(element_ident.clone()),
-                                obj: Expr = Expr::Array(static_styles.clone())
-                              ));
+                              if self.mode != TransformMode::Development {
+                                self.inject_static_style_object_hash_list(
+                                  &static_style_object_hash_list,
+                                );
+                                self.inject_stmts.push(quote!(
+                                  "__SetStyleObject($el, $obj)" as Stmt,
+                                  el: Expr = Expr::Ident(element_ident.clone()),
+                                  obj: Expr = Expr::Array(static_styles.clone())
+                                ));
+                              } else {
+                                let mut props = vec![];
+                                for hash in static_style_object_hash_list {
+                                  let (css_key, value) = self
+                                    .hash_to_css_key_value
+                                    .get(&hash)
+                                    .unwrap_or(&(String::new(), String::new()))
+                                    .clone();
+                                  props.push(PropOrSpread::Prop(Box::new(Prop::KeyValue(
+                                    KeyValueProp {
+                                      key: PropName::Num(Number {
+                                        span: DUMMY_SP,
+                                        value: (CSS_PROPERTY_MAP.get(&css_key).unwrap().clone()
+                                          as f64),
+                                        raw: None,
+                                      }),
+                                      value: Box::new(Expr::Lit(Lit::Str(quote_str!(value)))),
+                                    },
+                                  ))));
+                                }
+
+                                self.inject_stmts.push(quote!(
+                                  "__SetStyleObject($el, [$obj])" as Stmt,
+                                  el: Expr = Expr::Ident(element_ident.clone()),
+                                  obj: Expr = Expr::Object(ObjectLit { span: DUMMY_SP, props})
+                                ));
+                              }
                             }
                           }
                         }
@@ -949,37 +1002,69 @@ impl VisitMut for SimpleStylingVisitor {
                     if let Some(Expr::Array(dynamic_styles)) = dynamic_styles {
                       let mut static_style_object_hash_list = vec![];
                       let mut cond_style_object_hash_list = vec![];
+                      let mut dynamic_style_object_hash_list = vec![];
 
-                      static_styles.elems.iter_mut().for_each(|elem| {
+                      static_styles.elems.clone().iter_mut().for_each(|elem| {
                         if let Some(ExprOrSpread { expr, .. }) = elem {
-                          static_style_object_hash_list
-                            .extend(self.visit_mut_style_object_usage(expr, &mut HashMap::new()));
+                          let (_style_type, style_object_hash_list) =
+                            self.visit_mut_style_object_usage(expr, &mut HashMap::new());
+                          static_style_object_hash_list.extend(style_object_hash_list);
                         }
                       });
                       dynamic_styles.elems.iter_mut().for_each(|elem| {
                         if let Some(ExprOrSpread { expr, .. }) = elem {
-                          cond_style_object_hash_list
-                            .extend(self.visit_mut_style_object_usage(expr, &mut HashMap::new()));
+                          let (style_type, style_object_hash_list) =
+                            self.visit_mut_style_object_usage(expr, &mut HashMap::new());
+                          match style_type {
+                            StyleType::Conditional => {
+                              cond_style_object_hash_list.extend(style_object_hash_list);
+                            }
+                            StyleType::Dynamic => {
+                              dynamic_style_object_hash_list.extend(style_object_hash_list);
+                            }
+                            _ => {}
+                          }
                         }
                       });
 
                       let mut elements = vec![];
-                      self.inject_static_style_object_hash_list(&static_style_object_hash_list);
-                      static_style_object_hash_list.iter().for_each(|hash| {
-                        elements.push(Some(ExprOrSpread {
-                          spread: None,
-                          expr: Expr::Lit(Lit::Str(quote_str!(hash.clone()))).into(),
-                        }));
-                      });
-                      self.inject_static_style_object_hash_list(&cond_style_object_hash_list);
 
-                      *expr = Expr::Array(ArrayLit {
-                        span: DUMMY_SP,
-                        elems: elements
-                          .into_iter()
-                          .chain(dynamic_styles.elems.clone().into_iter())
-                          .collect(),
-                      });
+                      if self.mode != TransformMode::Development {
+                        self.inject_static_style_object_hash_list(&static_style_object_hash_list);
+                        self.inject_static_style_object_hash_list(&cond_style_object_hash_list);
+                        self.inject_static_style_object_hash_list(&dynamic_style_object_hash_list);
+                      }
+
+                      static_style_object_hash_list
+                        .iter()
+                        // static css keys in dynamic style will be extracted to enhance performance
+                        .chain(dynamic_style_object_hash_list.iter())
+                        .for_each(|hash| {
+                          elements.push(Some(ExprOrSpread {
+                            spread: None,
+                            expr: Expr::Lit(Lit::Str(quote_str!(hash.clone()))).into(),
+                          }));
+                        });
+
+                      if self.mode != TransformMode::Development {
+                        *expr = Expr::Array(ArrayLit {
+                          span: DUMMY_SP,
+                          elems: elements
+                            .into_iter()
+                            .chain(dynamic_styles.elems.clone().into_iter())
+                            .collect(),
+                        });
+                      } else {
+                        *expr = Expr::Array(ArrayLit {
+                          span: DUMMY_SP,
+                          elems: static_styles
+                            .elems
+                            .clone()
+                            .into_iter()
+                            .chain(dynamic_styles.elems.clone().into_iter())
+                            .collect(),
+                        });
+                      }
                     }
                   }
                 }
@@ -989,10 +1074,6 @@ impl VisitMut for SimpleStylingVisitor {
         }
         _ => {}
       }
-    } else if let Expr::Ident(ident) = expr {
-      if ident.sym == "__DefineSimpleStyle" {
-        self.is_inside_define_simple_style_block = true;
-      }
     }
   }
 }
@@ -1000,6 +1081,7 @@ impl VisitMut for SimpleStylingVisitor {
 #[cfg(test)]
 mod tests {
   use crate::swc_plugin_simple_styling::{SimpleStylingVisitor, SimpleStylingVisitorConfig};
+  use crate::TransformMode;
   use swc_core::common::Mark;
   use swc_core::ecma::transforms::base::hygiene::hygiene;
   use swc_core::ecma::transforms::base::resolver;
@@ -1016,9 +1098,12 @@ mod tests {
     }),
     |_| (
       resolver(Mark::new(), Mark::new(), true),
-      visit_mut_pass(SimpleStylingVisitor::new(SimpleStylingVisitorConfig {
-        ..Default::default()
-      })),
+      visit_mut_pass(SimpleStylingVisitor::new(
+        TransformMode::Production,
+        SimpleStylingVisitorConfig {
+          ..Default::default()
+        }
+      )),
       hygiene()
     ),
     simple_style_static,
@@ -1094,9 +1179,12 @@ function ComponentWithSimpleStyle() {
     }),
     |_| (
       resolver(Mark::new(), Mark::new(), true),
-      visit_mut_pass(SimpleStylingVisitor::new(SimpleStylingVisitorConfig {
-        ..Default::default()
-      })),
+      visit_mut_pass(SimpleStylingVisitor::new(
+        TransformMode::Production,
+        SimpleStylingVisitorConfig {
+          ..Default::default()
+        }
+      )),
       hygiene()
     ),
     simple_style_conditional,
@@ -1192,9 +1280,12 @@ function ComponentWithSimpleStyle({ condition1, condition2 }) {
     }),
     |_| (
       resolver(Mark::new(), Mark::new(), true),
-      visit_mut_pass(SimpleStylingVisitor::new(SimpleStylingVisitorConfig {
-        ..Default::default()
-      })),
+      visit_mut_pass(SimpleStylingVisitor::new(
+        TransformMode::Production,
+        SimpleStylingVisitorConfig {
+          ..Default::default()
+        }
+      )),
       hygiene()
     ),
     simple_style_dynamic,
@@ -1282,12 +1373,137 @@ function ComponentWithSimpleStyle({ dynamicStyleArgs }) {
     }),
     |_| (
       resolver(Mark::new(), Mark::new(), true),
-      visit_mut_pass(SimpleStylingVisitor::new(SimpleStylingVisitorConfig {
-        ..Default::default()
-      })),
+      visit_mut_pass(SimpleStylingVisitor::new(
+        TransformMode::Production,
+        SimpleStylingVisitorConfig {
+          ..Default::default()
+        }
+      )),
       hygiene()
     ),
     simple_style_complex,
+    r#"
+import * as ReactLynx from "@lynx-js/react";
+import { SimpleStyleSheet } from '@lynx-js/react';
+const styles = SimpleStyleSheet.create({
+    static1: {
+        width: '100px',
+        height: '100px'
+    },
+    static2: {
+        backgroundColor: 'blue',
+        color: 'green'
+    },
+    static3: {
+        textAlign: 'center',
+        display: 'flex'
+    },
+    conditional1: {
+        borderBottomWidth: '1px',
+        borderBottomColor: 'red',
+        borderBottomStyle: 'solid'
+    },
+    conditional2: {
+        borderTopWidth: '1px',
+        borderTopColor: 'red',
+        borderTopStyle: 'solid'
+    },
+    conditional3: {
+        borderRightWidth: '1px',
+        borderRightColor: 'red',
+        borderRightStyle: 'solid'
+    },
+    conditional4: {
+        borderRightWidth: '2px',
+        borderRightColor: 'blue',
+        borderRightStyle: 'dashed'
+    },
+    conditional5: {
+        fontSize: '12px'
+    },
+    conditional6: {},
+    dynamic: (color, size)=>({
+            borderLeftColor: color,
+            borderLeftWidth: '1px',
+            borderLeftStyle: 'solid',
+            paddingTop: size
+        })
+});
+const __snapshot_da39a_test_1 = ReactLynx.createSnapshot("__snapshot_da39a_test_1", function(snapshotInstance) {
+    const pageId = ReactLynx.__pageId;
+    const el = __CreateView(pageId);
+    __SetClasses(el, "root");
+    const el1 = __CreateView(pageId);
+    __DefineSimpleStyle({
+        snapshotInstance: snapshotInstance,
+        element: el1,
+        elementIndex: 1,
+        staticStyles: [
+            styles.static1,
+            styles.static2,
+            styles['static3']
+        ],
+        dynamicStyles: [
+            condition1 && styles.conditional1,
+            styles.dynamic(...dynamicStyleArgs),
+            condition2 && styles.conditional2,
+            condition3 ? styles.conditional3 : styles.conditional4,
+            condition5 ? styles.conditional5 : styles.conditional6
+        ]
+    });
+    __AppendElement(el, el1);
+    return [
+        el,
+        el1
+    ];
+}, [
+    (snapshot, index, oldValue)=>ReactLynx.updateEvent(snapshot, index, oldValue, 0, "bindEvent", "tap", ''),
+    function(ctx) {
+        if (ctx.__elements) {
+            __SetStyleObject(ctx.__elements[1], ctx.__values[1]);
+        }
+    }
+], null, undefined, globDynamicComponentEntry, null);
+function ComponentWithSimpleStyle({ condition1, condition2, condition3, condition5, dynamicStyleArgs }) {
+    return <__snapshot_da39a_test_1 values={[
+        1,
+        __ConsumeSimpleStyle({
+            staticStyles: [
+                styles.static1,
+                styles.static2,
+                styles['static3']
+            ],
+            dynamicStyles: [
+                condition1 && styles.conditional1,
+                styles.dynamic(...dynamicStyleArgs),
+                condition2 && styles.conditional2,
+                condition3 ? styles.conditional3 : styles.conditional4,
+                condition5 ? styles.conditional5 : styles.conditional6
+            ]
+        })
+    ]}/>;
+}
+
+    "#
+  );
+
+  test!(
+    module,
+    Syntax::Es(EsSyntax {
+      jsx: true,
+      ..Default::default()
+    }),
+    |_| (
+      resolver(Mark::new(), Mark::new(), true),
+      visit_mut_pass(SimpleStylingVisitor::new(
+        TransformMode::Development,
+        SimpleStylingVisitorConfig {
+          ..Default::default()
+        }
+      )),
+      hygiene()
+    ),
+    simple_style_complex_dev_mode,
     r#"
 import * as ReactLynx from "@lynx-js/react";
 import { SimpleStyleSheet } from '@lynx-js/react';

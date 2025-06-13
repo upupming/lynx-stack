@@ -491,7 +491,13 @@ fn transform_react_lynx_inner(
 
     let simple_styling_plugin = match options.simple_styling {
       Either::A(config) => Optional::new(visit_mut_pass(SimpleStylingVisitor::default()), config),
-      Either::B(config) => Optional::new(visit_mut_pass(SimpleStylingVisitor::new(config)), true),
+      Either::B(config) => Optional::new(
+        visit_mut_pass(SimpleStylingVisitor::new(
+          options.mode.unwrap_or(TransformMode::Production),
+          config,
+        )),
+        true,
+      ),
     };
 
     let shake_plugin = match options.shake.clone() {

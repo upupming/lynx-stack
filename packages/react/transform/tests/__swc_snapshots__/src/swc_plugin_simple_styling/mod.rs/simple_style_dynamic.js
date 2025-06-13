@@ -33,12 +33,18 @@ const __snapshot_da39a_test_1 = ReactLynx.createSnapshot("__snapshot_da39a_test_
     }
 ], null, undefined, globDynamicComponentEntry, null);
 function ComponentWithSimpleStyle({ dynamicStyleArgs }) {
+    __SimpleStyleInject("bad68fd", "border-left-width", "1px");
+    __SimpleStyleInject("f61f6f2", "border-left-style", "solid");
     return <__snapshot_da39a_test_1 values={[
         1,
         [
+            "bad68fd",
+            "f61f6f2",
             styles.dynamic(...dynamicStyleArgs)
         ],
         [
+            "bad68fd",
+            "f61f6f2",
             styles.dynamic(...dynamicStyleArgs)
         ]
     ]}/>;

@@ -80,6 +80,8 @@ function ComponentWithSimpleStyle({ condition1, condition2, condition3, conditio
     __SimpleStyleInject("f71c730", "border-right-color", "blue");
     __SimpleStyleInject("3cefb4b", "border-right-style", "dashed");
     __SimpleStyleInject("6cb285c", "font-size", "12px");
+    __SimpleStyleInject("bad68fd", "border-left-width", "1px");
+    __SimpleStyleInject("f61f6f2", "border-left-style", "solid");
     return <__snapshot_da39a_test_1 values={[
         1,
         [
@@ -89,6 +91,8 @@ function ComponentWithSimpleStyle({ condition1, condition2, condition3, conditio
             "9cdf81d",
             "91a8701",
             "75816ca",
+            "bad68fd",
+            "f61f6f2",
             condition1 && [
                 "e734863",
                 "81b9601",
