@@ -231,6 +231,9 @@ describe('list', () => {
     let setListVal;
     let initListVal = Array(6).fill(0).map((v, i) => i);
 
+    const A = () => {
+      return <text>hello</text>;
+    };
     const Comp = () => {
       const [listVal, _setListVal] = useState(initListVal);
       setListVal = _setListVal;
@@ -261,6 +264,10 @@ describe('list', () => {
                         ? <text>{v}</text>
                         : null}
                     </view>
+                    {/* This will generate `__DynamicPartSlot` part for testing the hydration behavior of slot is as expceted */}
+                    <view>
+                      <A />
+                    </view>
                   </list-item>
                 );
               })}
@@ -278,7 +285,7 @@ describe('list', () => {
         >
           <list
             style="width:100%;height:100%"
-            update-list-info="[{"insertAction":[{"position":0,"type":"__Card__:__snapshot_a9e46_test_5","item-key":"0","full-span":true},{"position":1,"type":"__Card__:__snapshot_a9e46_test_5","item-key":"1","full-span":true},{"position":2,"type":"__Card__:__snapshot_a9e46_test_5","item-key":"2","full-span":true},{"position":3,"type":"__Card__:__snapshot_a9e46_test_5","item-key":"3","full-span":true},{"position":4,"type":"__Card__:__snapshot_a9e46_test_5","item-key":"4","full-span":true},{"position":5,"type":"__Card__:__snapshot_a9e46_test_5","item-key":"5","full-span":true}],"removeAction":[],"updateAction":[]}]"
+            update-list-info="[{"insertAction":[{"position":0,"type":"__Card__:__snapshot_a9e46_test_6","item-key":"0","full-span":true},{"position":1,"type":"__Card__:__snapshot_a9e46_test_6","item-key":"1","full-span":true},{"position":2,"type":"__Card__:__snapshot_a9e46_test_6","item-key":"2","full-span":true},{"position":3,"type":"__Card__:__snapshot_a9e46_test_6","item-key":"3","full-span":true},{"position":4,"type":"__Card__:__snapshot_a9e46_test_6","item-key":"4","full-span":true},{"position":5,"type":"__Card__:__snapshot_a9e46_test_6","item-key":"5","full-span":true}],"removeAction":[],"updateAction":[]}]"
           />
         </view>
       </page>
@@ -304,6 +311,11 @@ describe('list', () => {
             3
           </text>
         </view>
+        <view>
+          <text>
+            hello
+          </text>
+        </view>
       </list-item>
     `);
 
@@ -326,12 +338,12 @@ describe('list', () => {
 
     // Remove action is generated
     expect(
-      JSON.parse(list.getAttribute('update-list-info'))[1].removeAction
+      JSON.parse(list.getAttribute('update-list-info'))[1].removeAction,
     ).toMatchInlineSnapshot(`
       [
         3,
       ]
-    `)
+    `);
     // Reuse the element 3
     elementTree.leaveListItem(list, uid3);
     elementTree.enterListItemAtIndex(list, 1);
@@ -355,6 +367,11 @@ describe('list', () => {
             1
           </text>
         </view>
+        <view>
+          <text>
+            hello
+          </text>
+        </view>
       </list-item>
     `);
 
@@ -373,6 +390,11 @@ describe('list', () => {
                 1
               </text>
             </view>
+            <view>
+              <text>
+                hello
+              </text>
+            </view>
           </list-item>,
           "item-key",
           "1",
@@ -388,6 +410,11 @@ describe('list', () => {
               </text>
               <text>
                 1
+              </text>
+            </view>
+            <view>
+              <text>
+                hello
               </text>
             </view>
           </list-item>,
@@ -422,9 +449,14 @@ describe('list', () => {
                 1
               </text>
             </view>
+            <view>
+              <text>
+                hello
+              </text>
+            </view>
           </list-item>,
           {
-            "elementID": 21,
+            "elementID": 36,
             "listID": 2,
             "operationID": undefined,
             "triggerLayout": true,
@@ -436,7 +468,7 @@ describe('list', () => {
     expect(list).toMatchInlineSnapshot(`
       <list
         style="width:100%;height:100%"
-        update-list-info="[{"insertAction":[{"position":0,"type":"__Card__:__snapshot_a9e46_test_5","item-key":"0","full-span":true},{"position":1,"type":"__Card__:__snapshot_a9e46_test_5","item-key":"1","full-span":true},{"position":2,"type":"__Card__:__snapshot_a9e46_test_5","item-key":"2","full-span":true},{"position":3,"type":"__Card__:__snapshot_a9e46_test_5","item-key":"3","full-span":true},{"position":4,"type":"__Card__:__snapshot_a9e46_test_5","item-key":"4","full-span":true},{"position":5,"type":"__Card__:__snapshot_a9e46_test_5","item-key":"5","full-span":true}],"removeAction":[],"updateAction":[]},{"insertAction":[],"removeAction":[3],"updateAction":[]}]"
+        update-list-info="[{"insertAction":[{"position":0,"type":"__Card__:__snapshot_a9e46_test_6","item-key":"0","full-span":true},{"position":1,"type":"__Card__:__snapshot_a9e46_test_6","item-key":"1","full-span":true},{"position":2,"type":"__Card__:__snapshot_a9e46_test_6","item-key":"2","full-span":true},{"position":3,"type":"__Card__:__snapshot_a9e46_test_6","item-key":"3","full-span":true},{"position":4,"type":"__Card__:__snapshot_a9e46_test_6","item-key":"4","full-span":true},{"position":5,"type":"__Card__:__snapshot_a9e46_test_6","item-key":"5","full-span":true}],"removeAction":[],"updateAction":[]},{"insertAction":[],"removeAction":[3],"updateAction":[]}]"
       >
         <list-item
           full-span="true"
@@ -448,6 +480,11 @@ describe('list', () => {
             </text>
             <text>
               4
+            </text>
+          </view>
+          <view>
+            <text>
+              hello
             </text>
           </view>
         </list-item>
@@ -463,6 +500,11 @@ describe('list', () => {
               5
             </text>
           </view>
+          <view>
+            <text>
+              hello
+            </text>
+          </view>
         </list-item>
         <list-item
           full-span="true"
@@ -476,6 +518,11 @@ describe('list', () => {
               2
             </text>
           </view>
+          <view>
+            <text>
+              hello
+            </text>
+          </view>
         </list-item>
         <list-item
           full-span="true"
@@ -487,6 +534,11 @@ describe('list', () => {
             </text>
             <text>
               1
+            </text>
+          </view>
+          <view>
+            <text>
+              hello
             </text>
           </view>
         </list-item>
