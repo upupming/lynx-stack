@@ -58,9 +58,9 @@ export const initElementTree: () => {
     __GetTag(ele: LynxElement): string;
     __GetAttributeByName(ele: LynxElement, name: string): string | null;
     __SimpleStyleInject(id: string, cssKey: string, cssValue: string): void;
-    __CreateStyleObject(cssObject: Record<string, any>): number;
+    __CreateStyleObject(cssObject: Record<string, any>): string;
     updateSimpleStyle(element: LynxElement): void;
-    __SetStyleObject(element: LynxElement, styleObjectList: string[]): void;
+    __SetStyleObject(element: LynxElement, styleObjectList: Array<string | string[] | Record<string, any>>): void;
     __UpdateStyleObject(styleObject: string, cssObject: Record<string, any>): void;
     clear(): void;
     toTree(): LynxElement | undefined;

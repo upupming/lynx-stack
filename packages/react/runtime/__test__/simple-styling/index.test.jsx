@@ -1,23 +1,18 @@
 import { SimpleStyleSheet } from '@lynx-js/react';
-import { Component, options, render } from 'preact';
+import { render } from 'preact';
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { useEffect, useLayoutEffect, useState } from '../../src/index';
 import { globalEnvManager } from '../utils/envManager';
-import { elementTree, waitSchedule } from '../utils/nativeMethod';
 import { initDelayUnmount } from '../../src/lifecycle/delayUnmount';
-import { globalCommitTaskMap, replaceCommitHook, replaceRequestAnimationFrame } from '../../src/lifecycle/patch/commit';
-import { deinitGlobalSnapshotPatch, initGlobalSnapshotPatch } from '../../src/lifecycle/patch/snapshotPatch';
-import { LifecycleConstant } from '../../src/lifecycleConstant';
-import { CATCH_ERROR } from '../../src/renderToOpcodes/constants';
+import { globalCommitTaskMap, replaceCommitHook } from '../../src/lifecycle/patch/commit';
+import { deinitGlobalSnapshotPatch } from '../../src/lifecycle/patch/snapshotPatch';
 import { __root } from '../../src/root';
-import { backgroundSnapshotInstanceManager, setupPage } from '../../src/snapshot';
+import { setupPage } from '../../src/snapshot';
 
 beforeAll(() => {
   setupPage(__CreatePage('0', 0));
   replaceCommitHook();
   initDelayUnmount();
-  replaceRequestAnimationFrame();
 });
 
 beforeEach(() => {
@@ -63,10 +58,18 @@ function ComponentWithSimpleStyle({
 
 describe('simple styling', () => {
   it('Using SimpleStyleSheet.create directly should throw error', () => {
+    globalThis.__DEV__ = false;
     const { create } = SimpleStyleSheet;
     expect(create).toThrowErrorMatchingInlineSnapshot(
       `[Error: \`SimpleStyleSheet.create\` is only supported in Simple Styling mode, please enable Simple Styling by set \`enableSimpleStyling: true\` in pluginReactLynx]`,
     );
+    globalThis.__DEV__ = true;
+    const sheet = {
+      main: {
+        width: '100px',
+      },
+    };
+    expect(create(sheet)).toBe(sheet);
   });
 
   it('basic', async function() {
@@ -80,10 +83,10 @@ describe('simple styling', () => {
         <view
           simpleStyle={
             {
-              "11": "red",
-              "118": "solid",
-              "21": "1px",
               "7": "red",
+              "border-bottom-color": "red",
+              "border-bottom-style": "solid",
+              "border-bottom-width": "1px",
               "height": "100px",
               "width": "100px",
             }
@@ -92,8 +95,10 @@ describe('simple styling', () => {
             [
               "db4cf10",
               "356935a",
+              "e734863",
+              "b692b3c",
+              "81b9601",
               "100000000",
-              "100000001",
             ]
           }
         />
@@ -123,9 +128,6 @@ describe('simple styling', () => {
         <view
           simpleStyle={
             {
-              "11": null,
-              "118": null,
-              "21": null,
               "7": "red",
               "height": "100px",
               "width": "100px",
@@ -135,7 +137,7 @@ describe('simple styling', () => {
             [
               "db4cf10",
               "356935a",
-              "100000000",
+              false,
               "100000001",
             ]
           }

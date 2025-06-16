@@ -22,7 +22,7 @@ export const parentMap = new WeakMap<Element, Element>();
 // export const elementPrototype = Object.create(null);
 export const options: ElementOptions = {};
 
-export const staticSimpleStyleMap = new Map<string, Record<string, string>>();
+export const simpleStyleObjectMap = new Map<string, Record<string, string>>();
 let styleObjectIdNext = 1e8;
 export const styleObject2ElementMap = new Map<string, Set<Element>>();
 
@@ -315,8 +315,8 @@ export const elementTree = new (class {
   }
 
   updateSimpleStyle(element: Element) {
-    element.props.simpleStyle = (element.props.styleObjectList as string[]).reduce((prev, curr) => {
-      const style = staticSimpleStyleMap.get(curr);
+    element.props.simpleStyle = element.props.styleObjectList.reduce((prev, curr) => {
+      const style = simpleStyleObjectMap.get(curr);
       if (style) {
         return {
           ...prev,
@@ -328,7 +328,7 @@ export const elementTree = new (class {
   }
 
   __SimpleStyleInject(id: string, cssKey: string, cssValue: string) {
-    staticSimpleStyleMap.set(id, {
+    simpleStyleObjectMap.set(id, {
       [cssKey]: cssValue,
     });
   }
@@ -336,26 +336,34 @@ export const elementTree = new (class {
   __CreateStyleObject(
     cssObject: Record<string, any>,
   ) {
-    const id = styleObjectIdNext++;
-    staticSimpleStyleMap.set(id.toString(), cssObject);
+    const id = String(styleObjectIdNext++);
+    simpleStyleObjectMap.set(id, cssObject);
     return id;
   }
   __SetStyleObject(
     element: Element,
-    styleObjectList: string[],
+    styleObjectList: Array<string | string[] | Record<string, any>>,
   ) {
-    styleObjectList = styleObjectList.map(String);
+    const styleObjectListFlatten = styleObjectList.flat().map(styleObject => {
+      let styleObjectId: string;
+      if (typeof styleObject === 'object') {
+        styleObjectId = this.__CreateStyleObject(styleObject);
+      } else {
+        styleObjectId = styleObject;
+      }
+      return styleObjectId;
+    });
     if (element.props.styleObjectList) {
       element.props.styleObjectList.forEach((styleObject: string) => {
         styleObject2ElementMap.get(styleObject)?.delete(element);
       });
     }
-    element.props.styleObjectList = styleObjectList;
-    styleObjectList.forEach(styleObject => {
-      if (!styleObject2ElementMap.has(styleObject)) {
-        styleObject2ElementMap.set(styleObject, new Set());
+    element.props.styleObjectList = styleObjectListFlatten;
+    styleObjectListFlatten.forEach(styleObjectId => {
+      if (!styleObject2ElementMap.has(styleObjectId)) {
+        styleObject2ElementMap.set(styleObjectId, new Set());
       }
-      styleObject2ElementMap.get(styleObject)?.add(element);
+      styleObject2ElementMap.get(styleObjectId)?.add(element);
     });
     this.updateSimpleStyle(element);
   }
@@ -364,9 +372,9 @@ export const elementTree = new (class {
     cssObject: Record<string, any>,
   ) {
     styleObject = String(styleObject);
-    const style = staticSimpleStyleMap.get(styleObject);
+    const style = simpleStyleObjectMap.get(styleObject);
     if (style) {
-      staticSimpleStyleMap.set(styleObject, cssObject);
+      simpleStyleObjectMap.set(styleObject, cssObject);
       styleObject2ElementMap.get(styleObject)?.forEach(element => {
         this.updateSimpleStyle(element);
       });

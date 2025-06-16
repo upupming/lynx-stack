@@ -198,11 +198,13 @@ export function ComponentWithSimpleStyle({
           __SimpleStyleInject("db4cf10", "width", "100px");
           __SimpleStyleInject("356935a", "height", "100px");
           __SimpleStyleInject("e734863", "border-bottom-width", "1px");
+          __SimpleStyleInject("5e26c93", "width", "10px");
           return /*#__PURE__*/ _jsx(__snapshot_da39a_429b4_1, {
               values: [
                   [
                       "db4cf10",
                       "356935a",
+                      "5e26c93",
                       isActive && [
                           "e734863"
                       ],

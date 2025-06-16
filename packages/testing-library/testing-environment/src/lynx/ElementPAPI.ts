@@ -75,7 +75,7 @@ export const initElementTree = () => {
   const uniqueId2Element = new Map<number, LynxElement>();
 
   let styleObjectIdNext = 1e8;
-  const staticSimpleStyleMap = new Map<string, Record<string, string>>();
+  const simpleStyleObjectMap = new Map<string, Record<string, string>>();
   const styleObject2ElementMap = new Map<string, Set<LynxElement>>();
 
   return new (class ElementTree {
@@ -429,7 +429,7 @@ export const initElementTree = () => {
     }
 
     __SimpleStyleInject(id: string, cssKey: string, cssValue: string) {
-      staticSimpleStyleMap.set(id, {
+      simpleStyleObjectMap.set(id, {
         [cssKey]: cssValue,
       });
     }
@@ -437,15 +437,15 @@ export const initElementTree = () => {
     __CreateStyleObject(
       cssObject: Record<string, any>,
     ) {
-      const id = styleObjectIdNext++;
-      staticSimpleStyleMap.set(id.toString(), cssObject);
+      const id = String(styleObjectIdNext++);
+      simpleStyleObjectMap.set(id, cssObject);
       return id;
     }
 
     updateSimpleStyle(element: LynxElement) {
       element.simpleStyle = element.styleObjectList
         .reduce((prev, curr) => {
-          const style = staticSimpleStyleMap.get(curr);
+          const style = simpleStyleObjectMap.get(curr);
           if (style) {
             return {
               ...prev,
@@ -457,16 +457,26 @@ export const initElementTree = () => {
     }
     __SetStyleObject(
       element: LynxElement,
-      styleObjectList: string[],
+      styleObjectList: Array<string | string[] | Record<string, any>>,
     ) {
-      styleObjectList = styleObjectList.map(String);
+      const styleObjectIdListFlatten = styleObjectList.flat().map(
+        styleObject => {
+          let styleObjectId: string;
+          if (typeof styleObject === 'object') {
+            styleObjectId = this.__CreateStyleObject(styleObject);
+          } else {
+            styleObjectId = styleObject;
+          }
+          return styleObjectId;
+        },
+      );
       if (element.styleObjectList) {
         element.styleObjectList.forEach((styleObject: string) => {
           styleObject2ElementMap.get(styleObject)?.delete(element);
         });
       }
-      element.styleObjectList = styleObjectList;
-      styleObjectList.forEach(styleObject => {
+      element.styleObjectList = styleObjectIdListFlatten;
+      styleObjectIdListFlatten.forEach(styleObject => {
         if (!styleObject2ElementMap.has(styleObject)) {
           styleObject2ElementMap.set(styleObject, new Set());
         }
@@ -479,9 +489,9 @@ export const initElementTree = () => {
       cssObject: Record<string, any>,
     ) {
       styleObject = String(styleObject);
-      const style = staticSimpleStyleMap.get(styleObject);
+      const style = simpleStyleObjectMap.get(styleObject);
       if (style) {
-        staticSimpleStyleMap.set(styleObject, cssObject);
+        simpleStyleObjectMap.set(styleObject, cssObject);
         styleObject2ElementMap.get(styleObject)?.forEach(element => {
           this.updateSimpleStyle(element);
         });
