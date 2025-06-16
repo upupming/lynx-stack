@@ -9,13 +9,14 @@ import type { NapiModulesMap } from './NapiModules.js';
 import type { NativeModulesMap } from './NativeModules.js';
 import type { BrowserConfig } from './PageConfig.js';
 
-export interface StartMainThreadContextConfig {
+export interface BackMainThreadContextConfig {
+  initData: unknown;
+  globalProps: unknown;
   template: LynxTemplate;
-  initData: Cloneable;
-  globalProps: Cloneable;
-  browserConfig: BrowserConfig;
+  cardType: string;
+  customSections: Record<string, Cloneable>;
   nativeModulesMap: NativeModulesMap;
   napiModulesMap: NapiModulesMap;
-  tagMap: Record<string, string>;
+  browserConfig: BrowserConfig;
   initI18nResources: InitI18nResources;
 }

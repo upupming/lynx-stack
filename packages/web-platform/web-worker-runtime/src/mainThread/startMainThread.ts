@@ -7,6 +7,10 @@ import {
   mainThreadStartEndpoint,
   postOffscreenEventEndpoint,
   reportErrorEndpoint,
+  type I18nResourceTranslationOptions,
+  dispatchLynxViewEventEndpoint,
+  type CloneableObject,
+  i18nResourceMissedEventName,
 } from '@lynx-js/web-constants';
 import { Rpc } from '@lynx-js/web-worker-rpc';
 import { createMarkTimingInternal } from './crossThreadHandlers/createMainthreadMarkTimingInternal.js';
@@ -24,6 +28,14 @@ export function startMainThreadWorker(
   const markTimingInternal = createMarkTimingInternal(backgroundThreadRpc);
   const uiFlush = uiThreadRpc.createCall(flushElementTreeEndpoint);
   const reportError = uiThreadRpc.createCall(reportErrorEndpoint);
+  const triggerI18nResourceFallback = (
+    options: I18nResourceTranslationOptions,
+  ) => {
+    uiThreadRpc.invoke(dispatchLynxViewEventEndpoint, [
+      i18nResourceMissedEventName,
+      options as CloneableObject,
+    ]);
+  };
   const docu = new OffscreenDocument({
     onCommit: uiFlush,
   });
@@ -35,6 +47,7 @@ export function startMainThreadWorker(
     docu.commit.bind(docu),
     markTimingInternal,
     reportError,
+    triggerI18nResourceFallback,
   );
   uiThreadRpc.registerHandler(
     mainThreadStartEndpoint,

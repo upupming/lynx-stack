@@ -1,10 +1,14 @@
-import type {
-  StartMainThreadContextConfig,
-  RpcCallType,
-  updateDataEndpoint,
-  MainThreadGlobalThis,
+import {
+  type StartMainThreadContextConfig,
+  type RpcCallType,
+  type updateDataEndpoint,
+  type MainThreadGlobalThis,
+  type I18nResourceTranslationOptions,
+  type CloneableObject,
+  i18nResourceMissedEventName,
 } from '@lynx-js/web-constants';
 import { Rpc } from '@lynx-js/web-worker-rpc';
+import { dispatchLynxViewEvent } from '../utils/dispatchLynxViewEvent.js';
 
 const {
   prepareMainThreadAPIs,
@@ -25,6 +29,15 @@ export function createRenderAllOnUI(
   if (!globalThis.module) {
     Object.assign(globalThis, { module: {} });
   }
+  const triggerI18nResourceFallback = (
+    options: I18nResourceTranslationOptions,
+  ) => {
+    dispatchLynxViewEvent(
+      shadowRoot,
+      i18nResourceMissedEventName,
+      options as CloneableObject,
+    );
+  };
   const { startMainThread } = prepareMainThreadAPIs(
     mainToBackgroundRpc,
     shadowRoot,
@@ -34,6 +47,7 @@ export function createRenderAllOnUI(
     (err) => {
       callbacks.onError?.(err);
     },
+    triggerI18nResourceFallback,
   );
   let mtsGlobalThis!: MainThreadGlobalThis;
   const start = async (configs: StartMainThreadContextConfig) => {
