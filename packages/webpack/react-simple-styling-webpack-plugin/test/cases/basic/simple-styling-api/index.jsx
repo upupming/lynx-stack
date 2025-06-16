@@ -56,7 +56,6 @@ export function ComponentWithSimpleStyle({
 
 it('should have simple styling api calls generated', () => {
   const expectedApiList = [
-    ['__Create', 'Style', 'Object'],
     ['__Set', 'Style', 'Object'],
   ];
   const content = fs.readFileSync(__filename, 'utf-8');
