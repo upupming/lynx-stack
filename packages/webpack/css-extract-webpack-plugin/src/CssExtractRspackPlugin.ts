@@ -155,6 +155,10 @@ class CssExtractRspackPluginImpl {
             if (!filename.endsWith('.css')) {
               continue;
             }
+            // the entry of `beforeEmit` hook should match the entry of current css
+            if (!args.cssChunks.some(c => c.name === filename)) {
+              continue;
+            }
             const content: string = source.source().toString('utf-8');
             const css = LynxTemplatePlugin.convertCSSChunksToMap(
               [content],
