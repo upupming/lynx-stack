@@ -14,8 +14,6 @@ import type {
   TransformNodiffOptions,
 } from '@lynx-js/react/transform';
 
-import { LAYERS } from '../layer.js';
-
 const PLUGIN_NAME = 'react:webpack';
 const JSX_IMPORT_SOURCE = {
   MAIN_THREAD: '@lynx-js/react/lepus',
@@ -228,7 +226,7 @@ export function getMainThreadTransformOptions(
       target: 'LEPUS',
     },
     dynamicImport: {
-      layer: LAYERS.MAIN_THREAD,
+      layer: `react__main-thread`,
       runtimePkg: RUNTIME_PKG,
     },
     defineDCE: {
@@ -301,7 +299,7 @@ export function getBackgroundTransformOptions(
       }
       : false,
     dynamicImport: {
-      layer: LAYERS.BACKGROUND,
+      layer: `react__background`,
       runtimePkg: RUNTIME_PKG,
     },
     snapshot: {
