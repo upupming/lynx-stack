@@ -264,7 +264,7 @@ describe('list', () => {
                         ? <text>{v}</text>
                         : null}
                     </view>
-                    {/* This will generate `__DynamicPartSlot` part for testing the hydration behavior of slot is as expceted */}
+                    {/* This will generate `__DynamicPartSlot` part for testing the hydration behavior of slot is as expected */}
                     <view>
                       <A />
                     </view>
@@ -350,7 +350,7 @@ describe('list', () => {
 
     expect(__CreateElement).toHaveBeenCalledTimes(0);
     expect(__SetAttribute).toHaveBeenCalledTimes(4);
-    // The orginal FiberElement of element 3 is resued for
+    // The original FiberElement of element 3 is reused for
     // element 1 now
     expect(__SetAttribute.mock.calls[0][0]).toBe(listItem3);
     expect(__SetAttribute.mock.calls[0][0].$$uiSign).toBe(uid3);
