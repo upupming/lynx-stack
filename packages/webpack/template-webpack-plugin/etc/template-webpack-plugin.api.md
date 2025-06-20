@@ -139,7 +139,7 @@ export interface TemplateHooks {
         outputName: string;
     }>;
     // @alpha
-    asyncChunkName: SyncWaterfallHook<string | undefined | null>;
+    asyncChunkName: SyncWaterfallHook<string>;
     // @alpha
     beforeEmit: AsyncSeriesWaterfallHook<{
         finalEncodeOptions: EncodeOptions;
