@@ -3,10 +3,10 @@
 // LICENSE file in the root directory of this source tree.
 
 import js from '@eslint/js';
+import markdown from '@eslint/markdown';
 import vitest from '@vitest/eslint-plugin';
 import headers from 'eslint-plugin-headers';
 import importPlugin from 'eslint-plugin-import';
-import markdownPlugin from 'eslint-plugin-markdown';
 import nodePlugin from 'eslint-plugin-n';
 import * as regexpPlugin from 'eslint-plugin-regexp';
 import eslintPluginUnicorn from 'eslint-plugin-unicorn';
@@ -133,16 +133,8 @@ export default tseslint.config(
     },
   },
   regexpPlugin.configs['flat/recommended'],
-  ...markdownPlugin.configs.recommended,
-  {
-    rules: {
-      'jsdoc/require-jsdoc': 'off',
-      'jsdoc/require-returns': 'off',
-      'jsdoc/check-alignment': 'off',
-
-      'jsdoc/tag-lines': 'off',
-    },
-  },
+  ...markdown.configs.recommended,
+  ...markdown.configs.processor,
   // Rules from eslint-plugin-n
   nodePlugin.configs['flat/recommended-module'],
   {
