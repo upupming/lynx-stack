@@ -414,7 +414,7 @@ export class LynxTestingEnv {
    * ```
    */
   mainThread: LynxGlobalThis & ElementTreeGlobals;
-  jsdom: JSDOM = global.jsdom;
+  jsdom: JSDOM = global.jsdom || new JSDOM();
   constructor() {
     this.backgroundThread = createGlobalThis() as any;
     this.mainThread = createGlobalThis() as any;
