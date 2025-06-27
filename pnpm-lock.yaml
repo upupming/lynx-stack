@@ -414,6 +414,9 @@ importers:
         specifier: 1.4.5
         version: 1.4.5
     devDependencies:
+      '@lynx-js/preact-devtools':
+        specifier: workspace:^
+        version: link:../../preact-devtools
       '@lynx-js/qrcode-rsbuild-plugin':
         specifier: workspace:^
         version: link:../plugin-qrcode
