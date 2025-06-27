@@ -34,7 +34,7 @@ export function useVirtualizedList<T>({
   const max = idx + Math.ceil(height / rowHeight) + bufferCount;
   let top = idx * rowHeight;
 
-  // A bit hacky, we bascially want to ensure that `scrollToItem`
+  // A bit hacky, we basically want to ensure that `scrollToItem`
   // is ALWAYS stable
   const timeoutRef = useRef<any>(null);
   const scrollRef = useRef(scroll);

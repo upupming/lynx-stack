@@ -44,7 +44,7 @@ export function createReason(
 }
 
 /**
- * Get all keys that have differnt values in two objects. Does a
+ * Get all keys that have different values in two objects. Does a
  * shallow comparison.
  */
 export function getChangedKeys(

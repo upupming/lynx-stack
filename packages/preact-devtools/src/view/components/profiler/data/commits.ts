@@ -90,7 +90,7 @@ function getMaxSelfDurationNode(commit: CommitData) {
   return id;
 }
 
-export function getCommitInitalSelectNodeId(
+export function getCommitInitialSelectNodeId(
   commit: CommitData,
   type: FlamegraphType,
 ) {
@@ -224,7 +224,7 @@ export function stopProfiling(state: ProfilerState) {
   // Reset selection when recording stopped
   // and new profiling data was collected.
   if (state.commits.value.length > 0) {
-    state.selectedNodeId.value = getCommitInitalSelectNodeId(
+    state.selectedNodeId.value = getCommitInitialSelectNodeId(
       state.commits.value[0],
       state.flamegraphType.value,
     );

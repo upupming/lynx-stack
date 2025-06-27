@@ -65,7 +65,7 @@ function placeNode(
   }
 
   // Find the total render time of children that rendered in case
-  // we're dealing with static subtrees. If ther are static subtrees
+  // we're dealing with static subtrees. If there are static subtrees
   // we'll use the remaining space to place them.
   let staticTreeTime = 0;
   const nodeRendered = commit.rendered.has(id);

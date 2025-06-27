@@ -74,7 +74,7 @@ export function setupOptionsV10(
 
   // Make sure that we are always the first `option._hook` to be called.
   // This is necessary to ensure that our callstack remains consistent.
-  // Othwerwise we'll end up with an unknown number of frames in-between
+  // Otherwise we'll end up with an unknown number of frames in-between
   // the called hook and `options._hook`. This will lead to wrongly
   // parsed hooks.
   setTimeout(() => {

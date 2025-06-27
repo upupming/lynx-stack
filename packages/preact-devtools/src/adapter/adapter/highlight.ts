@@ -17,7 +17,7 @@ export function createHightlighter(
   /**
    * Reference to the DOM element that we'll render the selection highlighter
    * into. We'll cache it so that we don't unnecessarily re-create it when the
-   * hover state changes. We only destroy this elment once the user stops
+   * hover state changes. We only destroy this element once the user stops
    * hovering a node in the tree.
    */
   let highlightRef: HTMLDivElement | null = null;

@@ -164,7 +164,7 @@ describe('parseProps', () => {
     ]);
   });
 
-  it('should not mark empty arrays as collabsible', () => {
+  it('should not mark empty arrays as collapsible', () => {
     const tree = parseProps([], 'foo', 2);
     expect(serialize(tree)).to.deep.equal([
       {
