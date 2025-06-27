@@ -247,6 +247,7 @@ jobs:
       - test-type
       - test-typos
       - test-vitest
+      - test-preact-devtools
       - website
     if: always()
     runs-on: lynx-ubuntu-24.04-medium
