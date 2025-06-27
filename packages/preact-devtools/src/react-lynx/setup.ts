@@ -1,9 +1,7 @@
-/* eslint-disable no-prototype-builtins */
-/* eslint-disable no-console */
 import type {} from '@lynx-js/react';
 import { __root, __page } from '@lynx-js/react/internal';
 
-export default function setupReactLynx(): void {
+export function setupReactLynx() {
   if (__BACKGROUND__) {
     try {
       // @ts-ignore
