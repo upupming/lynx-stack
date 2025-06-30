@@ -43,7 +43,7 @@ export function DevTools(props: { store: Store; ctx: PreactDevtoolsLDTCtx }) {
       });
     };
 
-    if (globalThis.preactDevtoolsLDTCtx.devtoolsProps?.isOSSLynxDevtool) {
+    if (props.ctx.devtoolsProps.addOnScreenCastPanelUINodeIdSelectedListener) {
       props.ctx.devtoolsProps.addOnScreenCastPanelUINodeIdSelectedListener?.(
         (UINodeId) => {
           onUINodeIdSelected(UINodeId);

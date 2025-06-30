@@ -174,7 +174,10 @@ export function applyEvent(store: Store, type: keyof DevtoolEvents, data: any) {
       if (uniqueId != null) {
         globalThis.preactDevtoolsLDTCtx.highlightUniqueId = uniqueId;
         try {
-          if (globalThis.preactDevtoolsLDTCtx.devtoolsProps?.isOSSLynxDevtool) {
+          if (
+            globalThis.preactDevtoolsLDTCtx.devtoolsProps
+              ?.onPreactDevtoolsPanelUINodeIdSelected
+          ) {
             globalThis.preactDevtoolsLDTCtx.devtoolsProps
               ?.onPreactDevtoolsPanelUINodeIdSelected?.(
                 uniqueId,
