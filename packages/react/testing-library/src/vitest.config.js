@@ -26,7 +26,41 @@ async function ensurePackagesInstalled() {
 export const createVitestConfig = async (options) => {
   await ensurePackagesInstalled();
 
-  const runtimePkgName = options?.runtimePkgName ?? '@lynx-js/react';
+  const runtimeOSSPkgName = '@lynx-js/react';
+  const runtimePkgName = options?.runtimePkgName ?? runtimeOSSPkgName;
+  const runtimeDir = path.dirname(require.resolve(`${runtimePkgName}/package.json`));
+  const runtimeOSSDir = path.dirname(
+    require.resolve(`${runtimeOSSPkgName}/package.json`, {
+      paths: [runtimeDir],
+    }),
+  );
+  const preactDir = path.dirname(
+    require.resolve('preact/package.json', {
+      paths: [runtimeOSSDir],
+    }),
+  );
+
+  const generateAlias = (pkgName, pkgDir) => {
+    const pkgExports = require(path.join(pkgDir, 'package.json')).exports;
+    const pkgAlias = [];
+    Object.keys(pkgExports).forEach((key) => {
+      const name = path.join(pkgName, key);
+      pkgAlias.push({
+        find: new RegExp('^' + name + '$'),
+        replacement: require.resolve(name, {
+          paths: [pkgDir],
+        }),
+      });
+    });
+    return pkgAlias;
+  };
+
+  const runtimeOSSAlias = generateAlias(runtimeOSSPkgName, runtimeOSSDir);
+  let runtimeAlias = [];
+  if (runtimePkgName !== runtimeOSSPkgName) {
+    runtimeAlias = generateAlias(runtimePkgName, runtimeDir);
+  }
+  const preactAlias = generateAlias('preact', preactDir);
 
   function transformReactLynxPlugin() {
     return {
@@ -120,6 +154,7 @@ export const createVitestConfig = async (options) => {
       ),
       globals: true,
       setupFiles: [path.join(__dirname, 'vitest-global-setup')],
+      alias: [...runtimeOSSAlias, ...runtimeAlias, ...preactAlias],
     },
   });
 };
