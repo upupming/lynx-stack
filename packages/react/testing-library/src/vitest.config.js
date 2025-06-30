@@ -44,7 +44,7 @@ export const createVitestConfig = async (options) => {
     const pkgExports = require(path.join(pkgDir, 'package.json')).exports;
     const pkgAlias = [];
     Object.keys(pkgExports).forEach((key) => {
-      const name = path.join(pkgName, key);
+      const name = path.posix.join(pkgName, key);
       pkgAlias.push({
         find: new RegExp('^' + name + '$'),
         replacement: require.resolve(name, {
