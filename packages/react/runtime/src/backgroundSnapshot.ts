@@ -22,16 +22,12 @@ import {
   takeGlobalSnapshotPatch,
 } from './lifecycle/patch/snapshotPatch.js';
 import { globalPipelineOptions } from './lynx/performance.js';
+import { DynamicPartType } from './snapshot/dynamicPartType.js';
 import { clearQueuedRefs, queueRefAttrUpdate } from './snapshot/ref.js';
 import type { Ref } from './snapshot/ref.js';
 import { transformSpread } from './snapshot/spread.js';
 import type { SerializedSnapshotInstance, Snapshot } from './snapshot.js';
-import {
-  DynamicPartType,
-  backgroundSnapshotInstanceManager,
-  snapshotManager,
-  traverseSnapshotInstance,
-} from './snapshot.js';
+import { backgroundSnapshotInstanceManager, snapshotManager, traverseSnapshotInstance } from './snapshot.js';
 import { hydrationMap } from './snapshotInstanceHydrationMap.js';
 import { isDirectOrDeepEqual } from './utils.js';
 import { onPostWorkletCtx } from './worklet/ctx.js';
@@ -49,6 +45,7 @@ export class BackgroundSnapshotInstance {
   __id: number;
   __values: any[] | undefined;
   __snapshot_def: Snapshot;
+  __extraProps?: Record<string, unknown> | undefined;
 
   private __parent: BackgroundSnapshotInstance | null = null;
   private __firstChild: BackgroundSnapshotInstance | null = null;
@@ -206,7 +203,7 @@ export class BackgroundSnapshotInstance {
           for (let index = 0; index < value.length; index++) {
             const { needUpdate, valueToCommit } = this.setAttributeImpl(value[index], oldValues[index], index);
             if (needUpdate) {
-              __globalSnapshotPatch!.push(
+              __globalSnapshotPatch.push(
                 SnapshotOperation.SetAttribute,
                 this.__id,
                 index,
@@ -221,7 +218,7 @@ export class BackgroundSnapshotInstance {
             const { valueToCommit } = this.setAttributeImpl(value[index], null, index);
             patch[index] = valueToCommit;
           }
-          __globalSnapshotPatch!.push(
+          __globalSnapshotPatch.push(
             SnapshotOperation.SetAttributes,
             this.__id,
             patch,
@@ -246,15 +243,17 @@ export class BackgroundSnapshotInstance {
       return;
     }
 
-    // old path (`<__snapshot_xxxx_xxxx __0={} __1={} />` or `this.setAttribute(0, xxx)`)
-    // is reserved as slow path
-    const index = typeof key === 'string' ? Number(key.slice(2)) : key;
-    (this.__values ??= [])[index] = value;
-
+    if (typeof key === 'string') {
+      (this.__extraProps ??= {})[key] = value;
+    } else {
+      // old path (`this.setAttribute(0, xxx)`)
+      // is reserved as slow path
+      (this.__values ??= [])[key] = value;
+    }
     __globalSnapshotPatch?.push(
       SnapshotOperation.SetAttribute,
       this.__id,
-      index,
+      key,
       value,
     );
     if (__PROFILE__) {
@@ -345,7 +344,7 @@ export function hydrate(
 ): SnapshotPatch {
   initGlobalSnapshotPatch();
 
-  const helper2 = (afters: BackgroundSnapshotInstance[], parentId: number) => {
+  const helper2 = (afters: BackgroundSnapshotInstance[], parentId: number, targetId?: number) => {
     for (const child of afters) {
       const id = child.__id;
       __globalSnapshotPatch!.push(SnapshotOperation.CreateElement, child.type, id);
@@ -354,8 +353,12 @@ export function hydrate(
         child.__values = undefined;
         child.setAttribute('values', values);
       }
+      const extraProps = child.__extraProps;
+      for (const key in extraProps) {
+        child.setAttribute(key, extraProps[key]);
+      }
       helper2(child.childNodes, id);
-      __globalSnapshotPatch!.push(SnapshotOperation.InsertBefore, parentId, id, undefined);
+      __globalSnapshotPatch!.push(SnapshotOperation.InsertBefore, parentId, id, targetId);
     }
   };
 
@@ -404,6 +407,21 @@ export function hydrate(
       }
     });
 
+    if (after.__extraProps) {
+      for (const key in after.__extraProps) {
+        const value = after.__extraProps[key];
+        const old = before.extraProps?.[key];
+        if (!isDirectOrDeepEqual(value, old)) {
+          __globalSnapshotPatch!.push(
+            SnapshotOperation.SetAttribute,
+            after.__id,
+            key,
+            value,
+          );
+        }
+      }
+    }
+
     const { slot } = after.__snapshot_def;
 
     const beforeChildNodes = before.children || [];
@@ -437,23 +455,7 @@ export function hydrate(
             beforeChildNodes,
             diffResult,
             (node, target) => {
-              __globalSnapshotPatch!.push(
-                SnapshotOperation.CreateElement,
-                node.type,
-                node.__id,
-              );
-              helper2(node.childNodes, node.__id);
-              const values = node.__values;
-              if (values) {
-                node.__values = undefined;
-                node.setAttribute('values', values);
-              }
-              __globalSnapshotPatch!.push(
-                SnapshotOperation.InsertBefore,
-                before.id,
-                node.__id,
-                target?.id,
-              );
+              helper2([node], before.id, target?.id);
               return undefined as unknown as SerializedSnapshotInstance;
             },
             node => {

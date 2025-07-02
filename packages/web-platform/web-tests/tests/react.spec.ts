@@ -87,6 +87,23 @@ test.describe('reactlynx3 tests', () => {
       await wait(100);
       await expect(await target.getAttribute('style')).toContain('pink');
     });
+    test('basic-reload-page-only-one', async ({ page }, { title }) => {
+      await goto(page, 'basic-reload');
+      await wait(100);
+      await page.evaluate(() => {
+        // @ts-expect-error
+        globalThis.lynxView.reload();
+      });
+      await wait(100);
+      expect(
+        await page.evaluate(() =>
+          Array.from(
+            document.querySelector('lynx-view')?.shadowRoot?.children || [],
+          )
+            .filter(i => i.getAttribute('lynx-tag') === 'page').length
+        ),
+      ).toBe(1);
+    });
     test('basic-bindtap', async ({ page }, { title }) => {
       await goto(page, title);
       await wait(100);
@@ -694,10 +711,11 @@ test.describe('reactlynx3 tests', () => {
         const event = await msg.args()[0]?.evaluate((e) => {
           return {
             type: e.type,
+            message: e.detail?.error?.message,
             release: e.detail?.release,
           };
         });
-        if (!event || event.type !== 'error') {
+        if (!event || event.type !== 'error' || event.message !== 'error') {
           return;
         }
         if (
@@ -709,6 +727,63 @@ test.describe('reactlynx3 tests', () => {
       await goto(page, title);
       await wait(500);
       expect(success).toBe(true);
+    });
+    test('api-set-release-bts', async ({ page }, { title }) => {
+      let success = false;
+      await page.on('console', async (msg) => {
+        const event = await msg.args()[0]?.evaluate((e) => {
+          return {
+            type: e.type,
+            message: e.detail?.error?.message,
+            release: e.detail?.release,
+          };
+        });
+        if (
+          !event || event.type !== 'error'
+          || event.message !== 'loadCard failed Error: error'
+        ) {
+          return;
+        }
+        if (
+          typeof event.release === 'string' && event.release === '111'
+        ) {
+          success = true;
+        }
+      });
+      await goto(page, title);
+      await wait(500);
+      expect(success).toBe(true);
+    });
+    test('api-report-error', async ({ page }, { title }) => {
+      let offset = false;
+      await page.on('console', async (msg) => {
+        const event = await msg.args()[0]?.evaluate((e) => {
+          return {
+            type: e.type,
+            error: e.detail?.error,
+            offset: e.detail?.sourceMap?.offset,
+          };
+        });
+        if (!event || event.type !== 'error') {
+          return;
+        }
+        if (
+          typeof event.offset.line === 'number' && event.offset.line === 2
+          && typeof event.offset.col === 'number' && event.offset.col === 0
+          && event.error.message === 'Error: foo'
+          && typeof event.error.stack === 'string'
+          && event.error.stack !== ''
+        ) {
+          offset = true;
+        }
+      });
+      await goto(page, title);
+      await wait(200);
+      await page.locator('#target').click();
+      await wait(500);
+      const target = await page.locator('lynx-view');
+      await expect(target).toHaveCSS('display', 'none');
+      await expect(offset).toBe(true);
     });
 
     test('api-preheat', async ({ page }, { title }) => {
@@ -2228,6 +2303,14 @@ test.describe('reactlynx3 tests', () => {
         await diffScreenShot(page, 'x-input', 'placeholder');
       });
       // input/placeholder test-case end
+      test(
+        'basic-element-x-input-placeholder-pseudo-element',
+        async ({ page }, { title }) => {
+          await goto(page, title);
+          await wait(100);
+          await diffScreenShot(page, 'x-input', 'placeholder-pseudo-element');
+        },
+      );
 
       // input/type test-case start
       test('basic-element-x-input-type', async ({ page }, { title }) => {

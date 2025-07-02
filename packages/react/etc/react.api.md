@@ -4,6 +4,7 @@
 
 ```ts
 
+import { cloneElement } from 'react';
 import { Component } from 'react';
 import type { ComponentClass } from 'react';
 import type { Consumer } from 'react';
@@ -32,6 +33,8 @@ import { useReducer } from 'react';
 import { useRef } from 'react';
 import { useState } from 'react';
 import { useSyncExternalStore } from 'react';
+
+export { cloneElement }
 
 export { Component }
 
@@ -133,7 +136,7 @@ export const useInitDataChanged: (callback: (data: InitData) => void) => void;
 export function useLayoutEffect(effect: EffectCallback, deps?: DependencyList): void;
 
 // @public
-export function useLynxGlobalEventListener<T extends (...args: unknown[]) => void>(eventName: string, listener: T): void;
+export function useLynxGlobalEventListener<T extends (...args: any[]) => void>(eventName: string, listener: T): void;
 
 // @public
 export function useMainThreadRef<T>(initValue: T): MainThreadRef<T>;

@@ -86,6 +86,7 @@ export const root: Root = {
       __root.__jsx = jsx;
     } else {
       __root.__jsx = jsx;
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       render(jsx, __root as any);
       if (__FIRST_SCREEN_SYNC_TIMING__ === 'immediately') {
         // This is for cases where `root.render()` is called asynchronously,
@@ -107,7 +108,7 @@ const _InitData = /* @__PURE__ */ factory<InitData>(
     useState,
     createElement,
     useLynxGlobalEventListener,
-  } as any,
+  },
   '__initData',
   'onDataChanged',
 );
@@ -137,6 +138,7 @@ const _InitData = /* @__PURE__ */ factory<InitData>(
  *
  * @public
  */
+// @ts-expect-error make preact and react types work
 export const InitDataProvider: FC<{ children?: ReactNode | undefined }> = /* @__PURE__ */ _InitData.Provider();
 /**
  * The {@link https://react.dev/reference/react/createContext#consumer | Consumer} Component that provide `initData`.
@@ -144,6 +146,7 @@ export const InitDataProvider: FC<{ children?: ReactNode | undefined }> = /* @__
  * @group Components
  * @public
  */
+// @ts-expect-error make preact and react types work
 export const InitDataConsumer: Consumer<InitData> = /* @__PURE__ */ _InitData.Consumer();
 /**
  * A React Hooks for you to get `initData`.
