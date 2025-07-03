@@ -40,7 +40,7 @@ export const createVitestConfig = async (options) => {
     }),
   );
 
-  const generateAlias = (pkgName, pkgDir) => {
+  const generateAlias = (pkgName, pkgDir, resolveDir) => {
     const pkgExports = require(path.join(pkgDir, 'package.json')).exports;
     const pkgAlias = [];
     Object.keys(pkgExports).forEach((key) => {
@@ -48,19 +48,19 @@ export const createVitestConfig = async (options) => {
       pkgAlias.push({
         find: new RegExp('^' + name + '$'),
         replacement: require.resolve(name, {
-          paths: [pkgDir],
+          paths: [resolveDir],
         }),
       });
     });
     return pkgAlias;
   };
 
-  const runtimeOSSAlias = generateAlias(runtimeOSSPkgName, runtimeOSSDir);
+  const runtimeOSSAlias = generateAlias(runtimeOSSPkgName, runtimeOSSDir, runtimeDir);
   let runtimeAlias = [];
   if (runtimePkgName !== runtimeOSSPkgName) {
-    runtimeAlias = generateAlias(runtimePkgName, runtimeDir);
+    runtimeAlias = generateAlias(runtimePkgName, runtimeDir, __dirname);
   }
-  const preactAlias = generateAlias('preact', preactDir);
+  const preactAlias = generateAlias('preact', preactDir, runtimeOSSDir);
 
   function transformReactLynxPlugin() {
     return {
