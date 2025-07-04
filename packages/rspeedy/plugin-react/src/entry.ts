@@ -108,6 +108,7 @@ export function applyEntry(
           experimental_isLazyBundle,
         ),
       )
+
       const backgroundEntry = entryName
 
       mainThreadChunks.push(mainThreadName)
@@ -169,7 +170,6 @@ export function applyEntry(
             environment.name,
           ),
           intermediate: path.posix.join(
-            // TODO: config intermediate
             DEFAULT_DIST_PATH_INTERMEDIATE,
             entryName,
           ),
