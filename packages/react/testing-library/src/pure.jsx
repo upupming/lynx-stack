@@ -135,3 +135,4 @@ export function renderHook(renderCallback, options) {
 
 export * from '@testing-library/dom';
 export { fireEvent } from './fire-event';
+export { act };

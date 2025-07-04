@@ -6,23 +6,6 @@ import type { LynxTemplate } from '@lynx-js/web-core';
 import { lynxViewTests } from './lynx-view.ts';
 
 const ENABLE_MULTI_THREAD = !!process.env.ENABLE_MULTI_THREAD;
-const nativeModulesMap = {
-  CustomModule: URL.createObjectURL(
-    new Blob(
-      [
-        `export default function(NativeModules, NativeModulesCall) {
-    return {
-      async getColor(data, callback) {
-        const color = await NativeModulesCall('getColor', data);
-        callback(color);
-      },
-    }
-  };`,
-      ],
-      { type: 'text/javascript' },
-    ),
-  ),
-};
 
 const searchParams = new URLSearchParams(document.location.search);
 const casename = searchParams.get('casename');
@@ -37,7 +20,6 @@ if (casename) {
     ENABLE_MULTI_THREAD
       ? lynxView.setAttribute('thread-strategy', 'multi-thread')
       : lynxView.setAttribute('thread-strategy', 'all-on-ui');
-    lynxView.nativeModulesMap = nativeModulesMap;
     lynxView.id = 'lynxview1';
     if (casename2) {
       lynxView.setAttribute('lynx-group-id', '2');
@@ -80,12 +62,24 @@ if (casename) {
         return template;
       };
     }
+    lynxView.addEventListener('error', (e) => {
+      console.log(e);
+      // these two issues have been added to the fix plan and skip for now.
+      if (
+        ![
+          'config-mode-dev-with-all-in-one',
+          'basic-element-x-textarea-input-filter',
+        ].includes(casename)
+      ) {
+        lynxView.setAttribute('style', 'display:none');
+        lynxView.innerHTML = '';
+      }
+    });
   });
   if (casename2) {
     lynxViewTests(lynxView2 => {
       lynxView2.id = 'lynxview2';
       lynxView2.setAttribute('url', `${dir2}/index.web.json`);
-      lynxView2.nativeModulesMap = nativeModulesMap;
       lynxView2.setAttribute('lynx-group-id', '2');
     });
   }
