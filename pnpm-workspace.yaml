@@ -47,3 +47,4 @@ onlyBuiltDependencies:
 
 ignoredBuiltDependencies:
   - core-js
+  - unrs-resolver
