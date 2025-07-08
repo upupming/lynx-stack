@@ -240,6 +240,15 @@ export function applyEntry(
 
     const rsbuildConfig = api.getRsbuildConfig()
 
+    if (
+      extractStr
+      && rsbuildConfig.performance?.chunkSplit?.strategy !== 'all-in-one'
+    ) {
+      throw new Error(
+        '`extractStr` is only supported in `all-in-one` chunkSplit strategy',
+      )
+    }
+
     chain
       .plugin(PLUGIN_NAME_REACT)
       .after(PLUGIN_NAME_TEMPLATE)

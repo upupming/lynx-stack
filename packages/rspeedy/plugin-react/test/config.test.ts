@@ -1434,6 +1434,61 @@ describe('Config', () => {
         `)
     })
 
+    test('performance.chunkSplit.strategy: "split-by-experience" along with extractStr: true', async () => {
+      const { pluginReactLynx } = await import('../src/pluginReactLynx.js')
+
+      let rsbuild = await createRsbuild({
+        rsbuildConfig: {
+          plugins: [
+            pluginReactLynx({
+              extractStr: true,
+            }),
+            pluginStubRspeedyAPI(),
+          ],
+          performance: {
+            chunkSplit: {
+              strategy: 'split-by-experience',
+            },
+          },
+        },
+      })
+
+      await expect(rsbuild.initConfigs()).rejects.toMatchInlineSnapshot(
+        `[Error: \`extractStr\` is only supported in \`all-in-one\` chunkSplit strategy]`,
+      )
+
+      rsbuild = await createRsbuild({
+        rsbuildConfig: {
+          plugins: [
+            pluginReactLynx({
+              extractStr: true,
+            }),
+            pluginStubRspeedyAPI(),
+          ],
+        },
+      })
+
+      await rsbuild.initConfigs()
+
+      rsbuild = await createRsbuild({
+        rsbuildConfig: {
+          plugins: [
+            pluginReactLynx({
+              extractStr: true,
+            }),
+            pluginStubRspeedyAPI(),
+          ],
+          performance: {
+            chunkSplit: {
+              strategy: 'all-in-one',
+            },
+          },
+        },
+      })
+
+      await rsbuild.initConfigs()
+    })
+
     test('tools.rspack.optimization.splitChunks: false', async () => {
       const { pluginReactLynx } = await import('../src/pluginReactLynx.js')
 
