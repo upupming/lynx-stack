@@ -25,7 +25,7 @@ mod utils;
 use std::vec;
 
 use napi::{
-  bindgen_prelude::{AbortSignal, AsyncTask, Buffer},
+  bindgen_prelude::{AbortSignal, AsyncTask},
   Either, Env, Task,
 };
 
@@ -809,20 +809,17 @@ fn is_react_compiler_required_inner(code: &str) -> bool {
 
 #[napi]
 pub fn is_react_compiler_required(
-  code: Buffer,
+  _env: Env,
+  code: String,
   signal: Option<AbortSignal>,
 ) -> AsyncTask<IsReactCompilerRequiredTask> {
-  let code = String::from_utf8_lossy(code.as_ref()).to_string();
-
   let task = IsReactCompilerRequiredTask { code };
 
   AsyncTask::with_optional_signal(task, signal)
 }
 
 #[napi]
-pub fn is_react_compiler_required_sync(code: Buffer) -> napi::Result<bool> {
-  let code = String::from_utf8_lossy(code.as_ref()).to_string();
-
+pub fn is_react_compiler_required_sync(_env: Env, code: String) -> napi::Result<bool> {
   Ok(is_react_compiler_required_inner(&code))
 }
 
@@ -895,6 +892,8 @@ mod wasm {
       let _ = exports.create_named_method("transformBundleResultSync", crate::__napi__transform_bundle_result_sync);
       let _ = exports.create_named_method("transformReactLynx", crate::__napi__transform_react_lynx);
       let _ = exports.create_named_method("transformBundleResult", crate::__napi__transform_bundle_result);
+      let _ = exports.create_named_method("isReactCompilerRequiredSync", crate::__napi__is_react_compiler_required_sync);
+      let _ = exports.create_named_method("isReactCompilerRequired", crate::__napi__is_react_compiler_required);
     }
   }
 }
