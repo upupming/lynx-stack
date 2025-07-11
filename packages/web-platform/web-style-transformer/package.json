@@ -22,9 +22,8 @@
     "README.md"
   ],
   "scripts": {
-    "build": "wasm-pack build --target web --out-dir dist --out-name index"
-  },
-  "devDependencies": {
-    "wasm-pack": "^0.13.1"
+    "build": "wasm-pack build --target web --out-dir dist --out-name index --mode no-install",
+    "build:wasm-bindgen": "wasm-bindgen --version || cargo install wasm-bindgen-cli",
+    "build:wasm-pack": "wasm-pack --version || cargo install wasm-pack"
   }
 }
