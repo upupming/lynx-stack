@@ -107,7 +107,7 @@ void create({
   ),
   version: devDependencies,
   getTemplateName,
-  mapESLintTemplate(templateName, extraInfo) {
+  mapESLintTemplate(templateName, distFolder) {
     const lang = TEMPLATES.find(({ template }) =>
       templateName.startsWith(template)
     )?.lang
@@ -123,9 +123,8 @@ void create({
 
     copyFolder({
       from: eslintFilesFolder,
-      to: extraInfo.distFolder,
-      version: extraInfo.version,
-      skipFiles: extraInfo.skipFiles,
+      to: distFolder,
+      version: devDependencies,
       isMergePackageJson: true,
     })
 

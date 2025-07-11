@@ -34,7 +34,7 @@ patchedDependencies:
     hash: 926ba262ec682d27369f1a8648a0dfb657fb5f1b28539ca3628d292276c91c3d
     path: patches/@rollup__plugin-typescript.patch
   create-rstack:
-    hash: c3d81e10f955d8b95e741909cf205a1b13af6f766faa3a284a055176fb611e69
+    hash: 729489aa3a46cd28c9e83f2636d4b40ad0ad55efe4974e8f565c73da5be82038
     path: patches/create-rstack.patch
 
 importers:
@@ -410,7 +410,7 @@ importers:
     dependencies:
       create-rstack:
         specifier: 1.5.2
-        version: 1.5.2(patch_hash=c3d81e10f955d8b95e741909cf205a1b13af6f766faa3a284a055176fb611e69)
+        version: 1.5.2(patch_hash=729489aa3a46cd28c9e83f2636d4b40ad0ad55efe4974e8f565c73da5be82038)
     devDependencies:
       '@lynx-js/eslint-config-reactlynx':
         specifier: workspace:*
@@ -11738,7 +11738,7 @@ snapshots:
       object-assign: 4.1.1
       vary: 1.1.2
 
-  create-rstack@1.5.2(patch_hash=c3d81e10f955d8b95e741909cf205a1b13af6f766faa3a284a055176fb611e69): {}
+  create-rstack@1.5.2(patch_hash=729489aa3a46cd28c9e83f2636d4b40ad0ad55efe4974e8f565c73da5be82038): {}
 
   cross-env@7.0.3:
     dependencies:
