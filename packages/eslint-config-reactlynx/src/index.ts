@@ -3,17 +3,21 @@
 // LICENSE file in the root directory of this source tree.
 
 import * as parser from '@babel/eslint-parser';
-import eslintJS from '@eslint/js';
+import js from '@eslint/js';
 import type { Linter } from 'eslint';
-import { defineConfig } from 'eslint/config';
+import { defineConfig, globalIgnores } from 'eslint/config';
 import compat from 'eslint-plugin-compat';
 import react from 'eslint-plugin-react';
 import reactHooks from 'eslint-plugin-react-hooks';
 import knownGlobals from 'globals';
 
 const configs: Linter.Config<Linter.RulesRecord>[] = defineConfig([
-  eslintJS.configs.recommended,
+  globalIgnores(['dist']),
   {
+    files: ['**/*.{js,jsx}'],
+    extends: [
+      js.configs.recommended,
+    ],
     languageOptions: {
       // TODO: this is really only required for class property initializer methods, which are seeing declining usage.
       // At some point, we should un-ship the custom parser and let ESLint use esprima.

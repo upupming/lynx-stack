@@ -107,7 +107,7 @@ void create({
   ),
   version: devDependencies,
   getTemplateName,
-  mapESLintTemplate(templateName, distFolder) {
+  mapESLintTemplate(templateName, { distFolder }) {
     const lang = TEMPLATES.find(({ template }) =>
       templateName.startsWith(template)
     )?.lang
