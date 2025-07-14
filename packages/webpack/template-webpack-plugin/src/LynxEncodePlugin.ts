@@ -187,7 +187,7 @@ export class LynxEncodePluginImpl {
           // ```
           '/app-service.js': [
             this.#appServiceBanner(),
-            ...[externalManifest, inlinedManifest].flatMap(manifest =>
+            [externalManifest, inlinedManifest].flatMap(manifest =>
               Object.keys(manifest).map(name => {
                 if (manifest === externalManifest) {
                   return `lynx.requireModuleAsync('${
@@ -199,7 +199,7 @@ export class LynxEncodePluginImpl {
                   }',globDynamicComponentEntry?globDynamicComponentEntry:'__Card__')`;
                 }
               }).join(',')
-            ),
+            ).filter(arr => arr.length).join(','),
             this.#appServiceFooter(),
           ].join(''),
           ...Object.fromEntries(
