@@ -3,7 +3,6 @@
 // LICENSE file in the root directory of this source tree.
 
 import js from '@eslint/js';
-import { globalIgnores } from 'eslint/config';
 import compat from 'eslint-plugin-compat';
 import react from 'eslint-plugin-react';
 import reactHooks from 'eslint-plugin-react-hooks';
@@ -11,9 +10,7 @@ import knownGlobals from 'globals';
 import * as tseslint from 'typescript-eslint';
 
 const configs: tseslint.ConfigArray = tseslint.config([
-  globalIgnores(['dist']),
   {
-    files: ['**/*.{ts,tsx}'],
     extends: [
       js.configs.recommended,
       tseslint.configs.recommended,
