@@ -5,6 +5,20 @@ import arrow from './assets/arrow.png';
 import lynxLogo from './assets/lynx-logo.png';
 import reactLynxLogo from './assets/react-logo.png';
 
+function Hello({ name }: {
+  name: string;
+}) {
+  const items = [1, 2, 3].map(item => {
+    return <text key={item}>Item {item}</text>;
+  });
+  return (
+    <text>
+      Hello {name}
+      {items}
+    </text>
+  );
+}
+
 export function App() {
   const [alterLogo, setAlterLogo] = useState(false);
 
@@ -29,6 +43,7 @@ export function App() {
           </view>
           <text className='Title'>React</text>
           <text className='Subtitle'>on Lynx</text>
+          <Hello name='Lynx' />
         </view>
         <view className='Content'>
           <image src={arrow} className='Arrow' />

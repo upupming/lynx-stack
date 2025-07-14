@@ -18,6 +18,8 @@ async function reactCompilerLoader(
     transformPath,
   ) as typeof import('@lynx-js/react/transform');
   if (/\.(?:jsx|tsx)$/.test(this.resourcePath)) {
+    const isTSX = this.resourcePath.endsWith('.tsx');
+
     const needReactCompiler = await isReactCompilerRequired(content);
     if (needReactCompiler) {
       try {
@@ -26,10 +28,12 @@ async function reactCompilerLoader(
           babelPath,
           babelPluginReactCompilerPath,
           babelPluginSyntaxJsxPath,
+          babelPluginSyntaxTypescriptPath,
         ] = [
           '@babel/core',
           'babel-plugin-react-compiler',
           '@babel/plugin-syntax-jsx',
+          '@babel/plugin-syntax-typescript',
         ].map((name) => {
           try {
             return require.resolve(name, {
@@ -56,10 +60,11 @@ async function reactCompilerLoader(
           plugins: [
             [babelPluginReactCompilerPath!, { target: '17' }],
             babelPluginSyntaxJsxPath!,
+            isTSX ? [babelPluginSyntaxTypescriptPath, { isTSX: true }] : null,
           ],
           filename: this.resourcePath,
           ast: false,
-          sourceMaps: true,
+          sourceMaps: this.sourceMap,
         });
         if (result?.code && result?.map) {
           return callback(null, result.code, JSON.stringify(result.map));

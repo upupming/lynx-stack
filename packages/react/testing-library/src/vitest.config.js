@@ -61,6 +61,104 @@ export const createVitestConfig = async (options) => {
     runtimeAlias = generateAlias(runtimePkgName, runtimeDir, __dirname);
   }
   const preactAlias = generateAlias('preact', preactDir, runtimeOSSDir);
+  const reactAlias = [
+    {
+      find: /^react$/,
+      replacement: require.resolve(runtimeOSSPkgName, {
+        paths: [runtimeDir],
+      }),
+    },
+  ];
+  const reactCompilerRuntimeAlias = [
+    {
+      find: /^react-compiler-runtime$/,
+      replacement: path.posix.join(
+        path.posix.dirname(require.resolve('react-compiler-runtime/package.json', {
+          paths: [process.cwd()],
+        })),
+        // Use ts to ensure `react` can be aliased to `@lynx-js/react`
+        'src/index.ts',
+      ),
+    },
+  ];
+  console.log('reactCompilerRuntimeAlias', reactCompilerRuntimeAlias);
+
+  function transformReactCompilerPlugin() {
+    return {
+      name: 'transformReactCompilerPlugin',
+      enforce: 'pre',
+      async transform(sourceText, sourcePath) {
+        const id = sourcePath;
+        if (
+          id.endsWith('.css') || id.endsWith('.less') || id.endsWith('.scss')
+        ) {
+          if (process.env['DEBUG']) {
+            console.log('ignoring css file', id);
+          }
+          return '';
+        }
+
+        const { isReactCompilerRequired } = require(
+          '@lynx-js/react/transform',
+        );
+        if (/\.(?:jsx|tsx)$/.test(sourcePath)) {
+          const needReactCompiler = await isReactCompilerRequired(sourceText);
+          if (needReactCompiler) {
+            try {
+              const missingBabelPackages = [];
+              const [
+                babelPath,
+                babelPluginReactCompilerPath,
+                babelPluginSyntaxJsxPath,
+              ] = [
+                '@babel/core',
+                'babel-plugin-react-compiler',
+                '@babel/plugin-syntax-jsx',
+              ].map((name) => {
+                try {
+                  return require.resolve(name, {
+                    paths: [process.cwd()],
+                  });
+                } catch {
+                  missingBabelPackages.push(name);
+                }
+                return '';
+              });
+              if (missingBabelPackages.length > 0) {
+                throw `With \`experimental_enableReactCompiler\` enabled, you need to install \`${
+                  missingBabelPackages.join(
+                    '`, `',
+                  )
+                }\` in your project root to use React Compiler.`;
+              }
+
+              const babel = require(babelPath);
+
+              const result = babel.transformSync(sourceText, {
+                plugins: [
+                  [babelPluginReactCompilerPath, { target: '17' }],
+                  babelPluginSyntaxJsxPath,
+                ],
+                filename: sourcePath,
+                ast: false,
+                sourceMaps: true,
+              });
+              if (result?.code && result?.map) {
+                return {
+                  code: result.code,
+                  map: result.map,
+                };
+              } else {
+                this.error('babel-plugin-react-compiler transform failed');
+              }
+            } catch (e) {
+              this.error(e);
+            }
+          }
+        }
+      },
+    };
+  }
 
   function transformReactLynxPlugin() {
     return {
@@ -146,6 +244,11 @@ export const createVitestConfig = async (options) => {
       },
     },
     plugins: [
+      ...(options?.experimental_enableReactCompiler
+        ? [
+          transformReactCompilerPlugin(),
+        ]
+        : []),
       transformReactLynxPlugin(),
     ],
     test: {
@@ -154,7 +257,7 @@ export const createVitestConfig = async (options) => {
       ),
       globals: true,
       setupFiles: [path.join(__dirname, 'vitest-global-setup')],
-      alias: [...runtimeOSSAlias, ...runtimeAlias, ...preactAlias],
+      alias: [...runtimeOSSAlias, ...runtimeAlias, ...preactAlias, ...reactAlias, ...reactCompilerRuntimeAlias],
     },
   });
 };
