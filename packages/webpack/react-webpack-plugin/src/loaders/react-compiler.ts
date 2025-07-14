@@ -3,45 +3,77 @@
 // LICENSE file in the root directory of this source tree.
 import { createRequire } from 'node:module';
 
-import babel from '@babel/core';
 import type { LoaderContext } from '@rspack/core';
-import BabelPluginReactCompiler from 'babel-plugin-react-compiler';
 
 import type { ReactLoaderOptions } from './options.js';
 
-function reactCompilerLoader(
+async function reactCompilerLoader(
   this: LoaderContext<ReactLoaderOptions>,
   content: string,
-): void {
+): Promise<void> {
+  const callback = this.async();
   const require = createRequire(import.meta.url);
   const { transformPath = '@lynx-js/react/transform' } = this.getOptions();
-  const { isReactCompilerRequiredSync } = require(
+  const { isReactCompilerRequired } = require(
     transformPath,
   ) as typeof import('@lynx-js/react/transform');
   if (/\.(?:jsx|tsx)$/.test(this.resourcePath)) {
-    const isReactCompilerRequired = isReactCompilerRequiredSync(content);
-    if (isReactCompilerRequired) {
-      const result = babel.transformSync(content, {
-        plugins: [
-          [BabelPluginReactCompiler, { target: '17' }],
+    const needReactCompiler = await isReactCompilerRequired(content);
+    if (needReactCompiler) {
+      try {
+        const missingBabelPackages: string[] = [];
+        const [
+          babelPath,
+          babelPluginReactCompilerPath,
+          babelPluginSyntaxJsxPath,
+        ] = [
+          '@babel/core',
+          'babel-plugin-react-compiler',
           '@babel/plugin-syntax-jsx',
-        ],
-        filename: this.resourcePath,
-        ast: false,
-        sourceMaps: true,
-      });
-      if (result?.code && result?.map) {
-        this.callback(null, result.code, JSON.stringify(result.map));
-        return;
-      } else {
-        this.callback(
-          new Error('babel-plugin-react-compiler transform failed'),
-        );
-        return;
+        ].map((name) => {
+          try {
+            return require.resolve(name, {
+              paths: [this.rootContext],
+            });
+          } catch {
+            missingBabelPackages.push(name);
+          }
+          return '';
+        });
+        if (missingBabelPackages.length > 0) {
+          throw new Error(
+            `With \`experimental_enableReactCompiler\` enabled, you need to install \`${
+              missingBabelPackages.join(
+                '`, `',
+              )
+            }\` in your project root to use React Compiler.`,
+          );
+        }
+
+        const babel = require(babelPath!) as typeof import('@babel/core');
+
+        const result = babel.transformSync(content, {
+          plugins: [
+            [babelPluginReactCompilerPath!, { target: '17' }],
+            babelPluginSyntaxJsxPath!,
+          ],
+          filename: this.resourcePath,
+          ast: false,
+          sourceMaps: true,
+        });
+        if (result?.code && result?.map) {
+          return callback(null, result.code, JSON.stringify(result.map));
+        } else {
+          return callback(
+            new Error('babel-plugin-react-compiler transform failed'),
+          );
+        }
+      } catch (e) {
+        return callback(e as Error);
       }
     }
   }
-  this.callback(null, content);
+  return callback(null, content);
 }
 
 export default reactCompilerLoader;

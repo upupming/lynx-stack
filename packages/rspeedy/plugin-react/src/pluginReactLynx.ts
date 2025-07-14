@@ -424,7 +424,7 @@ export function pluginReactLynx(
         applyLazy(api)
       }
       if (resolvedOptions.experimental_enableReactCompiler) {
-        await applyReactCompiler(api)
+        applyReactCompiler(api, resolvedOptions)
       }
 
       const rspeedyAPIs = api.useExposed<ExposedAPI>(
