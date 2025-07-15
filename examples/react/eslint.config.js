@@ -1,9 +1,15 @@
+import { globalIgnores } from 'eslint/config';
+import * as tseslint from 'typescript-eslint';
+
 import configs from '@lynx-js/eslint-config-reactlynx/ts';
 
-export default [
+/** @type {tseslint.ConfigArray} */
+const config = tseslint.config([
   ...configs,
   {
     files: ['src/**/*.{js,jsx,ts,tsx}'],
-    ignores: ['dist/'],
   },
-];
+  globalIgnores(['dist']),
+]);
+
+export default config;

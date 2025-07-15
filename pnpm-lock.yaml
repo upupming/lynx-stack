@@ -160,6 +160,9 @@ importers:
       '@types/react':
         specifier: ^18.3.23
         version: 18.3.23
+      typescript-eslint:
+        specifier: ^8.35.1
+        version: 8.35.1(eslint@9.30.0(jiti@2.4.2))(typescript@5.8.3)
 
   examples/tailwindcss:
     dependencies:

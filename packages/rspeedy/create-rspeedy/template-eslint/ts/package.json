@@ -6,6 +6,7 @@
     "eslint": "^9.30.0"
   },
   "devDependencies": {
-    "@lynx-js/eslint-config-reactlynx": "workspace:*"
+    "@lynx-js/eslint-config-reactlynx": "workspace:*",
+    "typescript-eslint": "^8.35.1"
   }
 }
