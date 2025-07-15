@@ -1,103 +1,93 @@
-import {
-  render,
-  getQueriesForElement,
-  act,
-} from '@lynx-js/react/testing-library';
+// Copyright 2025 The Lynx Authors. All rights reserved.
+// Licensed under the MIT license that can be found in the
+// LICENSE file in the root directory of this source tree.
+
+import { render } from '@lynx-js/react/testing-library';
 import { expectLogsAndClear, log } from './expectLogs';
-import { useState } from '@lynx-js/react';
 
 function Hello({ name }) {
   const items = [1, 2, 3].map(item => {
     log(`recomputing ${item}`);
-    return <div key={item}>Item {item}</div>;
+    return <text key={item}>Item {item}</text>;
   });
   return (
-    <div>
-      Hello<b>{name}</b>
+    <text>
+      Hello<text>{name}</text>
       {items}
-    </div>
+    </text>
   );
 }
 
 test('hello', () => {
-  let setName;
-  const Comp = () => {
-    const [name, _setName] = useState('World');
-    setName = _setName;
-    return <Hello name={name} />;
-  };
+  let { asFragment, rerender } = render(<Hello name='World' />);
 
-  let { container } = render(<Comp />);
-
-  expect(container).toMatchInlineSnapshot(`
-    <page>
-      <div>
+  expect(asFragment()).toMatchInlineSnapshot(`
+    <DocumentFragment>
+      <text>
         Hello
-        <b>
+        <text>
           World
-        </b>
+        </text>
         <wrapper>
-          <div>
+          <text>
             Item 
             <wrapper>
               1
             </wrapper>
-          </div>
-          <div>
+          </text>
+          <text>
             Item 
             <wrapper>
               2
             </wrapper>
-          </div>
-          <div>
+          </text>
+          <text>
             Item 
             <wrapper>
               3
             </wrapper>
-          </div>
+          </text>
         </wrapper>
-      </div>
-    </page>
+      </text>
+    </DocumentFragment>
   `);
 
   expectLogsAndClear(['recomputing 1', 'recomputing 2', 'recomputing 3']);
 
-  act(() => {
-    setName('Universe');
-  });
+  rerender(<Hello name='Universe' />);
 
-  expect(container).toMatchInlineSnapshot(`
-    <page>
-      <div>
+  expect(asFragment()).toMatchInlineSnapshot(`
+    <DocumentFragment>
+      <text>
         Hello
-        <b>
+        <text>
           Universe
-        </b>
+        </text>
         <wrapper>
-          <div>
+          <text>
             Item 
             <wrapper>
               1
             </wrapper>
-          </div>
-          <div>
+          </text>
+          <text>
             Item 
             <wrapper>
               2
             </wrapper>
-          </div>
-          <div>
+          </text>
+          <text>
             Item 
             <wrapper>
               3
             </wrapper>
-          </div>
+          </text>
         </wrapper>
-      </div>
-    </page>
+      </text>
+    </DocumentFragment>
   `);
 
   expectLogsAndClear(
-    [],
+    __FORGET__ ? [] : ['recomputing 1', 'recomputing 2', 'recomputing 3'],
   );
 });

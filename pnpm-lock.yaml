@@ -666,9 +666,15 @@ importers:
       '@lynx-js/rspeedy':
         specifier: workspace:*
         version: link:../../../rspeedy/core
+      '@lynx-js/types':
+        specifier: 3.3.0
+        version: 3.3.0
       '@testing-library/jest-dom':
         specifier: ^6.6.3
         version: 6.6.3
+      '@types/react':
+        specifier: ^18.3.23
+        version: 18.3.23
       babel-plugin-react-compiler:
         specifier: 0.0.0-experimental-0566679-20250709
         version: 0.0.0-experimental-0566679-20250709

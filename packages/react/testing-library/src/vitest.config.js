@@ -81,7 +81,6 @@ export const createVitestConfig = async (options) => {
       ),
     },
   ];
-  console.log('reactCompilerRuntimeAlias', reactCompilerRuntimeAlias);
 
   function transformReactCompilerPlugin() {
     return {
