@@ -7,6 +7,7 @@ describe('server-tests', () => {
     const testName of [
       'basic-performance-div-10',
       'basic-performance-nest-level-100',
+      'basic-performance-event-div-100',
     ]
   ) {
     test(testName, async () => {
@@ -14,4 +15,9 @@ describe('server-tests', () => {
       expect(html).toMatchSnapshot();
     });
   }
+
+  test('config-css-selector-false-exchange-class', async () => {
+    const html = await genTemplate('config-css-selector-false-exchange-class');
+    expect(html).toContain('[l-uid="2"]');
+  });
 });
