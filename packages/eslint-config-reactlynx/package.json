@@ -29,10 +29,7 @@
     "lib",
     "LICENSE"
   ],
-  "scripts": {
-    "test": "vitest",
-    "test:type": "vitest --typecheck.only"
-  },
+  "scripts": {},
   "dependencies": {
     "@babel/eslint-parser": "^7.28.0",
     "@babel/plugin-syntax-class-properties": "^7.12.13",
