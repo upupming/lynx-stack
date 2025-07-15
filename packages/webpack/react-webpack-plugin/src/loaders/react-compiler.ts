@@ -3,6 +3,7 @@
 // LICENSE file in the root directory of this source tree.
 import { createRequire } from 'node:module';
 
+import type { PluginItem } from '@babel/core';
 import type { LoaderContext } from '@rspack/core';
 
 import type { ReactLoaderOptions } from './options.js';
@@ -58,19 +59,26 @@ async function reactCompilerLoader(
 
         const result = babel.transformSync(content, {
           plugins: [
+            // We use '17' to make `babel-plugin-react-compiler` compiles our code
+            // to use `react-compiler-runtime` instead of `react/compiler-runtime`
+            // for the `useMemoCache` hook
             [babelPluginReactCompilerPath!, { target: '17' }],
             babelPluginSyntaxJsxPath!,
             isTSX ? [babelPluginSyntaxTypescriptPath, { isTSX: true }] : null,
-          ],
+          ].filter(Boolean) as PluginItem[],
           filename: this.resourcePath,
           ast: false,
           sourceMaps: this.sourceMap,
         });
-        if (result?.code && result?.map) {
+        if (result?.code != null && result?.map != null) {
           return callback(null, result.code, JSON.stringify(result.map));
         } else {
           return callback(
-            new Error('babel-plugin-react-compiler transform failed'),
+            new Error(
+              `babel-plugin-react-compiler transform failed for ${this.resourcePath}: ${
+                result ? 'missing code or map' : 'no result'
+              }`,
+            ),
           );
         }
       } catch (e) {

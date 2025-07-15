@@ -135,6 +135,9 @@ export const createVitestConfig = async (options) => {
 
               const result = babel.transformSync(sourceText, {
                 plugins: [
+                  // We use '17' to make `babel-plugin-react-compiler` compiles our code
+                  // to use `react-compiler-runtime` instead of `react/compiler-runtime`
+                  // for the `useMemoCache` hook
                   [babelPluginReactCompilerPath, { target: '17' }],
                   babelPluginSyntaxJsxPath,
                 ],
@@ -142,13 +145,17 @@ export const createVitestConfig = async (options) => {
                 ast: false,
                 sourceMaps: true,
               });
-              if (result?.code && result?.map) {
+              if (result?.code != null && result?.map != null) {
                 return {
                   code: result.code,
                   map: result.map,
                 };
               } else {
-                this.error('babel-plugin-react-compiler transform failed');
+                this.error(
+                  `babel-plugin-react-compiler transform failed for ${this.resourcePath}: ${
+                    result ? 'missing code or map' : 'no result'
+                  }`,
+                );
               }
             } catch (e) {
               this.error(e);
