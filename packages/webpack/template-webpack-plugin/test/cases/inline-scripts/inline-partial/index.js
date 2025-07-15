@@ -12,7 +12,7 @@ import { resolve } from 'node:path';
 import { foo } from './foo.js';
 import { bar } from './bar.js';
 
-it('should generate correct foo template', async () => {
+it('should inline foo, but not inline bar', async () => {
   expect(foo()).toBe(42);
   expect(bar()).toBe(52);
 
@@ -26,4 +26,9 @@ it('should generate correct foo template', async () => {
   expect(Object.keys(manifest).length).toBe(2);
   expect(manifest['/app-service.js']).toBeTruthy();
   expect(manifest['/foo.js']).toBeTruthy();
+
+  it('inlined scripts should not have syntax error', () => {
+    eval(manifest['/app-service.js']);
+    eval(manifest['/foo.js']);
+  });
 });
