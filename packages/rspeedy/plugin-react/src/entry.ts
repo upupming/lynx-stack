@@ -9,7 +9,6 @@ import type {
   RsbuildPluginAPI,
   Rspack,
 } from '@rsbuild/core'
-import { logger } from '@rsbuild/core'
 import type { UndefinedOnPartialDeep } from 'type-fest'
 
 import { LAYERS, ReactWebpackPlugin } from '@lynx-js/react-webpack-plugin'
@@ -60,7 +59,7 @@ export function applyEntry(
     experimental_isLazyBundle,
   } = options
 
-  const { config } = api.useExposed<ExposedAPI>(
+  const { config, logger } = api.useExposed<ExposedAPI>(
     Symbol.for('rspeedy.api'),
   )!
   api.modifyBundlerChain((chain, { environment, isDev, isProd }) => {
