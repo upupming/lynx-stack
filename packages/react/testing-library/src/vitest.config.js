@@ -61,6 +61,9 @@ export const createVitestConfig = async (options) => {
     runtimeAlias = generateAlias(runtimePkgName, runtimeDir, __dirname);
   }
   const preactAlias = generateAlias('preact', preactDir, runtimeOSSDir);
+  preactAlias.forEach((alias) => {
+    alias.replacement = alias.replacement.replace(/\.js$/, '.mjs');
+  });
   const reactAlias = [
     {
       find: /^react$/,
