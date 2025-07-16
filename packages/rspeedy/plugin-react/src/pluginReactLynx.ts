@@ -310,7 +310,7 @@ export interface PluginReactLynxOptions {
   /**
    * Enable React Compiler for this build.
    *
-   * @link https://react.dev/learn/react-compiler
+   * {@link https://react.dev/learn/react-compiler}
    */
   experimental_enableReactCompiler?: boolean
 }
