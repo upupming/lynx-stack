@@ -72,12 +72,13 @@ export const createVitestConfig = async (options) => {
   const reactCompilerRuntimeAlias = [
     {
       find: /^react-compiler-runtime$/,
-      replacement: path.posix.join(
-        path.posix.dirname(require.resolve('react-compiler-runtime/package.json', {
+      replacement: path.join(
+        path.dirname(require.resolve('react-compiler-runtime/package.json', {
           paths: [process.cwd()],
         })),
         // Use ts to ensure `react` can be aliased to `@lynx-js/react`
-        'src/index.ts',
+        'src',
+        'index.ts',
       ),
     },
   ];
