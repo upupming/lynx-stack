@@ -70,15 +70,17 @@ async function reactCompilerLoader(
           ast: false,
           sourceMaps: this.sourceMap,
         });
-        if (result?.code != null && result?.map != null) {
-          return callback(null, result.code, JSON.stringify(result.map));
-        } else {
+        if (result?.code == null) {
           return callback(
             new Error(
-              `babel-plugin-react-compiler transform failed for ${this.resourcePath}: ${
-                result ? 'missing code or map' : 'no result'
-              }`,
+              `babel-plugin-react-compiler transform failed for ${this.resourcePath}`,
             ),
+          );
+        } else {
+          return callback(
+            null,
+            result.code,
+            (result?.map && JSON.stringify(result.map)) ?? undefined,
           );
         }
       } catch (e) {
