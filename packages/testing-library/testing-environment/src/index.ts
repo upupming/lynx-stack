@@ -9,7 +9,6 @@ import EventEmitter from 'events';
 import { JSDOM } from 'jsdom';
 import { createGlobalThis, LynxGlobalThis } from './lynx/GlobalThis.js';
 import { initElementTree } from './lynx/ElementPAPI.js';
-import { Console } from 'console';
 export { initElementTree } from './lynx/ElementPAPI.js';
 export type { LynxElement } from './lynx/ElementPAPI.js';
 export type { LynxGlobalThis } from './lynx/GlobalThis.js';
