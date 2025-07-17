@@ -372,7 +372,7 @@ export function pluginReactLynx(
       }
       applyEntry(api, resolvedOptions)
       applyBackgroundOnly(api)
-      applyGenerator(api)
+      applyGenerator(api, resolvedOptions)
       if (process.env['NODE_ENV'] === 'test') {
         applyTestingEnvLoaders(api, resolvedOptions)
       } else {

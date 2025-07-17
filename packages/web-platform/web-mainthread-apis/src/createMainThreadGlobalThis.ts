@@ -8,7 +8,7 @@ import {
   type StyleInfo,
   type FlushElementTreeOptions,
   type Cloneable,
-  type CssInJsInfo,
+  type CssOGInfo,
   type BrowserConfig,
   lynxUniqueIdAttribute,
   type publishEventEndpoint,
@@ -53,18 +53,19 @@ import {
   type SetCSSIdPAPI,
   type AddClassPAPI,
   type SetClassesPAPI,
-  type GetTemplatePartsPAPI,
   type GetPageElementPAPI,
   type MinimalRawEventObject,
   type I18nResourceTranslationOptions,
   lynxDisposedAttribute,
+  type SSRHydrateInfo,
+  type SSRDehydrateHooks,
 } from '@lynx-js/web-constants';
 import { globalMuteableVars } from '@lynx-js/web-constants';
 import { createMainThreadLynx } from './createMainThreadLynx.js';
 import {
   flattenStyleInfo,
   genCssContent,
-  genCssInJsInfo,
+  genCssOGInfo,
   transformToWebCss,
 } from './utils/processStyleInfo.js';
 import {
@@ -86,8 +87,11 @@ import {
   __GetID,
   __GetParent,
   __GetTag,
+  __GetTemplateParts,
   __InsertElementBefore,
   __LastElement,
+  __MarkPartElement,
+  __MarkTemplateElement,
   __NextElement,
   __RemoveElement,
   __ReplaceElement,
@@ -101,7 +105,7 @@ import {
   __UpdateComponentID,
 } from './pureElementPAPIs.js';
 import { createCrossThreadEvent } from './utils/createCrossThreadEvent.js';
-import { decodeCssInJs } from './utils/decodeCssInJs.js';
+import { decodeCssOG } from './utils/decodeCssOG.js';
 
 const exposureRelatedAttributes = new Set<string>([
   'exposure-id',
@@ -143,15 +147,17 @@ export interface MainThreadRuntimeConfig {
   lepusCode: Record<string, LynxJSModule>;
   browserConfig: BrowserConfig;
   tagMap: Record<string, string>;
-  rootDom: Pick<Element, 'append' | 'addEventListener'>;
+  rootDom:
+    & Pick<Element, 'append' | 'addEventListener'>
+    & Partial<Pick<Element, 'querySelectorAll'>>;
   jsContext: LynxContextEventTarget;
+  ssrHydrateInfo?: SSRHydrateInfo;
+  ssrHooks?: SSRDehydrateHooks;
 }
 
 export function createMainThreadGlobalThis(
   config: MainThreadRuntimeConfig,
 ): MainThreadGlobalThis {
-  let pageElement!: WebFiberElementImpl;
-  let uniqueIdInc = 1;
   let timingFlags: string[] = [];
   let renderPage: MainThreadGlobalThis['renderPage'];
   const {
@@ -162,11 +168,19 @@ export function createMainThreadGlobalThis(
     rootDom,
     globalProps,
     styleInfo,
+    ssrHydrateInfo,
+    ssrHooks,
   } = config;
-  const lynxUniqueIdToElement: WeakRef<WebFiberElementImpl>[] = [];
+  const lynxUniqueIdToElement: WeakRef<WebFiberElementImpl>[] =
+    ssrHydrateInfo?.lynxUniqueIdToElement ?? [];
+  const lynxUniqueIdToStyleRulesIndex: number[] =
+    ssrHydrateInfo?.lynxUniqueIdToStyleRulesIndex ?? [];
   const elementToRuntimeInfoMap: WeakMap<WebFiberElementImpl, LynxRuntimeInfo> =
     new WeakMap();
-  const lynxUniqueIdToStyleRulesIndex: number[] = [];
+
+  let pageElement: WebFiberElementImpl | undefined = lynxUniqueIdToElement[1]
+    ?.deref();
+  let uniqueIdInc = lynxUniqueIdToElement.length || 1;
   /**
    * for "update" the globalThis.val in the main thread
    */
@@ -187,19 +201,25 @@ export function createMainThreadGlobalThis(
     pageConfig.enableCSSSelector,
   );
   transformToWebCss(styleInfo);
-  const cssInJsInfo: CssInJsInfo = pageConfig.enableCSSSelector
+  const cssOGInfo: CssOGInfo = pageConfig.enableCSSSelector
     ? {}
-    : genCssInJsInfo(styleInfo);
-  const cardStyleElement = callbacks.createElement('style');
-  cardStyleElement.innerHTML = genCssContent(
-    styleInfo,
-    pageConfig,
-  );
-  // @ts-expect-error
-  rootDom.append(cardStyleElement);
+    : genCssOGInfo(styleInfo);
+  let cardStyleElement: HTMLStyleElement;
+  if (ssrHydrateInfo?.cardStyleElement) {
+    cardStyleElement = ssrHydrateInfo.cardStyleElement;
+  } else {
+    cardStyleElement = callbacks.createElement(
+      'style',
+    ) as unknown as HTMLStyleElement;
+    cardStyleElement.innerHTML = genCssContent(
+      styleInfo,
+      pageConfig,
+    );
+    rootDom.append(cardStyleElement);
+  }
   const cardStyleElementSheet =
     (cardStyleElement as unknown as HTMLStyleElement).sheet!;
-  const updateCSSInJsStyle: (
+  const updateCssOGStyle: (
     uniqueId: number,
     newStyles: string,
   ) => void = (uniqueId, newStyles) => {
@@ -462,6 +482,7 @@ export function createMainThreadGlobalThis(
     page.setAttribute(cssIdAttribute, cssID + '');
     page.setAttribute(parentComponentUniqueIdAttribute, '0');
     page.setAttribute(componentIdAttribute, componentID);
+    __MarkTemplateElement(page);
     if (pageConfig.defaultDisplayLinear === false) {
       page.setAttribute(lynxDefaultDisplayLinearAttribute, 'false');
     }
@@ -589,12 +610,12 @@ export function createMainThreadGlobalThis(
       ((element.getAttribute('class') ?? '') + ' ' + className)
         .trim();
     element.setAttribute('class', newClassName);
-    const newStyleStr = decodeCssInJs(
+    const newStyleStr = decodeCssOG(
       newClassName,
-      cssInJsInfo,
+      cssOGInfo,
       element.getAttribute(cssIdAttribute),
     );
-    updateCSSInJsStyle(
+    updateCssOGStyle(
       Number(element.getAttribute(lynxUniqueIdAttribute)),
       newStyleStr,
     );
@@ -605,12 +626,12 @@ export function createMainThreadGlobalThis(
     classNames,
   ) => {
     __SetClasses(element, classNames);
-    const newStyleStr = decodeCssInJs(
+    const newStyleStr = decodeCssOG(
       classNames ?? '',
-      cssInJsInfo,
+      cssOGInfo,
       element.getAttribute(cssIdAttribute),
     );
-    updateCSSInJsStyle(
+    updateCssOGStyle(
       Number(element.getAttribute(lynxUniqueIdAttribute)),
       newStyleStr ?? '',
     );
@@ -652,10 +673,6 @@ export function createMainThreadGlobalThis(
     );
   };
 
-  const __GetTemplateParts: GetTemplatePartsPAPI = () => {
-    return undefined;
-  };
-
   const __GetPageElement: GetPageElementPAPI = () => {
     return pageElement;
   };
@@ -663,7 +680,12 @@ export function createMainThreadGlobalThis(
   let release = '';
   const isCSSOG = !pageConfig.enableCSSSelector;
   const mtsGlobalThis: MainThreadGlobalThis = {
-    __AddEvent,
+    __GetTemplateParts: rootDom.querySelectorAll
+      ? __GetTemplateParts
+      : undefined,
+    __MarkTemplateElement,
+    __MarkPartElement,
+    __AddEvent: ssrHooks?.__AddEvent ?? __AddEvent,
     __GetEvent,
     __GetEvents,
     __SetEvents,
@@ -714,7 +736,6 @@ export function createMainThreadGlobalThis(
     __SetInlineStyles,
     __LoadLepusChunk,
     __GetPageElement,
-    __GetTemplateParts,
     __globalProps: globalProps,
     SystemInfo: {
       ...systemInfo,
