@@ -1,13 +1,10 @@
-import { defineConfig, mergeConfig } from 'vitest/config';
-import { createVitestConfig } from './dist/vitest.config';
+import { defineConfig } from 'vitest/config';
+import { vitestTestingLibraryPlugin } from './dist/plugins';
 
-const defaultConfig = await createVitestConfig({
-  runtimePkgName: '@lynx-js/react',
+export default defineConfig({
+  plugins: [
+    vitestTestingLibraryPlugin({
+      runtimePkgName: '@lynx-js/react',
+    }),
+  ],
 });
-const config = defineConfig({
-  test: {
-    name: 'react/testing-library',
-  },
-});
-
-export default mergeConfig(defaultConfig, config);

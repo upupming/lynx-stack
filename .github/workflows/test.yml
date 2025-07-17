@@ -226,6 +226,24 @@ jobs:
         --no-cache
         --logHeapUsage
         --silent
+  test-rstest:
+    needs: build
+    uses: ./.github/workflows/workflow-test.yml
+    strategy:
+      matrix:
+        runs-on:
+          - name: Ubuntu
+            label: lynx-ubuntu-24.04-medium
+          - name: Windows
+            label: lynx-windows-2022-large
+    name: Rstest (${{ matrix.runs-on.name }})
+    secrets:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+    with:
+      runs-on: ${{ matrix.runs-on.label }}
+      run: |
+        (cd packages/react/testing-library && pnpm run test:rs)
+        (cd packages/testing-library/examples/basic && pnpm test:rs)
   website:
     needs: build
     uses: ./.github/workflows/workflow-website.yml

@@ -14,7 +14,7 @@ function LazyComponentLoader({ url }) {
   return (
     <Suspense fallback={<text>loading...</text>}>
       <InternalComponent />
-      <ExternalComponent />
+      {(typeof __RSTEST__ !== 'undefined' && __RSTEST__) ? null : <ExternalComponent />}
     </Suspense>
   );
 }
@@ -45,15 +45,25 @@ describe('lazy bundle', () => {
       timeout: 50_000,
     });
 
-    expect(container.firstChild).toMatchInlineSnapshot(`
+    if (typeof __RSTEST__ !== 'undefined' && __RSTEST__) {
+      expect(container.firstChild).toMatchInlineSnapshot(`
       <view>
-        <text>
-          Hello from LazyComponent
-        </text>
         <text>
           Hello from LazyComponent
         </text>
       </view>
     `);
+    } else {
+      expect(container.firstChild).toMatchInlineSnapshot(`
+        <view>
+          <text>
+            Hello from LazyComponent
+          </text>
+          <text>
+            Hello from LazyComponent
+          </text>
+        </view>
+      `);
+    }
   });
 });
