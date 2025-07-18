@@ -64,6 +64,11 @@ interface ReactWebpackPluginOptions {
    * @defaultValue `false` when production, `true` when development
    */
   profile?: boolean | undefined;
+
+  /**
+   * {@inheritdoc @lynx-js/react-rsbuild-plugin#PluginReactLynxOptions.enableTestingLibrary}
+   */
+  enableTestingLibrary?: boolean;
 }
 
 /**
@@ -138,6 +143,7 @@ class ReactWebpackPlugin {
       extractStr: false,
       experimental_isLazyBundle: false,
       profile: undefined,
+      enableTestingLibrary: false,
     });
 
   /**
@@ -168,7 +174,7 @@ class ReactWebpackPlugin {
       DEBUG: null,
     }).apply(compiler);
 
-    if (process.env['NODE_ENV'] !== 'test') {
+    if (!options.enableTestingLibrary) {
       new DefinePlugin({
         __DEV__: JSON.stringify(compiler.options.mode === 'development'),
         // We enable profile by default in development.

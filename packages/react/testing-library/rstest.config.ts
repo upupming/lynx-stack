@@ -6,7 +6,9 @@ import type { RsbuildPlugin } from '@rsbuild/core';
 export default defineConfig({
   plugins: [
     rstestTestingLibraryPlugin(),
-    pluginReactLynx(),
+    pluginReactLynx({
+      enableTestingLibrary: true,
+    }),
     {
       name: 'lynx:testing-library:plugin',
       setup(api) {

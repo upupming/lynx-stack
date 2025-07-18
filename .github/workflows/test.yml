@@ -245,8 +245,7 @@ jobs:
     with:
       runs-on: ${{ matrix.runs-on.label }}
       run: |
-        (cd packages/react/testing-library && pnpm run test:rs)
-        (cd packages/testing-library/examples/basic && pnpm test:rs)
+        pnpm -r run test:rs
   website:
     needs: build
     uses: ./.github/workflows/workflow-website.yml

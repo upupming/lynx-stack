@@ -53,6 +53,7 @@ export function applyEntry(
     enableSSR,
     pipelineSchedulerConfig,
     removeDescendantSelectorScope,
+    enableTestingLibrary,
     targetSdkVersion,
     extractStr: originalExtractStr,
 
@@ -66,7 +67,7 @@ export function applyEntry(
     let finalFirstScreenSyncTiming = firstScreenSyncTiming
     const mainThreadChunks: string[] = []
 
-    if (process.env['NODE_ENV'] !== 'test') {
+    if (!enableTestingLibrary) {
       const entries = chain.entryPoints.entries() ?? {}
       const isLynx = environment.name === 'lynx'
       const isWeb = environment.name === 'web'

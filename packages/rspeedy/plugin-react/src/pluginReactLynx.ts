@@ -284,6 +284,15 @@ export interface PluginReactLynxOptions {
   engineVersion?: string
 
   /**
+   * `enableTestingLibrary` should be enabled when using ReactLynx Testing Library
+   *
+   * @defaultValue `false`
+   *
+   * @public
+   */
+  enableTestingLibrary?: boolean
+
+  /**
    * targetSdkVersion is used to specify the minimal Lynx Engine version that a App bundle can run on.
    *
    * @public
@@ -348,6 +357,7 @@ export function pluginReactLynx(
     removeDescendantSelectorScope: true,
     shake: undefined,
     defineDCE: undefined,
+    enableTestingLibrary: false,
 
     // The following two default values are useless, since they will be overridden by `engineVersion`
     targetSdkVersion: '',
@@ -367,13 +377,13 @@ export function pluginReactLynx(
     pre: ['lynx:rsbuild:plugin-api'],
     async setup(api) {
       await applyAlias(api, resolvedOptions.experimental_isLazyBundle)
-      if (process.env['NODE_ENV'] !== 'test') {
+      if (!resolvedOptions.enableTestingLibrary) {
         applyCSS(api, resolvedOptions)
       }
       applyEntry(api, resolvedOptions)
       applyBackgroundOnly(api)
       applyGenerator(api, resolvedOptions)
-      if (process.env['NODE_ENV'] === 'test') {
+      if (resolvedOptions.enableTestingLibrary) {
         applyTestingEnvLoaders(api, resolvedOptions)
       } else {
         applyLoaders(api, resolvedOptions)
