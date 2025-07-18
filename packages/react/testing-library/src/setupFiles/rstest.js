@@ -1,4 +1,4 @@
-import { LynxTestingEnv } from '@lynx-js/testing-environment';
+import { LynxTestingEnv } from '../env';
 
 global.jsdom = {
   window,

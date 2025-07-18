@@ -1,6 +1,6 @@
 import '@testing-library/jest-dom';
 import { expect, it } from 'vitest';
-import { render, screen, waitForElementToBeRemoved } from '@lynx-js/react/testing-library';
+import { render, screen, waitForElementToBeRemoved } from '../..';
 import { Suspense, lazy } from '@lynx-js/react';
 import { createRequire } from 'node:module';
 import { describe } from 'node:test';

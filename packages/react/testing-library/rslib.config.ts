@@ -10,7 +10,7 @@ export default defineConfig({
       source: {
         entry: {
           'pure': './src/pure.jsx',
-          'env/vitest': './src/env/vitest.ts',
+          'env/index': './src/env/index.ts',
           'plugins/index': './src/plugins/index.ts',
         },
       },
@@ -30,7 +30,7 @@ export default defineConfig({
       bundle: false,
       source: {
         entry: {
-          'index': ['./src/index.jsx', './src/env/*', './src/setupFiles/**/*.js'],
+          'index': ['./src/index.jsx', './src/env/vitest.ts', './src/setupFiles/**/*.js'],
         },
       },
       output: {
