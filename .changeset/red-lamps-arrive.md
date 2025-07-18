@@ -12,7 +12,9 @@ import { rstestTestingLibraryPlugin } from '@lynx-js/react/testing-library/plugi
 export default defineConfig({
   plugins: [
     rstestTestingLibraryPlugin(),
-    pluginReactLynx(),
+    pluginReactLynx({
+      enableTestingLibrary: true,
+    }),
   ],
   testEnvironment: 'jsdom',
   setupFiles: [
