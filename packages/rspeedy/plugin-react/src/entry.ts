@@ -275,6 +275,7 @@ export function applyEntry(
         extractStr,
         experimental_isLazyBundle,
         profile: rsbuildConfig.performance?.profile,
+        enableTestingLibrary,
       }])
   })
 }
