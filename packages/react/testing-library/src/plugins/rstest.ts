@@ -19,6 +19,12 @@ export function testingLibraryPlugin(): RsbuildPlugin {
               ],
             },
           },
+          output: {
+            externals: [
+              // it is used for the implementation of `CoreContext` and `JSContext`
+              'node:events',
+            ],
+          },
         });
         return config;
       });

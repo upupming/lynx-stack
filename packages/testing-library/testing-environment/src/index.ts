@@ -5,7 +5,7 @@
  * notably the {@link https://lynxjs.org/api/engine/element-api | Element PAPI} and {@link https://lynxjs.org/guide/spec#dual-threaded-model | Dual-threaded Model} for use with Node.js.
  */
 
-import EventEmitter from 'events';
+import EventEmitter from 'node:events';
 import { JSDOM } from 'jsdom';
 import { createGlobalThis, LynxGlobalThis } from './lynx/GlobalThis.js';
 import { initElementTree } from './lynx/ElementPAPI.js';
