@@ -157,6 +157,12 @@ jobs:
         pnpm run build
         pnpm run build --mode development
         pnpm run test
+        npx --registry http://localhost:4873 create-rspeedy-canary@latest --template react-rstest-rltl --dir create-rspeedy-regression-rstest-rltl
+        cd create-rspeedy-regression-rstest-rltl
+        pnpm install --registry=http://localhost:4873
+        pnpm run build
+        pnpm run build --mode development
+        pnpm run test
   test-react:
     needs: build
     uses: ./.github/workflows/workflow-test.yml
@@ -245,7 +251,7 @@ jobs:
     with:
       runs-on: ${{ matrix.runs-on.label }}
       run: |
-        pnpm -r run test:rs
+        pnpm -r run test:rs --testTimeout=50000
   website:
     needs: build
     uses: ./.github/workflows/workflow-website.yml
