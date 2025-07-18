@@ -6,6 +6,7 @@ import { act } from 'preact/test-utils';
 
 describe('alog', () => {
   test('should log', async () => {
+    const originalAlog = console.alog;
     let mainThreadALogCalls = [];
     let backgroundThreadALogCalls = [];
     console.alog = (...args) => {
@@ -103,5 +104,8 @@ describe('alog', () => {
         ],
       ]
     `);
+
+    // Cleanup
+    console.alog = originalAlog;
   });
 });

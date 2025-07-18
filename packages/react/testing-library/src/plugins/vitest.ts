@@ -151,11 +151,16 @@ async function ensurePackagesInstalled() {
 
 function generateAlias(pkgName: string, pkgDir: string, resolveDir: string) {
   const pkgExports = require(path.join(pkgDir, 'package.json')).exports;
+  if (!pkgExports || typeof pkgExports !== 'object') {
+    return [];
+  }
   const pkgAlias: Vite.Alias[] = [];
   Object.keys(pkgExports).forEach((key) => {
     const name = path.posix.join(pkgName, key);
+    // Escape special regex characters in the package name
+    const escapedName = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     pkgAlias.push({
-      find: new RegExp('^' + name + '$'),
+      find: new RegExp('^' + escapedName + '$'),
       replacement: require.resolve(name, {
         paths: [resolveDir],
       }),

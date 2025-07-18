@@ -1,4 +1,3 @@
-debugger;
 globalThis.onInjectMainThreadGlobals(
   globalThis.lynxTestingEnv.mainThread.globalThis,
 );

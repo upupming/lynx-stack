@@ -233,10 +233,10 @@ function injectMainThreadGlobals(target?: any, polyfills?: any) {
   target.requestAnimationFrame = setTimeout;
   target.cancelAnimationFrame = clearTimeout;
 
-  target.console.profile = () => {};
-  target.console.profileEnd = () => {};
+  target.console.profile = console.profile = () => {};
+  target.console.profileEnd = console.profileEnd = () => {};
   // @ts-expect-error Lynx has console.alog
-  console.alog = () => {};
+  target.console.alog = console.alog = () => {};
 
   target.__LoadLepusChunk = __LoadLepusChunk;
 
@@ -341,10 +341,10 @@ function injectBackgroundThreadGlobals(target?: any, polyfills?: any) {
   target.requestAnimationFrame = setTimeout;
   target.cancelAnimationFrame = clearTimeout;
 
-  target.console.profile = () => {};
-  target.console.profileEnd = () => {};
+  target.console.profile = console.profile = () => {};
+  target.console.profileEnd = console.profileEnd = () => {};
   // @ts-expect-error Lynx has console.alog
-  console.alog = () => {};
+  target.console.alog = console.alog = () => {};
 
   // TODO: user-configurable
   target.SystemInfo = {
