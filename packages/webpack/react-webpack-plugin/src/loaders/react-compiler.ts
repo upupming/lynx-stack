@@ -8,53 +8,57 @@ import type { LoaderContext } from '@rspack/core';
 
 import type { ReactLoaderOptions } from './options.js';
 
+const require = createRequire(import.meta.url);
+
+const missingBabelPackages: string[] = [];
+const [
+  swcReactCompilerPath,
+  babelPath,
+  babelPluginReactCompilerPath,
+  babelPluginSyntaxJsxPath,
+  babelPluginSyntaxTypescriptPath,
+] = [
+  '@swc/react-compiler',
+  '@babel/core',
+  'babel-plugin-react-compiler',
+  '@babel/plugin-syntax-jsx',
+  '@babel/plugin-syntax-typescript',
+].map((name) => {
+  try {
+    return require.resolve(name, {
+      paths: [process.cwd()],
+    });
+  } catch {
+    missingBabelPackages.push(name);
+  }
+  return '';
+});
+if (missingBabelPackages.length > 0) {
+  throw new Error(
+    `With \`experimental_enableReactCompiler\` enabled, you need to install \`${
+      missingBabelPackages.join(
+        '`, `',
+      )
+    }\` in your project root to use React Compiler.`,
+  );
+}
+
 async function reactCompilerLoader(
   this: LoaderContext<ReactLoaderOptions>,
   content: string,
 ): Promise<void> {
   const callback = this.async();
-  const require = createRequire(import.meta.url);
-  const { transformPath = '@lynx-js/react/transform' } = this.getOptions();
   const { isReactCompilerRequired } = require(
-    transformPath,
-  ) as typeof import('@lynx-js/react/transform');
+    swcReactCompilerPath!,
+  ) as typeof import('@swc/react-compiler');
   if (/\.(?:jsx|tsx)$/.test(this.resourcePath)) {
     const isTSX = this.resourcePath.endsWith('.tsx');
 
-    const needReactCompiler = await isReactCompilerRequired(content);
+    const needReactCompiler = await isReactCompilerRequired(
+      Buffer.from(content),
+    );
     if (needReactCompiler) {
       try {
-        const missingBabelPackages: string[] = [];
-        const [
-          babelPath,
-          babelPluginReactCompilerPath,
-          babelPluginSyntaxJsxPath,
-          babelPluginSyntaxTypescriptPath,
-        ] = [
-          '@babel/core',
-          'babel-plugin-react-compiler',
-          '@babel/plugin-syntax-jsx',
-          '@babel/plugin-syntax-typescript',
-        ].map((name) => {
-          try {
-            return require.resolve(name, {
-              paths: [this.rootContext],
-            });
-          } catch {
-            missingBabelPackages.push(name);
-          }
-          return '';
-        });
-        if (missingBabelPackages.length > 0) {
-          throw new Error(
-            `With \`experimental_enableReactCompiler\` enabled, you need to install \`${
-              missingBabelPackages.join(
-                '`, `',
-              )
-            }\` in your project root to use React Compiler.`,
-          );
-        }
-
         const babel = require(babelPath!) as typeof import('@babel/core');
 
         const result = babel.transformSync(content, {

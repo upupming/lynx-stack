@@ -87,6 +87,35 @@ export const createVitestConfig = async (options) => {
   ];
 
   function transformReactCompilerPlugin() {
+    const missingBabelPackages = [];
+    const [
+      swcReactCompilerPath,
+      babelPath,
+      babelPluginReactCompilerPath,
+      babelPluginSyntaxJsxPath,
+    ] = [
+      '@swc/react-compiler',
+      '@babel/core',
+      'babel-plugin-react-compiler',
+      '@babel/plugin-syntax-jsx',
+    ].map((name) => {
+      try {
+        return require.resolve(name, {
+          paths: [process.cwd()],
+        });
+      } catch {
+        missingBabelPackages.push(name);
+      }
+      return '';
+    });
+    if (missingBabelPackages.length > 0) {
+      throw `With \`experimental_enableReactCompiler\` enabled, you need to install \`${
+        missingBabelPackages.join(
+          '`, `',
+        )
+      }\` in your project root to use React Compiler.`;
+    }
+
     return {
       name: 'transformReactCompilerPlugin',
       enforce: 'pre',
@@ -101,40 +130,11 @@ export const createVitestConfig = async (options) => {
           return '';
         }
 
-        const { isReactCompilerRequired } = require(
-          '@lynx-js/react/transform',
-        );
+        const { isReactCompilerRequired } = require(swcReactCompilerPath);
         if (/\.(?:jsx|tsx)$/.test(sourcePath)) {
           const needReactCompiler = await isReactCompilerRequired(sourceText);
           if (needReactCompiler) {
             try {
-              const missingBabelPackages = [];
-              const [
-                babelPath,
-                babelPluginReactCompilerPath,
-                babelPluginSyntaxJsxPath,
-              ] = [
-                '@babel/core',
-                'babel-plugin-react-compiler',
-                '@babel/plugin-syntax-jsx',
-              ].map((name) => {
-                try {
-                  return require.resolve(name, {
-                    paths: [process.cwd()],
-                  });
-                } catch {
-                  missingBabelPackages.push(name);
-                }
-                return '';
-              });
-              if (missingBabelPackages.length > 0) {
-                throw `With \`experimental_enableReactCompiler\` enabled, you need to install \`${
-                  missingBabelPackages.join(
-                    '`, `',
-                  )
-                }\` in your project root to use React Compiler.`;
-              }
-
               const babel = require(babelPath);
 
               const result = babel.transformSync(sourceText, {
