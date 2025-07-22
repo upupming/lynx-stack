@@ -6,13 +6,16 @@ import type { RsbuildPluginAPI } from '@rsbuild/core'
 import { pluginReactAlias } from '@lynx-js/react-alias-rsbuild-plugin'
 import { LAYERS } from '@lynx-js/react-webpack-plugin'
 
+import type { PluginReactLynxOptions } from './pluginReactLynx.js'
+
 export function applyAlias(
   api: RsbuildPluginAPI,
-  lazy?: boolean,
+  options: Required<PluginReactLynxOptions>,
 ): void | Promise<void> {
   return pluginReactAlias({
     LAYERS,
-    lazy,
+    lazy: options.experimental_isLazyBundle,
+    experimental_enableReactCompiler: options.experimental_enableReactCompiler,
     rootPath: api.context.rootPath,
   }).setup(api)
 }

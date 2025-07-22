@@ -375,7 +375,7 @@ export function pluginReactLynx(
     name: 'lynx:react',
     pre: ['lynx:rsbuild:plugin-api'],
     async setup(api) {
-      await applyAlias(api, resolvedOptions.experimental_isLazyBundle)
+      await applyAlias(api, resolvedOptions)
       applyCSS(api, resolvedOptions)
       applyEntry(api, resolvedOptions)
       applyBackgroundOnly(api)
