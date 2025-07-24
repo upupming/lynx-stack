@@ -2,7 +2,7 @@
 "@lynx-js/react": patch
 ---
 
-Add the `@lynx-js/react/testing-library/vitest-config` exports, user can use the Vite plugin to configure RLTL now.
+Add the `@lynx-js/react/testing-library/plugins` exports, user can use the Vite plugin to configure RLTL now.
 
 ```js
 import { defineConfig } from 'vitest/config';
