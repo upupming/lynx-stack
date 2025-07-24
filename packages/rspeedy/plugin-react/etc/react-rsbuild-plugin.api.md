@@ -67,7 +67,6 @@ export interface PluginReactLynxOptions {
     enableParallelElement?: boolean;
     enableRemoveCSSScope?: boolean | undefined;
     enableSSR?: boolean;
-    enableTestingLibrary?: boolean;
     engineVersion?: string;
     // @alpha
     experimental_isLazyBundle?: boolean;

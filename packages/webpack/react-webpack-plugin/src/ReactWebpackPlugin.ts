@@ -66,9 +66,9 @@ interface ReactWebpackPluginOptions {
   profile?: boolean | undefined;
 
   /**
-   * {@inheritdoc @lynx-js/react-rsbuild-plugin#PluginReactLynxOptions.enableTestingLibrary}
+   * Enable global define such as `__MAIN_THREAD__` and `__BACKGROUND__`.
    */
-  enableTestingLibrary?: boolean;
+  enableDefine?: boolean;
 }
 
 /**
@@ -143,7 +143,7 @@ class ReactWebpackPlugin {
       extractStr: false,
       experimental_isLazyBundle: false,
       profile: undefined,
-      enableTestingLibrary: false,
+      enableDefine: true,
     });
 
   /**
@@ -174,7 +174,7 @@ class ReactWebpackPlugin {
       DEBUG: null,
     }).apply(compiler);
 
-    if (!options.enableTestingLibrary) {
+    if (options.enableDefine) {
       new DefinePlugin({
         __DEV__: JSON.stringify(compiler.options.mode === 'development'),
         // We enable profile by default in development.

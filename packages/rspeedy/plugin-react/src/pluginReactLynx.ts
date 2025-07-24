@@ -28,6 +28,7 @@ import { applyGenerator } from './generator.js'
 import { applyLazy } from './lazy.js'
 import { applyLoaders, applyTestingEnvLoaders } from './loaders.js'
 import { applyRefresh } from './refresh.js'
+import { applyRstest } from './rstest.js'
 import { applySplitChunksRule } from './splitChunks.js'
 import { applySWC } from './swc.js'
 import { applyUseSyncExternalStore } from './useSyncExternalStore.js'
@@ -284,15 +285,6 @@ export interface PluginReactLynxOptions {
   engineVersion?: string
 
   /**
-   * `enableTestingLibrary` should be enabled when using ReactLynx Testing Library
-   *
-   * @defaultValue `false`
-   *
-   * @public
-   */
-  enableTestingLibrary?: boolean
-
-  /**
    * targetSdkVersion is used to specify the minimal Lynx Engine version that a App bundle can run on.
    *
    * @public
@@ -357,7 +349,6 @@ export function pluginReactLynx(
     removeDescendantSelectorScope: true,
     shake: undefined,
     defineDCE: undefined,
-    enableTestingLibrary: false,
 
     // The following two default values are useless, since they will be overridden by `engineVersion`
     targetSdkVersion: '',
@@ -376,14 +367,19 @@ export function pluginReactLynx(
     name: 'lynx:react',
     pre: ['lynx:rsbuild:plugin-api'],
     async setup(api) {
+      const isRstest = api.context.callerName === 'rstest'
+
+      if (isRstest) {
+        applyRstest(api)
+      }
       await applyAlias(api, resolvedOptions.experimental_isLazyBundle)
-      if (!resolvedOptions.enableTestingLibrary) {
+      if (!isRstest) {
         applyCSS(api, resolvedOptions)
       }
       applyEntry(api, resolvedOptions)
       applyBackgroundOnly(api)
       applyGenerator(api, resolvedOptions)
-      if (resolvedOptions.enableTestingLibrary) {
+      if (isRstest) {
         applyTestingEnvLoaders(api, resolvedOptions)
       } else {
         applyLoaders(api, resolvedOptions)

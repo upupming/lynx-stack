@@ -1,14 +1,8 @@
 import { defineConfig } from '@rstest/core'
-import { pluginReactLynx } from '@lynx-js/react-rsbuild-plugin'
-import { rstestTestingLibraryPlugin } from '@lynx-js/react/testing-library/plugins'
+import lynxConfig from './lynx.config.js'
 
 export default defineConfig({
-  plugins: [
-    rstestTestingLibraryPlugin(),
-    pluginReactLynx({
-      enableTestingLibrary: true,
-    }),
-  ],
+  ...lynxConfig,
   testEnvironment: 'jsdom',
   setupFiles: [
     require.resolve('@lynx-js/react/testing-library/setupFiles/rstest'),

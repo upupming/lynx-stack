@@ -53,7 +53,6 @@ export function applyEntry(
     enableSSR,
     pipelineSchedulerConfig,
     removeDescendantSelectorScope,
-    enableTestingLibrary,
     targetSdkVersion,
     extractStr: originalExtractStr,
 
@@ -67,7 +66,9 @@ export function applyEntry(
     let finalFirstScreenSyncTiming = firstScreenSyncTiming
     const mainThreadChunks: string[] = []
 
-    if (!enableTestingLibrary) {
+    const isRstest = api.context.callerName === 'rstest'
+
+    if (!isRstest) {
       const entries = chain.entryPoints.entries() ?? {}
       const isLynx = environment.name === 'lynx'
       const isWeb = environment.name === 'web'
@@ -276,7 +277,7 @@ export function applyEntry(
         extractStr,
         experimental_isLazyBundle,
         profile: getDefaultProfile(),
-        enableTestingLibrary,
+        enableDefine: !isRstest,
       }])
 
     function getDefaultProfile(): boolean | undefined {

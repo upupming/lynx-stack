@@ -5,17 +5,11 @@
 Support rstest for testing library, you can use rstest with RLTL now:
 
 ```ts
-import { defineConfig } from '@rstest/core';
-import { pluginReactLynx } from '@lynx-js/react-rsbuild-plugin';
-import { rstestTestingLibraryPlugin } from '@lynx-js/react/testing-library/plugins';
+import { defineConfig, RstestConfig } from '@rstest/core';
+import lynxConfig from './lynx.config.js';
 
 export default defineConfig({
-  plugins: [
-    rstestTestingLibraryPlugin(),
-    pluginReactLynx({
-      enableTestingLibrary: true,
-    }),
-  ],
+  ...lynxConfig as RstestConfig,
   testEnvironment: 'jsdom',
   setupFiles: [
     require.resolve('@lynx-js/react/testing-library/setupFiles/rstest'),

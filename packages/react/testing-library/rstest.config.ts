@@ -1,21 +1,19 @@
 import { defineConfig } from '@rstest/core';
 import { pluginReactLynx } from '@lynx-js/react-rsbuild-plugin';
-import { rstestTestingLibraryPlugin } from './src/plugins';
 import type { RsbuildPlugin } from '@rsbuild/core';
 
 export default defineConfig({
   plugins: [
-    rstestTestingLibraryPlugin(),
-    pluginReactLynx({
-      enableTestingLibrary: true,
-    }),
+    pluginReactLynx(),
     {
       name: 'lynx:testing-library:plugin',
+      pre: ['lynx:react'],
       setup(api) {
-        api.modifyBundlerChain((chain, { CHAIN_ID }) => {
+        api.modifyBundlerChain((chain, { CHAIN_ID, rspack }) => {
           const rule = chain.module.rules.get(CHAIN_ID.RULE.JS);
-          const swcUse = rule.uses.entries().swc;
-          const originalOptions = swcUse.get('options') || {};
+          const reactTestingRule = rule.oneOfs.get('react:testing');
+          const swcUse = reactTestingRule.uses.get('swc');
+          const originalOptions = swcUse.get('options');
           const newOptions = {
             ...originalOptions,
             jsc: {
