@@ -1,13 +1,7 @@
 import { defineConfig, type ViteUserConfig } from 'vitest/config';
 import { vitestTestingLibraryPlugin } from './plugins/index.js';
-export interface TestingLibraryOptions {
-  /**
-   * The package name of the ReactLynx runtime package.
-   *
-   * @default `@lynx-js/react`
-   */
-  runtimePkgName?: string;
-}
+import type { TestingLibraryOptions } from './plugins/vitest.js';
+
 export async function createVitestConfig(options?: TestingLibraryOptions): Promise<ViteUserConfig> {
   return defineConfig({
     plugins: [
