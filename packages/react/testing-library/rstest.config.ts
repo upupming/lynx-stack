@@ -49,7 +49,7 @@ export default defineConfig({
     // both vitest and rstest, we need to alias
     // `vitest` to `@rstest/core`
     alias: {
-      vitest: require.resolve('./vitest-polyfill.js'),
+      vitest: require.resolve('./vitest-polyfill.cjs'),
     },
   },
 });
