@@ -163,7 +163,7 @@ importers:
         specifier: ^0.4.20
         version: 0.4.20(eslint@9.31.0(jiti@2.4.2))
       typescript-eslint:
-        specifier: ^8.35.1
+        specifier: ^8.37.0
         version: 8.37.0(eslint@9.31.0(jiti@2.4.2))(typescript@5.8.3)
 
   examples/tailwindcss:
