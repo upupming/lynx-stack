@@ -1,7 +1,6 @@
 packages:
   - examples/*
   - packages/background-only
-  - packages/eslint-config-reactlynx
   - packages/react
   - packages/react/refresh
   - packages/react/runtime

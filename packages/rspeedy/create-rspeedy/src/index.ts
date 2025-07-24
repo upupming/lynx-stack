@@ -8,13 +8,7 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import type { Argv } from 'create-rstack'
-import {
-  checkCancel,
-  copyFolder,
-  create,
-  multiselect,
-  select,
-} from 'create-rstack'
+import { checkCancel, create, multiselect, select } from 'create-rstack'
 
 type LANG = 'js' | 'ts'
 
@@ -107,27 +101,20 @@ void create({
   ),
   version: devDependencies,
   getTemplateName,
-  mapESLintTemplate(templateName, { distFolder }) {
+  mapESLintTemplate(templateName) {
     const lang = TEMPLATES.find(({ template }) =>
       templateName.startsWith(template)
     )?.lang
 
     if (!lang) return null
 
-    const eslintFilesFolder = path.join(
-      __dirname,
-      '..',
-      'template-eslint',
-      lang,
-    )
-
-    copyFolder({
-      from: eslintFilesFolder,
-      to: distFolder,
-      version: devDependencies,
-      isMergePackageJson: true,
-    })
-
-    return null
+    switch (lang) {
+      case 'js':
+        return 'react-js'
+      case 'ts':
+        return 'react-ts'
+      default:
+        return null
+    }
   },
 })
