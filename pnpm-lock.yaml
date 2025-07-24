@@ -20,6 +20,10 @@ catalogs:
     '@rspack/test-tools':
       specifier: 1.4.8
       version: 1.4.8
+  rstest:
+    '@rstest/core':
+      specifier: 0.0.8
+      version: 0.0.8
 
 overrides:
   '@rspack/core': 1.4.8
@@ -63,7 +67,7 @@ importers:
         specifier: 1.4.8
         version: 1.4.8(@swc/helpers@0.5.17)
       '@rstest/core':
-        specifier: ^0.0.8
+        specifier: catalog:rstest
         version: 0.0.8(jsdom@26.1.0)
       '@svitejs/changesets-changelog-github-compact':
         specifier: ^1.2.0
@@ -396,6 +400,9 @@ importers:
       '@rsbuild/plugin-type-check':
         specifier: 1.2.3
         version: 1.2.3(@rsbuild/core@1.4.8)(@rspack/core@1.4.8(@swc/helpers@0.5.17))(typescript@5.8.3)
+      '@rstest/core':
+        specifier: catalog:rstest
+        version: 0.0.8(jsdom@26.1.0)
 
   packages/rspeedy/plugin-qrcode:
     devDependencies:
