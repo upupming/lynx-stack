@@ -95,6 +95,10 @@
       "types": "./testing-library/types/pure.d.ts",
       "default": "./testing-library/dist/pure.js"
     },
+    "./testing-library/vitest-config": {
+      "types": "./testing-library/dist/vitest.config.d.ts",
+      "default": "./testing-library/dist/vitest.config.js"
+    },
     "./testing-library/plugins": {
       "types": "./testing-library/dist/plugins/index.d.ts",
       "default": "./testing-library/dist/plugins/index.js"

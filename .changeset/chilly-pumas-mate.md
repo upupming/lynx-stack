@@ -2,9 +2,15 @@
 "@lynx-js/react": patch
 ---
 
-Remove the `@lynx-js/react/testing-library/vitest-config` exports, user should replace it with the new `vitestTestingLibraryPlugin` in `vitest.config.js`:
+Add the `@lynx-js/react/testing-library/vitest-config` exports, user can use the Vite plugin to configure RLTL now.
 
-```diff
--  import { createVitestConfig } from '@lynx-js/react/testing-library/vitest-config' 
-+  import { vitestTestingLibraryPlugin } from '@lynx-js/react/testing-library/plugins'
+```js
+import { defineConfig } from 'vitest/config';
+import { vitestTestingLibraryPlugin } from '@lynx-js/react/testing-library/plugins';
+
+export default defineConfig({
+  plugins: [
+    vitestTestingLibraryPlugin(),
+  ],
+});
 ```

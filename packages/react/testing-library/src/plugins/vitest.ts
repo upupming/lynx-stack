@@ -11,7 +11,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const require = createRequire(import.meta.url);
 
-export interface TestingLibraryPluginOptions {
+export interface TestingLibraryOptions {
   /**
    * The package name of the ReactLynx runtime package.
    *
@@ -21,7 +21,7 @@ export interface TestingLibraryPluginOptions {
 }
 
 export function testingLibraryPlugin(
-  options?: TestingLibraryPluginOptions,
+  options?: TestingLibraryOptions,
 ): Vite.Plugin {
   const runtimeOSSPkgName = '@lynx-js/react';
   const runtimePkgName = options?.runtimePkgName ?? runtimeOSSPkgName;
