@@ -124,9 +124,6 @@
     },
     {
       "path": "./packages/third-party"
-    },
-    {
-      "path": "./packages/eslint-config-reactlynx"
     }
   ],
   "include": []
