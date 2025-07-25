@@ -162,6 +162,9 @@ importers:
       '@lynx-js/react':
         specifier: workspace:*
         version: link:../../packages/react
+      react-compiler-runtime:
+        specifier: 0.0.0-experimental-0566679-20250709
+        version: 0.0.0-experimental-0566679-20250709(react@19.1.0)
     devDependencies:
       '@babel/core':
         specifier: ^7.28.0
@@ -184,15 +187,15 @@ importers:
       '@lynx-js/types':
         specifier: 3.3.0
         version: 3.3.0
+      '@swc/react-compiler':
+        specifier: ^1.13.1
+        version: 1.13.1
       '@types/react':
         specifier: ^18.3.23
         version: 18.3.23
       babel-plugin-react-compiler:
         specifier: 0.0.0-experimental-0566679-20250709
         version: 0.0.0-experimental-0566679-20250709
-      react-compiler-runtime:
-        specifier: 0.0.0-experimental-0566679-20250709
-        version: 0.0.0-experimental-0566679-20250709(react@19.1.0)
 
   examples/tailwindcss:
     dependencies:
@@ -635,6 +638,9 @@ importers:
       '@lynx-js/react':
         specifier: workspace:*
         version: link:../../../react
+      react-compiler-runtime:
+        specifier: 0.0.0-experimental-0566679-20250709
+        version: 0.0.0-experimental-0566679-20250709(react@19.1.0)
     devDependencies:
       '@babel/core':
         specifier: ^7.28.0
@@ -660,9 +666,6 @@ importers:
       babel-plugin-react-compiler:
         specifier: 0.0.0-experimental-0566679-20250709
         version: 0.0.0-experimental-0566679-20250709
-      react-compiler-runtime:
-        specifier: 0.0.0-experimental-0566679-20250709
-        version: 0.0.0-experimental-0566679-20250709(react@19.1.0)
 
   packages/testing-library/testing-environment:
     devDependencies:
