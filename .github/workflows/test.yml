@@ -251,7 +251,7 @@ jobs:
     with:
       runs-on: ${{ matrix.runs-on.label }}
       run: |
-        pnpm -r run test:rs --testTimeout=50000
+        pnpm -r run rstest --testTimeout=50000
   website:
     needs: build
     uses: ./.github/workflows/workflow-website.yml

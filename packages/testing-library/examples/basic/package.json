@@ -6,8 +6,8 @@
   "scripts": {
     "build": "rspeedy build",
     "dev": "rspeedy dev",
-    "test": "vitest",
-    "test:rs": "rstest run"
+    "rstest": "rstest",
+    "test": "vitest"
   },
   "dependencies": {
     "@lynx-js/react": "workspace:*"

@@ -6,8 +6,8 @@
   "scripts": {
     "build": "rslib build",
     "dev": "rslib build --watch",
+    "rstest": "rstest",
     "test": "vitest",
-    "test:rs": "rstest run",
     "test:ui": "vitest --ui"
   },
   "devDependencies": {
