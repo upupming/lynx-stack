@@ -1,7 +1,6 @@
 packages:
   - examples/*
   - packages/background-only
-  - packages/preact-devtools
   - packages/react
   - packages/react/refresh
   - packages/react/runtime
@@ -11,7 +10,6 @@ packages:
   - packages/rspeedy/*
   - packages/testing-library/*
   - packages/testing-library/examples/*
-  - "!packages/testing-library/examples"
   - packages/third-party/*
   - packages/tools/*
   - packages/use-sync-external-store

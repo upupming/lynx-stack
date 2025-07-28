@@ -38,7 +38,6 @@
     "create-rstack": "1.5.5"
   },
   "devDependencies": {
-    "@lynx-js/preact-devtools": "workspace:^",
     "@lynx-js/qrcode-rsbuild-plugin": "workspace:^",
     "@lynx-js/react": "workspace:^",
     "@lynx-js/react-rsbuild-plugin": "workspace:^",
