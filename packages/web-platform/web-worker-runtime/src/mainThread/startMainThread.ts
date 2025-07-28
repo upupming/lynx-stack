@@ -14,6 +14,8 @@ import {
   I18nResources,
   type InitI18nResources,
   updateI18nResourcesEndpoint,
+  multiThreadExposureChangedEndpoint,
+  lynxUniqueIdAttribute,
 } from '@lynx-js/web-constants';
 import { Rpc } from '@lynx-js/web-worker-rpc';
 import { createMarkTimingInternal } from './crossThreadHandlers/createMainthreadMarkTimingInternal.js';
@@ -28,7 +30,8 @@ export function startMainThreadWorker(
 ) {
   const uiThreadRpc = new Rpc(uiThreadPort, 'main-to-ui');
   const backgroundThreadRpc = new Rpc(backgroundThreadPort, 'main-to-bg');
-  const markTimingInternal = createMarkTimingInternal(backgroundThreadRpc);
+  const { markTimingInternal, flushMarkTimingInternal } =
+    createMarkTimingInternal(backgroundThreadRpc);
   const uiFlush = uiThreadRpc.createCall(flushElementTreeEndpoint);
   const reportError = uiThreadRpc.createCall(reportErrorEndpoint);
   const triggerI18nResourceFallback = (
@@ -44,12 +47,23 @@ export function startMainThreadWorker(
   });
   const i18nResources = new I18nResources();
   uiThreadRpc.registerHandler(postOffscreenEventEndpoint, docu[_onEvent]);
+  const sendMultiThreadExposureChangedEndpoint = uiThreadRpc.createCall(
+    multiThreadExposureChangedEndpoint,
+  );
   const { startMainThread } = prepareMainThreadAPIs(
     backgroundThreadRpc,
     docu,
     docu.createElement.bind(docu),
-    docu.commit.bind(docu),
+    (exposureChangedElementUniqueIds) => {
+      docu.commit();
+      sendMultiThreadExposureChangedEndpoint(
+        exposureChangedElementUniqueIds
+          .map(e => e.getAttribute(lynxUniqueIdAttribute))
+          .filter(id => id !== null),
+      );
+    },
     markTimingInternal,
+    flushMarkTimingInternal,
     reportError,
     triggerI18nResourceFallback,
     (initI18nResources: InitI18nResources) => {

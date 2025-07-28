@@ -1,5 +1,90 @@
 # @lynx-js/react-rsbuild-plugin
 
+## 0.10.8
+
+### Patch Changes
+
+- Fix "TypeError: cannot read property 'call' of undefined" error during HMR updates. ([#1304](https://github.com/lynx-family/lynx-stack/pull/1304))
+
+- Supports extractStr for large JSON ([#1230](https://github.com/lynx-family/lynx-stack/pull/1230))
+
+- Change `extractStr` to `false` when `performance.chunkSplit.strategy` is not `all-in-one`. ([#1251](https://github.com/lynx-family/lynx-stack/pull/1251))
+
+- Updated dependencies [[`cb7feb6`](https://github.com/lynx-family/lynx-stack/commit/cb7feb6e8cc9f4b83ac3147bd3e5a82059caa06a), [`ec7228f`](https://github.com/lynx-family/lynx-stack/commit/ec7228fadfb917a1f6149aca4775386badae73fa)]:
+  - @lynx-js/template-webpack-plugin@0.8.2
+  - @lynx-js/react-alias-rsbuild-plugin@0.10.8
+  - @lynx-js/use-sync-external-store@1.5.0
+  - @lynx-js/react-refresh-webpack-plugin@0.3.4
+  - @lynx-js/react-webpack-plugin@0.6.18
+  - @lynx-js/css-extract-webpack-plugin@0.6.0
+
+## 0.10.7
+
+### Patch Changes
+
+- Support [`experiments.typeReexportsPresence`](https://rspack.rs/config/experiments#experimentstypereexportspresence). ([#1246](https://github.com/lynx-family/lynx-stack/pull/1246))
+
+- Updated dependencies [[`d513dd9`](https://github.com/lynx-family/lynx-stack/commit/d513dd9fb7ee950f36aaaee0d62ede8072f7b031)]:
+  - @lynx-js/react-refresh-webpack-plugin@0.3.4
+  - @lynx-js/react-alias-rsbuild-plugin@0.10.7
+  - @lynx-js/use-sync-external-store@1.5.0
+  - @lynx-js/react-webpack-plugin@0.6.18
+
+## 0.10.6
+
+### Patch Changes
+
+- Be compat with `@lynx-js/react` v0.111.0 ([#204](https://github.com/lynx-family/lynx-stack/pull/204))
+
+- Updated dependencies [[`99a3557`](https://github.com/lynx-family/lynx-stack/commit/99a355719ad3106d20118dc1ea3abf34ddbdb9ad)]:
+  - @lynx-js/react-webpack-plugin@0.6.18
+  - @lynx-js/react-alias-rsbuild-plugin@0.10.6
+  - @lynx-js/use-sync-external-store@1.5.0
+  - @lynx-js/react-refresh-webpack-plugin@0.3.3
+
+## 0.10.5
+
+### Patch Changes
+
+- Avoid IIFE in `main-thread.js` to resolve memory leak when using `<list />`. ([#1176](https://github.com/lynx-family/lynx-stack/pull/1176))
+
+- Enable fine-grained control for `output.inlineScripts` ([#883](https://github.com/lynx-family/lynx-stack/pull/883))
+
+  ```ts
+  type InlineChunkTestFunction = (params: {
+    size: number
+    name: string
+  }) => boolean
+
+  type InlineChunkTest = RegExp | InlineChunkTestFunction
+
+  type InlineChunkConfig =
+    | boolean
+    | InlineChunkTest
+    | { enable?: boolean | 'auto', test: InlineChunkTest }
+  ```
+
+  ```ts
+  import { defineConfig } from '@lynx-js/rspeedy'
+
+  export default defineConfig({
+    output: {
+      inlineScripts: ({ name, size }) => {
+        return name.includes('foo') && size < 1000
+      },
+    },
+  })
+  ```
+
+- Updated dependencies [[`51cb73d`](https://github.com/lynx-family/lynx-stack/commit/51cb73dd0b77d35540644cdd2e6c37db856f0e8a), [`69fb042`](https://github.com/lynx-family/lynx-stack/commit/69fb0420e297abf768c889769c95a207c480b3c7), [`a7e8b5b`](https://github.com/lynx-family/lynx-stack/commit/a7e8b5bbbab0490e7cf6f47581130e7b32739abb)]:
+  - @lynx-js/runtime-wrapper-webpack-plugin@0.1.2
+  - @lynx-js/template-webpack-plugin@0.8.1
+  - @lynx-js/react-webpack-plugin@0.6.17
+  - @lynx-js/react-alias-rsbuild-plugin@0.10.5
+  - @lynx-js/use-sync-external-store@1.5.0
+  - @lynx-js/react-refresh-webpack-plugin@0.3.3
+  - @lynx-js/css-extract-webpack-plugin@0.6.0
+
 ## 0.10.4
 
 ### Patch Changes

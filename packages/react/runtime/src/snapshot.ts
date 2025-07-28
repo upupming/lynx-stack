@@ -176,10 +176,17 @@ export const backgroundSnapshotInstanceManager: {
       return null;
     }
     const spreadKey = res[2];
-    if (spreadKey) {
-      return (ctx.__values![expIndex] as { [spreadKey]: unknown })[spreadKey];
+    if (res[1] === '__extraProps') {
+      if (spreadKey) {
+        return ctx.__extraProps![spreadKey];
+      }
+      throw new Error('unreachable');
     } else {
-      return ctx.__values![expIndex];
+      if (spreadKey) {
+        return (ctx.__values![expIndex] as { [spreadKey]: unknown })[spreadKey];
+      } else {
+        return ctx.__values![expIndex];
+      }
     }
   },
 };
@@ -252,6 +259,7 @@ export interface SerializedSnapshotInstance {
   id: number;
   type: string;
   values?: any[] | undefined;
+  extraProps?: Record<string, unknown> | undefined;
   children?: SerializedSnapshotInstance[] | undefined;
 }
 
@@ -274,6 +282,7 @@ export class SnapshotInstance {
   __current_slot_index = 0;
   __worklet_ref_set?: Set<WorkletRefImpl<any> | Worklet>;
   __listItemPlatformInfo?: PlatformInfo;
+  __extraProps?: Record<string, unknown> | undefined;
 
   constructor(public type: string, id?: number) {
     this.__snapshot_def = snapshotManager.values.get(type)!;
@@ -310,11 +319,13 @@ export class SnapshotInstance {
       }
     }
 
-    const values = this.__values;
-    if (values) {
-      this.__values = undefined;
-      this.setAttribute('values', values);
-    }
+    __pendingListUpdates.runWithoutUpdates(() => {
+      const values = this.__values;
+      if (values) {
+        this.__values = undefined;
+        this.setAttribute('values', values);
+      }
+    });
 
     if (isListHolder) {
       // never recurse into list's children
@@ -499,9 +510,11 @@ export class SnapshotInstance {
   insertBefore(newNode: SnapshotInstance, existingNode?: SnapshotInstance): void {
     const __snapshot_def = this.__snapshot_def;
     if (__snapshot_def.isListHolder) {
-      (__pendingListUpdates.values[this.__id] ??= new ListUpdateInfoRecording(
-        this,
-      )).onInsertBefore(newNode, existingNode);
+      if (__pendingListUpdates.values) {
+        (__pendingListUpdates.values[this.__id] ??= new ListUpdateInfoRecording(
+          this,
+        )).onInsertBefore(newNode, existingNode);
+      }
       this.__insertBefore(newNode, existingNode);
       return;
     }
@@ -556,9 +569,11 @@ export class SnapshotInstance {
   removeChild(child: SnapshotInstance): void {
     const __snapshot_def = this.__snapshot_def;
     if (__snapshot_def.isListHolder) {
-      (__pendingListUpdates.values[this.__id] ??= new ListUpdateInfoRecording(
-        this,
-      )).onRemoveChild(child);
+      if (__pendingListUpdates.values) {
+        (__pendingListUpdates.values[this.__id] ??= new ListUpdateInfoRecording(
+          this,
+        )).onRemoveChild(child);
+      }
 
       this.__removeChild(child);
       traverseSnapshotInstance(child, v => {
@@ -607,9 +622,14 @@ export class SnapshotInstance {
       return;
     }
 
-    const index = typeof key === 'string' ? Number(key.slice(2)) : key;
+    if (typeof key === 'string') {
+      // for more flexible usage, we allow setting non-indexed attributes
+      (this.__extraProps ??= {})[key] = value;
+      return;
+    }
+
     this.__values ??= [];
-    this.callUpdateIfNotDirectOrDeepEqual(index, this.__values[index], this.__values[index] = value);
+    this.callUpdateIfNotDirectOrDeepEqual(key, this.__values[key], this.__values[key] = value);
   }
 
   toJSON(): Omit<SerializedSnapshotInstance, 'children'> & { children: SnapshotInstance[] | undefined } {
@@ -617,6 +637,7 @@ export class SnapshotInstance {
       id: this.__id,
       type: this.type,
       values: this.__values,
+      extraProps: this.__extraProps,
       children: this.__firstChild ? this.childNodes : undefined,
     };
   }

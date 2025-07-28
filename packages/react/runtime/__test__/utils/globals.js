@@ -4,6 +4,8 @@
 import { vi } from 'vitest';
 import { EventEmitter } from 'node:events';
 
+import { getJSModule } from './jsModule.ts';
+
 const app = {
   callLepusMethod: vi.fn(),
   markTiming: vi.fn(),
@@ -81,6 +83,7 @@ const ee = new EventEmitter();
 function injectGlobals() {
   globalThis.__DEV__ = true;
   globalThis.__PROFILE__ = true;
+  globalThis.__ALOG__ = true;
   globalThis.__JS__ = true;
   globalThis.__LEPUS__ = true;
   globalThis.__BACKGROUND__ = true;
@@ -91,13 +94,17 @@ function injectGlobals() {
   globalThis.__TESTING_FORCE_RENDER_TO_OPCODE__ = false;
   globalThis.globDynamicComponentEntry = '__Card__';
   globalThis.lynxCoreInject = {};
-  globalThis.lynxCoreInject.tt = {};
+  globalThis.lynxCoreInject.tt = {
+    GlobalEventEmitter: getJSModule('GlobalEventEmitter'),
+  };
   globalThis.lynx = {
+    queueMicrotask: Promise.prototype.then.bind(Promise.resolve()),
     getNativeApp: () => app,
     performance,
     createSelectorQuery: () => {
       return new SelectorQuery();
     },
+    getJSModule,
     getElementByIdTasks: vi.fn(),
     getElementById: vi.fn((id) => {
       return {
@@ -131,6 +138,7 @@ function injectGlobals() {
 
   console.profile = vi.fn();
   console.profileEnd = vi.fn();
+  console.alog = vi.fn();
 }
 
 injectGlobals();

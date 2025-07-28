@@ -5,16 +5,17 @@ import { options } from 'preact';
 import type { Component, ComponentClass, VNode } from 'preact';
 
 import { COMPONENT, DIFF, DIFFED, RENDER } from '../renderToOpcodes/constants.js';
+import { getDisplayName } from '../utils.js';
 
 export function initProfileHook(): void {
   const oldDiff = options[DIFF];
-  options[DIFF] = function(vnode: VNode) {
+  options[DIFF] = function(vnode: VNode, oldVNode: VNode) {
     // This __PROFILE__ is used for DCE testing
     if (__PROFILE__ && typeof vnode.type === 'function') {
       // We only add profiling trace for Component
       console.profile(`diff::${getDisplayName(vnode.type as ComponentClass)}`);
     }
-    oldDiff?.(vnode);
+    oldDiff?.(vnode, oldVNode);
   };
   const oldDiffed = options[DIFFED];
   options[DIFFED] = function(vnode) {
@@ -48,8 +49,4 @@ export function initProfileHook(): void {
     };
     oldRender?.(vnode);
   };
-}
-
-function getDisplayName(type: ComponentClass): string {
-  return type.displayName ?? type.name;
 }

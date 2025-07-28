@@ -1,7 +1,7 @@
 // Copyright 2024 The Lynx Authors. All rights reserved.
 // Licensed under the Apache License Version 2.0 that can be found in the
 // LICENSE file in the root directory of this source tree.
-import { render } from 'preact';
+import { options, render } from 'preact';
 import { createContext, createElement } from 'preact/compat';
 import { useState } from 'preact/hooks';
 import type { Consumer, FC, ReactNode } from 'react';
@@ -82,12 +82,24 @@ export interface Root {
  */
 export const root: Root = {
   render: (jsx: ReactNode): void => {
+    /* v8 ignore next 2 */
     if (__MAIN_THREAD__) {
       __root.__jsx = jsx;
     } else {
       __root.__jsx = jsx;
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-      render(jsx, __root as any);
+      let preactProcess: (() => void) | undefined = undefined;
+      // eslint-disable-next-line @typescript-eslint/unbound-method
+      const oldDebounceRendering = options.debounceRendering;
+      options.debounceRendering = (cb) => {
+        preactProcess = cb;
+      };
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+        render(jsx, __root as any);
+        (preactProcess as (() => void) | undefined)?.();
+      } finally {
+        options.debounceRendering = oldDebounceRendering!;
+      }
       if (__FIRST_SCREEN_SYNC_TIMING__ === 'immediately') {
         // This is for cases where `root.render()` is called asynchronously,
         // `firstScreen` message might have been reached.
@@ -97,6 +109,7 @@ export const root: Root = {
       }
     }
   },
+  /* v8 ignore next 3 */
   registerDataProcessors: (dataProcessorDefinition: DataProcessorDefinition): void => {
     lynx.registerDataProcessors(dataProcessorDefinition);
   },
@@ -219,6 +232,82 @@ export interface InitData {}
 export { withInitDataInState };
 
 /**
+ * The data processors that registered with {@link Lynx.registerDataProcessors}.
+ *
+ * @example
+ *
+ * Extending `dataProcessors` interface
+ *
+ * ```ts
+ * import type { DataProcessors as WellKnownDataProcessors } from '@lynx-js/react';
+ *
+ * declare module '@lynx-js/react' {
+ *   interface DataProcessors extends WellKnownDataProcessors {
+ *     foo(bar: string): number;
+ *   }
+ * }
+ * ```
+ *
+ * Then you can use `lynx.registerDataProcessors` with types.
+ *
+ * ```js
+ * lynx.registerDataProcessors({
+ *   dataProcessors: {
+ *     foo(bar) {
+ *       return 1;
+ *     }
+ *   }
+ * })
+ * ```
+ *
+ * @public
+ */
+export interface DataProcessors {
+  /**
+   * Optional processor to override screen metrics used by the app
+   *
+   * @param metrics - The physical screen dimensions in pixels
+   *
+   * @returns New screen dimensions to be used by the app
+   *
+   * @example
+   *
+   * ```ts
+   * lynx.registerDataProcessors({
+   *   dataProcessors: {
+   *     getScreenMetricsOverride: (metrics) => {
+   *       // Force a specific aspect ratio
+   *       return {
+   *         width: metrics.width,
+   *         height: metrics.width * (16/9)
+   *       };
+   *     }
+   *   }
+   * });
+   * ```
+   */
+  getScreenMetricsOverride?(metrics: {
+    /**
+     * The physical pixel width of the screen
+     */
+    width: number;
+    /**
+     * The physical pixel height of the screen
+     */
+    height: number;
+  }): { width: number; height: number };
+
+  /**
+   * Custom unknown data processors.
+   *
+   * @remarks
+   *
+   * You may extends the `DataProcessors` interface for better TypeScript types. See {@link DataProcessors}.
+   */
+  [processorName: string]: (...args: any[]) => any;
+}
+
+/**
  * Definition of DataProcessor(s)
  * @public
  */
@@ -238,7 +327,7 @@ export interface DataProcessorDefinition {
    *
    * @public
    */
-  dataProcessors?: Record<string, ((rawInitData: InitDataRaw) => InitData)>;
+  dataProcessors?: DataProcessors;
 }
 
 /**

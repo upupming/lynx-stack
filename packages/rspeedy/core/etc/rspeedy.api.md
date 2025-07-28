@@ -160,6 +160,7 @@ export interface DevClient {
 
 // @public
 export interface DistPath extends DistPathConfig {
+    // @deprecated
     intermediate?: string | undefined;
 }
 

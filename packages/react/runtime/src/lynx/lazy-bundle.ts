@@ -1,7 +1,6 @@
 // Copyright 2024 The Lynx Authors. All rights reserved.
 // Licensed under the Apache License Version 2.0 that can be found in the
 // LICENSE file in the root directory of this source tree.
-import { Fragment, lazy as backgroundLazy, createElement } from 'preact/compat';
 
 /**
  * To make code below works
@@ -33,7 +32,7 @@ export const makeSyncThen = function<T>(result: T): Promise<T>['then'] {
         // Calling `then` and passing a callback is standard behavior
         // but in Lepus runtime the callback will never be called
         // So can be simplified to code below
-        return new Promise(() => {});
+        return ret as Promise<TR1>;
 
         // TODO(hongzhiyuan.hzy): Avoid warning that cannot be turned-off, so the warning is commented
         // lynx.reportError(
@@ -90,27 +89,40 @@ export const loadLazyBundle: <
       r.then = makeSyncThen(result);
       return r;
     } else if (__JS__) {
-      return new Promise((resolve, reject) => {
-        const callback: (result: { code: number; detail: { schema: string } }) => void = result => {
-          const { code, detail } = result;
-          if (code === 0) {
-            const { schema } = detail;
-            const exports = lynxCoreInject.tt.getDynamicComponentExports(schema);
-            // `code === 0` means that the lazy bundle has been successfully parsed. However,
-            // its javascript files may still fail to run, which would prevent the retrieval of the exports object.
-            if (exports) {
-              resolve(exports as T);
-              return;
-            }
+      const resolver = withSyncResolvers<T>();
+
+      const callback: (result: { code: number; detail: { schema: string } }) => void = result => {
+        const { code, detail } = result;
+        if (code === 0) {
+          const { schema } = detail;
+          const exports = lynxCoreInject.tt.getDynamicComponentExports(schema);
+          // `code === 0` means that the lazy bundle has been successfully parsed. However,
+          // its javascript files may still fail to run, which would prevent the retrieval of the exports object.
+          if (exports) {
+            resolver.resolve(exports as T);
+            return;
           }
-          reject(new Error('Lazy bundle load failed: ' + JSON.stringify(result)));
-        };
-        if (typeof lynx.QueryComponent === 'function') {
-          lynx.QueryComponent(source, callback);
-        } else {
-          lynx.getNativeLynx().QueryComponent!(source, callback);
         }
-      });
+        resolver.reject(new Error('Lazy bundle load failed: ' + JSON.stringify(result)));
+      };
+      if (typeof lynx.QueryComponent === 'function') {
+        lynx.QueryComponent(source, callback);
+      } else {
+        lynx.getNativeLynx().QueryComponent!(source, callback);
+      }
+
+      if (resolver.result !== null) {
+        const p = Promise.resolve(resolver.result);
+        p.then = makeSyncThen(resolver.result) as Promise<Awaited<T>>['then'];
+        return p;
+      } else if (resolver.error === null) {
+        return new Promise((_resolve, _reject) => {
+          resolver.resolve = _resolve;
+          resolver.reject = _reject;
+        });
+      } else {
+        return Promise.reject(resolver.error);
+      }
     }
 
     throw new Error('unreachable');
@@ -119,22 +131,24 @@ export const loadLazyBundle: <
   return loadLazyBundle;
 })();
 
-/**
- * @internal
- */
-export function mainThreadLazy<T>(loader: () => Promise<{ default: T } | T>) {
-  const Lazy = backgroundLazy<T>(loader);
+function withSyncResolvers<T>() {
+  'background-only';
 
-  function _Lazy(props: any) {
-    try {
-      // @ts-expect-error `Lazy` returned from `backgroundLazy` should be a FC
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-      return Lazy(props);
-    } catch (e) {
-      // We should never throw at mainThread
-      return createElement(Fragment, {});
-    }
-  }
+  const resolver: {
+    result: T | null;
+    error: Error | null;
+    resolve(result: T): void;
+    reject(error: Error): void;
+  } = {
+    resolve: (result: T): void => {
+      resolver.result = result;
+    },
+    reject: (error: Error): void => {
+      resolver.error = error;
+    },
+    result: null,
+    error: null,
+  };
 
-  return _Lazy as T;
+  return resolver;
 }

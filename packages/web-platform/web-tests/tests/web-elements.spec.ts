@@ -1667,6 +1667,20 @@ test.describe('web-elements test suite', () => {
       await gotoWebComponentPage(page, title);
       await diffScreenShot(page, title, 'index');
     });
+    test('crossorigin', async ({ page }, { titlePath }) => {
+      const title = getTitle(titlePath);
+      await gotoWebComponentPage(page, title);
+
+      // Assert that the crossorigin attribute value is passed to the <img> in the shadow tree
+      const crossoriginValue = await page.evaluate(() => {
+        const xImage = document.querySelector('#test-crossorigin');
+        const img = xImage?.shadowRoot?.querySelector('#img');
+        return img?.getAttribute('crossorigin');
+      });
+
+      // Verify that the crossorigin attribute is set to 'anonymous' on the internal img element
+      expect(crossoriginValue).toBe('anonymous');
+    });
   });
 
   test.describe('x-list', () => {
@@ -2701,7 +2715,7 @@ test.describe('web-elements test suite', () => {
           .locator('#target')
           .evaluateHandle((target) => {
             let detail = { value: undefined };
-            target.addEventListener('input', (e) => {
+            target.addEventListener('lynxinput', (e) => {
               detail.value = (e as any).detail.value;
             });
             return detail;

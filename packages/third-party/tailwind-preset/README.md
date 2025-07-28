@@ -5,6 +5,32 @@ A [Tailwind V3](https://v3.tailwindcss.com/) CSS preset specifically designed fo
 > **⚠️ Experimental**\
 > This preset is currently in experimental stage as we are still exploring the best possible DX to write Tailwind upon Lynx. We welcome and encourage contributions from the community to help shape its future development. Your feedback, bug reports, and pull requests are invaluable in making this preset more robust and feature-complete.
 
+## Basic Usage
+
+```typescript
+// tailwind.config.ts
+import preset from '@lynx-js/tailwind-preset';
+
+export default {
+  content: ['./src/**/*.{ts,tsx}'],
+  presets: [preset],
+};
+```
+
+```typescript
+// tailwind.config.ts
+import { createLynxPreset } from '@lynx-js/tailwind-preset';
+
+export default {
+  content: ['./src/**/*.{js,ts,jsx,tsx}'],
+  presets: [
+    createLynxPreset({
+      lynxPlugins: { boxShadow: false }, // disable boxShadow plugin
+    }),
+  ],
+};
+```
+
 ## Structure
 
 - `src/lynx.ts`: Main preset configuration that reverse-engineered [Tailwind's core plugins](https://github.com/tailwindlabs/tailwindcss/blob/v3/src/corePlugins.js).
@@ -35,17 +61,33 @@ This can be verified in three ways:
 
 #### 2. Add/Remove it from the preset
 
-If it's part of a core Tailwind plugin:
+##### 2.1 If enabling a Tailwind core plugin
 
-- Add it to `corePlugins` in `src/lynx.ts`
-- Add the property to `supportedProperties` in `src/__tests__/config.test.ts`
-- Add the utility mapping to `cssPropertyValueToTailwindUtility`
+- Add it to `DEFAULT_CORE_PLUGINS` array in `src/core.ts`
 
-If it needs custom handling e.g. Lynx only support a partial set of the core plugin defined classes, or we need extensions e.g. `.linear`:
+##### 2.2 If it requires custom handling
+
+###### Lynx core plugins
+
+For plugins that are considered **part of the Lynx core preset** — either implementing Tailwind core utilities or providing Lynx-specific functionality
 
 - Create a new plugin in `src/plugins/lynx/`
-- Export it in `src/plugins/lynx/index.ts`
-- Add it to the plugins array in `src/lynx.ts`
+- Use shared helpers from `src/helpers.ts` and `src/plugin-utils/` where applicable
+- Export it from `src/plugins/lynx/index.ts`
+- Register it in `src/plugins/lynx/plugin-registry.ts`\
+  _(This ensures a stable sorting order for the core set)_
+- It will be automatically included in `src/core.ts` via the Lynx plugin registry
+
+###### Non-core / Custom plugin categories
+
+For plugins that are **not part of the Lynx core preset** — such as experimental features, app-specific utilities, or standalone plugin groups:
+
+- These plugins require explicit registration and ordering
+- Create a new category folder under `src/plugins/` (e.g. `src/plugins/experimental/`)
+- Add the plugin in that folder, and optionally extract shared logic into `plugin-utils/`
+- Export the plugin from `src/plugins/{category}/index.ts`
+- Define a `plugin-registry.ts` in the same folder to control plugin order
+- Import the registry in `src/core.ts` and include it in the appropriate position
 
 #### 3. Adding Tests
 
@@ -56,3 +98,33 @@ To test new Tailwind utilities:
 1. Modify `testClasses` in `src/__tests__/test-content.tsx`
 2. Modify `supportedProperties` or `allowedUnsupportedProperties` in `config.test.ts`
 3. Run tests with `pnpm test` to verify with Vitest.
+
+To test new plugins:
+
+1. Add new test file in `src/__tests__/plugins`. Import `runPlugin` test util function from `src/__tests__/utils/run-plugin.ts`. Mock theme values.
+2. Run tests with `pnpm test` to verify with Vitest.
+
+## Integration notes
+
+### tailwind-merge & rsbuild-plugin-tailwindcss
+
+When you combine this preset with **`tailwind-merge`** and **`rsbuild-plugin-tailwindcss`**, you may notice a flood of seemingly unused class names in the final bundle.\
+The root cause is that `rsbuild-plugin-tailwindcss` scans every file under `node_modules`, so any package that contains raw Tailwind source (for example, **tailwind-merge**) gets parsed and its classes are emitted—even if you never reference them.
+
+To limit the scan to only the code you control while still allowing Tailwind-based component libraries to work, supply an `exclude` pattern that removes only the offending package(s).\
+Here is a minimal example that **excludes _only_ `tailwind-merge`**:
+
+```ts
+// rsbuild.config.ts
+import { pluginTailwindCSS } from 'rsbuild-plugin-tailwindcss';
+
+export default {
+  plugins: [
+    pluginTailwindCSS({
+      config: 'tailwind.config.ts',
+      // Prevent Tailwind utilities inside `tailwind-merge` from being scanned
+      exclude: [/[\\/]node_modules[\\/]tailwind-merge[\\/]/],
+    }),
+  ],
+};
+```

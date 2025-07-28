@@ -1,5 +1,100 @@
 # @lynx-js/web-core
 
+## 0.15.2
+
+### Patch Changes
+
+- feat: support SSR for all-on-ui ([#1029](https://github.com/lynx-family/lynx-stack/pull/1029))
+
+- feat: move SSR hydrate essential info to the ssr attribute ([#1292](https://github.com/lynx-family/lynx-stack/pull/1292))
+
+  We found that in browser there is no simple tool to decode a base64 string
+
+  Therefore we move the data to `ssr` attribute
+
+  Also fix some ssr issues
+
+- feat: support \_\_MarkTemplateElement, \_\_MarkPartElement and \_\_GetTemplateParts for all-on-ui ([#1275](https://github.com/lynx-family/lynx-stack/pull/1275))
+
+- feat: mark template elements for SSR and update part ID handling ([#1286](https://github.com/lynx-family/lynx-stack/pull/1286))
+
+- Updated dependencies [[`cebda59`](https://github.com/lynx-family/lynx-stack/commit/cebda592ac5c7d152c877c2ac5ec403d477077e1), [`1443e46`](https://github.com/lynx-family/lynx-stack/commit/1443e468a353363e29aab0d90cd8b91c232a5525), [`5062128`](https://github.com/lynx-family/lynx-stack/commit/5062128c68e21abcf276ebcb40d7cc8f6e54244b), [`f656b7f`](https://github.com/lynx-family/lynx-stack/commit/f656b7f0d390d69c0da0d11a6c9b3f66ae877ac8)]:
+  - @lynx-js/web-mainthread-apis@0.15.2
+  - @lynx-js/web-constants@0.15.2
+  - @lynx-js/web-worker-runtime@0.15.2
+  - @lynx-js/web-worker-rpc@0.15.2
+
+## 0.15.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @lynx-js/web-mainthread-apis@0.15.1
+  - @lynx-js/web-worker-runtime@0.15.1
+  - @lynx-js/web-constants@0.15.1
+  - @lynx-js/web-worker-rpc@0.15.1
+
+## 0.15.0
+
+### Minor Changes
+
+- refactor: move exposure system to web-core ([#1254](https://github.com/lynx-family/lynx-stack/pull/1254))
+
+  **THIS IS A BREAKING CHANGE**
+
+  **You'll need to upgrade your @lynx-js/web-elements to >= 0.8.0**
+
+  For SSR and better performance, we moved the lynx's exposure system from web-element to web-core.
+
+  Before this commit, we create Intersection observers by creating HTMLElements.
+
+  After this commit, we will create such Intersection observers after dom stabled.
+
+  Also, the setInterval for exposure has been removed, now we use an on time lazy timer for such features.
+
+### Patch Changes
+
+- refactor: improve `linear-weight-sum` performance ([#1216](https://github.com/lynx-family/lynx-stack/pull/1216))
+
+- feat: lynx-view error event adds a new parameter: `e.detail.fileName`, which will be determined by the file location where the error occurred, either `lepus.js` or `app-service.js`. ([#1242](https://github.com/lynx-family/lynx-stack/pull/1242))
+
+- perf: use rust implemented style transformer ([#1094](https://github.com/lynx-family/lynx-stack/pull/1094))
+
+- Updated dependencies [[`7b75469`](https://github.com/lynx-family/lynx-stack/commit/7b75469d05dd2ec78bf6e1e54b94c8dff938eb40), [`f54a7aa`](https://github.com/lynx-family/lynx-stack/commit/f54a7aa539ad56ccd1e7e1b49d7ee59e742fe493), [`224c653`](https://github.com/lynx-family/lynx-stack/commit/224c653f370d807281fa0a9ffbb4f4dd5c9d308e)]:
+  - @lynx-js/offscreen-document@0.1.3
+  - @lynx-js/web-worker-runtime@0.15.0
+  - @lynx-js/web-mainthread-apis@0.15.0
+  - @lynx-js/web-constants@0.15.0
+  - @lynx-js/web-worker-rpc@0.15.0
+
+## 0.14.2
+
+### Patch Changes
+
+- feat: merge multiple markTiming RPC communication events together and send them together, which can effectively reduce the number of RPC communications. ([#1178](https://github.com/lynx-family/lynx-stack/pull/1178))
+
+- chore: extract shared logic from web-core and web-core-server's loadTemplate into a unified generateTemplate function ([#1211](https://github.com/lynx-family/lynx-stack/pull/1211))
+
+- Updated dependencies [[`e44b146`](https://github.com/lynx-family/lynx-stack/commit/e44b146b1bc2b58c0347af7fb4e4157688e07e36), [`5a9b38b`](https://github.com/lynx-family/lynx-stack/commit/5a9b38b783e611aa9761c4cd52191172270c09c7), [`6ca5b91`](https://github.com/lynx-family/lynx-stack/commit/6ca5b9106aade393dfac88914b160960a61a82f2)]:
+  - @lynx-js/web-mainthread-apis@0.14.2
+  - @lynx-js/web-worker-runtime@0.14.2
+  - @lynx-js/web-constants@0.14.2
+  - @lynx-js/web-worker-rpc@0.14.2
+
+## 0.14.1
+
+### Patch Changes
+
+- feat: support BTS API `lynx.reportError` && `__SetSourceMapRelease`, now you can use it and handle it in lynx-view error event. ([#1059](https://github.com/lynx-family/lynx-stack/pull/1059))
+
+- fix: under the all-on-ui strategy, reload() will add two page elements. ([#1147](https://github.com/lynx-family/lynx-stack/pull/1147))
+
+- Updated dependencies [[`a64333e`](https://github.com/lynx-family/lynx-stack/commit/a64333ef28228d6b90c32e027f67bef8acbd8432), [`7751375`](https://github.com/lynx-family/lynx-stack/commit/775137521782ca5445f22029c39163c0a63bbfa5), [`b52a924`](https://github.com/lynx-family/lynx-stack/commit/b52a924a2375cb6f7ebafdd8abfbab0254eb2330)]:
+  - @lynx-js/web-worker-runtime@0.14.1
+  - @lynx-js/web-constants@0.14.1
+  - @lynx-js/web-mainthread-apis@0.14.1
+  - @lynx-js/web-worker-rpc@0.14.1
+
 ## 0.14.0
 
 ### Minor Changes

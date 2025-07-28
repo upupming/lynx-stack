@@ -6,7 +6,7 @@ import 'preact';
 declare module 'preact' {
   interface Options {
     /** _diff */
-    __b?(vnode: VNode): void;
+    __b?(vnode: VNode, oldVNode: VNode): void;
     /** _render */
     __r?(vnode: VNode): void;
     /** _commit */
@@ -32,5 +32,7 @@ declare module 'preact' {
     __h: ((this: Component<P, S>) => void)[];
     /** _force */
     __e?: boolean;
+    /** dirty */
+    __d?: boolean;
   }
 }

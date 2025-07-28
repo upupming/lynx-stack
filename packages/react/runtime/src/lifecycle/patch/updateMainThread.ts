@@ -5,10 +5,10 @@
 import { updateWorkletRefInitValueChanges } from '@lynx-js/react/worklet-runtime/bindings';
 
 import type { PatchList, PatchOptions } from './commit.js';
-import { setMainThreadHydrationFinished } from './isMainThreadHydrationFinished.js';
+import { setMainThreadHydrating } from './isMainThreadHydrating.js';
 import { snapshotPatchApply } from './snapshotPatchApply.js';
 import { LifecycleConstant } from '../../lifecycleConstant.js';
-import { PerformanceTimingKeys, markTiming, setPipeline } from '../../lynx/performance.js';
+import { markTiming, setPipeline } from '../../lynx/performance.js';
 import { __pendingListUpdates } from '../../pendingListUpdates.js';
 import { applyRefQueue } from '../../snapshot/workletRef.js';
 import { __page } from '../../snapshot.js';
@@ -25,33 +25,37 @@ function updateMainThread(
   }
 
   setPipeline(patchOptions.pipelineOptions);
-  markTiming(PerformanceTimingKeys.mtsRenderStart);
-  markTiming(PerformanceTimingKeys.parseChangesStart);
+  markTiming('mtsRenderStart');
+  markTiming('parseChangesStart');
   const { patchList, flushOptions = {} } = JSON.parse(data) as PatchList;
 
-  markTiming(PerformanceTimingKeys.parseChangesEnd);
-  markTiming(PerformanceTimingKeys.patchChangesStart);
-
-  for (const { snapshotPatch, workletRefInitValuePatch } of patchList) {
-    updateWorkletRefInitValueChanges(workletRefInitValuePatch);
-    __pendingListUpdates.clear();
-    if (snapshotPatch) {
-      snapshotPatchApply(snapshotPatch);
-    }
-    __pendingListUpdates.flush();
-    // console.debug('********** Lepus updatePatch:');
-    // printSnapshotInstance(snapshotInstanceManager.values.get(-1)!);
-  }
-  markTiming(PerformanceTimingKeys.patchChangesEnd);
-  markTiming(PerformanceTimingKeys.mtsRenderEnd);
+  markTiming('parseChangesEnd');
+  markTiming('patchChangesStart');
   if (patchOptions.isHydration) {
-    setMainThreadHydrationFinished(true);
+    setMainThreadHydrating(true);
+  }
+  try {
+    for (const { snapshotPatch, workletRefInitValuePatch } of patchList) {
+      updateWorkletRefInitValueChanges(workletRefInitValuePatch);
+      __pendingListUpdates.clear();
+      if (snapshotPatch) {
+        snapshotPatchApply(snapshotPatch);
+      }
+      __pendingListUpdates.flush();
+      // console.debug('********** Lepus updatePatch:');
+      // printSnapshotInstance(snapshotInstanceManager.values.get(-1)!);
+    }
+  } finally {
+    markTiming('patchChangesEnd');
+    markTiming('mtsRenderEnd');
+    if (patchOptions.isHydration) {
+      setMainThreadHydrating(false);
+    }
   }
   applyRefQueue();
   if (patchOptions.pipelineOptions) {
     flushOptions.pipelineOptions = patchOptions.pipelineOptions;
   }
-  // TODO: triggerDataUpdated?
   __FlushElementTree(__page, flushOptions);
 }
 

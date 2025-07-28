@@ -23,7 +23,7 @@ import {
 } from './lifecycle/patch/snapshotPatch.js';
 import { globalPipelineOptions } from './lynx/performance.js';
 import { DynamicPartType } from './snapshot/dynamicPartType.js';
-import { clearQueuedRefs, queueRefAttrUpdate } from './snapshot/ref.js';
+import { applyRef, clearQueuedRefs, queueRefAttrUpdate } from './snapshot/ref.js';
 import type { Ref } from './snapshot/ref.js';
 import { transformSpread } from './snapshot/spread.js';
 import type { SerializedSnapshotInstance, Snapshot } from './snapshot.js';
@@ -35,8 +35,7 @@ import { onPostWorkletCtx } from './worklet/ctx.js';
 export class BackgroundSnapshotInstance {
   constructor(public type: string) {
     this.__snapshot_def = snapshotManager.values.get(type)!;
-    let id;
-    id = this.__id = backgroundSnapshotInstanceManager.nextId += 1;
+    const id = this.__id = backgroundSnapshotInstanceManager.nextId += 1;
     backgroundSnapshotInstanceManager.values.set(id, this);
 
     __globalSnapshotPatch?.push(SnapshotOperation.CreateElement, type, id);
@@ -45,6 +44,7 @@ export class BackgroundSnapshotInstance {
   __id: number;
   __values: any[] | undefined;
   __snapshot_def: Snapshot;
+  __extraProps?: Record<string, unknown> | undefined;
 
   private __parent: BackgroundSnapshotInstance | null = null;
   private __firstChild: BackgroundSnapshotInstance | null = null;
@@ -158,23 +158,37 @@ export class BackgroundSnapshotInstance {
     node.__previousSibling = null;
     node.__nextSibling = null;
 
-    traverseSnapshotInstance(node, v => {
+    queueRefAttrUpdate(
+      () => {
+        traverseSnapshotInstance(node, v => {
+          if (v.__values) {
+            v.__snapshot_def.refAndSpreadIndexes?.forEach((i) => {
+              const value = v.__values![i] as unknown;
+              if (value && (typeof value === 'object' || typeof value === 'function')) {
+                if ('__spread' in value && 'ref' in value) {
+                  applyRef(value.ref as Ref, null);
+                } else if ('__ref' in value) {
+                  applyRef(value as Ref, null);
+                }
+              }
+            });
+          }
+        });
+      },
+      null,
+      0,
+      0,
+    );
+
+    globalBackgroundSnapshotInstancesToRemove.push(node.__id);
+  }
+
+  tearDown(): void {
+    traverseSnapshotInstance(this, v => {
       v.__parent = null;
       v.__previousSibling = null;
       v.__nextSibling = null;
-      if (v.__values) {
-        v.__snapshot_def.refAndSpreadIndexes?.forEach((i) => {
-          const value = v.__values![i] as unknown;
-          if (value && (typeof value === 'object' || typeof value === 'function')) {
-            if ('__spread' in value && 'ref' in value) {
-              queueRefAttrUpdate(value.ref as Ref, null, v.__id, i);
-            } else if ('__ref' in value) {
-              queueRefAttrUpdate(value as Ref, null, v.__id, i);
-            }
-          }
-        });
-      }
-      globalBackgroundSnapshotInstancesToRemove.push(v.__id);
+      backgroundSnapshotInstanceManager.values.delete(v.__id);
     });
   }
 
@@ -191,7 +205,7 @@ export class BackgroundSnapshotInstance {
     return nodes;
   }
 
-  setAttribute(key: string | number, value: any): void {
+  setAttribute(key: string | number, value: unknown): void {
     if (__PROFILE__) {
       console.profile('setAttribute');
     }
@@ -199,8 +213,12 @@ export class BackgroundSnapshotInstance {
       if (__globalSnapshotPatch) {
         const oldValues = this.__values;
         if (oldValues) {
-          for (let index = 0; index < value.length; index++) {
-            const { needUpdate, valueToCommit } = this.setAttributeImpl(value[index], oldValues[index], index);
+          for (let index = 0; index < (value as unknown[]).length; index++) {
+            const { needUpdate, valueToCommit } = this.setAttributeImpl(
+              (value as unknown[])[index],
+              oldValues[index],
+              index,
+            );
             if (needUpdate) {
               __globalSnapshotPatch.push(
                 SnapshotOperation.SetAttribute,
@@ -212,9 +230,9 @@ export class BackgroundSnapshotInstance {
           }
         } else {
           const patch = [];
-          const length = value.length;
+          const length = (value as unknown[]).length;
           for (let index = 0; index < length; ++index) {
-            const { valueToCommit } = this.setAttributeImpl(value[index], null, index);
+            const { valueToCommit } = this.setAttributeImpl((value as unknown[])[index], null, index);
             patch[index] = valueToCommit;
           }
           __globalSnapshotPatch.push(
@@ -235,22 +253,24 @@ export class BackgroundSnapshotInstance {
           }
         });
       }
-      this.__values = value;
+      this.__values = value as unknown[];
       if (__PROFILE__) {
         console.profileEnd();
       }
       return;
     }
 
-    // old path (`<__snapshot_xxxx_xxxx __0={} __1={} />` or `this.setAttribute(0, xxx)`)
-    // is reserved as slow path
-    const index = typeof key === 'string' ? Number(key.slice(2)) : key;
-    (this.__values ??= [])[index] = value;
-
+    if (typeof key === 'string') {
+      (this.__extraProps ??= {})[key] = value;
+    } else {
+      // old path (`this.setAttribute(0, xxx)`)
+      // is reserved as slow path
+      (this.__values ??= [])[key] = value;
+    }
     __globalSnapshotPatch?.push(
       SnapshotOperation.SetAttribute,
       this.__id,
-      index,
+      key,
       value,
     );
     if (__PROFILE__) {
@@ -341,7 +361,7 @@ export function hydrate(
 ): SnapshotPatch {
   initGlobalSnapshotPatch();
 
-  const helper2 = (afters: BackgroundSnapshotInstance[], parentId: number) => {
+  const helper2 = (afters: BackgroundSnapshotInstance[], parentId: number, targetId?: number) => {
     for (const child of afters) {
       const id = child.__id;
       __globalSnapshotPatch!.push(SnapshotOperation.CreateElement, child.type, id);
@@ -350,8 +370,12 @@ export function hydrate(
         child.__values = undefined;
         child.setAttribute('values', values);
       }
+      const extraProps = child.__extraProps;
+      for (const key in extraProps) {
+        child.setAttribute(key, extraProps[key]);
+      }
       helper2(child.childNodes, id);
-      __globalSnapshotPatch!.push(SnapshotOperation.InsertBefore, parentId, id, undefined);
+      __globalSnapshotPatch!.push(SnapshotOperation.InsertBefore, parentId, id, targetId);
     }
   };
 
@@ -361,48 +385,79 @@ export function hydrate(
   ) => {
     hydrationMap.set(after.__id, before.id);
     backgroundSnapshotInstanceManager.updateId(after.__id, before.id);
-    after.__values?.forEach((value, index) => {
-      const old = before.values![index];
+    after.__values?.forEach((value: unknown, index) => {
+      const old: unknown = before.values![index];
 
       if (value) {
-        if (value.__spread) {
-          // `value.__spread` my contain event ids using snapshot ids before hydration. Remove it.
-          delete value.__spread;
-          value = transformSpread(after, index, value);
-          for (const key in value) {
-            if (value[key] && value[key]._wkltId) {
-              onPostWorkletCtx(value[key]);
-            } else if (value[key] && value[key].__isGesture) {
-              processGestureBackground(value[key] as GestureKind);
+        if (typeof value === 'object') {
+          if ('__spread' in value) {
+            // `value.__spread` my contain event ids using snapshot ids before hydration. Remove it.
+            delete value.__spread;
+            const __spread = transformSpread(after, index, value);
+            for (const key in __spread) {
+              const v = __spread[key];
+              if (v && typeof v === 'object') {
+                if ('_wkltId' in v) {
+                  onPostWorkletCtx(v as Worklet);
+                } else if ('__isGesture' in v) {
+                  processGestureBackground(v as GestureKind);
+                }
+              }
             }
+            (after.__values![index]! as Record<string, unknown>)['__spread'] = __spread;
+            value = __spread;
+          } else if ('__ref' in value) {
+            // skip patch
+            value = old;
+          } else if ('_wkltId' in value) {
+            onPostWorkletCtx(value as Worklet);
+          } else if ('__isGesture' in value) {
+            processGestureBackground(value as GestureKind);
           }
-          after.__values![index]!.__spread = value;
-        } else if (value.__ref) {
-          // skip patch
-          value = old;
         } else if (typeof value === 'function') {
-          value = `${after.__id}:${index}:`;
+          if ('__ref' in value) {
+            // skip patch
+            value = old;
+          } else {
+            value = `${after.__id}:${index}:`;
+          }
         }
       }
 
-      if (value && value._wkltId) {
-        onPostWorkletCtx(value);
-      } else if (value && value.__isGesture) {
-        processGestureBackground(value);
-      }
       if (!isDirectOrDeepEqual(value, old)) {
-        __globalSnapshotPatch!.push(
-          SnapshotOperation.SetAttribute,
-          after.__id,
-          index,
-          value,
-        );
+        if (value === undefined && old === null) {
+          // This is a workaround for the case where we set an attribute to `undefined` in the main thread,
+          // but the old value becomes `null` during JSON serialization.
+          // In this case, we should not patch the value.
+        } else {
+          __globalSnapshotPatch!.push(
+            SnapshotOperation.SetAttribute,
+            after.__id,
+            index,
+            value,
+          );
+        }
       }
     });
 
+    if (after.__extraProps) {
+      for (const key in after.__extraProps) {
+        const value = after.__extraProps[key];
+        const old = before.extraProps?.[key];
+        if (!isDirectOrDeepEqual(value, old)) {
+          __globalSnapshotPatch!.push(
+            SnapshotOperation.SetAttribute,
+            after.__id,
+            key,
+            value,
+          );
+        }
+      }
+    }
+
     const { slot } = after.__snapshot_def;
 
-    const beforeChildNodes = before.children || [];
+    const beforeChildNodes = before.children ?? [];
     const afterChildNodes = after.childNodes;
 
     if (!slot) {
@@ -433,23 +488,7 @@ export function hydrate(
             beforeChildNodes,
             diffResult,
             (node, target) => {
-              __globalSnapshotPatch!.push(
-                SnapshotOperation.CreateElement,
-                node.type,
-                node.__id,
-              );
-              helper2(node.childNodes, node.__id);
-              const values = node.__values;
-              if (values) {
-                node.__values = undefined;
-                node.setAttribute('values', values);
-              }
-              __globalSnapshotPatch!.push(
-                SnapshotOperation.InsertBefore,
-                before.id,
-                node.__id,
-                target?.id,
-              );
+              helper2([node], before.id, target?.id);
               return undefined as unknown as SerializedSnapshotInstance;
             },
             node => {

@@ -19,6 +19,7 @@ declare global {
   declare const __BACKGROUND__: boolean;
   declare const __MAIN_THREAD__: boolean;
   declare const __PROFILE__: boolean;
+  declare const __ALOG__: boolean | undefined;
   declare const __ENABLE_SSR__: boolean;
 
   declare function __CreatePage(componentId: string, cssId: number): FiberElement;
@@ -155,6 +156,7 @@ declare global {
     elementIDs?: number[];
     operationIDs?: any[];
     asyncFlush?: boolean;
+    triggerDataUpdated?: boolean;
   }
 
   declare interface UpdatePageOption {
@@ -163,6 +165,7 @@ declare global {
     reloadFromJS?: boolean;
     resetPageData?: boolean;
     pipelineOptions?: PipelineOptions;
+    triggerDataUpdated?: boolean;
   }
 
   declare interface LynxCallByNative {
@@ -245,6 +248,10 @@ declare global {
   }
 
   declare function processData(data: InitDataRaw, processorName?: string): InitData;
+
+  interface Console {
+    alog(message?: string): void;
+  }
 }
 
 interface NativeApp {
