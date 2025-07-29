@@ -175,26 +175,30 @@ export class LynxEncodePluginImpl {
         // tt.publishEvent = (...args) => {
         //   console.log('publishEvent', ...args);
         // }
-          
-        const methodsToMock = [
-          'OnLifecycleEvent',
-          'publishEvent',
-          'publicComponentEvent',
-          'callDestroyLifetimeFun',
-          'updateGlobalProps',
-          'updateCardData',
-          'onAppReload',
-          'processCardConfig'
-        ]
         
-        methodsToMock.forEach(methodName => {
-          tt[methodName] = (...args) => {
-            cachedCalls.push({
-              type: methodName,
-              args,
-            });
-          }
-        })
+        console.log('tt', tt.constructor.name);
+        
+        if (tt.constructor.name !== 'TTApp') {
+          const methodsToMock = [
+            'OnLifecycleEvent',
+            'publishEvent',
+            'publicComponentEvent',
+            'callDestroyLifetimeFun',
+            'updateGlobalProps',
+            'updateCardData',
+            'onAppReload',
+            'processCardConfig'
+          ]
+          
+          methodsToMock.forEach(methodName => {
+            tt[methodName] = (...args) => {
+              cachedCalls.push({
+                type: methodName,
+                args,
+              });
+            }
+          })
+        }
           
         
         // this.addInternalEventListener(
@@ -247,6 +251,68 @@ export class LynxEncodePluginImpl {
         //   }
         // );
         
+        // // TTApp
+        // protected addInternalEventListeners() {
+        //   super.addInternalEventListeners();
+        //   this.addInternalEventListener(
+        //     ContextProxyType.CoreContext,
+        //     MessageEventType.ON_COMPONENT_ACTIVITY,
+        //     (event: MessageEvent) => {
+        //       const [
+        //         action,
+        //         component_id,
+        //         parent_component_id,
+        //         path,
+        //         entry_name,
+        //         data,
+        //       ] = event.data;
+        //       let params = undefined;
+        //       if (action === ComponentLifecycleState.created && data !== undefined) {
+        //         params = {
+        //           initData: data,
+        //           entryName: entry_name,
+        //           parentId: parent_component_id,
+        //         };
+        //       }
+        //       this.onComponentActivity(action, component_id, path, params);
+        //       // When a component detached, call ForceGcOnJSThread to clear dirty
+        //       // JSIObjectWrapper. This may not only clear JSIObjectWrapper created by
+        //       // this component, but all of the dirty JSIObjectWrapper can be cleared.
+        //       //
+        //       // There is a mutex inside ForceGcOnJSThread, which may cause main thread
+        //       // waiting for ForceGcOnJSThread.
+        //       // see: #8680
+        //       if (action === ComponentLifecycleState.detached) {
+        //         this.forceGcJSIObjectWrapper();
+        //       }
+        //     }
+        //   );
+        //   this.addInternalEventListener(
+        //     ContextProxyType.CoreContext,
+        //     MessageEventType.ON_COMPONENT_SELECTOR_CHANGED,
+        //     (event: MessageEvent) => {
+        //       const [componentId, data] = event.data;
+        //       this.onComponentInstanceChanged(componentId, data);
+        //     }
+        //   );
+        //   this.addInternalEventListener(
+        //     ContextProxyType.CoreContext,
+        //     MessageEventType.ON_COMPONENT_PROPERTIES_CHANGED,
+        //     (event: MessageEvent) => {
+        //       const [componentId, properties] = event.data;
+        //       this.onComponentPropertiesChanged(componentId, properties);
+        //     }
+        //   );
+        //   this.addInternalEventListener(
+        //     ContextProxyType.CoreContext,
+        //     MessageEventType.ON_COMPONENT_DATA_SET_CHANGED,
+        //     (event: MessageEvent) => {
+        //       const [componentId, dataSet] = event.data;
+        //       this.onComponentDatasetChanged(componentId, dataSet);
+        //     }
+        //   );
+        // }
+        
         tt.__removeInternalEventListeners();
         
         const eventsToMock = [
@@ -258,6 +324,12 @@ export class LynxEncodePluginImpl {
           '__OnAppEnterForeground',
           '__OnAppEnterBackground',
         ]
+        const ttEventsToMock = [
+          '__OnComponentActivity',
+          '__OnComponentSelectorChanged',
+          '__OnComponentPropertiesChanged',
+          '__OnComponentDataSetChanged'
+        ]
         const eventToMethod = {
           '__OnNativeAppReady': 'onNativeAppReady',
           '__NotifyGlobalPropsUpdated': 'updateGlobalProps',
@@ -267,10 +339,25 @@ export class LynxEncodePluginImpl {
           '__OnAppEnterForeground': 'onAppEnterForeground',
           '__OnAppEnterBackground': 'onAppEnterBackground',
         }
+        const ttEventToMethod = {
+          '__OnComponentActivity': 'onComponentActivity',
+          '__OnComponentSelectorChanged': 'onComponentSelectorChanged',
+          '__OnComponentPropertiesChanged': 'onComponentPropertiesChanged',
+          '__OnComponentDataSetChanged': 'onComponentDataSetChanged',
+        }
         const cachedEvents = [];
         eventsToMock.forEach(eventName => {
           tt.addInternalEventListener(0, eventName, (...args) => {
             cachedEvents.push({
+              eventName,
+              args,
+            });
+          })
+        })
+        const ttCachedEvents = [];
+        ttEventsToMock.forEach(eventName => {
+          tt.addInternalEventListener(0, eventName, (...args) => {
+            ttCachedEvents.push({
               eventName,
               args,
             });
@@ -305,6 +392,82 @@ export class LynxEncodePluginImpl {
             //   data: event.args,
             // })
             tt[eventToMethod[event.eventName]](event.args[0].data);
+          })
+          
+          // register correct event listeners
+          ttCachedEvents.forEach(event => {
+            console.log('register event listener', event.eventName);
+            tt.addInternalEventListener(0, event.eventName, (...args) => {
+              console.log('dispatch event', event.eventName, args);
+              if (event.eventName === '__OnComponentActivity') {
+                const [
+                  action,
+                  component_id,
+                  parent_component_id,
+                  path,
+                  entry_name,
+                  data,
+                ] = args[0].data;
+                let params = undefined;
+                if (action === "created" && data !== undefined) {
+                  params = {
+                    initData: data,
+                    entryName: entry_name,
+                    parentId: parent_component_id,
+                  };
+                }
+                tt.onComponentActivity(action, component_id, path, params);
+                // When a component detached, call ForceGcOnJSThread to clear dirty
+                // JSIObjectWrapper. This may not only clear JSIObjectWrapper created by
+                // this component, but all of the dirty JSIObjectWrapper can be cleared.
+                //
+                // There is a mutex inside ForceGcOnJSThread, which may cause main thread
+                // waiting for ForceGcOnJSThread.
+                // see: #8680
+                if (action === "detached") {
+                  tt.forceGcJSIObjectWrapper();
+                } 
+                
+                return
+              }
+              tt[ttEventToMethod[event.eventName]](...args[0].data);
+            })
+          })
+          
+          // replay cachedEvents
+          ttCachedEvents.forEach(event => {
+            console.log('replay events', event.eventName, event.args);
+            if (event.eventName === '__OnComponentActivity') {
+              const [
+                action,
+                component_id,
+                parent_component_id,
+                path,
+                entry_name,
+                data,
+              ] = event.args[0].data;
+              let params = undefined;
+              if (action === "created" && data !== undefined) {
+                params = {
+                  initData: data,
+                  entryName: entry_name,
+                  parentId: parent_component_id,
+                };
+              }
+              tt.onComponentActivity(action, component_id, path, params);
+              // When a component detached, call ForceGcOnJSThread to clear dirty
+              // JSIObjectWrapper. This may not only clear JSIObjectWrapper created by
+              // this component, but all of the dirty JSIObjectWrapper can be cleared.
+              //
+              // There is a mutex inside ForceGcOnJSThread, which may cause main thread
+              // waiting for ForceGcOnJSThread.
+              // see: #8680
+              if (action === "detached") {
+                tt.forceGcJSIObjectWrapper();
+              }
+              return
+            }
+            tt[ttEventToMethod[event.eventName]](...args[0].data);
           })
         }
       })();
