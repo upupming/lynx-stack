@@ -124,7 +124,7 @@ export class LynxEncodePluginImpl {
         const { encodeData } = args;
         const { manifest } = encodeData;
 
-        const [inlinedManifest, externalManifest] = Object.entries(
+        let [inlinedManifest, externalManifest] = Object.entries(
           manifest,
         )
           .reduce(
@@ -144,6 +144,190 @@ export class LynxEncodePluginImpl {
             },
             [{}, {}] as [Record<string, string>, Record<string, string>],
           );
+          
+        inlinedManifest['cache-script.js'] = `
+(function(){
+  'use strict';
+  var g = (new Function('return this;'))();
+  function __init_card_bundle__(lynxCoreInject) {
+    g.__bundle__holder = undefined;
+    var globDynamicComponentEntry = g.globDynamicComponentEntry || '__Card__';
+    var tt = lynxCoreInject.tt;
+    tt.define("cache-script.js", function(require, module, exports, __Card,setTimeout,setInterval,clearInterval,clearTimeout,NativeModules,tt,console,__Component,__ReactLynx,nativeAppId,__Behavior,LynxJSBI,lynx,window,document,frames,self,location,navigator,localStorage,history,Caches,screen,alert,confirm,prompt,fetch,XMLHttpRequest,__WebSocket__,webkit,Reporter,print,global,requestAnimationFrame,cancelAnimationFrame) {
+    
+      ;(() => {
+        const tt = lynxCoreInject.tt;
+        console.log('hello from cache script', tt)
+        let cachedCalls = [];
+        
+        console.log('g', g);
+        console.log('this', this);
+        console.log('tt.addInternalEventListener', tt.addInternalEventListener);
+        console.log('tt.removeInternalEventListenersCallbacks', tt.removeInternalEventListenersCallbacks);
+        
+        // tt.OnLifecycleEvent = (...args) => {
+        //   console.log('OnLifecycleEvent', ...args);
+        //   cachedCalls.push({
+        //     type: 'OnLifecycleEvent',
+        //     args,
+        //   });
+        // }
+        // tt.publishEvent = (...args) => {
+        //   console.log('publishEvent', ...args);
+        // }
+          
+        const methodsToMock = [
+          'OnLifecycleEvent',
+          'publishEvent',
+          'publicComponentEvent',
+          'callDestroyLifetimeFun',
+          'updateGlobalProps',
+          'updateCardData',
+          'onAppReload',
+          'processCardConfig'
+        ]
+        
+        methodsToMock.forEach(methodName => {
+          tt[methodName] = (...args) => {
+            cachedCalls.push({
+              type: methodName,
+              args,
+            });
+          }
+        })
+          
+        
+        // this.addInternalEventListener(
+        //   ContextProxyType.CoreContext,
+        //   MessageEventType.ON_NATIVE_APP_READY,
+        //   () => {
+        //     this.onNativeAppReady();
+        //   }
+        // );
+        // this.addInternalEventListener(
+        //   ContextProxyType.CoreContext,
+        //   MessageEventType.NOTIFY_GLOBAL_PROPS_UPDATED,
+        //   (event: MessageEvent) => {
+        //     this.updateGlobalProps(event.data);
+        //   }
+        // );
+        // this.addInternalEventListener(
+        //   ContextProxyType.CoreContext,
+        //   MessageEventType.ON_LIFECYCLE_EVENT,
+        //   (event: MessageEvent) => {
+        //     this.OnLifecycleEvent(event.data);
+        //   }
+        // );
+        // this.addInternalEventListener(
+        //   ContextProxyType.CoreContext,
+        //   MessageEventType.ON_APP_FIRST_SCREEN,
+        //   () => {
+        //     this.onAppFirstScreen();
+        //   }
+        // );
+        // this.addInternalEventListener(
+        //   ContextProxyType.CoreContext,
+        //   MessageEventType.ON_DYNAMIC_JS_SOURCE_PREPARED,
+        //   (event: MessageEvent) => {
+        //     nativeGlobal.loadDynamicComponent(this, event.data);
+        //   }
+        // );
+        // this.addInternalEventListener(
+        //   ContextProxyType.CoreContext,
+        //   MessageEventType.ON_APP_ENTER_FOREGROUND,
+        //   () => {
+        //     this.onAppEnterForeground();
+        //   }
+        // );
+        // this.addInternalEventListener(
+        //   ContextProxyType.CoreContext,
+        //   MessageEventType.ON_APP_ENTER_BACKGROUND,
+        //   () => {
+        //     this.onAppEnterBackground();
+        //   }
+        // );
+        
+        tt.__removeInternalEventListeners();
+        
+        const eventsToMock = [
+          '__OnNativeAppReady',
+          '__NotifyGlobalPropsUpdated',
+          '__OnLifecycleEvent',
+          '__OnAppFirstScreen',
+          '__OnDynamicJSSourcePrepared',
+          '__OnAppEnterForeground',
+          '__OnAppEnterBackground',
+        ]
+        const eventToMethod = {
+          '__OnNativeAppReady': 'onNativeAppReady',
+          '__NotifyGlobalPropsUpdated': 'updateGlobalProps',
+          '__OnLifecycleEvent': 'OnLifecycleEvent',
+          '__OnAppFirstScreen': 'onAppFirstScreen',
+          '__OnDynamicJSSourcePrepared': 'loadDynamicComponent',
+          '__OnAppEnterForeground': 'onAppEnterForeground',
+          '__OnAppEnterBackground': 'onAppEnterBackground',
+        }
+        const cachedEvents = [];
+        eventsToMock.forEach(eventName => {
+          tt.addInternalEventListener(0, eventName, (...args) => {
+            cachedEvents.push({
+              eventName,
+              args,
+            });
+          })
+        })
+          
+        
+        tt.onBackgroundThreadReady = () => {
+          console.log('onBackgroundThreadReady')
+          
+          // replay cachedCalls
+          cachedCalls.forEach(call => {
+            console.log('replay calls', call.type, call.args);
+            tt[call.type](...call.args);
+          })
+            
+          // register correct event listeners
+          cachedEvents.forEach(event => {
+            console.log('register event listener', event.eventName);
+            tt.addInternalEventListener(0, event.eventName, (...args) => {
+              console.log('dispatch event', event.eventName, args);
+              tt[eventToMethod[event.eventName]](args[0].data);
+            })
+          })
+          
+          
+          // replay cachedEvents
+          cachedEvents.forEach(event => {
+            console.log('replay events', event.eventName, event.args);
+            // lynx.getJSContext().dispatchEvent({
+            //   type: event.eventName,
+            //   data: event.args,
+            // })
+            tt[eventToMethod[event.eventName]](event.args[0].data);
+          })
+        }
+      })();
+      
+    });
+    return tt.require("cache-script.js");
+  };
+  if (g && g.bundleSupportLoadScript){
+    var res = {init: __init_card_bundle__};
+    g.__bundle__holder = res;
+    return res;
+  } else {
+    __init_card_bundle__({"tt": tt});
+  };
+})();
+
+        `;
+        
+        inlinedManifest = {
+          // 保证防在最前面
+          'cache-script.js': inlinedManifest['cache-script.js'],
+          ...inlinedManifest,
+        }
 
         let publicPath = '/';
         if (typeof compilation?.outputOptions.publicPath === 'function') {
