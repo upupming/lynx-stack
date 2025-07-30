@@ -11,8 +11,7 @@ export default defineConfig({
       setup(api) {
         api.modifyBundlerChain((chain, { CHAIN_ID, rspack }) => {
           const rule = chain.module.rules.get(CHAIN_ID.RULE.JS);
-          const reactTestingRule = rule.oneOfs.get('react:testing');
-          const swcUse = reactTestingRule.uses.get('swc');
+          const swcUse = rule.uses.get('swc');
           const originalOptions = swcUse.get('options');
           const newOptions = {
             ...originalOptions,

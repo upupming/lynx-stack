@@ -19,3 +19,11 @@ export default defineConfig({
   globals: true,
 });
 ```
+
+And then use rstest as usual:
+
+```bash
+$ rstest
+```
+
+For more usage detail, see https://rstest.rs/

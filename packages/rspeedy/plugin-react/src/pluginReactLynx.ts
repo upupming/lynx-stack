@@ -26,7 +26,7 @@ import { applyCSS } from './css.js'
 import { applyEntry } from './entry.js'
 import { applyGenerator } from './generator.js'
 import { applyLazy } from './lazy.js'
-import { applyLoaders, applyTestingEnvLoaders } from './loaders.js'
+import { applyLoaders, applyTestingLoaders } from './loaders.js'
 import { applyRefresh } from './refresh.js'
 import { applyRstest } from './rstest.js'
 import { applySplitChunksRule } from './splitChunks.js'
@@ -380,7 +380,7 @@ export function pluginReactLynx(
       applyBackgroundOnly(api)
       applyGenerator(api, resolvedOptions)
       if (isRstest) {
-        applyTestingEnvLoaders(api, resolvedOptions)
+        applyTestingLoaders(api, resolvedOptions)
       } else {
         applyLoaders(api, resolvedOptions)
       }
