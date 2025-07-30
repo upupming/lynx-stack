@@ -41,7 +41,6 @@ function injectTt(): void {
   tt.processCardConfig = () => {
     // used to updateTheme, no longer rely on this function
   };
-  // @ts-expect-error ignore
   tt.onBackgroundThreadReady?.();
 }
 

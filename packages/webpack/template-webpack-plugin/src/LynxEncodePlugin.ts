@@ -1,6 +1,8 @@
 // Copyright 2024 The Lynx Authors. All rights reserved.
 // Licensed under the Apache License Version 2.0 that can be found in the
 // LICENSE file in the root directory of this source tree.
+import fs from 'node:fs/promises';
+import { createRequire } from 'node:module';
 
 import type { Compiler } from 'webpack';
 
@@ -24,6 +26,7 @@ type InlineChunkConfig = boolean | InlineChunkTest | {
  */
 export interface LynxEncodePluginOptions {
   inlineScripts?: InlineChunkConfig | undefined;
+  lynxCoreInjectCache?: boolean | undefined;
 }
 
 /**
@@ -70,6 +73,7 @@ export class LynxEncodePlugin {
   static defaultOptions: Readonly<Required<LynxEncodePluginOptions>> = Object
     .freeze<Required<LynxEncodePluginOptions>>({
       inlineScripts: true,
+      lynxCoreInjectCache: false,
     });
   /**
    * The entry point of a webpack plugin.
@@ -145,169 +149,14 @@ export class LynxEncodePluginImpl {
             [{}, {}] as [Record<string, string>, Record<string, string>],
           );
 
-        inlinedManifest['cache-script.js'] = `
-(function(){
-  'use strict';
-  var g = (new Function('return this;'))();
-  function __init_card_bundle__(lynxCoreInject) {
-    g.__bundle__holder = undefined;
-    var globDynamicComponentEntry = g.globDynamicComponentEntry || '__Card__';
-    var tt = lynxCoreInject.tt;
-    tt.define("cache-script.js", function(require, module, exports,Card,setTimeout,setInterval,clearInterval,clearTimeout,NativeModules,tt,console,__Component,__ReactLynx,nativeAppId,__Behavior,LynxJSBI,lynx,window,document,frames,self,location,navigator,localStorage,history,Caches,screen,alert,confirm,prompt,fetch,XMLHttpRequest,__WebSocket__,webkit,Reporter,print,global,requestAnimationFrame,cancelAnimationFrame) {
-    
-      ;(() => {
-          let ready = false;
-        const tt = lynxCoreInject.tt;
-        console.log('hello from cache script', tt)
-        
-        // ensure tt._appInstance is initialized to avoid TTApp this._appInstance.onFirstScreen() fail
-        let cachedAppInstanceCalls = []
-        tt._appInstance = tt._appInstance || new Proxy({}, {
-          get: function (obj, prop) {
-            console.log('tt._appInstance', prop)
-            
-            if (prop === 'data') {
-              return undefined
-            }
-            
-            return (...args) => {
-            console.log('tt._appInstance(...args)', args)
-              cachedAppInstanceCalls.push({
-                type: prop,
-                args,
-              });
-            }
-          },
-        })
-      
-        let cachedCalls = [];
-        
-        console.log('g', g);
-        console.log('this', this);
-        console.log('tt.addInternalEventListener', tt.addInternalEventListener);
-        console.log('tt.removeInternalEventListenersCallbacks', tt.removeInternalEventListenersCallbacks);
-        
-        const methodsToMock = [
-          'OnLifecycleEvent',
-          'publishEvent',
-          'publicComponentEvent',
-          'callDestroyLifetimeFun',
-          'updateGlobalProps',
-          'updateCardData',
-          'onAppReload',
-          'processCardConfig'
-        ]
-        const methodsToOldFn = {}
-        const methodsToMockFn = {}
-        
-        methodsToMock.forEach(methodName => {
-          console.log('old', methodName, tt[methodName])
-          methodsToOldFn[methodName] = tt[methodName] && tt[methodName].bind(tt)
-          tt[methodName] = methodsToMockFn[methodName] = (...args) => {
-            if (ready) {
-              return methodsToOldFn[methodName] && methodsToOldFn[methodName](...args)
-            }
-          
-            console.log('received cached calls', methodName)
-            cachedCalls.push({
-              type: methodName,
-              args,
-            });
-          }
-        })
-        
-        // tt.__removeInternalEventListeners();
-        
-        // const eventsToMock = [
-        //   '__OnNativeAppReady',
-        //   '__NotifyGlobalPropsUpdated',
-        //   '__OnLifecycleEvent',
-        //   '__OnAppFirstScreen',
-        //   '__OnDynamicJSSourcePrepared',
-        //   '__OnAppEnterForeground',
-        //   '__OnAppEnterBackground',
-        // ]
-        // const eventToMethod = {
-        //   '__OnNativeAppReady': 'onNativeAppReady',
-        //   '__NotifyGlobalPropsUpdated': 'updateGlobalProps',
-        //   '__OnLifecycleEvent': 'OnLifecycleEvent',
-        //   '__OnAppFirstScreen': 'onAppFirstScreen',
-        //   '__OnDynamicJSSourcePrepared': 'loadDynamicComponent',
-        //   '__OnAppEnterForeground': 'onAppEnterForeground',
-        //   '__OnAppEnterBackground': 'onAppEnterBackground',
-        // }
-        // const cachedEvents = [];
-        // eventsToMock.forEach(eventName => {
-        //   tt.addInternalEventListener(0, eventName, (...args) => {
-        //     cachedEvents.push({
-        //       eventName,
-        //       args,
-        //     });
-        //   })
-        // })
-        // tt.lynx.getCoreContext().onTriggerEvent = (event) => {
-        //     console.log('onTriggerEvent', event)
-        // }
-          
-        
-        tt.onBackgroundThreadReady = () => {
-          ready = true;
-          console.log('onBackgroundThreadReady')
-          
-          methodsToMock.forEach(methodName => {
-            // if DSL Framework does not inject new fn
-            // we should restore to old fn
-            if (tt[methodName] === methodsToMockFn[methodName]) {
-              console.log('restoring', methodName, methodsToOldFn[methodName])
-              tt[methodName] = methodsToOldFn[methodName]
-            }
-          })
-            
-          console.log('tt.OnLifecycleEvent', tt.OnLifecycleEvent)
-          
-          // replay cachedAppInstanceCalls
-          cachedAppInstanceCalls.forEach(call => {
-            console.log('replay appInstanceCalls', call.type, call.args);
-            tt._appInstance[call.type](...call.args);
-          })
-          
-          // replay cachedCalls
-          cachedCalls.forEach(call => {
-            console.log('replay calls', call.type, call.args);
-            tt[call.type](...call.args);
-          })
-            
-          // // register correct event listeners
-          // cachedEvents.forEach(event => {
-          //   console.log('register event listener', event.eventName);
-          //   tt.addInternalEventListener(0, event.eventName, (...args) => {
-          //     console.log('dispatch event', event.eventName, args);
-          //     tt[eventToMethod[event.eventName]](args[0].data);
-          //   })
-          // })
-          
-          
-          // // replay cachedEvents
-          // cachedEvents.forEach(event => {
-          //   console.log('replay events', event.eventName, event.args);
-          //   tt[eventToMethod[event.eventName]](event.args[0].data);
-          // })
+        if (this.options.lynxCoreInjectCache) {
+          const lynxCoreInjectCacheScriptName = 'lynx-core-inject-cache.js';
+          const require = createRequire(import.meta.url);
+          inlinedManifest[lynxCoreInjectCacheScriptName] = await fs.readFile(
+            require.resolve('../static/' + lynxCoreInjectCacheScriptName),
+            'utf-8',
+          );
         }
-      })();
-      
-    });
-    return tt.require("cache-script.js");
-  };
-  if (g && g.bundleSupportLoadScript){
-    var res = {init: __init_card_bundle__};
-    g.__bundle__holder = res;
-    return res;
-  } else {
-    __init_card_bundle__({"tt": tt});
-  };
-})();
-
-        `;
 
         let publicPath = '/';
         if (typeof compilation?.outputOptions.publicPath === 'function') {
