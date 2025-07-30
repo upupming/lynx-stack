@@ -202,10 +202,10 @@ export class LynxEncodePluginImpl {
         
         methodsToMock.forEach(methodName => {
           console.log('old', methodName, tt[methodName])
-          methodsToOldFn[methodName] = tt[methodName].bind(tt)
+          methodsToOldFn[methodName] = tt[methodName] && tt[methodName].bind(tt)
           tt[methodName] = methodsToMockFn[methodName] = (...args) => {
             if (ready) {
-              return methodsToOldFn[methodName](...args)
+              return methodsToOldFn[methodName] && methodsToOldFn[methodName](...args)
             }
           
             console.log('received cached calls', methodName)
