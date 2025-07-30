@@ -124,7 +124,7 @@ export class LynxEncodePluginImpl {
         const { encodeData } = args;
         const { manifest } = encodeData;
 
-        let [inlinedManifest, externalManifest] = Object.entries(
+        const [inlinedManifest, externalManifest] = Object.entries(
           manifest,
         )
           .reduce(
@@ -144,7 +144,7 @@ export class LynxEncodePluginImpl {
             },
             [{}, {}] as [Record<string, string>, Record<string, string>],
           );
-          
+
         inlinedManifest['cache-script.js'] = `
 (function(){
   'use strict';
@@ -153,11 +153,33 @@ export class LynxEncodePluginImpl {
     g.__bundle__holder = undefined;
     var globDynamicComponentEntry = g.globDynamicComponentEntry || '__Card__';
     var tt = lynxCoreInject.tt;
-    tt.define("cache-script.js", function(require, module, exports, __Card,setTimeout,setInterval,clearInterval,clearTimeout,NativeModules,tt,console,__Component,__ReactLynx,nativeAppId,__Behavior,LynxJSBI,lynx,window,document,frames,self,location,navigator,localStorage,history,Caches,screen,alert,confirm,prompt,fetch,XMLHttpRequest,__WebSocket__,webkit,Reporter,print,global,requestAnimationFrame,cancelAnimationFrame) {
+    tt.define("cache-script.js", function(require, module, exports,Card,setTimeout,setInterval,clearInterval,clearTimeout,NativeModules,tt,console,__Component,__ReactLynx,nativeAppId,__Behavior,LynxJSBI,lynx,window,document,frames,self,location,navigator,localStorage,history,Caches,screen,alert,confirm,prompt,fetch,XMLHttpRequest,__WebSocket__,webkit,Reporter,print,global,requestAnimationFrame,cancelAnimationFrame) {
     
       ;(() => {
+          let ready = false;
         const tt = lynxCoreInject.tt;
         console.log('hello from cache script', tt)
+        
+        // ensure tt._appInstance is initialized to avoid TTApp this._appInstance.onFirstScreen() fail
+        let cachedAppInstanceCalls = []
+        tt._appInstance = tt._appInstance || new Proxy({}, {
+          get: function (obj, prop) {
+            console.log('tt._appInstance', prop)
+            
+            if (prop === 'data') {
+              return undefined
+            }
+            
+            return (...args) => {
+            console.log('tt._appInstance(...args)', args)
+              cachedAppInstanceCalls.push({
+                type: prop,
+                args,
+              });
+            }
+          },
+        })
+      
         let cachedCalls = [];
         
         console.log('g', g);
@@ -165,208 +187,89 @@ export class LynxEncodePluginImpl {
         console.log('tt.addInternalEventListener', tt.addInternalEventListener);
         console.log('tt.removeInternalEventListenersCallbacks', tt.removeInternalEventListenersCallbacks);
         
-        // tt.OnLifecycleEvent = (...args) => {
-        //   console.log('OnLifecycleEvent', ...args);
-        //   cachedCalls.push({
-        //     type: 'OnLifecycleEvent',
-        //     args,
-        //   });
-        // }
-        // tt.publishEvent = (...args) => {
-        //   console.log('publishEvent', ...args);
-        // }
+        const methodsToMock = [
+          'OnLifecycleEvent',
+          'publishEvent',
+          'publicComponentEvent',
+          'callDestroyLifetimeFun',
+          'updateGlobalProps',
+          'updateCardData',
+          'onAppReload',
+          'processCardConfig'
+        ]
+        const methodsToOldFn = {}
+        const methodsToMockFn = {}
         
-        console.log('tt', tt.constructor.name);
-        
-        if (tt.constructor.name !== 'TTApp') {
-          const methodsToMock = [
-            'OnLifecycleEvent',
-            'publishEvent',
-            'publicComponentEvent',
-            'callDestroyLifetimeFun',
-            'updateGlobalProps',
-            'updateCardData',
-            'onAppReload',
-            'processCardConfig'
-          ]
-          
-          methodsToMock.forEach(methodName => {
-            tt[methodName] = (...args) => {
-              cachedCalls.push({
-                type: methodName,
-                args,
-              });
+        methodsToMock.forEach(methodName => {
+          console.log('old', methodName, tt[methodName])
+          methodsToOldFn[methodName] = tt[methodName].bind(tt)
+          tt[methodName] = methodsToMockFn[methodName] = (...args) => {
+            if (ready) {
+              return methodsToOldFn[methodName](...args)
             }
-          })
-        }
           
+            console.log('received cached calls', methodName)
+            cachedCalls.push({
+              type: methodName,
+              args,
+            });
+          }
+        })
         
-        // this.addInternalEventListener(
-        //   ContextProxyType.CoreContext,
-        //   MessageEventType.ON_NATIVE_APP_READY,
-        //   () => {
-        //     this.onNativeAppReady();
-        //   }
-        // );
-        // this.addInternalEventListener(
-        //   ContextProxyType.CoreContext,
-        //   MessageEventType.NOTIFY_GLOBAL_PROPS_UPDATED,
-        //   (event: MessageEvent) => {
-        //     this.updateGlobalProps(event.data);
-        //   }
-        // );
-        // this.addInternalEventListener(
-        //   ContextProxyType.CoreContext,
-        //   MessageEventType.ON_LIFECYCLE_EVENT,
-        //   (event: MessageEvent) => {
-        //     this.OnLifecycleEvent(event.data);
-        //   }
-        // );
-        // this.addInternalEventListener(
-        //   ContextProxyType.CoreContext,
-        //   MessageEventType.ON_APP_FIRST_SCREEN,
-        //   () => {
-        //     this.onAppFirstScreen();
-        //   }
-        // );
-        // this.addInternalEventListener(
-        //   ContextProxyType.CoreContext,
-        //   MessageEventType.ON_DYNAMIC_JS_SOURCE_PREPARED,
-        //   (event: MessageEvent) => {
-        //     nativeGlobal.loadDynamicComponent(this, event.data);
-        //   }
-        // );
-        // this.addInternalEventListener(
-        //   ContextProxyType.CoreContext,
-        //   MessageEventType.ON_APP_ENTER_FOREGROUND,
-        //   () => {
-        //     this.onAppEnterForeground();
-        //   }
-        // );
-        // this.addInternalEventListener(
-        //   ContextProxyType.CoreContext,
-        //   MessageEventType.ON_APP_ENTER_BACKGROUND,
-        //   () => {
-        //     this.onAppEnterBackground();
-        //   }
-        // );
+        // tt.__removeInternalEventListeners();
         
-        // // TTApp
-        // protected addInternalEventListeners() {
-        //   super.addInternalEventListeners();
-        //   this.addInternalEventListener(
-        //     ContextProxyType.CoreContext,
-        //     MessageEventType.ON_COMPONENT_ACTIVITY,
-        //     (event: MessageEvent) => {
-        //       const [
-        //         action,
-        //         component_id,
-        //         parent_component_id,
-        //         path,
-        //         entry_name,
-        //         data,
-        //       ] = event.data;
-        //       let params = undefined;
-        //       if (action === ComponentLifecycleState.created && data !== undefined) {
-        //         params = {
-        //           initData: data,
-        //           entryName: entry_name,
-        //           parentId: parent_component_id,
-        //         };
-        //       }
-        //       this.onComponentActivity(action, component_id, path, params);
-        //       // When a component detached, call ForceGcOnJSThread to clear dirty
-        //       // JSIObjectWrapper. This may not only clear JSIObjectWrapper created by
-        //       // this component, but all of the dirty JSIObjectWrapper can be cleared.
-        //       //
-        //       // There is a mutex inside ForceGcOnJSThread, which may cause main thread
-        //       // waiting for ForceGcOnJSThread.
-        //       // see: #8680
-        //       if (action === ComponentLifecycleState.detached) {
-        //         this.forceGcJSIObjectWrapper();
-        //       }
-        //     }
-        //   );
-        //   this.addInternalEventListener(
-        //     ContextProxyType.CoreContext,
-        //     MessageEventType.ON_COMPONENT_SELECTOR_CHANGED,
-        //     (event: MessageEvent) => {
-        //       const [componentId, data] = event.data;
-        //       this.onComponentInstanceChanged(componentId, data);
-        //     }
-        //   );
-        //   this.addInternalEventListener(
-        //     ContextProxyType.CoreContext,
-        //     MessageEventType.ON_COMPONENT_PROPERTIES_CHANGED,
-        //     (event: MessageEvent) => {
-        //       const [componentId, properties] = event.data;
-        //       this.onComponentPropertiesChanged(componentId, properties);
-        //     }
-        //   );
-        //   this.addInternalEventListener(
-        //     ContextProxyType.CoreContext,
-        //     MessageEventType.ON_COMPONENT_DATA_SET_CHANGED,
-        //     (event: MessageEvent) => {
-        //       const [componentId, dataSet] = event.data;
-        //       this.onComponentDatasetChanged(componentId, dataSet);
-        //     }
-        //   );
+        // const eventsToMock = [
+        //   '__OnNativeAppReady',
+        //   '__NotifyGlobalPropsUpdated',
+        //   '__OnLifecycleEvent',
+        //   '__OnAppFirstScreen',
+        //   '__OnDynamicJSSourcePrepared',
+        //   '__OnAppEnterForeground',
+        //   '__OnAppEnterBackground',
+        // ]
+        // const eventToMethod = {
+        //   '__OnNativeAppReady': 'onNativeAppReady',
+        //   '__NotifyGlobalPropsUpdated': 'updateGlobalProps',
+        //   '__OnLifecycleEvent': 'OnLifecycleEvent',
+        //   '__OnAppFirstScreen': 'onAppFirstScreen',
+        //   '__OnDynamicJSSourcePrepared': 'loadDynamicComponent',
+        //   '__OnAppEnterForeground': 'onAppEnterForeground',
+        //   '__OnAppEnterBackground': 'onAppEnterBackground',
         // }
-        
-        tt.__removeInternalEventListeners();
-        
-        const eventsToMock = [
-          '__OnNativeAppReady',
-          '__NotifyGlobalPropsUpdated',
-          '__OnLifecycleEvent',
-          '__OnAppFirstScreen',
-          '__OnDynamicJSSourcePrepared',
-          '__OnAppEnterForeground',
-          '__OnAppEnterBackground',
-        ]
-        const ttEventsToMock = [
-          '__OnComponentActivity',
-          '__OnComponentSelectorChanged',
-          '__OnComponentPropertiesChanged',
-          '__OnComponentDataSetChanged'
-        ]
-        const eventToMethod = {
-          '__OnNativeAppReady': 'onNativeAppReady',
-          '__NotifyGlobalPropsUpdated': 'updateGlobalProps',
-          '__OnLifecycleEvent': 'OnLifecycleEvent',
-          '__OnAppFirstScreen': 'onAppFirstScreen',
-          '__OnDynamicJSSourcePrepared': 'loadDynamicComponent',
-          '__OnAppEnterForeground': 'onAppEnterForeground',
-          '__OnAppEnterBackground': 'onAppEnterBackground',
-        }
-        const ttEventToMethod = {
-          '__OnComponentActivity': 'onComponentActivity',
-          '__OnComponentSelectorChanged': 'onComponentSelectorChanged',
-          '__OnComponentPropertiesChanged': 'onComponentPropertiesChanged',
-          '__OnComponentDataSetChanged': 'onComponentDataSetChanged',
-        }
-        const cachedEvents = [];
-        eventsToMock.forEach(eventName => {
-          tt.addInternalEventListener(0, eventName, (...args) => {
-            cachedEvents.push({
-              eventName,
-              args,
-            });
-          })
-        })
-        const ttCachedEvents = [];
-        ttEventsToMock.forEach(eventName => {
-          tt.addInternalEventListener(0, eventName, (...args) => {
-            ttCachedEvents.push({
-              eventName,
-              args,
-            });
-          })
-        })
+        // const cachedEvents = [];
+        // eventsToMock.forEach(eventName => {
+        //   tt.addInternalEventListener(0, eventName, (...args) => {
+        //     cachedEvents.push({
+        //       eventName,
+        //       args,
+        //     });
+        //   })
+        // })
+        // tt.lynx.getCoreContext().onTriggerEvent = (event) => {
+        //     console.log('onTriggerEvent', event)
+        // }
           
         
         tt.onBackgroundThreadReady = () => {
+          ready = true;
           console.log('onBackgroundThreadReady')
+          
+          methodsToMock.forEach(methodName => {
+            // if DSL Framework does not inject new fn
+            // we should restore to old fn
+            if (tt[methodName] === methodsToMockFn[methodName]) {
+              console.log('restoring', methodName, methodsToOldFn[methodName])
+              tt[methodName] = methodsToOldFn[methodName]
+            }
+          })
+            
+          console.log('tt.OnLifecycleEvent', tt.OnLifecycleEvent)
+          
+          // replay cachedAppInstanceCalls
+          cachedAppInstanceCalls.forEach(call => {
+            console.log('replay appInstanceCalls', call.type, call.args);
+            tt._appInstance[call.type](...call.args);
+          })
           
           // replay cachedCalls
           cachedCalls.forEach(call => {
@@ -374,101 +277,21 @@ export class LynxEncodePluginImpl {
             tt[call.type](...call.args);
           })
             
-          // register correct event listeners
-          cachedEvents.forEach(event => {
-            console.log('register event listener', event.eventName);
-            tt.addInternalEventListener(0, event.eventName, (...args) => {
-              console.log('dispatch event', event.eventName, args);
-              tt[eventToMethod[event.eventName]](args[0].data);
-            })
-          })
+          // // register correct event listeners
+          // cachedEvents.forEach(event => {
+          //   console.log('register event listener', event.eventName);
+          //   tt.addInternalEventListener(0, event.eventName, (...args) => {
+          //     console.log('dispatch event', event.eventName, args);
+          //     tt[eventToMethod[event.eventName]](args[0].data);
+          //   })
+          // })
           
           
-          // replay cachedEvents
-          cachedEvents.forEach(event => {
-            console.log('replay events', event.eventName, event.args);
-            // lynx.getJSContext().dispatchEvent({
-            //   type: event.eventName,
-            //   data: event.args,
-            // })
-            tt[eventToMethod[event.eventName]](event.args[0].data);
-          })
-          
-          // register correct event listeners
-          ttCachedEvents.forEach(event => {
-            console.log('register event listener', event.eventName);
-            tt.addInternalEventListener(0, event.eventName, (...args) => {
-              console.log('dispatch event', event.eventName, args);
-              if (event.eventName === '__OnComponentActivity') {
-                const [
-                  action,
-                  component_id,
-                  parent_component_id,
-                  path,
-                  entry_name,
-                  data,
-                ] = args[0].data;
-                let params = undefined;
-                if (action === "created" && data !== undefined) {
-                  params = {
-                    initData: data,
-                    entryName: entry_name,
-                    parentId: parent_component_id,
-                  };
-                }
-                tt.onComponentActivity(action, component_id, path, params);
-                // When a component detached, call ForceGcOnJSThread to clear dirty
-                // JSIObjectWrapper. This may not only clear JSIObjectWrapper created by
-                // this component, but all of the dirty JSIObjectWrapper can be cleared.
-                //
-                // There is a mutex inside ForceGcOnJSThread, which may cause main thread
-                // waiting for ForceGcOnJSThread.
-                // see: #8680
-                if (action === "detached") {
-                  tt.forceGcJSIObjectWrapper();
-                } 
-                
-                return
-              }
-              tt[ttEventToMethod[event.eventName]](...args[0].data);
-            })
-          })
-          
-          // replay cachedEvents
-          ttCachedEvents.forEach(event => {
-            console.log('replay events', event.eventName, event.args);
-            if (event.eventName === '__OnComponentActivity') {
-              const [
-                action,
-                component_id,
-                parent_component_id,
-                path,
-                entry_name,
-                data,
-              ] = event.args[0].data;
-              let params = undefined;
-              if (action === "created" && data !== undefined) {
-                params = {
-                  initData: data,
-                  entryName: entry_name,
-                  parentId: parent_component_id,
-                };
-              }
-              tt.onComponentActivity(action, component_id, path, params);
-              // When a component detached, call ForceGcOnJSThread to clear dirty
-              // JSIObjectWrapper. This may not only clear JSIObjectWrapper created by
-              // this component, but all of the dirty JSIObjectWrapper can be cleared.
-              //
-              // There is a mutex inside ForceGcOnJSThread, which may cause main thread
-              // waiting for ForceGcOnJSThread.
-              // see: #8680
-              if (action === "detached") {
-                tt.forceGcJSIObjectWrapper();
-              }
-              return
-            }
-            tt[ttEventToMethod[event.eventName]](...args[0].data);
-          })
+          // // replay cachedEvents
+          // cachedEvents.forEach(event => {
+          //   console.log('replay events', event.eventName, event.args);
+          //   tt[eventToMethod[event.eventName]](event.args[0].data);
+          // })
         }
       })();
       
@@ -485,12 +308,6 @@ export class LynxEncodePluginImpl {
 })();
 
         `;
-        
-        inlinedManifest = {
-          // 保证防在最前面
-          'cache-script.js': inlinedManifest['cache-script.js'],
-          ...inlinedManifest,
-        }
 
         let publicPath = '/';
         if (typeof compilation?.outputOptions.publicPath === 'function') {
