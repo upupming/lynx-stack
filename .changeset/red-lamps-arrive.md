@@ -4,6 +4,8 @@
 
 Support rstest for testing library, you can use rstest with RLTL now:
 
+Create a config file `rstest.config.ts` with the following content:
+
 ```ts
 import { defineConfig, RstestConfig } from '@rstest/core';
 import lynxConfig from './lynx.config.js';
