@@ -25,7 +25,6 @@ import { destroyWorklet } from '../worklet/destroy.js';
 export { runWithForce };
 
 function injectTt(): void {
-  console.log('injectTt');
   const tt = lynxCoreInject.tt;
   tt.OnLifecycleEvent = onLifecycleEvent;
   tt.publishEvent = delayedPublishEvent;
@@ -45,7 +44,6 @@ function injectTt(): void {
 }
 
 function onLifecycleEvent([type, data]: [LifecycleConstant, unknown]) {
-  console.log('onLifecycleEvent', type, data);
   const hasRootRendered = CHILDREN in __root;
   // never called `render(<App/>, __root)`
   // happens if user call `root.render()` async
