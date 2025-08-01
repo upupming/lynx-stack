@@ -14,8 +14,8 @@ export function App() {
 
   const onTap = useCallback(() => {
     'background-only';
-    setAlterLogo(!alterLogo);
-  }, [alterLogo]);
+    setAlterLogo(prevAlterLogo => !prevAlterLogo);
+  }, []);
 
   return (
     <view>
@@ -45,7 +45,7 @@ export function App() {
             to see updates!
           </text>
         </view>
-        <view style={{ flex: 1 }} />
+        <view style={{ flex: 1 }}></view>
       </view>
     </view>
   );

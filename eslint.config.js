@@ -12,6 +12,8 @@ import * as regexpPlugin from 'eslint-plugin-regexp';
 import eslintPluginUnicorn from 'eslint-plugin-unicorn';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
+import reactHooks from 'eslint-plugin-react-hooks';
+import reactRefresh from 'eslint-plugin-react-refresh';
 
 export default tseslint.config(
   // Global ignores
@@ -66,7 +68,6 @@ export default tseslint.config(
 
       // TODO: enable eslint for react
       // react
-      'examples/**',
       'packages/react/types/**',
       'packages/react/runtime/__test__/**',
       'packages/react/runtime/jsx-dev-runtime/**',
@@ -380,6 +381,20 @@ export default tseslint.config(
       '@typescript-eslint/prefer-literal-enum-member': 'off',
       '@typescript-eslint/prefer-optional-chain': 'off',
       '@typescript-eslint/require-await': 'off',
+    },
+  },
+  // React-related
+  {
+    files: [
+      'examples/**/*.{ts,tsx}',
+    ],
+    extends: [
+      reactHooks.configs['recommended-latest'],
+      reactRefresh.configs.vite,
+    ],
+    rules: {
+      // TODO: enable header for examples
+      'headers/header-format': 'off',
     },
   },
 );

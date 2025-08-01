@@ -6,15 +6,14 @@ import lynxLogo from './assets/lynx-logo.png'
 import reactLynxLogo from './assets/react-logo.png'
 
 export function App(props: {
-  onMounted?: () => void
+  onRender?: () => void
 }) {
   const [alterLogo, setAlterLogo] = useState(false)
 
   useEffect(() => {
     console.info('Hello, ReactLynx')
-    props.onMounted?.()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+  props.onRender?.()
 
   const onTap = useCallback(() => {
     'background only'

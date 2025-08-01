@@ -10,9 +10,8 @@ export function App(props) {
 
   useEffect(() => {
     console.info('Hello, ReactLynx')
-    props.onMounted?.()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+  props.onRender?.()
 
   const onTap = useCallback(() => {
     'background only'
