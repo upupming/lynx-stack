@@ -6,7 +6,7 @@ import 'preact';
 declare module 'preact' {
   interface Options {
     /** _diff */
-    __b?(vnode: VNode, oldVNode: VNode): void;
+    __b?(vnode: VNode): void;
     /** _render */
     __r?(vnode: VNode): void;
     /** _commit */
@@ -18,6 +18,8 @@ declare module 'preact' {
       oldVNode?: VNode<any>,
       errorInfo?: ErrorInfo,
     ): void;
+    /** root */
+    __?(vnode: VNode, parentDom: any): void;
   }
 
   interface VNode {
