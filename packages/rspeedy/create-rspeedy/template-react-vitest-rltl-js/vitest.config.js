@@ -1,6 +1,9 @@
-import { defineConfig } from 'vitest/config'
-import { vitestTestingLibraryPlugin } from '@lynx-js/react/testing-library/plugins'
+import { defineConfig, mergeConfig } from 'vitest/config'
+import { createVitestConfig } from '@lynx-js/react/testing-library/vitest-config'
 
-export default defineConfig({
-  plugins: [vitestTestingLibraryPlugin()],
+const defaultConfig = createVitestConfig()
+const config = defineConfig({
+  test: {},
 })
+
+export default mergeConfig(defaultConfig, config)

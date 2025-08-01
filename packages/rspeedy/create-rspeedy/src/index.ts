@@ -74,11 +74,12 @@ async function getTemplateName({ template }: Argv) {
       options: [
         {
           value: 'vitest-rltl',
-          label: 'Add ReactLynx Testing Library with Vitest',
+          label: 'Vitest',
         },
         {
           value: 'rstest-rltl',
-          label: 'Add ReactLynx Testing Library with Rstest',
+          label: 'Rstest',
+          hint: 'recommended',
         },
         {
           value: '',

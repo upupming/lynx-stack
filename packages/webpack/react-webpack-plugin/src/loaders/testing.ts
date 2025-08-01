@@ -13,7 +13,7 @@ function normalizeSlashes(file: string) {
   return file.replaceAll(path.win32.sep, '/');
 }
 
-function backgroundLoader(
+function testingLoader(
   this: LoaderContext<ReactLoaderOptions>,
   content: string,
 ): void {
@@ -24,7 +24,7 @@ function backgroundLoader(
   ) as typeof import('@lynx-js/react/transform');
   const filename = normalizeSlashes(
     path.relative(
-      require.resolve('@lynx-js/react/testing-library'),
+      this.rootContext,
       this.resourcePath,
     ),
   );
@@ -116,4 +116,4 @@ function backgroundLoader(
   this.callback(null, result.code, result.map);
 }
 
-export default backgroundLoader;
+export default testingLoader;

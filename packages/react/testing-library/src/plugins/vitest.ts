@@ -1,7 +1,7 @@
 // Copyright 2025 The Lynx Authors. All rights reserved.
 // Licensed under the Apache License Version 2.0 that can be found in the
 // LICENSE file in the root directory of this source tree.
-import type { Vite } from 'vitest/node';
+import type { ResolvedConfig, Vite } from 'vitest/node';
 import { VitestPackageInstaller } from 'vitest/node';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -51,6 +51,8 @@ export function testingLibraryPlugin(
   }
   const preactAlias = generateAlias('preact', preactDir, runtimeOSSDir);
 
+  let config: ResolvedConfig;
+
   return {
     name: 'transformReactLynxPlugin',
     enforce: 'pre',
@@ -71,7 +73,7 @@ export function testingLibraryPlugin(
       ) as typeof import('@lynx-js/react/transform');
       // relativePath should be stable between different runs with different cwd
       const relativePath = normalizeSlashes(
-        path.relative(require.resolve('@lynx-js/react/testing-library'), sourcePath),
+        path.relative(config.root, sourcePath),
       );
       const basename = path.basename(sourcePath);
       const result = transformReactLynxSync(sourceText, {
@@ -125,6 +127,10 @@ export function testingLibraryPlugin(
         map: result.map!,
       };
     },
+    configResolved(_config) {
+      // @ts-ignore
+      config = _config;
+    },
     config: () => ({
       test: {
         environment: require.resolve(
@@ -132,7 +138,7 @@ export function testingLibraryPlugin(
         ),
         globals: true,
         setupFiles: [
-          require.resolve('@lynx-js/react/testing-library/setupFiles/vitest'),
+          require.resolve('../setupFiles/vitest'),
         ],
         alias: [...runtimeOSSAlias, ...runtimeAlias, ...preactAlias],
       },

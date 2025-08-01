@@ -1,11 +1,16 @@
-import { defineConfig, type UserWorkspaceConfig } from 'vitest/config';
-import { vitestTestingLibraryPlugin } from '@lynx-js/react/testing-library/plugins';
+import { defineProject, mergeConfig } from 'vitest/config';
+import type { UserWorkspaceConfig } from 'vitest/config';
 
-const config: UserWorkspaceConfig = defineConfig({
-  plugins: [vitestTestingLibraryPlugin()],
+import { createVitestConfig } from '@lynx-js/react/testing-library/vitest-config';
+
+const defaultConfig = createVitestConfig();
+
+const config: UserWorkspaceConfig = defineProject({
   test: {
     name: 'use-sync-external-store',
   },
 });
 
-export default config;
+const mergedConfig: UserWorkspaceConfig = mergeConfig(defaultConfig, config);
+
+export default mergedConfig;
