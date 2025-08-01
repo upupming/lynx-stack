@@ -2,4 +2,4 @@
 "create-rspeedy": patch
 ---
 
-Support eslint for ReactLynx template
+Support ESLint for ReactLynx templates
