@@ -30,6 +30,7 @@ import { applyLoaders, applyTestingLoaders } from './loaders.js'
 import { applyRefresh } from './refresh.js'
 import { applyRstest } from './rstest.js'
 import { applySplitChunksRule } from './splitChunks.js'
+import { applyStubRspeedyAPI } from './stubRspeedyApi.js'
 import { applySWC } from './swc.js'
 import { applyUseSyncExternalStore } from './useSyncExternalStore.js'
 import { validateConfig } from './validate.js'
@@ -368,7 +369,11 @@ export function pluginReactLynx(
     pre: ['lynx:rsbuild:plugin-api'],
     async setup(api) {
       const isRstest = api.context.callerName === 'rstest'
+      const isRspeedy = api.context.callerName === 'rspeedy'
 
+      if (!isRspeedy) {
+        applyStubRspeedyAPI(api)
+      }
       if (isRstest) {
         applyRstest(api)
       }

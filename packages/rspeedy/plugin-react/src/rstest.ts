@@ -12,20 +12,4 @@ export function applyRstest(api: RsbuildPluginAPI): void {
       },
     }, config)
   })
-
-  // stub the `rspeedy.api`
-  api.expose(Symbol.for('rspeedy.api'), {
-    debug: (message: string | (() => string)) => {
-      if (typeof message === 'function') {
-        message = message()
-      }
-      console.info(message)
-    },
-    logger: api.logger,
-    config: api.getRsbuildConfig('current'),
-    exit: () => {
-      // do nothing
-    },
-    version: '0.0.0',
-  })
 }
