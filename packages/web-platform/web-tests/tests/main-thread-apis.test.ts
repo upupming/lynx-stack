@@ -17,9 +17,9 @@ const wait = async (ms: number) => {
 test.describe('main thread api tests', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto(`/main-thread-test.html`, {
-      waitUntil: 'load',
+      waitUntil: 'domcontentloaded',
     });
-    await wait(100);
+    await wait(200);
   });
 
   test.afterEach(async ({ page }) => {
