@@ -387,12 +387,25 @@ export default tseslint.config(
   // React-related
   {
     files: [
-      'examples/**/*.{ts,tsx}',
+      'examples/**/*.{jsx,tsx}',
     ],
     extends: [
       reactHooks.configs['recommended-latest'],
       reactRefresh.configs.vite,
     ],
+  },
+  {
+    files: [
+      'examples/**',
+    ],
+    settings: {
+      'import/resolver': {
+        typescript: {
+          project: 'examples/**/tsconfig.json',
+          noWarnOnMultipleProjects: true,
+        },
+      },
+    },
     rules: {
       // TODO: enable header for examples
       'headers/header-format': 'off',
