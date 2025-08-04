@@ -18,7 +18,7 @@
     "@eslint/js": "^9.31.0",
     "@eslint/markdown": "^6.6.0",
     "@microsoft/api-extractor": "catalog:",
-    "@rslib/core": "^0.11.0",
+    "@rslib/core": "^0.11.1",
     "@rspack/core": "catalog:rspack",
     "@rstest/core": "catalog:rstest",
     "@svitejs/changesets-changelog-github-compact": "^1.2.0",
