@@ -2183,7 +2183,7 @@ describe('Config', () => {
         ]
       `)
     })
-    test.only('js loaders should be testing loaders', () => {
+    test('js loaders should be testing loaders', () => {
       expect(
         rules?.filter((rule: Rule) =>
           rule
