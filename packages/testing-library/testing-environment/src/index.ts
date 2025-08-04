@@ -408,7 +408,7 @@ function injectBackgroundThreadGlobals(target?: any, polyfills?: any) {
  * ```ts
  * import { LynxTestingEnv } from '@lynx-js/testing-environment';
  *
- * const lynxTestingEnv = new LynxTestingEnv(new JSDOM());
+ * const lynxTestingEnv = new LynxTestingEnv();
  *
  * lynxTestingEnv.switchToMainThread();
  * // use the main thread Element PAPI
@@ -430,7 +430,7 @@ export class LynxTestingEnv {
    * ```ts
    * import { LynxTestingEnv } from '@lynx-js/testing-environment';
    *
-   * const lynxTestingEnv = new LynxTestingEnv(new JSDOM());
+   * const lynxTestingEnv = new LynxTestingEnv();
    *
    * lynxTestingEnv.switchToBackgroundThread();
    * // use the background thread global object
@@ -446,7 +446,7 @@ export class LynxTestingEnv {
    * ```ts
    * import { LynxTestingEnv } from '@lynx-js/testing-environment';
    *
-   * const lynxTestingEnv = new LynxTestingEnv(new JSDOM());
+   * const lynxTestingEnv = new LynxTestingEnv();
    *
    * lynxTestingEnv.switchToMainThread();
    * // use the main thread global object
@@ -456,10 +456,8 @@ export class LynxTestingEnv {
    * ```
    */
   mainThread: LynxGlobalThis & ElementTreeGlobals;
-  jsdom: JSDOM;
-  constructor(jsdom: JSDOM) {
-    this.jsdom = global.jsdom ?? jsdom;
-
+  jsdom: JSDOM = global.jsdom;
+  constructor() {
     this.backgroundThread = createGlobalThis() as any;
     this.mainThread = createGlobalThis() as any;
 

@@ -80,13 +80,6 @@ export interface LynxElement extends HTMLElement {
 }
 
 // @public
-export interface LynxGlobalThis {
-    // (undocumented)
-    [key: string]: any;
-    globalThis: LynxGlobalThis;
-}
-
-// @public
 export class LynxTestingEnv {
     constructor();
     backgroundThread: LynxGlobalThis;
@@ -103,6 +96,13 @@ export class LynxTestingEnv {
     switchToBackgroundThread(): void;
     // (undocumented)
     switchToMainThread(): void;
+}
+
+// @public
+export interface LynxGlobalThis {
+    // (undocumented)
+    [key: string]: any;
+    globalThis: LynxGlobalThis;
 }
 
 // @public (undocumented)
