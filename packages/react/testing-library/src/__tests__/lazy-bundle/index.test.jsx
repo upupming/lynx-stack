@@ -60,12 +60,14 @@ describe('lazy bundle', () => {
     } else {
       expect(container.firstChild).toMatchInlineSnapshot(`
         <view>
-          <text>
-            Hello from LazyComponent
-          </text>
-          <text>
-            Hello from LazyComponent
-          </text>
+          <wrapper>
+            <text>
+              Hello from LazyComponent
+            </text>
+            <text>
+              Hello from LazyComponent
+            </text>
+          </wrapper>
         </view>
       `);
     }

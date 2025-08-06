@@ -64,11 +64,6 @@ interface ReactWebpackPluginOptions {
    * @defaultValue `false` when production, `true` when development
    */
   profile?: boolean | undefined;
-
-  /**
-   * Enable global define such as `__MAIN_THREAD__` and `__BACKGROUND__`.
-   */
-  enableDefine?: boolean;
 }
 
 /**
@@ -143,7 +138,6 @@ class ReactWebpackPlugin {
       extractStr: false,
       experimental_isLazyBundle: false,
       profile: undefined,
-      enableDefine: true,
     });
 
   /**
@@ -174,28 +168,26 @@ class ReactWebpackPlugin {
       DEBUG: null,
     }).apply(compiler);
 
-    if (options.enableDefine) {
-      new DefinePlugin({
-        __DEV__: JSON.stringify(compiler.options.mode === 'development'),
-        // We enable profile by default in development.
-        // It can also be disabled by environment variable `REACT_PROFILE=false`
-        __PROFILE__: JSON.stringify(
-          process.env['REACT_PROFILE']
-            ?? options.profile
-            ?? compiler.options.mode === 'development',
-        ),
-        // User can enable ALog by environment variable `REACT_ALOG=true`
-        __ALOG__: JSON.stringify(Boolean(process.env['REACT_ALOG'])),
-        __EXTRACT_STR__: JSON.stringify(Boolean(options.extractStr)),
-        __FIRST_SCREEN_SYNC_TIMING__: JSON.stringify(
-          options.firstScreenSyncTiming,
-        ),
-        __ENABLE_SSR__: JSON.stringify(options.enableSSR),
-        __DISABLE_CREATE_SELECTOR_QUERY_INCOMPATIBLE_WARNING__: JSON.stringify(
-          options.disableCreateSelectorQueryIncompatibleWarning,
-        ),
-      }).apply(compiler);
-    }
+    new DefinePlugin({
+      __DEV__: JSON.stringify(compiler.options.mode === 'development'),
+      // We enable profile by default in development.
+      // It can also be disabled by environment variable `REACT_PROFILE=false`
+      __PROFILE__: JSON.stringify(
+        process.env['REACT_PROFILE']
+          ?? options.profile
+          ?? compiler.options.mode === 'development',
+      ),
+      // User can enable ALog by environment variable `REACT_ALOG=true`
+      __ALOG__: JSON.stringify(Boolean(process.env['REACT_ALOG'])),
+      __EXTRACT_STR__: JSON.stringify(Boolean(options.extractStr)),
+      __FIRST_SCREEN_SYNC_TIMING__: JSON.stringify(
+        options.firstScreenSyncTiming,
+      ),
+      __ENABLE_SSR__: JSON.stringify(options.enableSSR),
+      __DISABLE_CREATE_SELECTOR_QUERY_INCOMPATIBLE_WARNING__: JSON.stringify(
+        options.disableCreateSelectorQueryIncompatibleWarning,
+      ),
+    }).apply(compiler);
 
     compiler.hooks.thisCompilation.tap(this.constructor.name, compilation => {
       const onceForChunkSet = new WeakSet<Chunk>();

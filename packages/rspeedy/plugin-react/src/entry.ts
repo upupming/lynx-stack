@@ -276,7 +276,6 @@ export function applyEntry(
         extractStr,
         experimental_isLazyBundle,
         profile: getDefaultProfile(),
-        enableDefine: !isRstest,
       }])
 
     function getDefaultProfile(): boolean | undefined {
