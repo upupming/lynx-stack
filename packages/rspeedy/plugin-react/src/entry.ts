@@ -12,7 +12,6 @@ import type {
 import type { UndefinedOnPartialDeep } from 'type-fest'
 
 import { LAYERS, ReactWebpackPlugin } from '@lynx-js/react-webpack-plugin'
-import type { ExposedAPI } from '@lynx-js/rspeedy'
 import { RuntimeWrapperWebpackPlugin } from '@lynx-js/runtime-wrapper-webpack-plugin'
 import {
   CSSPlugins,
@@ -22,6 +21,7 @@ import {
 } from '@lynx-js/template-webpack-plugin'
 
 import type { PluginReactLynxOptions } from './pluginReactLynx.js'
+import { getRspeedyAPI } from './rspeedy-api.js'
 
 const PLUGIN_NAME_REACT = 'lynx:react'
 const PLUGIN_NAME_TEMPLATE = 'lynx:template'
@@ -59,9 +59,6 @@ export function applyEntry(
     experimental_isLazyBundle,
   } = options
 
-  const { config, logger } = api.useExposed<ExposedAPI>(
-    Symbol.for('rspeedy.api'),
-  )!
   api.modifyBundlerChain((chain, { environment, isDev, isProd }) => {
     let finalFirstScreenSyncTiming = firstScreenSyncTiming
     const mainThreadChunks: string[] = []
@@ -69,6 +66,8 @@ export function applyEntry(
     const isRstest = api.context.callerName === 'rstest'
 
     if (!isRstest) {
+      const { config } = getRspeedyAPI(api)
+
       const entries = chain.entryPoints.entries() ?? {}
       const isLynx = environment.name === 'lynx'
       const isWeb = environment.name === 'web'
@@ -259,7 +258,7 @@ export function applyEntry(
       rsbuildConfig.performance?.chunkSplit?.strategy !== 'all-in-one'
       && originalExtractStr
     ) {
-      logger.warn(
+      ;(api.logger ?? console).warn(
         '`extractStr` is changed to `false` because it is only supported in `all-in-one` chunkSplit strategy, please set `performance.chunkSplit.strategy` to `all-in-one` to use `extractStr.`',
       )
       extractStr = false

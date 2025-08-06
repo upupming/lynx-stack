@@ -18,7 +18,6 @@ import type {
   ExtractStrConfig,
   ShakeVisitorConfig,
 } from '@lynx-js/react-transform'
-import type { ExposedAPI } from '@lynx-js/rspeedy'
 
 import { applyAlias } from './alias.js'
 import { applyBackgroundOnly } from './backgroundOnly.js'
@@ -30,7 +29,6 @@ import { applyLoaders, applyTestingLoaders } from './loaders.js'
 import { applyRefresh } from './refresh.js'
 import { applyRstest } from './rstest.js'
 import { applySplitChunksRule } from './splitChunks.js'
-import { applyStubRspeedyAPI } from './stubRspeedyApi.js'
 import { applySWC } from './swc.js'
 import { applyUseSyncExternalStore } from './useSyncExternalStore.js'
 import { validateConfig } from './validate.js'
@@ -369,11 +367,7 @@ export function pluginReactLynx(
     pre: ['lynx:rsbuild:plugin-api'],
     async setup(api) {
       const isRstest = api.context.callerName === 'rstest'
-      const isRspeedy = api.context.callerName === 'rspeedy'
 
-      if (!isRspeedy) {
-        applyStubRspeedyAPI(api)
-      }
       if (isRstest) {
         applyRstest(api)
       }
@@ -432,20 +426,15 @@ export function pluginReactLynx(
         applyLazy(api)
       }
 
-      const rspeedyAPIs = api.useExposed<ExposedAPI>(
-        Symbol.for('rspeedy.api'),
-      )!
-
       const require = createRequire(import.meta.url)
 
       const { version } = require('../package.json') as { version: string }
-
-      rspeedyAPIs.debug(() => {
-        const webpackPluginPath = require.resolve(
-          '@lynx-js/react-webpack-plugin',
-        )
-        return `Using @lynx-js/react-webpack-plugin v${version} at ${webpackPluginPath}`
-      })
+      const webpackPluginPath = require.resolve(
+        '@lynx-js/react-webpack-plugin',
+      )
+      api.logger?.debug(
+        `Using @lynx-js/react-webpack-plugin v${version} at ${webpackPluginPath}`,
+      )
     },
   }
 }
