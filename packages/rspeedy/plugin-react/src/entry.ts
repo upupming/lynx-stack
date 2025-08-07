@@ -197,8 +197,6 @@ export function applyEntry(
         .end()
     })
 
-    let finalFirstScreenSyncTiming = firstScreenSyncTiming
-
     const rsbuildConfig = api.getRsbuildConfig()
     const enableChunkSplitting =
       rsbuildConfig.performance?.chunkSplit?.strategy !== 'all-in-one'
@@ -210,10 +208,6 @@ export function applyEntry(
         inlineScripts = true
       } else {
         inlineScripts = environment.config.output?.inlineScripts ?? true
-      }
-
-      if (inlineScripts !== true) {
-        finalFirstScreenSyncTiming = 'jsReady'
       }
 
       chain
@@ -273,7 +267,7 @@ export function applyEntry(
       .use(ReactWebpackPlugin, [{
         disableCreateSelectorQueryIncompatibleWarning: compat
           ?.disableCreateSelectorQueryIncompatibleWarning ?? false,
-        firstScreenSyncTiming: finalFirstScreenSyncTiming,
+        firstScreenSyncTiming,
         enableSSR,
         mainThreadChunks,
         extractStr,
