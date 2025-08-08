@@ -78,7 +78,7 @@ describe('withInitDataInState', () => {
     }
   }
   const _App = withInitDataInState(App);
-  it('should inject `__initData` to `state` of componnet', async () => {
+  it('should inject `__initData` to `state` of component', async () => {
     render(<_App />, scratch);
     const tt = lynxCoreInject.tt;
     expect(app.state).toMatchInlineSnapshot(`{}`);

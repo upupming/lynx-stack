@@ -128,7 +128,7 @@ export function withInitDataInState<P, S>(App: ComponentClass<P, S>): ComponentC
         lynx.getJSModule('GlobalEventEmitter').addListener(
           'onDataChanged',
           this.h = (...args: unknown[]) => {
-            const newData = (args as [S])[0];
+            const [newData] = args as [S];
             globalFlushOptions.triggerDataUpdated = true;
             this.setState(newData);
           },
