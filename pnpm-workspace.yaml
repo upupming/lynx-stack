@@ -17,9 +17,12 @@ packages:
   - packages/webpack/*
   - website
 
-configDependencies:
-  "@pnpm/plugin-better-defaults": 0.1.0+sha512-aWj7Jv9NcNs/OoazrxP6QspLgKRZ2PHj6wPris6ZCEqmXw+Z8zK59KLzl9NBFGRCO4PNA9pwDWLu+8N3NiqUAQ==
-  "@pnpm/plugin-trusted-deps": 0.1.0+sha512-OK05vSZpezQHcS7Y0T5A25QXDbBRtRq52s76eOkMgp9v8ifNrIR8pjIGqrUFUn0PwKLt2i+U1LPYB+RWi1xjaQ==
+# From `@pnpm/plugin-better-defaults`
+enablePrePostScripts: false
+ignorePatchFailures: false
+optimisticRepeatInstall: true
+resolutionMode: "lowest-direct"
+verifyDepsBeforeRun: "install"
 
 # Default catalogs
 catalog:
@@ -28,7 +31,7 @@ catalog:
 catalogs:
   # Rsbuild monorepo packages
   rsbuild:
-    "@rsbuild/core": "1.4.13"
+    "@rsbuild/core": "1.4.15"
 
   # Rspack monorepo packages
   rspack:
@@ -39,12 +42,11 @@ catalogs:
 overrides:
   "@rspack/core": "$@rspack/core"
   "@rsbuild/core>@rspack/core": "$@rspack/core"
-  "path-serializer": "^0.5.0"
 
 patchedDependencies:
   "@napi-rs/cli@2.18.4": "patches/@napi-rs__cli@2.18.4.patch"
   "@rollup/plugin-typescript": "patches/@rollup__plugin-typescript.patch"
-  "webpack": patches/webpack.patch
+  "webpack@5.101.0": patches/webpack@5.101.0.patch
 
 strictDepBuilds: true
 
