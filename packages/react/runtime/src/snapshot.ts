@@ -53,6 +53,8 @@ export function clearPage(): void {
   __pageId = 0;
 }
 
+export const __DynamicPartChildren_0: [DynamicPartType, number][] = [[DynamicPartType.Children, 0]];
+
 export const snapshotManager: {
   values: Map<string, Snapshot>;
 } = {
@@ -69,7 +71,7 @@ export const snapshotManager: {
           return [__page!];
         },
         update: [],
-        slot: [[DynamicPartType.Children, 0]],
+        slot: __DynamicPartChildren_0,
         isListHolder: false,
         cssId: 0,
       },
@@ -86,7 +88,7 @@ export const snapshotManager: {
           return [__CreateWrapperElement(__pageId)];
         },
         update: [],
-        slot: [[DynamicPartType.Children, 0]],
+        slot: __DynamicPartChildren_0,
         isListHolder: false,
       },
     ],
@@ -149,6 +151,17 @@ export const backgroundSnapshotInstanceManager: {
   updateId(id: number, newId: number) {
     const values = this.values;
     const si = values.get(id)!;
+    // For PreactDevtools, on first hydration,
+    // PreactDevtools can get the real snapshot instance id in main-thread
+    if (__DEV__) {
+      lynx.getJSModule('GlobalEventEmitter').emit('onBackgroundSnapshotInstanceUpdateId', [
+        {
+          backgroundSnapshotInstance: si,
+          oldId: id,
+          newId,
+        },
+      ]);
+    }
     values.delete(id);
     values.set(newId, si);
     si.__id = newId;
