@@ -2141,8 +2141,8 @@ describe('Config', () => {
   describe('callerName: rstest', async () => {
     const { pluginReactLynx } = await import('../src/pluginReactLynx.js')
 
-    const rsbuild = await createRsbuild({
-      rsbuildConfig: {
+    const rsbuild = await createRspeedy({
+      rspeedyConfig: {
         plugins: [
           pluginReactLynx(),
         ],
@@ -2200,6 +2200,7 @@ describe('Config', () => {
             "builtin:swc-loader",
             "<WORKSPACE>/packages/webpack/react-webpack-plugin/lib/loaders/testing.js",
           ],
+          [],
           [],
         ]
       `)
