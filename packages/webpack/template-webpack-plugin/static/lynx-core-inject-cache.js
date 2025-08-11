@@ -9,9 +9,9 @@
     var tt = lynxCoreInject.tt;
     tt.define('lynx-core-inject-cache.js', function() {
       let ready = false;
+      let cachedActions = [];
 
       // ensure tt._appInstance is initialized to avoid TTApp this._appInstance.onFirstScreen() fail
-      let cachedAppInstanceCalls = [];
       tt._appInstance = tt._appInstance || new Proxy({}, {
         get: function(_obj, prop) {
           if (prop === 'data') {
@@ -19,15 +19,16 @@
           }
 
           return (...args) => {
-            cachedAppInstanceCalls.push({
-              type: prop,
-              args,
+            cachedActions.push({
+              type: 'appInstance',
+              data: {
+                type: prop,
+                args,
+              },
             });
           };
         },
       });
-
-      let cachedCalls = [];
 
       const methodsToMock = [
         'OnLifecycleEvent',
@@ -52,12 +53,42 @@
               && methodsToOldFn[methodName](...args);
           }
 
-          cachedCalls.push({
-            type: methodName,
-            args,
+          cachedActions.push({
+            type: 'ttMethod',
+            data: {
+              type: methodName,
+              args,
+            },
           });
         };
       });
+      
+      const lynxPerformanceListenerKeys = {
+        onPerformance: 'lynx.performance.onPerformanceEvent',
+        onSetup: 'lynx.performance.timing.onSetup',
+        onUpdate: 'lynx.performance.timing.onUpdate',
+      };
+      const emitter = tt.GlobalEventEmitter;
+      let cleanupTasks = [];
+      if (emitter) {
+        Object.keys(lynxPerformanceListenerKeys).forEach(key => {
+          const listenerKey = lynxPerformanceListenerKeys[key];
+          const listener = (...args) => {
+            cachedActions.push({
+              type: 'performanceEvent',
+              data: {
+                type: key,
+                args,
+              },
+            });
+          }
+          emitter.addListener(listenerKey, listener);
+          cleanupTasks.push(() => {
+            emitter.removeListener(listenerKey, listener);
+          });
+        })
+      }
+      
 
       tt.onBackgroundThreadReady = () => {
         ready = true;
@@ -69,15 +100,25 @@
             tt[methodName] = methodsToOldFn[methodName];
           }
         });
-
-        // replay cachedAppInstanceCalls
-        cachedAppInstanceCalls.forEach(call => {
-          tt._appInstance[call.type](...call.args);
+        
+        // cleanup listeners
+        cleanupTasks.forEach(task => {
+          task();
         });
-
-        // replay cachedCalls
-        cachedCalls.forEach(call => {
-          tt[call.type](...call.args);
+        
+        // replay cachedActions
+        cachedActions.forEach(action => {
+          console.log('lynx-core-inject-cache replay cachedAction', action);
+          if (action.type === 'appInstance') {
+            tt._appInstance[action.data.type](...action.data.args);
+          } else if (action.type === 'ttMethod') {
+            tt[action.data.type](...action.data.args);
+          } else if (action.type === 'performanceEvent') {
+            const listenerKey = lynxPerformanceListenerKeys[action.data.type];
+            if (listenerKey && emitter) {
+              emitter.emit(listenerKey, action.data.args);
+            }
+          }
         });
       };
     });

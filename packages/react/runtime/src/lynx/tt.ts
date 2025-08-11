@@ -40,7 +40,6 @@ function injectTt(): void {
   tt.processCardConfig = () => {
     // used to updateTheme, no longer rely on this function
   };
-  tt.onBackgroundThreadReady?.();
 }
 
 function onLifecycleEvent([type, data]: [LifecycleConstant, unknown]) {

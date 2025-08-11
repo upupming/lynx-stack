@@ -73,7 +73,8 @@ export class LynxEncodePlugin {
   static defaultOptions: Readonly<Required<LynxEncodePluginOptions>> = Object
     .freeze<Required<LynxEncodePluginOptions>>({
       inlineScripts: true,
-      lynxCoreInjectCache: false,
+      // TODO: fix that `true` not working with no chunk splitting
+      lynxCoreInjectCache: true,
     });
   /**
    * The entry point of a webpack plugin.
