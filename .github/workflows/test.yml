@@ -103,8 +103,7 @@ jobs:
       is-web: true
       codecov-flags: "e2e"
       run: |
-        export ${{ join(matrix.config.env, ' ') }}
-        export NODE_OPTIONS="--max-old-space-size=32768"
+        export NODE_OPTIONS="--max-old-space-size=32768" ${{ join(matrix.config.env, ' ') }}
         export PLAYWRIGHT_JUNIT_OUTPUT_NAME=test-report.junit.xml
         pnpm --filter @lynx-js/web-tests run test --reporter='github,dot,junit,html'
         pnpm --filter @lynx-js/web-tests run coverage:ci
@@ -272,7 +271,7 @@ jobs:
       - test-vitest
       - website
     if: always()
-    runs-on: lynx-ubuntu-24.04-medium
+    runs-on: ubuntu-latest
     name: Done
     steps:
       - run: exit 1

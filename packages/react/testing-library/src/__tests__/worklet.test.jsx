@@ -343,7 +343,7 @@ describe('worklet', () => {
         [
           "rLynxChange",
           {
-            "data": "{"patchList":[{"snapshotPatch":[3,-2,0,{"_wkltId":"15ab:test:8","_jsFn":{"_jsFn1":{"_jsFnId":2}},"_execId":1}],"id":2}]}",
+            "data": "{"patchList":[{"snapshotPatch":[3,-2,0,{"_wkltId":"15ab:test:8","_jsFn":{"_jsFn1":{"_jsFnId":2,"_fn":"[BackgroundFunction]"}},"_execId":1}],"id":2}]}",
             "patchOptions": {
               "isHydration": true,
               "pipelineOptions": {

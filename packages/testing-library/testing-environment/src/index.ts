@@ -9,6 +9,7 @@ import EventEmitter from 'node:events';
 import { JSDOM } from 'jsdom';
 import { createGlobalThis, LynxGlobalThis } from './lynx/GlobalThis.js';
 import { initElementTree } from './lynx/ElementPAPI.js';
+import { GlobalEventEmitter } from './lynx/GlobalEventEmitter.js';
 export { initElementTree } from './lynx/ElementPAPI.js';
 export type { LynxElement } from './lynx/ElementPAPI.js';
 export type { LynxGlobalThis } from './lynx/GlobalThis.js';
@@ -325,11 +326,7 @@ function injectBackgroundThreadGlobals(target?: any, polyfills?: any) {
     UNIQUE_ID, // element_id
   }
 
-  const globalEventEmitter = new EventEmitter();
-  // @ts-ignore
-  globalEventEmitter.trigger = globalEventEmitter.emit;
-  // @ts-ignore
-  globalEventEmitter.toggle = globalEventEmitter.emit;
+  const globalEventEmitter = new GlobalEventEmitter();
   target.lynx = {
     getNativeApp: () => app,
     performance,
