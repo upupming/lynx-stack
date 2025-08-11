@@ -12,23 +12,25 @@
       let cachedActions = [];
 
       // ensure tt._appInstance is initialized to avoid TTApp this._appInstance.onFirstScreen() fail
-      tt._appInstance = tt._appInstance || new Proxy({}, {
-        get: function(_obj, prop) {
-          if (prop === 'data') {
-            return undefined;
-          }
-
-          return (...args) => {
-            cachedActions.push({
-              type: 'appInstance',
-              data: {
-                type: prop,
-                args,
-              },
-            });
-          };
-        },
-      });
+      tt._appInstance = tt._appInstance || Object.fromEntries(
+        [
+          'onLoad',
+          'onReady',
+          'onHide',
+          'onShow',
+          'onFirstScreen',
+          'onError',
+          'onDestroy',
+        ].map(key => [key, (...args) => {
+          cachedActions.push({
+            type: 'appInstance',
+            data: {
+              type: key,
+              args,
+            },
+          });
+        }])
+      )
 
       const methodsToMock = [
         'OnLifecycleEvent',
