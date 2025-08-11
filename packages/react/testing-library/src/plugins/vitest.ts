@@ -62,9 +62,6 @@ export function testingLibraryPlugin(
     transform(sourceText, sourcePath) {
       const id = sourcePath;
       if (id.endsWith('.css') || id.endsWith('.less') || id.endsWith('.scss')) {
-        if (process.env['DEBUG']) {
-          console.log('ignoring css file', id);
-        }
         return '';
       }
 
