@@ -195,8 +195,6 @@ declare global {
       callBeforePublishEvent: (data: unknown) => void;
       getDynamicComponentExports: (schema: string) => { default: React.ComponentType<any> } | null | undefined;
       GlobalEventEmitter: EventEmitter;
-
-      onBackgroundThreadReady: () => void;
     };
   }
 

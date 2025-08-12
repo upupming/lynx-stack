@@ -107,11 +107,6 @@ export const root: Root = {
       } else {
         lynx.getNativeApp().callLepusMethod(LifecycleConstant.jsReady, {});
       }
-    
-      // limitation: scripts after `root.render()` will not receive cached events
-      // TODO: make this after `var __webpack_exports__ = __webpack_require__.x();`
-      const tt = lynxCoreInject.tt;
-      tt.onBackgroundThreadReady?.();
     }
   },
   /* v8 ignore next 3 */

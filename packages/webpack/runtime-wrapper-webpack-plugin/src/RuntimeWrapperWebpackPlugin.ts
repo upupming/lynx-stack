@@ -188,10 +188,12 @@ class RuntimeWrapperWebpackPluginImpl {
       footer: true,
       raw: true,
       banner: ({ filename }) => {
+        const _amdFooter = backgroundScriptRegex.test(filename)
+          ? amdFooterBTS : amdFooter;
         const footer = this.#getBannerType(filename) === 'script'
           ? loadScriptFooter
           : loadBundleFooter;
-        return amdFooter('[name].js', iife) + footer;
+        return _amdFooter('[name].js', iife) + footer;
       },
     }).apply(compiler);
   }
@@ -283,7 +285,22 @@ ${iifeWrapper}
   );
 };
 
+const backgroundScriptRegex = /^.*background(?:\.[A-Fa-f0-9]*)?\.js$/;
+
+
 const amdFooter = (moduleId: string, iife: boolean) => `
+${iife ? '' : '})();'}
+    });
+    return tt.require("${moduleId}");`;
+
+const amdFooterBTS = (moduleId: string, iife: boolean) => `
+
+// __webpack_exports__ will be a Promise when chunk splitting is enabled.
+// in this case, lynx core should wait for the Promise to resolve before
+// sending any native events to BTS
+// We export the __webpack_exports__ here as exports to be used by lynx core
+module.exports = __webpack_exports__;
+
 ${iife ? '' : '})();'}
     });
     return tt.require("${moduleId}");`;

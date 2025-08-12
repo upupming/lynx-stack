@@ -3,6 +3,7 @@
 // LICENSE file in the root directory of this source tree.
 import fs from 'node:fs/promises';
 import { createRequire } from 'node:module';
+import path from 'node:path';
 
 import type { Compiler } from 'webpack';
 
@@ -153,10 +154,31 @@ export class LynxEncodePluginImpl {
         if (this.options.lynxCoreInjectCache) {
           const lynxCoreInjectCacheScriptName = 'lynx-core-inject-cache.js';
           const require = createRequire(import.meta.url);
-          inlinedManifest[lynxCoreInjectCacheScriptName] = await fs.readFile(
+          const lynxCoreInjectCacheScript = await fs.readFile(
             require.resolve('../static/' + lynxCoreInjectCacheScriptName),
             'utf-8',
           );
+          let backgroundScriptName = '';
+          const backgroundScriptRegex = /^.*background(?:\.[A-Fa-f0-9]*)?\.js$/;
+          for (const name of Object.keys(manifest)) {
+            if (backgroundScriptRegex.test(name)) {
+              backgroundScriptName = name;
+              break;
+            }
+          }
+          if (backgroundScriptName === '') {
+            compilation.errors.push(
+              new compiler.webpack.WebpackError(
+                `LynxEncodePlugin: ${lynxCoreInjectCacheScriptName} is not injected because no background script found.`,
+              ),
+            );
+          } else {
+            inlinedManifest[lynxCoreInjectCacheScriptName] = lynxCoreInjectCacheScript.replace(
+              'background.js',
+              // TODO: any better way to get the background script export path?
+              path.posix.basename(backgroundScriptName),
+            );
+          }
         }
 
         let publicPath = '/';

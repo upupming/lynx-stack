@@ -8,7 +8,18 @@
     g.__bundle__holder = undefined;
     var tt = lynxCoreInject.tt;
     tt.define('lynx-core-inject-cache.js', function() {
-      let ready = false;
+      const btsExports = tt.require('background.js');
+      const maybePromise = typeof btsExports === 'object'
+        && btsExports !== null
+        && typeof btsExports.then === 'function';
+      
+      if (!maybePromise) {
+        console.warn('lynx-core-inject-cache.js: background.js exports is not a promise, skip inject cache');
+        return;
+      }
+      
+      let btsResolved = false;
+      
       let cachedActions = [];
 
       // ensure tt._appInstance is initialized to avoid TTApp this._appInstance.onFirstScreen() fail
@@ -49,7 +60,7 @@
         // biome-ignore lint/complexity/useOptionalChain: optional chain not supported here
         methodsToOldFn[methodName] = tt[methodName] && tt[methodName].bind(tt);
         tt[methodName] = methodsToMockFn[methodName] = (...args) => {
-          if (ready) {
+          if (btsResolved) {
             // biome-ignore lint/complexity/useOptionalChain: optional chain not supported here
             return methodsToOldFn[methodName]
               && methodsToOldFn[methodName](...args);
@@ -91,10 +102,9 @@
         })
       }
       
-
-      tt.onBackgroundThreadReady = () => {
-        ready = true;
-
+      btsExports.then(() => {
+        btsResolved = true;
+        
         methodsToMock.forEach(methodName => {
           // if DSL Framework does not inject new fn
           // we should restore to old fn
@@ -122,7 +132,7 @@
             }
           }
         });
-      };
+      });
     });
     return tt.require('lynx-core-inject-cache.js');
   }
