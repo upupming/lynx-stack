@@ -27,6 +27,13 @@ type InlineChunkConfig = boolean | InlineChunkTest | {
  */
 export interface LynxEncodePluginOptions {
   inlineScripts?: InlineChunkConfig | undefined;
+  /**
+   * Whether to cache events until the background script is fully loaded.
+   *
+   * It is required when chunk splitting is enabled.
+   *
+   * @defaultValue false
+   */
   enableEventsCacheManifest?: boolean | undefined;
 }
 
