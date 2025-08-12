@@ -7,7 +7,7 @@
   function __init_card_bundle__(lynxCoreInject) {
     g.__bundle__holder = undefined;
     var tt = lynxCoreInject.tt;
-    tt.define('lynx-core-inject-cache.js', function() {
+    tt.define('events-cache.js', function() {
       const btsExports = tt.require('background.js');
       const maybePromise = typeof btsExports === 'object'
         && btsExports !== null
@@ -15,7 +15,7 @@
 
       if (!maybePromise) {
         console.warn(
-          'lynx-core-inject-cache.js: background.js exports is not a promise, skip inject cache',
+          'events-cache.js: background.js exports is not a promise, skip inject cache',
         );
         return;
       }
@@ -104,38 +104,46 @@
         });
       }
 
-      btsExports.then(() => {
-        btsResolved = true;
+      btsExports
+        .then(() => {
+          btsResolved = true;
 
-        methodsToMock.forEach(methodName => {
-          // if DSL Framework does not inject new fn
-          // we should restore to old fn
-          if (tt[methodName] === methodsToMockFn[methodName]) {
-            tt[methodName] = methodsToOldFn[methodName];
-          }
-        });
-
-        // cleanup listeners
-        cleanupTasks.forEach(task => {
-          task();
-        });
-
-        // replay cachedActions
-        cachedActions.forEach(action => {
-          if (action.type === 'appInstance') {
-            tt._appInstance[action.data.type](...action.data.args);
-          } else if (action.type === 'ttMethod') {
-            tt[action.data.type](...action.data.args);
-          } else if (action.type === 'performanceEvent') {
-            const listenerKey = lynxPerformanceListenerKeys[action.data.type];
-            if (listenerKey && emitter) {
-              emitter.emit(listenerKey, action.data.args);
+          methodsToMock.forEach(methodName => {
+            // if DSL Framework does not inject new fn
+            // we should restore to old fn
+            if (tt[methodName] === methodsToMockFn[methodName]) {
+              tt[methodName] = methodsToOldFn[methodName];
             }
+          });
+
+          // cleanup listeners
+          while (cleanupTasks.length > 0) {
+            cleanupTasks.shift()();
           }
+
+          // replay cachedActions
+          cachedActions.forEach(action => {
+            if (action.type === 'appInstance') {
+              tt._appInstance[action.data.type](...action.data.args);
+            } else if (action.type === 'ttMethod') {
+              tt[action.data.type](...action.data.args);
+            } else if (action.type === 'performanceEvent') {
+              const listenerKey = lynxPerformanceListenerKeys[action.data.type];
+              if (listenerKey && emitter) {
+                emitter.emit(listenerKey, action.data.args);
+              }
+            }
+          });
+        })
+        .finally(() => {
+          // cleanup listeners
+          while (cleanupTasks.length > 0) {
+            cleanupTasks.shift()();
+          }
+          cachedActions = [];
         });
-      });
     });
-    return tt.require('lynx-core-inject-cache.js');
+    return tt.require('events-cache.js');
   }
   // biome-ignore lint/complexity/useOptionalChain: optional chain not supported here
   if (g && g.bundleSupportLoadScript) {

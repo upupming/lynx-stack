@@ -202,9 +202,10 @@ class RuntimeWrapperWebpackPluginImpl {
       footer: true,
       raw: true,
       banner: ({ filename }) => {
-        const generateAmdFooter = backgroundScriptRegex.test(filename)
-          ? amdFooterBTS
-          : amdFooter;
+        const generateAmdFooter =
+          filename && backgroundScriptRegex.test(filename)
+            ? amdFooterBTS
+            : amdFooter;
         const footer = this.#getBannerType(filename) === 'script'
           ? loadScriptFooter
           : loadBundleFooter;
