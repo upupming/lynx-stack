@@ -151,7 +151,21 @@ class RuntimeWrapperWebpackPluginImpl {
     if (typeof options.injectVars === 'function') {
       injectStr = options.injectVars(defaultInjectVars).join(',');
     }
-    const iife = compiler.options.output.iife ?? true;
+
+    compiler.hooks.environment.tap(
+      this.name,
+      () => {
+        if (
+          compiler.options.optimization.splitChunks
+          && compiler.options.output.iife
+        ) {
+          compiler.options.output.iife = false;
+          console.warn(
+            '`iife` is changed to `false` because it is only supported in `all-in-one` chunkSplit strategy, please set `performance.chunkSplit.strategy` to `all-in-one` to use `iife`.',
+          );
+        }
+      },
+    );
 
     // banner
     new BannerPlugin({
@@ -169,7 +183,7 @@ class RuntimeWrapperWebpackPluginImpl {
             overrideRuntimePromise: true,
             moduleId: '[name].js',
             targetSdkVersion,
-            iife,
+            iife: compiler.options.output.iife ?? false,
           })
           // In standalone lazy bundle mode, the lazy bundle will
           // also has chunk.id "main", it will be conflict with the
@@ -194,7 +208,10 @@ class RuntimeWrapperWebpackPluginImpl {
         const footer = this.#getBannerType(filename) === 'script'
           ? loadScriptFooter
           : loadBundleFooter;
-        return generateAmdFooter('[name].js', iife) + footer;
+        return generateAmdFooter(
+          '[name].js',
+          compiler.options.output.iife ?? false,
+        ) + footer;
       },
     }).apply(compiler);
   }
@@ -294,9 +311,8 @@ ${iife ? '' : '})();'}
     return tt.require("${moduleId}");`;
 
 const amdFooterBTS = (moduleId: string, iife: boolean) => `
-
-// TODO: when iife is enabled, module.exports is injected outside of the IIFE,
-// which is not what we want. We should fix it in the future.
+${
+  iife ? '' : `
 
 // __webpack_exports__ will be a Promise when chunk splitting is enabled.
 // in this case, lynx core should wait for the Promise to resolve before
@@ -304,7 +320,8 @@ const amdFooterBTS = (moduleId: string, iife: boolean) => `
 // We export the __webpack_exports__ here as exports to be used by lynx core
 module.exports = __webpack_exports__;
 
-${iife ? '' : '})();'}
+})();`
+}
     });
     return tt.require("${moduleId}");`;
 

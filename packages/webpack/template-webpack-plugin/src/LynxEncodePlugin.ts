@@ -175,7 +175,6 @@ export class LynxEncodePluginImpl {
             inlinedManifest[enableEventsCacheManifestScriptName] =
               enableEventsCacheManifestScript.replace(
                 'background.js',
-                // TODO: any better way to get the background script export path?
                 path.posix.basename(backgroundScriptName),
               );
           }
