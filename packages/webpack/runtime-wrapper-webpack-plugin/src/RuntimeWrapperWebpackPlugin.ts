@@ -188,12 +188,13 @@ class RuntimeWrapperWebpackPluginImpl {
       footer: true,
       raw: true,
       banner: ({ filename }) => {
-        const _amdFooter = backgroundScriptRegex.test(filename)
-          ? amdFooterBTS : amdFooter;
+        const generateAmdFooter = backgroundScriptRegex.test(filename)
+          ? amdFooterBTS
+          : amdFooter;
         const footer = this.#getBannerType(filename) === 'script'
           ? loadScriptFooter
           : loadBundleFooter;
-        return _amdFooter('[name].js', iife) + footer;
+        return generateAmdFooter('[name].js', iife) + footer;
       },
     }).apply(compiler);
   }
@@ -287,13 +288,15 @@ ${iifeWrapper}
 
 const backgroundScriptRegex = /^.*background(?:\.[A-Fa-f0-9]*)?\.js$/;
 
-
 const amdFooter = (moduleId: string, iife: boolean) => `
 ${iife ? '' : '})();'}
     });
     return tt.require("${moduleId}");`;
 
 const amdFooterBTS = (moduleId: string, iife: boolean) => `
+
+// TODO: when iife is enabled, module.exports is injected outside of the IIFE,
+// which is not what we want. We should fix it in the future.
 
 // __webpack_exports__ will be a Promise when chunk splitting is enabled.
 // in this case, lynx core should wait for the Promise to resolve before

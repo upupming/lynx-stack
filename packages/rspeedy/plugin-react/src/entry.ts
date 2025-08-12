@@ -236,7 +236,7 @@ export function applyEntry(
         .plugin(`${LynxEncodePlugin.name}`)
         .use(LynxEncodePlugin, [{
           inlineScripts,
-          lynxCoreInjectCache: enableChunkSplitting,
+          enableEventsCacheManifest: enableChunkSplitting,
         }])
         .end()
     }

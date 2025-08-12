@@ -12,14 +12,16 @@
       const maybePromise = typeof btsExports === 'object'
         && btsExports !== null
         && typeof btsExports.then === 'function';
-      
+
       if (!maybePromise) {
-        console.warn('lynx-core-inject-cache.js: background.js exports is not a promise, skip inject cache');
+        console.warn(
+          'lynx-core-inject-cache.js: background.js exports is not a promise, skip inject cache',
+        );
         return;
       }
-      
+
       let btsResolved = false;
-      
+
       let cachedActions = [];
 
       // ensure tt._appInstance is initialized to avoid TTApp this._appInstance.onFirstScreen() fail
@@ -40,8 +42,8 @@
               args,
             },
           });
-        }])
-      )
+        }]),
+      );
 
       const methodsToMock = [
         'OnLifecycleEvent',
@@ -75,7 +77,7 @@
           });
         };
       });
-      
+
       const lynxPerformanceListenerKeys = {
         onPerformance: 'lynx.performance.onPerformanceEvent',
         onSetup: 'lynx.performance.timing.onSetup',
@@ -94,17 +96,17 @@
                 args,
               },
             });
-          }
+          };
           emitter.addListener(listenerKey, listener);
           cleanupTasks.push(() => {
             emitter.removeListener(listenerKey, listener);
           });
-        })
+        });
       }
-      
+
       btsExports.then(() => {
         btsResolved = true;
-        
+
         methodsToMock.forEach(methodName => {
           // if DSL Framework does not inject new fn
           // we should restore to old fn
@@ -112,15 +114,14 @@
             tt[methodName] = methodsToOldFn[methodName];
           }
         });
-        
+
         // cleanup listeners
         cleanupTasks.forEach(task => {
           task();
         });
-        
+
         // replay cachedActions
         cachedActions.forEach(action => {
-          console.log('lynx-core-inject-cache replay cachedAction', action);
           if (action.type === 'appInstance') {
             tt._appInstance[action.data.type](...action.data.args);
           } else if (action.type === 'ttMethod') {

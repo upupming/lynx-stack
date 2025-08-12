@@ -27,7 +27,7 @@ type InlineChunkConfig = boolean | InlineChunkTest | {
  */
 export interface LynxEncodePluginOptions {
   inlineScripts?: InlineChunkConfig | undefined;
-  lynxCoreInjectCache?: boolean | undefined;
+  enableEventsCacheManifest?: boolean | undefined;
 }
 
 /**
@@ -74,8 +74,7 @@ export class LynxEncodePlugin {
   static defaultOptions: Readonly<Required<LynxEncodePluginOptions>> = Object
     .freeze<Required<LynxEncodePluginOptions>>({
       inlineScripts: true,
-      // TODO: fix that `true` not working with no chunk splitting
-      lynxCoreInjectCache: true,
+      enableEventsCacheManifest: false,
     });
   /**
    * The entry point of a webpack plugin.
@@ -151,11 +150,11 @@ export class LynxEncodePluginImpl {
             [{}, {}] as [Record<string, string>, Record<string, string>],
           );
 
-        if (this.options.lynxCoreInjectCache) {
-          const lynxCoreInjectCacheScriptName = 'lynx-core-inject-cache.js';
+        if (this.options.enableEventsCacheManifest) {
+          const enableEventsCacheManifestScriptName = 'events-cache.js';
           const require = createRequire(import.meta.url);
-          const lynxCoreInjectCacheScript = await fs.readFile(
-            require.resolve('../static/' + lynxCoreInjectCacheScriptName),
+          const enableEventsCacheManifestScript = await fs.readFile(
+            require.resolve('../static/' + enableEventsCacheManifestScriptName),
             'utf-8',
           );
           let backgroundScriptName = '';
@@ -169,15 +168,16 @@ export class LynxEncodePluginImpl {
           if (backgroundScriptName === '') {
             compilation.errors.push(
               new compiler.webpack.WebpackError(
-                `LynxEncodePlugin: ${lynxCoreInjectCacheScriptName} is not injected because no background script found.`,
+                `LynxEncodePlugin: ${enableEventsCacheManifestScriptName} is not injected because no background script found.`,
               ),
             );
           } else {
-            inlinedManifest[lynxCoreInjectCacheScriptName] = lynxCoreInjectCacheScript.replace(
-              'background.js',
-              // TODO: any better way to get the background script export path?
-              path.posix.basename(backgroundScriptName),
-            );
+            inlinedManifest[enableEventsCacheManifestScriptName] =
+              enableEventsCacheManifestScript.replace(
+                'background.js',
+                // TODO: any better way to get the background script export path?
+                path.posix.basename(backgroundScriptName),
+              );
           }
         }
 
