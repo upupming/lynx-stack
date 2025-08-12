@@ -316,9 +316,10 @@ ${
   iife ? '' : `
 
 // __webpack_exports__ will be a Promise when chunk splitting is enabled.
-// in this case, lynx core should wait for the Promise to resolve before
+// in this case, we should wait for the Promise to resolve before
 // sending any native events to BTS
-// We export the __webpack_exports__ here as exports to be used by lynx core
+// We export the __webpack_exports__ here and the exports will be used
+// by a cache layer to wait for the Promise to resolve
 module.exports = __webpack_exports__;
 
 })();`

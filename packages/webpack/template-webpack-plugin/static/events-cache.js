@@ -15,7 +15,7 @@
 
       if (!maybePromise) {
         console.warn(
-          'events-cache.js: background.js exports is not a promise, skip inject cache',
+          'events-cache.js: background.js exports is not a promise, skip events cache',
         );
         return;
       }
