@@ -34,18 +34,14 @@ describe('CSS', () => {
     `);
   });
   it('should render a component with CSS module styles object', () => {
-    expect(style3.baz).toMatchInlineSnapshot(`"_baz_60dbcc"`);
+    // Assert stable shape (prefix) rather than exact hash
+    expect(style3.baz).toMatch(/^_baz_[a-z0-9]+$/);
 
     const TestComponent = () => <text style={style3.baz}>Hello World</text>;
-
     const { container } = render(<TestComponent />);
 
-    expect(container.firstChild).toMatchInlineSnapshot(`
-      <text
-        style="_baz_60dbcc"
-      >
-        Hello World
-      </text>
-    `);
+    const node = container.firstChild;
+    expect(node).toHaveAttribute('style', style3.baz);
+    expect(node).toHaveTextContent('Hello World');
   });
 });
