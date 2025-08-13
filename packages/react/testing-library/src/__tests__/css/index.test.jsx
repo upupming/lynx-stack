@@ -1,6 +1,6 @@
 import '@testing-library/jest-dom';
 import { describe, expect, vi } from 'vitest';
-import { render, screen } from '../..';
+import { render } from '../..';
 
 import './style1.css';
 import './style2.css?common';
