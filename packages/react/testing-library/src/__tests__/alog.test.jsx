@@ -46,16 +46,13 @@ describe('alog', () => {
     expect(mainThreadALogCalls).toMatchInlineSnapshot(`
       [
         [
-          "[MainThread Component Render] name: ClassComponent, uniqID: __Card__:__snapshot_d6fb6_test_2, __id: -6",
+          "[MainThread Component Render] name: ClassComponent",
         ],
         [
-          "[MainThread Component Render] name: FunctionComponent, uniqID: __Card__:__snapshot_d6fb6_test_3, __id: -7",
+          "[MainThread Component Render] name: FunctionComponent",
         ],
         [
-          "[MainThread Component Render] name: App, uniqID: __Card__:__snapshot_d6fb6_test_1, __id: -2",
-        ],
-        [
-          "[MainThread Component Render] name: Fragment, uniqID: __Card__:__snapshot_d6fb6_test_1, __id: -2",
+          "[MainThread Component Render] name: App",
         ],
       ]
     `);
@@ -94,10 +91,10 @@ describe('alog', () => {
     expect(backgroundThreadALogCalls).toMatchInlineSnapshot(`
       [
         [
-          "[BackgroundThread Component Render] name: ClassComponent, uniqID: __Card__:__snapshot_d6fb6_test_2, __id: -6",
+          "[BackgroundThread Component Render] name: ClassComponent, uniqID: __Card__:__snapshot_d6fb6_test_2, __id: -5",
         ],
         [
-          "[BackgroundThread Component Render] name: FunctionComponent, uniqID: __Card__:__snapshot_d6fb6_test_3, __id: -7",
+          "[BackgroundThread Component Render] name: FunctionComponent, uniqID: __Card__:__snapshot_d6fb6_test_3, __id: -6",
         ],
         [
           "[BackgroundThread Component Render] name: App, uniqID: __Card__:__snapshot_d6fb6_test_1, __id: -2",
