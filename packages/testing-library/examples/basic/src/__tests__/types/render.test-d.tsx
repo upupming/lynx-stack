@@ -2,7 +2,7 @@ import '@testing-library/jest-dom';
 import { expect, test } from 'vitest';
 import { render } from '@lynx-js/react/testing-library';
 
-test('render', () => {
+test('render basic component', () => {
   const Comp = () => {
     return <text>Hello</text>;
   };
@@ -16,4 +16,18 @@ test('render', () => {
   expect(container).toBeInTheDocument();
 
   unmount();
+});
+
+test('render ReactNode types other than ReactElement', () => {
+  [
+    null,
+    undefined,
+    1,
+    'string',
+    false,
+    true,
+    [],
+  ].forEach((node) => {
+    render(node);
+  });
 });
