@@ -42,6 +42,12 @@ interface RuntimeWrapperWebpackPluginOptions {
    * {@inheritdoc @lynx-js/react-rsbuild-plugin#PluginReactLynxOptions.experimental_isLazyBundle}
    */
   experimental_isLazyBundle?: boolean;
+  /**
+   * The background entry chunks of the app.
+   *
+   * @example ['.rspeedy/main/background.[contenthash:8].js']
+   */
+  backgroundChunks: string[];
 }
 
 const defaultInjectVars = [
@@ -110,6 +116,7 @@ class RuntimeWrapperWebpackPlugin {
     bannerType: () => 'script',
     injectVars: defaultInjectVars,
     experimental_isLazyBundle: false,
+    backgroundChunks: [],
   });
 
   /**
@@ -201,11 +208,11 @@ class RuntimeWrapperWebpackPluginImpl {
       test: test!,
       footer: true,
       raw: true,
-      banner: ({ filename }) => {
-        const generateAmdFooter =
-          filename && backgroundScriptRegex.test(filename)
-            ? amdFooterBTS
-            : amdFooter;
+      banner: ({ filename, chunk }) => {
+        const generateAmdFooter = typeof chunk.filenameTemplate === 'string'
+            && this.options.backgroundChunks.includes(chunk.filenameTemplate)
+          ? amdFooterBTSEntry
+          : amdFooter;
         const footer = this.#getBannerType(filename) === 'script'
           ? loadScriptFooter
           : loadBundleFooter;
@@ -304,14 +311,12 @@ ${iifeWrapper}
   );
 };
 
-const backgroundScriptRegex = /^.*background(?:\.[A-Fa-f0-9]*)?\.js$/;
-
 const amdFooter = (moduleId: string, iife: boolean) => `
 ${iife ? '' : '})();'}
     });
     return tt.require("${moduleId}");`;
 
-const amdFooterBTS = (moduleId: string, iife: boolean) => `
+const amdFooterBTSEntry = (moduleId: string, iife: boolean) => `
 ${
   iife ? '' : `
 

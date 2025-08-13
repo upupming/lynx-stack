@@ -158,21 +158,24 @@ export class LynxEncodePluginImpl {
           );
 
         if (this.options.enableEventsCacheManifest) {
+          let backgroundScriptName = null;
+          for (const entrypoint of compilation.entrypoints.values()) {
+            for (const file of entrypoint.getEntrypointChunk().files) {
+              if (file.endsWith('.js') && manifest[file]) {
+                backgroundScriptName = file;
+                break;
+              }
+            }
+            if (backgroundScriptName) break;
+          }
+
           const enableEventsCacheManifestScriptName = 'events-cache.js';
           const require = createRequire(import.meta.url);
           const enableEventsCacheManifestScript = await fs.readFile(
             require.resolve('../static/' + enableEventsCacheManifestScriptName),
             'utf-8',
           );
-          let backgroundScriptName = '';
-          const backgroundScriptRegex = /^.*background(?:\.[A-Fa-f0-9]*)?\.js$/;
-          for (const name of Object.keys(manifest)) {
-            if (backgroundScriptRegex.test(name)) {
-              backgroundScriptName = name;
-              break;
-            }
-          }
-          if (backgroundScriptName === '') {
+          if (backgroundScriptName === null) {
             compilation.errors.push(
               new compiler.webpack.WebpackError(
                 `LynxEncodePlugin: ${enableEventsCacheManifestScriptName} is not injected because no background script found.`,
