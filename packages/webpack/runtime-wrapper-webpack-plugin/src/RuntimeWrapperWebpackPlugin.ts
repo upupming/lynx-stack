@@ -2,7 +2,11 @@
 // Licensed under the Apache License Version 2.0 that can be found in the
 // LICENSE file in the root directory of this source tree.
 
-import type { BannerPlugin, Compiler } from 'webpack';
+import type {
+  BannerPlugin,
+  Compiler,
+  RuntimeGlobals as WebpackRuntimeGlobals,
+} from 'webpack';
 
 import { RuntimeGlobals } from '@lynx-js/webpack-runtime-globals';
 
@@ -219,6 +223,7 @@ class RuntimeWrapperWebpackPluginImpl {
         return generateAmdFooter(
           '[name].js',
           compiler.options.output.iife ?? false,
+          compiler.webpack.RuntimeGlobals,
         ) + footer;
       },
     }).apply(compiler);
@@ -316,7 +321,11 @@ ${iife ? '' : '})();'}
     });
     return tt.require("${moduleId}");`;
 
-const amdFooterBTSEntry = (moduleId: string, iife: boolean) => `
+const amdFooterBTSEntry = (
+  moduleId: string,
+  iife: boolean,
+  runtimeGlobals: typeof WebpackRuntimeGlobals,
+) => `
 ${
   iife ? '' : `
 
@@ -325,7 +334,7 @@ ${
 // sending any native events to BTS
 // We export the __webpack_exports__ here and the exports will be used
 // by a cache layer to wait for the Promise to resolve
-module.exports = __webpack_exports__;
+module.exports = ${runtimeGlobals.exports};
 
 })();`
 }
