@@ -455,7 +455,14 @@ export class LynxTestingEnv {
   mainThread: LynxGlobalThis & ElementTreeGlobals;
   jsdom: JSDOM;
   constructor(jsdom?: JSDOM) {
+    // Prefer explicit instance; fall back to test runner-provided global.
     this.jsdom = jsdom ?? global.jsdom;
+    if (!this.jsdom) {
+      throw new Error(
+        'LynxTestingEnv requires a JSDOM instance. Pass one to the constructor, '
+          + 'or ensure your test runner sets global.jsdom (e.g., via a setup file).',
+      );
+    }
 
     this.backgroundThread = createGlobalThis() as any;
     this.mainThread = createGlobalThis() as any;
