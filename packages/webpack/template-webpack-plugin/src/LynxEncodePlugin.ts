@@ -176,11 +176,18 @@ export class LynxEncodePluginImpl {
             'utf-8',
           );
           if (backgroundScriptName === null) {
-            compilation.errors.push(
-              new compiler.webpack.WebpackError(
-                `LynxEncodePlugin: ${enableEventsCacheManifestScriptName} is not injected because no background script found.`,
-              ),
-            );
+            if (
+              args.encodeData.sourceContent.appType
+              && args.encodeData.sourceContent.appType === 'card'
+            ) {
+              compilation.warnings.push(
+                new compiler.webpack.WebpackError(
+                  `LynxEncodePlugin: ${enableEventsCacheManifestScriptName} is not injected because no background script found, manifest files: ${
+                    Object.keys(manifest).join(',')
+                  }`,
+                ),
+              );
+            }
           } else {
             inlinedManifest[enableEventsCacheManifestScriptName] =
               enableEventsCacheManifestScript.replace(
