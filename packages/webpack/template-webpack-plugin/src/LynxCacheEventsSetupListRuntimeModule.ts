@@ -24,38 +24,6 @@ ${LynxRuntimeGlobals.lynxCacheEvents} = {};
 ${LynxRuntimeGlobals.lynxCacheEvents}.setupList = [
   () => {
     const tt = lynxCoreInject.tt;
-    // ensure tt._appInstance is initialized to avoid TTApp this._appInstance.onFirstScreen() fail
-    tt._appInstance = tt._appInstance || Object.fromEntries(
-      [
-        'onLoad',
-        'onReady',
-        'onHide',
-        'onShow',
-        'onFirstScreen',
-        'onError',
-        'onDestroy',
-      ].map(key => [key, (...args) => {
-        ${LynxRuntimeGlobals.lynxCacheEvents}.cachedActions.push({
-          type: 'appInstance',
-          data: {
-            type: key,
-            args,
-          },
-        });
-      }]),
-    );
-    
-    return () => {
-      ${LynxRuntimeGlobals.lynxCacheEvents}.cachedActions.forEach(action => {
-        if (action.type === 'appInstance') {
-          const { type, args } = action.data;
-          tt._appInstance[type](...args);
-        }
-      });
-    }
-  },
-  () => {
-    const tt = lynxCoreInject.tt;
     const methodsToMock = [
       'OnLifecycleEvent',
       'publishEvent',
