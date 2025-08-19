@@ -1052,6 +1052,9 @@ importers:
         specifier: ^1.0.3
         version: 1.0.3
     devDependencies:
+      '@lynx-js/chunk-loading-webpack-plugin':
+        specifier: workspace:*
+        version: link:../chunk-loading-webpack-plugin
       '@lynx-js/test-tools':
         specifier: workspace:*
         version: link:../test-tools

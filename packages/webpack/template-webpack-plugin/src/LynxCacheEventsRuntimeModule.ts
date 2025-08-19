@@ -21,7 +21,7 @@ export function createLynxCacheEventsRuntimeModule(
 
       return `// lynx cache events
 const cleanupList = []
-for (const setup of ${LynxRuntimeGlobals.lynxCacheEvents}.setupList) {
+for (const { setup } of ${LynxRuntimeGlobals.lynxCacheEvents}.setupList) {
   cleanupList.push(setup());
 }
 
