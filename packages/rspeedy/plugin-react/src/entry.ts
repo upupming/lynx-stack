@@ -69,6 +69,7 @@ export function applyEntry(
     chain.entryPoints.clear()
 
     const mainThreadChunks: string[] = []
+    const backgroundChunks: string[] = []
 
     Object.entries(entries).forEach(([entryName, entryPoint]) => {
       const { imports } = getChunks(entryName, entryPoint.values())
@@ -111,6 +112,7 @@ export function applyEntry(
       const backgroundEntry = entryName
 
       mainThreadChunks.push(mainThreadName)
+      backgroundChunks.push(backgroundName)
 
       chain
         .entry(mainThreadEntry)
@@ -200,8 +202,6 @@ export function applyEntry(
     const enableChunkSplitting =
       rsbuildConfig.performance?.chunkSplit?.strategy !== 'all-in-one'
 
-    let finalFirstScreenSyncTiming = firstScreenSyncTiming
-
     if (isLynx) {
       let inlineScripts
       if (experimental_isLazyBundle) {
@@ -210,10 +210,6 @@ export function applyEntry(
       } else {
         inlineScripts = environment.config.output?.inlineScripts
           ?? !enableChunkSplitting
-      }
-
-      if (inlineScripts !== true) {
-        finalFirstScreenSyncTiming = 'jsReady'
       }
 
       chain
@@ -237,10 +233,14 @@ export function applyEntry(
           // Inject runtime wrapper for all `.js` but not `main-thread.js` and `main-thread.[hash].js`.
           test: /^(?!.*main-thread(?:\.[A-Fa-f0-9]*)?\.js$).*\.js$/,
           experimental_isLazyBundle,
+          backgroundChunks,
         }])
         .end()
         .plugin(`${LynxEncodePlugin.name}`)
-        .use(LynxEncodePlugin, [{ inlineScripts }])
+        .use(LynxEncodePlugin, [{
+          inlineScripts,
+          enableEventsCacheManifest: enableChunkSplitting,
+        }])
         .end()
     }
 
@@ -265,7 +265,7 @@ export function applyEntry(
       .use(ReactWebpackPlugin, [{
         disableCreateSelectorQueryIncompatibleWarning: compat
           ?.disableCreateSelectorQueryIncompatibleWarning ?? false,
-        firstScreenSyncTiming: finalFirstScreenSyncTiming,
+        firstScreenSyncTiming,
         enableSSR,
         mainThreadChunks,
         extractStr,
