@@ -211,6 +211,14 @@ mod tests {
         <view key={hello}>{hello}</view>;
         <view><text key={hello}>{hello}</text></view>;
         <view><text>Hello, ReactLynx, {hello}</text><text key={hello}>{hello}</text></view>;
+<view>
+  <text>!!!</text>
+  <A/>
+</view>;
+<view>
+  <text>!!!</text>
+  {a}
+</view>;
         "#
   );
 
@@ -234,20 +242,23 @@ mod tests {
     },
     should_not_wrap_dynamic_part,
     r#" 
-        <view className="parent">
-          <view className="child"/>
-          <view className="child"/>
-        </view>;
-        <view className="parent">
-          <view className="child">
-          </view>
-          <view className="child">
-          </view>
-        </view>;
-        <view className="parent">
-          <view className="child">{[].map(() => null)}</view>
-          <view className="child">{[].map(() => null)}</view>
-        </view>;
+<view className="parent">
+  <view className="child"/>
+  <view className="child"/>
+</view>;
+<view className="parent">
+  <view className="child">
+  </view>
+  <view className="child">
+  </view>
+</view>;
+// TODO: fix the redundant <internal-slot> here
+<view className="parent">
+  <view className="child">{[].map(() => null)}</view>
+  <view className="child">{[].map(() => null)}</view>
+</view>;
+<view style={{ color: "red", 'height': "100px", flexShrink: 1 }}>
+</view>;
         "#
   );
 }

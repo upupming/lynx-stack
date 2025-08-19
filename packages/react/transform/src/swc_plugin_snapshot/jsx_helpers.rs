@@ -253,30 +253,35 @@ pub fn jsx_is_list_item(jsx: &JSXElement) -> bool {
 }
 
 pub fn jsx_is_children_full_dynamic(n: &JSXElement) -> bool {
-  !n.children.is_empty()
-    && n
-      .children
-      .iter()
-      .filter(|child| {
-        // don't handle comment
-        // if let JSXElementChild::JSXExprContainer(JSXExprContainer {
-        //   expr: JSXExpr::JSXEmptyExpr(_),
-        //   ..
-        // }) = child
-        // {
-        //   false
-        // } else {
-        //   true
-        // }
-        !matches!(
-          child,
-          JSXElementChild::JSXExprContainer(JSXExprContainer {
-            expr: JSXExpr::JSXEmptyExpr(_),
-            ..
-          })
-        )
-      })
-      .all(|child| match child {
+  let mut is_children_full_dynamic = false;
+  if !n.children.is_empty() {
+    let mut tmp = n.children.iter().filter(|child| {
+      // don't handle comment
+      // if let JSXElementChild::JSXExprContainer(JSXExprContainer {
+      //   expr: JSXExpr::JSXEmptyExpr(_),
+      //   ..
+      // }) = child
+      // {
+      //   false
+      // } else {
+      //   true
+      // }
+      !matches!(
+        child,
+        JSXElementChild::JSXExprContainer(JSXExprContainer {
+          expr: JSXExpr::JSXEmptyExpr(_),
+          ..
+        })
+      )
+    });
+
+    let only_has_empty_text = tmp.clone().all(|child| match child {
+      JSXElementChild::JSXText(text) => jsx_text_to_str(&text.value).is_empty(),
+      _ => false,
+    });
+
+    if !only_has_empty_text
+      && tmp.all(|child| match child {
         JSXElementChild::JSXText(text) => jsx_text_to_str(&text.value).is_empty(),
         JSXElementChild::JSXElement(element) => jsx_is_custom(element),
         JSXElementChild::JSXFragment(_) => false,
@@ -294,6 +299,11 @@ pub fn jsx_is_children_full_dynamic(n: &JSXElement) -> bool {
           unreachable!("Unexpected JSXSpreadChild in jsx_is_children_full_dynamic - not supported")
         }
       })
+    {
+      is_children_full_dynamic = true;
+    }
+  }
+  is_children_full_dynamic
 }
 
 // Copied from https://github.com/swc-project/swc/blob/main/crates/swc_ecma_transforms_react/src/jsx/mod.rs#L1423
