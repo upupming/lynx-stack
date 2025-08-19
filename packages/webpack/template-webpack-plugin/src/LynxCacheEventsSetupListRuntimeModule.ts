@@ -21,7 +21,7 @@ export function createLynxCacheEventsSetupListRuntimeModule(
     override generate(): string {
       return `// lynx cache events setup list
 ${LynxRuntimeGlobals.lynxCacheEvents} = {};
-${LynxRuntimeGlobals.lynxCacheEvents}.setupList = [
+${LynxRuntimeGlobals.lynxCacheEventsSetupList} = [
   {
     name: 'ttMethod',
     setup: () => {
