@@ -24,6 +24,8 @@ import { RuntimeGlobals } from '@lynx-js/webpack-runtime-globals';
 
 import { cssChunksToMap } from './css/cssChunksToMap.js';
 import { createLynxAsyncChunksRuntimeModule } from './LynxAsyncChunksRuntimeModule.js';
+import { createLynxCacheEventsRuntimeModule } from './LynxCacheEventsRuntimeModule.js';
+import { createLynxCacheEventsSetupListRuntimeModule } from './LynxCacheEventsSetupListRuntimeModule.js';
 
 export type OriginManifest = Record<string, {
   content: string;
@@ -542,7 +544,11 @@ class LynxTemplatePluginImpl {
     });
 
     compiler.hooks.thisCompilation.tap(this.name, compilation => {
-      const onceForChunkSet = new WeakSet<Chunk>();
+      const onceForChunkSet = {
+        [RuntimeGlobals.lynxAsyncChunkIds]: new WeakSet<Chunk>(),
+        [RuntimeGlobals.lynxCacheEvents]: new WeakSet<Chunk>(),
+        [RuntimeGlobals.lynxCacheEventsSetupList]: new WeakSet<Chunk>(),
+      };
       const LynxAsyncChunksRuntimeModule = createLynxAsyncChunksRuntimeModule(
         compiler.webpack,
       );
@@ -552,10 +558,10 @@ class LynxTemplatePluginImpl {
       compilation.hooks.runtimeRequirementInTree.for(
         RuntimeGlobals.lynxAsyncChunkIds,
       ).tap(this.name, (chunk, set) => {
-        if (onceForChunkSet.has(chunk)) {
+        if (onceForChunkSet[RuntimeGlobals.lynxAsyncChunkIds].has(chunk)) {
           return;
         }
-        onceForChunkSet.add(chunk);
+        onceForChunkSet[RuntimeGlobals.lynxAsyncChunkIds].add(chunk);
 
         // TODO: only add `getFullHash` when using fullhash
         set.add(compiler.webpack.RuntimeGlobals.getFullHash);
@@ -567,6 +573,45 @@ class LynxTemplatePluginImpl {
 
             return this.#getAsyncFilenameTemplate(filename);
           }),
+        );
+      });
+
+      const LynxCacheEventsSetupListRuntimeModule =
+        createLynxCacheEventsSetupListRuntimeModule(
+          compiler.webpack,
+        );
+      const LynxCacheEventsRuntimeModule = createLynxCacheEventsRuntimeModule(
+        compiler.webpack,
+      );
+      compilation.hooks.runtimeRequirementInTree.for(
+        RuntimeGlobals.lynxCacheEventsSetupList,
+      ).tap(this.name, (chunk) => {
+        // Only add the LynxCacheEventsSetupListRuntimeModule once
+        if (
+          onceForChunkSet[RuntimeGlobals.lynxCacheEventsSetupList].has(chunk)
+        ) {
+          return;
+        }
+        onceForChunkSet[RuntimeGlobals.lynxCacheEventsSetupList].add(chunk);
+
+        compilation.addRuntimeModule(
+          chunk,
+          new LynxCacheEventsSetupListRuntimeModule(),
+        );
+      });
+      compilation.hooks.runtimeRequirementInTree.for(
+        RuntimeGlobals.lynxCacheEvents,
+      ).tap(this.name, (chunk, set) => {
+        // Only add the LynxCacheEventsSetupListRuntimeModule once
+        if (onceForChunkSet[RuntimeGlobals.lynxCacheEvents].has(chunk)) {
+          return;
+        }
+        onceForChunkSet[RuntimeGlobals.lynxCacheEvents].add(chunk);
+
+        set.add(RuntimeGlobals.lynxCacheEventsSetupList);
+        compilation.addRuntimeModule(
+          chunk,
+          new LynxCacheEventsRuntimeModule(),
         );
       });
 
