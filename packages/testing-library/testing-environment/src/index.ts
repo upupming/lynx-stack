@@ -8,7 +8,7 @@
 import EventEmitter from 'events';
 import { JSDOM } from 'jsdom';
 import { createGlobalThis, LynxGlobalThis } from './lynx/GlobalThis.js';
-import { initElementTree } from './lynx/ElementPAPI.js';
+import { initElementTree, type LynxElement } from './lynx/ElementPAPI.js';
 import { Console } from 'console';
 import { GlobalEventEmitter } from './lynx/GlobalEventEmitter.js';
 export { initElementTree } from './lynx/ElementPAPI.js';
@@ -296,8 +296,19 @@ class NodesRef {
   fields() {
     throw new Error('not implemented');
   }
-  setNativeProps() {
-    throw new Error('not implemented');
+  setNativeProps(props: Record<string, any>) {
+    return {
+      exec: () => {
+        const element = elementTree.uniqueId2Element.get(
+          this._nodeSelectToken.identifier,
+        );
+        if (element) {
+          for (const key in props) {
+            element.setAttributeNS(null, key, props[key]);
+          }
+        }
+      },
+    };
   }
 }
 
@@ -346,6 +357,14 @@ function injectBackgroundThreadGlobals(target?: any, polyfills?: any) {
           return new NodesRef({}, {
             type: IdentifierType.UNIQUE_ID,
             identifier: uniqueId.toString(),
+          });
+        },
+        select: function(selector: string) {
+          return new NodesRef({}, {
+            type: IdentifierType.ID_SELECTOR,
+            identifier: (lynxTestingEnv.jsdom.window.document.querySelector(
+              selector,
+            ) as LynxElement).$$uiSign,
           });
         },
       };
