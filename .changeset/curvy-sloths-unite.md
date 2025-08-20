@@ -1,5 +1,4 @@
 ---
----
 "@lynx-js/react": patch
 ---
 
