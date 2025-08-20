@@ -14,7 +14,6 @@ import type { UndefinedOnPartialDeep } from 'type-fest'
 import { LAYERS, ReactWebpackPlugin } from '@lynx-js/react-webpack-plugin'
 import { RuntimeWrapperWebpackPlugin } from '@lynx-js/runtime-wrapper-webpack-plugin'
 import {
-  CSSPlugins,
   LynxEncodePlugin,
   LynxTemplatePlugin,
   WebEncodePlugin,
@@ -62,6 +61,9 @@ export function applyEntry(
   api.modifyBundlerChain((chain, { environment, isDev, isProd }) => {
     let finalFirstScreenSyncTiming = firstScreenSyncTiming
     const mainThreadChunks: string[] = []
+    const rsbuildConfig = api.getRsbuildConfig()
+    const enableChunkSplitting =
+      rsbuildConfig.performance?.chunkSplit?.strategy !== 'all-in-one'
 
     const isRstest = api.context.callerName === 'rstest'
 
@@ -194,9 +196,7 @@ export function applyEntry(
             targetSdkVersion,
 
             experimental_isLazyBundle,
-            cssPlugins: [
-              CSSPlugins.parserPlugins.removeFunctionWhiteSpace(),
-            ],
+            cssPlugins: [],
           }])
           .end()
       })
@@ -207,7 +207,8 @@ export function applyEntry(
           // TODO: support inlineScripts in lazyBundle
           inlineScripts = true
         } else {
-          inlineScripts = environment.config.output?.inlineScripts ?? true
+          inlineScripts = environment.config.output?.inlineScripts
+            ?? !enableChunkSplitting
         }
 
         if (inlineScripts !== true) {
@@ -250,14 +251,8 @@ export function applyEntry(
       }
     }
 
-    const rsbuildConfig = api.getRsbuildConfig()
-    const userConfig = api.getRsbuildConfig('original')
-
     let extractStr = originalExtractStr
-    if (
-      rsbuildConfig.performance?.chunkSplit?.strategy !== 'all-in-one'
-      && originalExtractStr
-    ) {
+    if (enableChunkSplitting && originalExtractStr) {
       ;(api.logger ?? console).warn(
         '`extractStr` is changed to `false` because it is only supported in `all-in-one` chunkSplit strategy, please set `performance.chunkSplit.strategy` to `all-in-one` to use `extractStr.`',
       )
@@ -279,6 +274,7 @@ export function applyEntry(
       }])
 
     function getDefaultProfile(): boolean | undefined {
+      const userConfig = api.getRsbuildConfig('original')
       if (userConfig.performance?.profile !== undefined) {
         return userConfig.performance.profile
       }

@@ -61,6 +61,7 @@ import {
   type SSRDehydrateHooks,
   type ElementTemplateData,
   type ElementFromBinaryPAPI,
+  globalDisallowedVars,
 } from '@lynx-js/web-constants';
 import { globalMuteableVars } from '@lynx-js/web-constants';
 import { createMainThreadLynx } from './createMainThreadLynx.js';
@@ -771,6 +772,10 @@ export function createMainThreadGlobalThis(
 
   let release = '';
   const isCSSOG = !pageConfig.enableCSSSelector;
+  const SystemInfo = {
+    ...systemInfo,
+    ...config.browserConfig,
+  };
   const mtsGlobalThis: MainThreadGlobalThis = {
     __ElementFromBinary,
     __GetTemplateParts: rootDom.querySelectorAll
@@ -832,11 +837,8 @@ export function createMainThreadGlobalThis(
     __LoadLepusChunk,
     __GetPageElement,
     __globalProps: globalProps,
-    SystemInfo: {
-      ...systemInfo,
-      ...config.browserConfig,
-    },
-    lynx: createMainThreadLynx(config),
+    SystemInfo,
+    lynx: createMainThreadLynx(config, SystemInfo),
     _ReportError: (err, _) => callbacks._ReportError(err, _, release),
     _SetSourceMapRelease: (errInfo) => release = errInfo?.release,
     __OnLifecycleEvent: callbacks.__OnLifecycleEvent,
@@ -857,6 +859,9 @@ export function createMainThreadGlobalThis(
   };
   mtsGlobalThis.globalThis = new Proxy(mtsGlobalThis, {
     get: (target, prop) => {
+      if (typeof prop === 'string' && globalDisallowedVars.includes(prop)) {
+        return undefined;
+      }
       if (prop === 'globalThis') {
         return target;
       }
