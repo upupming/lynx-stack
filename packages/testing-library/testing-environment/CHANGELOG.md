@@ -1,5 +1,17 @@
 # @lynx-js/testing-environment
 
+## 0.1.6
+
+### Patch Changes
+
+- Fix that `lynxTestingEnv.jsdom` cannot be initialized correctly when `global.jsdom` is not defined. ([#1422](https://github.com/lynx-family/lynx-stack/pull/1422))
+
+## 0.1.5
+
+### Patch Changes
+
+- Fix `GlobalEventEmitter` type definition, the `emit(eventName: string, data: unknown)` function should recevie an array typed `data` and pass as param list of listeners. ([#1479](https://github.com/lynx-family/lynx-stack/pull/1479))
+
 ## 0.1.4
 
 ### Patch Changes
