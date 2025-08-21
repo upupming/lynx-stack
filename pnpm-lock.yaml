@@ -291,6 +291,9 @@ importers:
 
   packages/rspeedy/core:
     dependencies:
+      '@lynx-js/cache-events-webpack-plugin':
+        specifier: workspace:^
+        version: link:../../webpack/cache-events-webpack-plugin
       '@lynx-js/chunk-loading-webpack-plugin':
         specifier: workspace:^
         version: link:../../webpack/chunk-loading-webpack-plugin
@@ -900,6 +903,25 @@ importers:
       '@lynx-js/lynx-core':
         specifier: 0.1.3
         version: 0.1.3
+
+  packages/webpack/cache-events-webpack-plugin:
+    dependencies:
+      '@lynx-js/webpack-runtime-globals':
+        specifier: workspace:^
+        version: link:../webpack-runtime-globals
+    devDependencies:
+      '@lynx-js/chunk-loading-webpack-plugin':
+        specifier: workspace:*
+        version: link:../chunk-loading-webpack-plugin
+      '@lynx-js/test-tools':
+        specifier: workspace:*
+        version: link:../test-tools
+      '@lynx-js/vitest-setup':
+        specifier: workspace:*
+        version: link:../../tools/vitest-setup
+      webpack:
+        specifier: ^5.101.3
+        version: 5.101.3
 
   packages/webpack/chunk-loading-webpack-plugin:
     dependencies:
