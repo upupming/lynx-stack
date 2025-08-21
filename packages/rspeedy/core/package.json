@@ -52,6 +52,7 @@
     "test:type": "vitest --typecheck.only"
   },
   "dependencies": {
+    "@lynx-js/cache-events-webpack-plugin": "workspace:^",
     "@lynx-js/chunk-loading-webpack-plugin": "workspace:^",
     "@lynx-js/webpack-dev-transport": "workspace:^",
     "@lynx-js/websocket": "workspace:^",

@@ -26,9 +26,9 @@ export const RuntimeGlobals = {
   /**
    * A list of functions to setup the cache layer.
    */
-  lynxCacheEventsSetupList: '__webpack_require__.__cache_events__.setupList',
+  lynxCacheEventsSetupList: '__webpack_require__.lynx_ce.setupList',
   /**
    * A cache layer to cache the events until the chunk is fully loaded.
    */
-  lynxCacheEvents: '__webpack_require__.__cache_events__',
+  lynxCacheEvents: '__webpack_require__.lynx_ce',
 } as const;
