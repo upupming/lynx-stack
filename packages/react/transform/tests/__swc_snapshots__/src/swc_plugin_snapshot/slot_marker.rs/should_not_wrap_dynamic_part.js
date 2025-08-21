@@ -8,6 +8,14 @@
   <view className="child">
   </view>
 </view>;
+<view className="parent">
+  <view className="child">
+    {}
+  </view>
+  <view className="child">
+    {}
+  </view>
+</view>;
 // TODO: fix the redundant <internal-slot> here
 <view className="parent">
   <internal-slot><view className="child">{[].map(()=>null)}</view></internal-slot>
