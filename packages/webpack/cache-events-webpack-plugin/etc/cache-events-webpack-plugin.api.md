@@ -17,6 +17,7 @@ export class LynxCacheEventsPlugin {
 
 // @public
 export interface LynxCacheEventsPluginOptions {
+    setupListTransformer?: (setupList: string[]) => string[];
 }
 
 ```
