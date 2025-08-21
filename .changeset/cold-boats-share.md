@@ -1,5 +1,4 @@
 ---
-"@lynx-js/chunk-loading-webpack-plugin": patch
 "@lynx-js/template-webpack-plugin": patch
 "@lynx-js/webpack-runtime-globals": patch
 ---

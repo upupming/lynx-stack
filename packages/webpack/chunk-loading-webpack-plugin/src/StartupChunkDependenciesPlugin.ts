@@ -3,8 +3,6 @@
 // LICENSE file in the root directory of this source tree.
 import type { Chunk, Compiler } from 'webpack';
 
-import { RuntimeGlobals as LynxRuntimeGlobals } from '@lynx-js/webpack-runtime-globals';
-
 import { createStartupChunkDependenciesRuntimeModule } from './StartupChunkDependenciesRuntimeModule.js';
 import { createStartupEntrypointRuntimeModule } from './StartupEntrypointRuntimeModule.js';
 
@@ -64,20 +62,6 @@ export class StartupChunkDependenciesPlugin {
           : globalChunkLoading;
         return chunkLoading === this.chunkLoading;
       };
-      const handler = (chunk: Chunk, runtimeRequirements: Set<string>) => {
-        if (!isEnabledForChunk(chunk)) return;
-        runtimeRequirements.add(LynxRuntimeGlobals.lynxCacheEventsSetupList);
-        runtimeRequirements.add(LynxRuntimeGlobals.lynxCacheEvents);
-      };
-      compilation.hooks.runtimeRequirementInTree
-        .for(RuntimeGlobals.startup)
-        .tap(PLUGIN_NAME, handler);
-      compilation.hooks.runtimeRequirementInTree
-        .for(RuntimeGlobals.ensureChunk)
-        .tap(PLUGIN_NAME, handler);
-      compilation.hooks.runtimeRequirementInTree
-        .for(RuntimeGlobals.ensureChunkIncludeEntries)
-        .tap(PLUGIN_NAME, handler);
 
       compilation.hooks.additionalTreeRuntimeRequirements.tap(
         PLUGIN_NAME,
