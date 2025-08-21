@@ -277,13 +277,18 @@ const IGNORE_LIST_GLOBALS = [
   'global',
 ];
 
+interface NodeSelectToken {
+  type: IdentifierType;
+  identifier: string;
+}
+
 class NodesRef {
   // @ts-ignore
-  private readonly _nodeSelectToken: any;
+  private readonly _nodeSelectToken: NodeSelectToken;
   // @ts-ignore
   private readonly _selectorQuery: any;
 
-  constructor(selectorQuery: any, nodeSelectToken: any) {
+  constructor(selectorQuery: any, nodeSelectToken: NodeSelectToken) {
     this._nodeSelectToken = nodeSelectToken;
     this._selectorQuery = selectorQuery;
   }
@@ -300,8 +305,13 @@ class NodesRef {
     return {
       exec: () => {
         const element = elementTree.uniqueId2Element.get(
-          this._nodeSelectToken.identifier,
+          Number(this._nodeSelectToken.identifier),
         );
+        if (!element) {
+          throw new Error(
+            `[NodesRef.setNativeProps] Element not found for identifier=${this._nodeSelectToken.identifier}`,
+          );
+        }
         if (element) {
           for (const key in props) {
             element.setAttributeNS(null, key, props[key]);
@@ -310,6 +320,12 @@ class NodesRef {
       },
     };
   }
+}
+
+const enum IdentifierType {
+  ID_SELECTOR, // css selector
+  REF_ID, // for react ref
+  UNIQUE_ID, // element_id
 }
 
 function injectBackgroundThreadGlobals(target?: any, polyfills?: any) {
@@ -341,12 +357,6 @@ function injectBackgroundThreadGlobals(target?: any, polyfills?: any) {
     },
   };
 
-  const enum IdentifierType {
-    ID_SELECTOR, // css selector
-    REF_ID, // for react ref
-    UNIQUE_ID, // element_id
-  }
-
   const globalEventEmitter = new GlobalEventEmitter();
   target.lynx = {
     getNativeApp: () => app,
@@ -360,11 +370,17 @@ function injectBackgroundThreadGlobals(target?: any, polyfills?: any) {
           });
         },
         select: function(selector: string) {
+          const el = lynxTestingEnv.jsdom.window.document.querySelector(
+            selector,
+          ) as LynxElement;
+          if (!el) {
+            throw new Error(
+              `[createSelectorQuery.select] No element matches selector: ${selector}`,
+            );
+          }
           return new NodesRef({}, {
             type: IdentifierType.ID_SELECTOR,
-            identifier: (lynxTestingEnv.jsdom.window.document.querySelector(
-              selector,
-            ) as LynxElement).$$uiSign,
+            identifier: el.$$uiSign.toString(),
           });
         },
       };
