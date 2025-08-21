@@ -4,4 +4,3 @@
  * @returns {number}
  */
 export const add = (a, b) => a + b;
-export { styles };

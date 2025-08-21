@@ -3,6 +3,6 @@
 "@lynx-js/rspeedy": patch
 ---
 
-Support cache events when chunk splitting is enabled.
+Support caching Lynx native events when chunk splitting is enabled.
 
-When `performance.chunkSplit.strategy` is not `all-in-one`, we will cache Lynx native events until the BTS chunk is fully loaded, and replay them when the BTS chunk is ready, and `firstScreenSyncTiming` will not be changed to `jsReady` any more.
+When `performance.chunkSplit.strategy` is not `all-in-one`, Lynx native events are cached until the BTS chunk is fully loaded and are replayed when that chunk is ready. The `firstScreenSyncTiming` flag will no longer change to `jsReady` anymore.

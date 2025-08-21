@@ -913,6 +913,9 @@ importers:
       '@lynx-js/test-tools':
         specifier: workspace:*
         version: link:../test-tools
+      '@lynx-js/vitest-setup':
+        specifier: workspace:*
+        version: link:../../tools/vitest-setup
       webpack:
         specifier: ^5.101.3
         version: 5.101.3

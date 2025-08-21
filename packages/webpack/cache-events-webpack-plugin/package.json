@@ -41,6 +41,7 @@
   "devDependencies": {
     "@lynx-js/chunk-loading-webpack-plugin": "workspace:*",
     "@lynx-js/test-tools": "workspace:*",
+    "@lynx-js/vitest-setup": "workspace:*",
     "webpack": "^5.101.3"
   },
   "engines": {
