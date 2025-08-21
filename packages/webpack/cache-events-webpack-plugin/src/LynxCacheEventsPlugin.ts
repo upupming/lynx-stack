@@ -176,7 +176,7 @@ export class LynxCacheEventsPluginImpl {
       compilation.hooks.runtimeRequirementInTree.for(
         LynxRuntimeGlobals.lynxCacheEvents,
       ).tap(this.name, (chunk, set) => {
-        // Only add the LynxCacheEventsSetupListRuntimeModule once
+        // Only add the LynxCacheEventsRuntimeModule once
         if (onceForChunkSet[LynxRuntimeGlobals.lynxCacheEvents].has(chunk)) {
           return;
         }
