@@ -1,8 +1,7 @@
 ---
-"@lynx-js/react-rsbuild-plugin": minor
+"@lynx-js/react-rsbuild-plugin": patch
+"@lynx-js/rspeedy": patch
 ---
-
-**Breaking Changes**:
 
 Support cache events when chunk splitting is enabled.
 
