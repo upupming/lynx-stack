@@ -148,6 +148,7 @@ export function pluginReactAlias(options: Options): RsbuildPlugin {
 
         if (isProd) {
           chain.resolve.alias.set('@lynx-js/react/debug$', false)
+          chain.resolve.alias.set('@lynx-js/preact-devtools$', false)
         }
 
         chain
