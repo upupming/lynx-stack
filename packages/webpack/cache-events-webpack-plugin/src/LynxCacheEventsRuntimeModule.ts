@@ -33,7 +33,7 @@ const onLoaded = () => {
     }
     ${LynxRuntimeGlobals.lynxCacheEvents}.cachedActions = [];
   }
-var next = __webpack_require__.x;
+var next = ${RuntimeGlobals.startup};
 ${RuntimeGlobals.startup} = () => {
   return next().finally(onLoaded);
 }
