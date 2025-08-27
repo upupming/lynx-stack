@@ -143,6 +143,43 @@ importers:
         specifier: ^3.2.4
         version: 3.2.4(@types/debug@4.1.12)(@types/node@24.3.0)(@vitest/ui@3.2.4)(jsdom@26.1.0)(sass-embedded@1.90.0)(sass@1.90.0)(terser@5.31.6)
 
+  benchmark/react:
+    dependencies:
+      '@lynx-js/react':
+        specifier: workspace:*
+        version: link:../../packages/react
+      benchx_cli:
+        specifier: workspace:*
+        version: link:../../packages/lynx/benchx_cli
+      empathic:
+        specifier: ^2.0.0
+        version: 2.0.0
+      event-target-polyfill:
+        specifier: ^0.0.4
+        version: 0.0.4
+      magic-string:
+        specifier: ^0.30.17
+        version: 0.30.17
+      tinybench:
+        specifier: ^5.0.0
+        version: 5.0.0
+    devDependencies:
+      '@lynx-js/qrcode-rsbuild-plugin':
+        specifier: workspace:*
+        version: link:../../packages/rspeedy/plugin-qrcode
+      '@lynx-js/react-rsbuild-plugin':
+        specifier: workspace:*
+        version: link:../../packages/rspeedy/plugin-react
+      '@lynx-js/rspeedy':
+        specifier: workspace:*
+        version: link:../../packages/rspeedy/core
+      '@lynx-js/types':
+        specifier: 3.3.0
+        version: 3.3.0
+      '@types/react':
+        specifier: ^18.3.23
+        version: 18.3.23
+
   examples/react:
     dependencies:
       '@lynx-js/react':
@@ -206,6 +243,12 @@ importers:
         version: 3.4.17
 
   packages/background-only: {}
+
+  packages/lynx/benchx_cli:
+    dependencies:
+      zx:
+        specifier: ^8.8.0
+        version: 8.8.0
 
   packages/react:
     dependencies:
@@ -4390,6 +4433,10 @@ packages:
     resolution: {integrity: sha512-/kyM18EfinwXZbno9FyUGeFh87KC8HRQBQGildHZbEuRyWFOmv1U10o9BBp8XVZDVNNuQKyIGIu5ZYAAXJ0V2Q==}
     engines: {node: '>= 4'}
 
+  empathic@2.0.0:
+    resolution: {integrity: sha512-i6UzDscO/XfAcNYD75CfICkmfLedpyPDdozrLMmQc5ORaQcdMoc21OnlEylMIqI7U8eniKrPMxxtj8k0vhmJhA==}
+    engines: {node: '>=14'}
+
   encodeurl@1.0.2:
     resolution: {integrity: sha512-TPJXq8JqFaVYm2CWmPvnP2Iyo4ZSM7/QKcSmuMLDObfpH5fi7RUGmd/rTDf+rut/saiDiQEeVTNgAmJEdAOx0w==}
     engines: {node: '>= 0.8'}
@@ -4699,6 +4746,9 @@ packages:
   etag@1.8.1:
     resolution: {integrity: sha512-aIL5Fx7mawVa300al2BnEE4iNvo1qETxLrPI/o05L7z6go7fCw1J6EQmbK4FmJ2AS7kgVF/KEZWufBfdClMcPg==}
     engines: {node: '>= 0.6'}
+
+  event-target-polyfill@0.0.4:
+    resolution: {integrity: sha512-Gs6RLjzlLRdT8X9ZipJdIZI/Y6/HhRLyq9RdDlCsnpxr/+Nn6bU2EFGuC94GjxqhM+Nmij2Vcq98yoHrU8uNFQ==}
 
   eventemitter3@4.0.7:
     resolution: {integrity: sha512-8guHBZCwKnFhYdHr2ysuRWErTwhoN2X8XELRlrRwpmfeY2jjuUN4taQMsULKUVo1K4DvZl+0pgfyoysHxvmvEw==}
@@ -7654,6 +7704,10 @@ packages:
   tinybench@2.9.0:
     resolution: {integrity: sha512-0+DUvqWMValLmha6lr4kD8iAMK1HzV0/aKnCtWb9v9641TnP/MFb7Pc2bxoxQjTXAErryXVgUOfv2YqNllqGeg==}
 
+  tinybench@5.0.0:
+    resolution: {integrity: sha512-iqp7HhNk6IQXuE5fyJsX4ENpnWcw9k+QS5hsLXZq47J8hH/cL/WjNr6Fr9kXMqCGYMhFSLX8xwoJl6rgB0Pz/A==}
+    engines: {node: '>=20.0.0'}
+
   tinyexec@0.3.2:
     resolution: {integrity: sha512-KQQR9yN7R5+OSwaK0XQoj22pwHoTlgYqmUscPYoknOoWCWfj/5/ABTMRi69FrKU5ffPVh5QcFikpWJI/P1ocHA==}
 
@@ -8312,6 +8366,11 @@ packages:
 
   zwitch@2.0.4:
     resolution: {integrity: sha512-bXE4cR/kVZhKZX/RjPEflHaKVhUVl85noU3v6b8apfQEc1x4A+zBxjZ4lN8LqGd6WZ3dl98pY4o717VFmoPp+A==}
+
+  zx@8.8.0:
+    resolution: {integrity: sha512-v0VZXgSHusDvTtZROno3Ws8xkE1uNSSwH/yF8Fm+ZwBrYhr+bRNNpsnTJ32eR/t6umc7lAz5WqdP800ugW9zFA==}
+    engines: {node: '>= 12.17.0'}
+    hasBin: true
 
 snapshots:
 
@@ -11748,6 +11807,8 @@ snapshots:
 
   emojis-list@3.0.0: {}
 
+  empathic@2.0.0: {}
+
   encodeurl@1.0.2: {}
 
   encodeurl@2.0.0: {}
@@ -12223,6 +12284,8 @@ snapshots:
   esutils@2.0.3: {}
 
   etag@1.8.1: {}
+
+  event-target-polyfill@0.0.4: {}
 
   eventemitter3@4.0.7: {}
 
@@ -15762,6 +15825,8 @@ snapshots:
 
   tinybench@2.9.0: {}
 
+  tinybench@5.0.0: {}
+
   tinyexec@0.3.2: {}
 
   tinyglobby@0.2.14:
@@ -16577,3 +16642,5 @@ snapshots:
       commander: 9.5.0
 
   zwitch@2.0.4: {}
+
+  zx@8.8.0: {}
