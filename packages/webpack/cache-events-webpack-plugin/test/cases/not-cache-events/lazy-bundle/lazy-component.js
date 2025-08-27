@@ -1,3 +1,3 @@
-export default LazyComponent = () => {
+export default function LazyComponent() {
   return null;
-};
+}
