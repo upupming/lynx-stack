@@ -20,7 +20,8 @@ module.exports = {
               __webpack_require__.d(__webpack_exports__, {
                 default: () => __WEBPACK_DEFAULT_EXPORT__,
               });
-              /* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = () => null;
+              /* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = () =>
+                null;
             },
           },
         });
