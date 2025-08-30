@@ -133,12 +133,6 @@ export class LynxCacheEventsPluginImpl {
       compilation.hooks.runtimeRequirementInTree
         .for(RuntimeGlobals.startup)
         .tap(this.name, handler);
-      compilation.hooks.runtimeRequirementInTree
-        .for(RuntimeGlobals.ensureChunk)
-        .tap(this.name, handler);
-      compilation.hooks.runtimeRequirementInTree
-        .for(RuntimeGlobals.ensureChunkIncludeEntries)
-        .tap(this.name, handler);
 
       const onceForChunkSet = {
         [LynxRuntimeGlobals.lynxAsyncChunkIds]: new WeakSet<Chunk>(),
@@ -166,6 +160,10 @@ export class LynxCacheEventsPluginImpl {
         }
         onceForChunkSet[LynxRuntimeGlobals.lynxCacheEventsSetupList].add(chunk);
 
+        if (chunk.name?.includes('__main-thread')) {
+          return;
+        }
+
         compilation.addRuntimeModule(
           chunk,
           new LynxCacheEventsSetupListRuntimeModule(
@@ -181,6 +179,10 @@ export class LynxCacheEventsPluginImpl {
           return;
         }
         onceForChunkSet[LynxRuntimeGlobals.lynxCacheEvents].add(chunk);
+
+        if (chunk.name?.includes('__main-thread')) {
+          return;
+        }
 
         set.add(LynxRuntimeGlobals.lynxCacheEventsSetupList);
         compilation.addRuntimeModule(
