@@ -1,5 +1,108 @@
 # @lynx-js/web-constants
 
+## 0.16.0
+
+### Minor Changes
+
+- refactor: provide the mts a real globalThis ([#1589](https://github.com/lynx-family/lynx-stack/pull/1589))
+
+  Before this change, We create a function wrapper and a fake globalThis for Javascript code.
+
+  This caused some issues.
+
+  After this change, we will create an iframe for createing an isolated Javascript context.
+
+  This means the globalThis will be the real one.
+
+### Patch Changes
+
+- refactor: add `:not([l-e-name])` at the end of selector for lazy component ([#1622](https://github.com/lynx-family/lynx-stack/pull/1622))
+
+- fix: the SystemInfo in bts should be assigned to the globalThis ([#1599](https://github.com/lynx-family/lynx-stack/pull/1599))
+
+- Updated dependencies [[`c1f8715`](https://github.com/lynx-family/lynx-stack/commit/c1f8715a81b2e69ff46fc363013626db4468c209)]:
+  - @lynx-js/web-worker-rpc@0.16.0
+
+## 0.15.7
+
+### Patch Changes
+
+- fix: globalThis is never accessible in MTS ([#1531](https://github.com/lynx-family/lynx-stack/pull/1531))
+
+- Updated dependencies []:
+  - @lynx-js/web-worker-rpc@0.15.7
+
+## 0.15.6
+
+### Patch Changes
+
+- fix: systeminfo in mts function ([#1537](https://github.com/lynx-family/lynx-stack/pull/1537))
+
+- feat: add MTS API: \_\_UpdateComponentInfo ([#1485](https://github.com/lynx-family/lynx-stack/pull/1485))
+
+- fix: `__ElementFromBinary` needs to correctly apply the dataset in elementTemplate to the Element ([#1487](https://github.com/lynx-family/lynx-stack/pull/1487))
+
+- fix: all attributes except `id` and `type` under ElementTemplateData are optional. ([#1483](https://github.com/lynx-family/lynx-stack/pull/1483))
+
+- feat: add MTS API \_\_GetAttributeByName ([#1486](https://github.com/lynx-family/lynx-stack/pull/1486))
+
+- Updated dependencies []:
+  - @lynx-js/web-worker-rpc@0.15.6
+
+## 0.15.5
+
+### Patch Changes
+
+- fix: load main-thread chunk in ESM format ([#1437](https://github.com/lynx-family/lynx-stack/pull/1437))
+
+  See [nodejs/node#59362](https://github.com/nodejs/node/issues/59362) for more details.
+
+- feat: support path() for `createQuerySelector` ([#1456](https://github.com/lynx-family/lynx-stack/pull/1456))
+
+  - Added `getPathInfo` API to `NativeApp` and its cross-thread handler for retrieving the path from a DOM node to the root.
+  - Implemented endpoint and handler registration in both background and UI threads.
+  - Implemented `nativeApp.getPathInfo()`
+
+- Updated dependencies []:
+  - @lynx-js/web-worker-rpc@0.15.5
+
+## 0.15.4
+
+### Patch Changes
+
+- feat: support `__ElementFromBinary` ([#1391](https://github.com/lynx-family/lynx-stack/pull/1391))
+
+- Updated dependencies []:
+  - @lynx-js/web-worker-rpc@0.15.4
+
+## 0.15.3
+
+### Patch Changes
+
+- fix: improve compatibility with legacy template ([#1337](https://github.com/lynx-family/lynx-stack/pull/1337))
+
+  avoid "object Object" error for old version rspeedy outputs
+
+- Updated dependencies []:
+  - @lynx-js/web-worker-rpc@0.15.3
+
+## 0.15.2
+
+### Patch Changes
+
+- feat: move SSR hydrate essential info to the ssr attribute ([#1292](https://github.com/lynx-family/lynx-stack/pull/1292))
+
+  We found that in browser there is no simple tool to decode a base64 string
+
+  Therefore we move the data to `ssr` attribute
+
+  Also fix some ssr issues
+
+- feat: support \_\_MarkTemplateElement, \_\_MarkPartElement and \_\_GetTemplateParts for all-on-ui ([#1275](https://github.com/lynx-family/lynx-stack/pull/1275))
+
+- Updated dependencies []:
+  - @lynx-js/web-worker-rpc@0.15.2
+
 ## 0.15.1
 
 ### Patch Changes

@@ -7,6 +7,7 @@ import { useState } from 'preact/hooks';
 import type { Consumer, FC, ReactNode } from 'react';
 
 import { factory, withInitDataInState } from './compat/initData.js';
+import { profileEnd, profileStart } from './debug/utils.js';
 import { useLynxGlobalEventListener } from './hooks/useLynxGlobalEventListener.js';
 import { LifecycleConstant } from './lifecycleConstant.js';
 import { flushDelayedLifecycleEvents } from './lynx/tt.js';
@@ -82,12 +83,19 @@ export interface Root {
  */
 export const root: Root = {
   render: (jsx: ReactNode): void => {
+    /* v8 ignore next 2 */
     if (__MAIN_THREAD__) {
       __root.__jsx = jsx;
     } else {
       __root.__jsx = jsx;
+      if (__PROFILE__) {
+        profileStart('ReactLynx::renderBackground');
+      }
       // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       render(jsx, __root as any);
+      if (__PROFILE__) {
+        profileEnd();
+      }
       if (__FIRST_SCREEN_SYNC_TIMING__ === 'immediately') {
         // This is for cases where `root.render()` is called asynchronously,
         // `firstScreen` message might have been reached.
@@ -97,6 +105,7 @@ export const root: Root = {
       }
     }
   },
+  /* v8 ignore next 3 */
   registerDataProcessors: (dataProcessorDefinition: DataProcessorDefinition): void => {
     lynx.registerDataProcessors(dataProcessorDefinition);
   },

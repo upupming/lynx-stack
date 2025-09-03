@@ -54,11 +54,13 @@ function updateSpread(
     const oldPlatformInfo = pick(oldValue, platformInfoAttributes);
     const platformInfo = pick(newValue, platformInfoAttributes);
     if (!isDirectOrDeepEqual(oldPlatformInfo, platformInfo)) {
-      (__pendingListUpdates.values[list.__id] ??= new ListUpdateInfoRecording(list)).onSetAttribute(
-        snapshot,
-        platformInfo,
-        oldPlatformInfo,
-      );
+      if (__pendingListUpdates.values) {
+        (__pendingListUpdates.values[list.__id] ??= new ListUpdateInfoRecording(list)).onSetAttribute(
+          snapshot,
+          platformInfo,
+          oldPlatformInfo,
+        );
+      }
       snapshot.__listItemPlatformInfo = platformInfo;
 
       // The fakeSnapshot is missing `__parent`, so no `ListUpdateInfoRecording#onSetAttribute` will be called
@@ -313,6 +315,8 @@ function transformSpread(
       }
     } else if (typeof value === 'function') {
       result[key] = `${snapshot.__id}:${index}:${key}`;
+    } else if (key === '__self' || key === '__source') {
+      // for react debug tools
     } else {
       if (!hasNoFlattenAttributes && noFlattenAttributes.has(key)) {
         hasNoFlattenAttributes = true;

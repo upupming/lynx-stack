@@ -38,25 +38,7 @@ describe('list', () => {
     const list = container.firstChild;
     expect(list.props).toMatchInlineSnapshot(`undefined`);
     const uid0 = elementTree.enterListItemAtIndex(list, 0);
-    expect(__pendingListUpdates.values).toMatchInlineSnapshot(`
-      {
-        "2": [
-          {
-            "insertAction": [],
-            "removeAction": [],
-            "updateAction": [
-              {
-                "flush": false,
-                "from": 0,
-                "item-key": 0,
-                "to": 0,
-                "type": "__Card__:__snapshot_a9e46_test_2",
-              },
-            ],
-          },
-        ],
-      }
-    `);
+    expect(__pendingListUpdates.values).toMatchInlineSnapshot(`{}`);
     expect(container).toMatchInlineSnapshot(`
       <page>
         <list
@@ -65,40 +47,17 @@ describe('list', () => {
           <list-item
             item-key="0"
           >
-            <text>
-              0
-            </text>
+            <wrapper>
+              <text>
+                0
+              </text>
+            </wrapper>
           </list-item>
         </list>
       </page>
     `);
     const uid1 = elementTree.enterListItemAtIndex(list, 1);
-    expect(__pendingListUpdates.values).toMatchInlineSnapshot(`
-      {
-        "2": [
-          {
-            "insertAction": [],
-            "removeAction": [],
-            "updateAction": [
-              {
-                "flush": false,
-                "from": 0,
-                "item-key": 0,
-                "to": 0,
-                "type": "__Card__:__snapshot_a9e46_test_2",
-              },
-              {
-                "flush": false,
-                "from": 1,
-                "item-key": 1,
-                "to": 1,
-                "type": "__Card__:__snapshot_a9e46_test_2",
-              },
-            ],
-          },
-        ],
-      }
-    `);
+    expect(__pendingListUpdates.values).toMatchInlineSnapshot(`{}`);
     expect(container).toMatchInlineSnapshot(`
       <page>
         <list
@@ -107,49 +66,28 @@ describe('list', () => {
           <list-item
             item-key="0"
           >
-            <text>
-              0
-            </text>
+            <wrapper>
+              <text>
+                0
+              </text>
+            </wrapper>
           </list-item>
           <list-item
             item-key="1"
           >
-            <text>
-              1
-            </text>
+            <wrapper>
+              <text>
+                1
+              </text>
+            </wrapper>
           </list-item>
         </list>
       </page>
     `);
     expect(uid0).toMatchInlineSnapshot(`2`);
-    expect(uid1).toMatchInlineSnapshot(`5`);
+    expect(uid1).toMatchInlineSnapshot(`6`);
     elementTree.leaveListItem(list, uid0);
-    expect(__pendingListUpdates.values).toMatchInlineSnapshot(`
-      {
-        "2": [
-          {
-            "insertAction": [],
-            "removeAction": [],
-            "updateAction": [
-              {
-                "flush": false,
-                "from": 0,
-                "item-key": 0,
-                "to": 0,
-                "type": "__Card__:__snapshot_a9e46_test_2",
-              },
-              {
-                "flush": false,
-                "from": 1,
-                "item-key": 1,
-                "to": 1,
-                "type": "__Card__:__snapshot_a9e46_test_2",
-              },
-            ],
-          },
-        ],
-      }
-    `);
+    expect(__pendingListUpdates.values).toMatchInlineSnapshot(`{}`);
     expect(container).toMatchInlineSnapshot(`
       <page>
         <list
@@ -158,55 +96,27 @@ describe('list', () => {
           <list-item
             item-key="0"
           >
-            <text>
-              0
-            </text>
+            <wrapper>
+              <text>
+                0
+              </text>
+            </wrapper>
           </list-item>
           <list-item
             item-key="1"
           >
-            <text>
-              1
-            </text>
+            <wrapper>
+              <text>
+                1
+              </text>
+            </wrapper>
           </list-item>
         </list>
       </page>
     `);
     const uid2 = elementTree.enterListItemAtIndex(list, 2);
     expect(__pendingListUpdates.values).toMatchInlineSnapshot(
-      `
-      {
-        "2": [
-          {
-            "insertAction": [],
-            "removeAction": [],
-            "updateAction": [
-              {
-                "flush": false,
-                "from": 0,
-                "item-key": 0,
-                "to": 0,
-                "type": "__Card__:__snapshot_a9e46_test_2",
-              },
-              {
-                "flush": false,
-                "from": 1,
-                "item-key": 1,
-                "to": 1,
-                "type": "__Card__:__snapshot_a9e46_test_2",
-              },
-              {
-                "flush": false,
-                "from": 2,
-                "item-key": 2,
-                "to": 2,
-                "type": "__Card__:__snapshot_a9e46_test_2",
-              },
-            ],
-          },
-        ],
-      }
-    `,
+      `{}`,
     );
     expect(container).toMatchInlineSnapshot(`
       <page>
@@ -216,16 +126,20 @@ describe('list', () => {
           <list-item
             item-key="2"
           >
-            <text>
-              2
-            </text>
+            <wrapper>
+              <text>
+                2
+              </text>
+            </wrapper>
           </list-item>
           <list-item
             item-key="1"
           >
-            <text>
-              1
-            </text>
+            <wrapper>
+              <text>
+                1
+              </text>
+            </wrapper>
           </list-item>
         </list>
       </page>
@@ -289,7 +203,7 @@ describe('list', () => {
         >
           <list
             style="width:100%;height:100%"
-            update-list-info="[{"insertAction":[{"position":0,"type":"__Card__:__snapshot_a9e46_test_6","item-key":"0","full-span":true},{"position":1,"type":"__Card__:__snapshot_a9e46_test_6","item-key":"1","full-span":true},{"position":2,"type":"__Card__:__snapshot_a9e46_test_6","item-key":"2","full-span":true},{"position":3,"type":"__Card__:__snapshot_a9e46_test_6","item-key":"3","full-span":true},{"position":4,"type":"__Card__:__snapshot_a9e46_test_6","item-key":"4","full-span":true},{"position":5,"type":"__Card__:__snapshot_a9e46_test_6","item-key":"5","full-span":true}],"removeAction":[],"updateAction":[]}]"
+            update-list-info="[{"insertAction":[{"position":0,"type":"__Card__:__snapshot_a9e46_test_7","item-key":"0","full-span":true},{"position":1,"type":"__Card__:__snapshot_a9e46_test_7","item-key":"1","full-span":true},{"position":2,"type":"__Card__:__snapshot_a9e46_test_7","item-key":"2","full-span":true},{"position":3,"type":"__Card__:__snapshot_a9e46_test_7","item-key":"3","full-span":true},{"position":4,"type":"__Card__:__snapshot_a9e46_test_7","item-key":"4","full-span":true},{"position":5,"type":"__Card__:__snapshot_a9e46_test_7","item-key":"5","full-span":true}],"removeAction":[],"updateAction":[]}]"
           />
         </view>
       </page>
@@ -307,19 +221,21 @@ describe('list', () => {
         full-span="true"
         item-key="3"
       >
-        <view>
-          <text>
-            3
-          </text>
-          <text>
-            3
-          </text>
-        </view>
-        <view>
-          <text>
-            hello
-          </text>
-        </view>
+        <wrapper>
+          <view>
+            <text>
+              3
+            </text>
+            <text>
+              3
+            </text>
+          </view>
+          <view>
+            <text>
+              hello
+            </text>
+          </view>
+        </wrapper>
       </list-item>
     `);
 
@@ -362,19 +278,21 @@ describe('list', () => {
         full-span="true"
         item-key="1"
       >
-        <view>
-          <text>
-            1
-          </text>
-          <text>
-            1
-          </text>
-        </view>
-        <view>
-          <text>
-            hello
-          </text>
-        </view>
+        <wrapper>
+          <view>
+            <text>
+              1
+            </text>
+            <text>
+              1
+            </text>
+          </view>
+          <view>
+            <text>
+              hello
+            </text>
+          </view>
+        </wrapper>
       </list-item>
     `);
 
@@ -385,19 +303,21 @@ describe('list', () => {
             full-span="true"
             item-key="1"
           >
-            <view>
-              <text>
-                1
-              </text>
-              <text>
-                1
-              </text>
-            </view>
-            <view>
-              <text>
-                hello
-              </text>
-            </view>
+            <wrapper>
+              <view>
+                <text>
+                  1
+                </text>
+                <text>
+                  1
+                </text>
+              </view>
+              <view>
+                <text>
+                  hello
+                </text>
+              </view>
+            </wrapper>
           </list-item>,
           "item-key",
           "1",
@@ -407,19 +327,21 @@ describe('list', () => {
             full-span="true"
             item-key="1"
           >
-            <view>
-              <text>
-                1
-              </text>
-              <text>
-                1
-              </text>
-            </view>
-            <view>
-              <text>
-                hello
-              </text>
-            </view>
+            <wrapper>
+              <view>
+                <text>
+                  1
+                </text>
+                <text>
+                  1
+                </text>
+              </view>
+              <view>
+                <text>
+                  hello
+                </text>
+              </view>
+            </wrapper>
           </list-item>,
           "full-span",
           true,
@@ -444,6 +366,102 @@ describe('list', () => {
             full-span="true"
             item-key="1"
           >
+            <wrapper>
+              <view>
+                <text>
+                  1
+                </text>
+                <text>
+                  1
+                </text>
+              </view>
+              <view>
+                <text>
+                  hello
+                </text>
+              </view>
+            </wrapper>
+          </list-item>,
+          {
+            "elementID": 33,
+            "listID": 2,
+            "operationID": undefined,
+            "triggerLayout": true,
+          },
+        ],
+      ]
+    `);
+
+    expect(list).toMatchInlineSnapshot(`
+      <list
+        style="width:100%;height:100%"
+        update-list-info="[{"insertAction":[{"position":0,"type":"__Card__:__snapshot_a9e46_test_7","item-key":"0","full-span":true},{"position":1,"type":"__Card__:__snapshot_a9e46_test_7","item-key":"1","full-span":true},{"position":2,"type":"__Card__:__snapshot_a9e46_test_7","item-key":"2","full-span":true},{"position":3,"type":"__Card__:__snapshot_a9e46_test_7","item-key":"3","full-span":true},{"position":4,"type":"__Card__:__snapshot_a9e46_test_7","item-key":"4","full-span":true},{"position":5,"type":"__Card__:__snapshot_a9e46_test_7","item-key":"5","full-span":true}],"removeAction":[],"updateAction":[]},{"insertAction":[],"removeAction":[3],"updateAction":[]}]"
+      >
+        <list-item
+          full-span="true"
+          item-key="4"
+        >
+          <wrapper>
+            <view>
+              <text>
+                4
+              </text>
+              <text>
+                4
+              </text>
+            </view>
+            <view>
+              <text>
+                hello
+              </text>
+            </view>
+          </wrapper>
+        </list-item>
+        <list-item
+          full-span="true"
+          item-key="5"
+        >
+          <wrapper>
+            <view>
+              <text>
+                5
+              </text>
+              <text>
+                5
+              </text>
+            </view>
+            <view>
+              <text>
+                hello
+              </text>
+            </view>
+          </wrapper>
+        </list-item>
+        <list-item
+          full-span="true"
+          item-key="2"
+        >
+          <wrapper>
+            <view>
+              <text>
+                2
+              </text>
+              <text>
+                2
+              </text>
+            </view>
+            <view>
+              <text>
+                hello
+              </text>
+            </view>
+          </wrapper>
+        </list-item>
+        <list-item
+          full-span="true"
+          item-key="1"
+        >
+          <wrapper>
             <view>
               <text>
                 1
@@ -457,93 +475,7 @@ describe('list', () => {
                 hello
               </text>
             </view>
-          </list-item>,
-          {
-            "elementID": 36,
-            "listID": 2,
-            "operationID": undefined,
-            "triggerLayout": true,
-          },
-        ],
-      ]
-    `);
-
-    expect(list).toMatchInlineSnapshot(`
-      <list
-        style="width:100%;height:100%"
-        update-list-info="[{"insertAction":[{"position":0,"type":"__Card__:__snapshot_a9e46_test_6","item-key":"0","full-span":true},{"position":1,"type":"__Card__:__snapshot_a9e46_test_6","item-key":"1","full-span":true},{"position":2,"type":"__Card__:__snapshot_a9e46_test_6","item-key":"2","full-span":true},{"position":3,"type":"__Card__:__snapshot_a9e46_test_6","item-key":"3","full-span":true},{"position":4,"type":"__Card__:__snapshot_a9e46_test_6","item-key":"4","full-span":true},{"position":5,"type":"__Card__:__snapshot_a9e46_test_6","item-key":"5","full-span":true}],"removeAction":[],"updateAction":[]},{"insertAction":[],"removeAction":[3],"updateAction":[]}]"
-      >
-        <list-item
-          full-span="true"
-          item-key="4"
-        >
-          <view>
-            <text>
-              4
-            </text>
-            <text>
-              4
-            </text>
-          </view>
-          <view>
-            <text>
-              hello
-            </text>
-          </view>
-        </list-item>
-        <list-item
-          full-span="true"
-          item-key="5"
-        >
-          <view>
-            <text>
-              5
-            </text>
-            <text>
-              5
-            </text>
-          </view>
-          <view>
-            <text>
-              hello
-            </text>
-          </view>
-        </list-item>
-        <list-item
-          full-span="true"
-          item-key="2"
-        >
-          <view>
-            <text>
-              2
-            </text>
-            <text>
-              2
-            </text>
-          </view>
-          <view>
-            <text>
-              hello
-            </text>
-          </view>
-        </list-item>
-        <list-item
-          full-span="true"
-          item-key="1"
-        >
-          <view>
-            <text>
-              1
-            </text>
-            <text>
-              1
-            </text>
-          </view>
-          <view>
-            <text>
-              hello
-            </text>
-          </view>
+          </wrapper>
         </list-item>
       </list>
     `);
@@ -579,7 +511,7 @@ describe('list - deferred <list-item/> should render as normal', () => {
         <list
           custom-list-name="list-container"
           style="height: 700rpx; width: 700rpx; background-color: #f0f0f0;"
-          update-list-info="[{"insertAction":[{"position":0,"type":"__Card__:__snapshot_a9e46_test_12","item-key":"x"},{"position":1,"type":"__Card__:__snapshot_a9e46_test_14","item-key":"0"},{"position":2,"type":"__Card__:__snapshot_a9e46_test_14","item-key":"1"},{"position":3,"type":"__Card__:__snapshot_a9e46_test_14","item-key":"2"}],"removeAction":[],"updateAction":[]}]"
+          update-list-info="[{"insertAction":[{"position":0,"type":"__Card__:__snapshot_a9e46_test_13","item-key":"x"},{"position":1,"type":"__Card__:__snapshot_a9e46_test_15","item-key":"0"},{"position":2,"type":"__Card__:__snapshot_a9e46_test_15","item-key":"1"},{"position":3,"type":"__Card__:__snapshot_a9e46_test_15","item-key":"2"}],"removeAction":[],"updateAction":[]}]"
         />
       </page>
     `);
@@ -603,7 +535,7 @@ describe('list - deferred <list-item/> should render as normal', () => {
         <list
           custom-list-name="list-container"
           style="height: 700rpx; width: 700rpx; background-color: #f0f0f0;"
-          update-list-info="[{"insertAction":[{"position":0,"type":"__Card__:__snapshot_a9e46_test_12","item-key":"x"},{"position":1,"type":"__Card__:__snapshot_a9e46_test_14","item-key":"0"},{"position":2,"type":"__Card__:__snapshot_a9e46_test_14","item-key":"1"},{"position":3,"type":"__Card__:__snapshot_a9e46_test_14","item-key":"2"}],"removeAction":[],"updateAction":[]}]"
+          update-list-info="[{"insertAction":[{"position":0,"type":"__Card__:__snapshot_a9e46_test_13","item-key":"x"},{"position":1,"type":"__Card__:__snapshot_a9e46_test_15","item-key":"0"},{"position":2,"type":"__Card__:__snapshot_a9e46_test_15","item-key":"1"},{"position":3,"type":"__Card__:__snapshot_a9e46_test_15","item-key":"2"}],"removeAction":[],"updateAction":[]}]"
         />
       </page>
     `);
@@ -615,7 +547,7 @@ describe('list - deferred <list-item/> should render as normal', () => {
         <list
           custom-list-name="list-container"
           style="height: 700rpx; width: 700rpx; background-color: #f0f0f0;"
-          update-list-info="[{"insertAction":[{"position":0,"type":"__Card__:__snapshot_a9e46_test_12","item-key":"x"},{"position":1,"type":"__Card__:__snapshot_a9e46_test_14","item-key":"0"},{"position":2,"type":"__Card__:__snapshot_a9e46_test_14","item-key":"1"},{"position":3,"type":"__Card__:__snapshot_a9e46_test_14","item-key":"2"}],"removeAction":[],"updateAction":[]}]"
+          update-list-info="[{"insertAction":[{"position":0,"type":"__Card__:__snapshot_a9e46_test_13","item-key":"x"},{"position":1,"type":"__Card__:__snapshot_a9e46_test_15","item-key":"0"},{"position":2,"type":"__Card__:__snapshot_a9e46_test_15","item-key":"1"},{"position":3,"type":"__Card__:__snapshot_a9e46_test_15","item-key":"2"}],"removeAction":[],"updateAction":[]}]"
         >
           <list-item
             item-key="x"
@@ -726,7 +658,7 @@ describe('list - deferred <list-item/> should render as normal', () => {
         <list
           custom-list-name="list-container"
           style="height: 700rpx; width: 700rpx; background-color: #f0f0f0;"
-          update-list-info="[{"insertAction":[{"position":0,"type":"__Card__:__snapshot_a9e46_test_17","item-key":"x"},{"position":1,"type":"__Card__:__snapshot_a9e46_test_19","item-key":"0"},{"position":2,"type":"__Card__:__snapshot_a9e46_test_19","item-key":"1"},{"position":3,"type":"__Card__:__snapshot_a9e46_test_19","item-key":"2"}],"removeAction":[],"updateAction":[]}]"
+          update-list-info="[{"insertAction":[{"position":0,"type":"__Card__:__snapshot_a9e46_test_18","item-key":"x"},{"position":1,"type":"__Card__:__snapshot_a9e46_test_20","item-key":"0"},{"position":2,"type":"__Card__:__snapshot_a9e46_test_20","item-key":"1"},{"position":3,"type":"__Card__:__snapshot_a9e46_test_20","item-key":"2"}],"removeAction":[],"updateAction":[]}]"
         />
       </page>
     `);
@@ -746,5 +678,119 @@ describe('list - deferred <list-item/> should render as normal', () => {
     });
 
     expect(renders[0]).toHaveBeenCalledTimes(1); // change from defer={true} to defer={false} should render the component
+  });
+
+  it('should unmount when reused', async () => {
+    class U extends Component {
+      componentWillUnmount() {
+        this.props.onUnmount?.();
+      }
+      render() {
+        return null;
+      }
+    }
+
+    const unmounts = [vi.fn(), vi.fn(), vi.fn()];
+
+    function App() {
+      return (
+        <list
+          custom-list-name='list-container'
+          style='height: 700rpx; width: 700rpx; background-color: #f0f0f0;'
+        >
+          {Array.from({ length: 3 }).map((_, index) => (
+            <list-item item-key={`${index}`} key={index} defer={{ unmountRecycled: true }}>
+              <view style='height: 50rpx; width: 600rpx; background-color: #fff; border-bottom: 1px solid #ccc;'>
+                <text style='padding: 10rpx;'>Item {index + 1}</text>
+              </view>
+              <U onUnmount={unmounts[index]} />
+            </list-item>
+          ))}
+        </list>
+      );
+    }
+
+    const { container } = render(<App />);
+    expect(container).toMatchInlineSnapshot(`
+      <page>
+        <list
+          custom-list-name="list-container"
+          style="height: 700rpx; width: 700rpx; background-color: #f0f0f0;"
+          update-list-info="[{"insertAction":[{"position":0,"type":"__Card__:__snapshot_a9e46_test_23","item-key":"0"},{"position":1,"type":"__Card__:__snapshot_a9e46_test_23","item-key":"1"},{"position":2,"type":"__Card__:__snapshot_a9e46_test_23","item-key":"2"}],"removeAction":[],"updateAction":[]}]"
+        />
+      </page>
+    `);
+
+    const list = container.firstChild;
+
+    const p = [
+      elementTree.enterListItemAtIndex(list, 0),
+      elementTree.enterListItemAtIndex(list, 1),
+    ];
+
+    expect(p[0].then).toBeTypeOf('function');
+    expect(p[1].then).toBeTypeOf('function');
+
+    expect(container).toMatchInlineSnapshot(`
+      <page>
+        <list
+          custom-list-name="list-container"
+          style="height: 700rpx; width: 700rpx; background-color: #f0f0f0;"
+          update-list-info="[{"insertAction":[{"position":0,"type":"__Card__:__snapshot_a9e46_test_23","item-key":"0"},{"position":1,"type":"__Card__:__snapshot_a9e46_test_23","item-key":"1"},{"position":2,"type":"__Card__:__snapshot_a9e46_test_23","item-key":"2"}],"removeAction":[],"updateAction":[]}]"
+        />
+      </page>
+    `);
+
+    await Promise.all(p);
+
+    elementTree.leaveListItem(list, await p[0]);
+    p[2] = elementTree.enterListItemAtIndex(list, 2);
+
+    await Promise.all(p);
+
+    expect(unmounts[0]).toHaveBeenCalledTimes(1);
+
+    expect(container).toMatchInlineSnapshot(`
+      <page>
+        <list
+          custom-list-name="list-container"
+          style="height: 700rpx; width: 700rpx; background-color: #f0f0f0;"
+          update-list-info="[{"insertAction":[{"position":0,"type":"__Card__:__snapshot_a9e46_test_23","item-key":"0"},{"position":1,"type":"__Card__:__snapshot_a9e46_test_23","item-key":"1"},{"position":2,"type":"__Card__:__snapshot_a9e46_test_23","item-key":"2"}],"removeAction":[],"updateAction":[]}]"
+        >
+          <list-item
+            item-key="2"
+          >
+            <view
+              style="height: 50rpx; width: 600rpx; background-color: #fff; border-bottom: 1px solid #ccc;"
+            >
+              <text
+                style="padding: 10rpx;"
+              >
+                Item 
+                <wrapper>
+                  3
+                </wrapper>
+              </text>
+            </view>
+          </list-item>
+          <list-item
+            item-key="1"
+          >
+            <view
+              style="height: 50rpx; width: 600rpx; background-color: #fff; border-bottom: 1px solid #ccc;"
+            >
+              <text
+                style="padding: 10rpx;"
+              >
+                Item 
+                <wrapper>
+                  2
+                </wrapper>
+              </text>
+            </view>
+          </list-item>
+        </list>
+      </page>
+    `);
   });
 });

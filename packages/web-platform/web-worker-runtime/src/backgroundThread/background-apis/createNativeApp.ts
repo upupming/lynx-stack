@@ -11,7 +11,6 @@ import {
   type LynxJSModule,
   type NativeApp,
   type LynxCrossThreadContext,
-  systemInfo,
   type BackMainThreadContextConfig,
   I18nResource,
   reportErrorEndpoint,
@@ -28,6 +27,7 @@ import { createJSObjectDestructionObserver } from './crossThreadHandlers/createJ
 import type { TimingSystem } from './createTimingSystem.js';
 import { registerUpdateGlobalPropsHandler } from './crossThreadHandlers/registerUpdateGlobalPropsHandler.js';
 import { registerUpdateI18nResource } from './crossThreadHandlers/registerUpdateI18nResource.js';
+import { createGetPathInfo } from './crossThreadHandlers/createGetPathInfo.js';
 
 let nativeAppCount = 0;
 const sharedData: Record<string, unknown> = {};
@@ -45,7 +45,6 @@ export async function createNativeApp(
     template,
     nativeModulesMap,
     timingSystem,
-    browserConfig,
   } = config;
   const performanceApis = createPerformanceApis(
     timingSystem,
@@ -65,32 +64,7 @@ export async function createNativeApp(
   const reportError = uiThreadRpc.createCall(reportErrorEndpoint);
   const createBundleInitReturnObj = (): BundleInitReturnObj => {
     const entry = (globalThis.module as LynxJSModule).exports;
-    return {
-      init: (lynxCoreInject) => {
-        lynxCoreInject.tt.lynxCoreInject = lynxCoreInject;
-        lynxCoreInject.tt.globalThis ??= new Proxy(lynxCoreInject, {
-          get(target, prop) {
-            // @ts-expect-error
-            return target[prop] ?? globalThis[prop];
-          },
-          set(target, prop, value) {
-            // @ts-expect-error
-            target[prop] = value;
-            return true;
-          },
-          ownKeys(target) {
-            return Reflect.ownKeys(target).filter((key) =>
-              key !== 'globalThis'
-            );
-          },
-        });
-        Object.assign(lynxCoreInject.tt, {
-          SystemInfo: { ...systemInfo, ...browserConfig },
-        });
-        const ret = entry?.(lynxCoreInject.tt);
-        return ret;
-      },
-    };
+    return entry as unknown as BundleInitReturnObj;
   };
   const i18nResource = new I18nResource();
   let release = '';
@@ -133,6 +107,7 @@ export async function createNativeApp(
     },
     callLepusMethod,
     setNativeProps,
+    getPathInfo: createGetPathInfo(uiThreadRpc),
     invokeUIMethod: createInvokeUIMethod(uiThreadRpc),
     setCard(tt) {
       registerPublicComponentEventHandler(

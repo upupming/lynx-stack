@@ -6,13 +6,14 @@ import fs from 'node:fs';
 import { join } from 'node:path';
 
 import { pluginSass } from '@rsbuild/plugin-sass';
-import type { Sidebar } from '@rspress/shared';
+import { defineConfig } from '@rspress/core';
+import type { Sidebar, UserConfig } from '@rspress/core';
 import {
   transformerNotationDiff,
   transformerNotationFocus,
   transformerNotationHighlight,
 } from '@shikijs/transformers';
-import { defineConfig } from 'rspress/config';
+import { camelCase } from 'change-case';
 
 import { createAPI, createChangelogs } from './sidebars/index.js';
 
@@ -87,12 +88,12 @@ const SIDEBARS = {
     },
     {
       link: '/api/rspeedy.config.environments',
-      text: 'Environments',
+      text: 'environments',
       collapsible: false,
     },
     {
       link: '/api/rspeedy.config.mode',
-      text: 'Mode',
+      text: 'mode',
       collapsible: false,
     },
     ...createAPI({
@@ -144,7 +145,12 @@ const SIDEBARS = {
       ],
       collapsed: true,
       depth: 3,
-    }).items,
+    }).items.map(i => {
+      if ('items' in i) {
+        i.text = camelCase(i.text);
+      }
+      return i;
+    }),
   ],
 } satisfies Sidebar;
 
@@ -218,12 +224,12 @@ const SIDEBARS_ZH = {
     },
     {
       link: '/zh/api/rspeedy.config.environments',
-      text: 'Environments',
+      text: 'environments',
       collapsible: false,
     },
     {
       link: '/zh/api/rspeedy.config.mode',
-      text: 'Mode',
+      text: 'mode',
       collapsible: false,
     },
     ...createAPI({
@@ -275,7 +281,12 @@ const SIDEBARS_ZH = {
       ],
       collapsed: true,
       depth: 3,
-    }).items,
+    }).items.map(i => {
+      if ('items' in i) {
+        i.text = camelCase(i.text);
+      }
+      return i;
+    }),
   ],
 } satisfies Sidebar;
 
@@ -346,7 +357,7 @@ const CHANGELOG_ZH = {
   ),
 };
 
-export default defineConfig({
+const config: UserConfig = defineConfig({
   root: 'docs',
   lang: 'en',
   title: 'Lynx Stack',
@@ -361,7 +372,6 @@ export default defineConfig({
   },
   icon: '/rspeedy.png',
   markdown: {
-    checkDeadLinks: true,
     shiki: {
       transformers: [
         transformerNotationDiff(),
@@ -748,3 +758,5 @@ export default defineConfig({
     ],
   },
 });
+
+export default config;

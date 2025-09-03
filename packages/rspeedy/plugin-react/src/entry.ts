@@ -15,7 +15,6 @@ import { LAYERS, ReactWebpackPlugin } from '@lynx-js/react-webpack-plugin'
 import type { ExposedAPI } from '@lynx-js/rspeedy'
 import { RuntimeWrapperWebpackPlugin } from '@lynx-js/runtime-wrapper-webpack-plugin'
 import {
-  CSSPlugins,
   LynxEncodePlugin,
   LynxTemplatePlugin,
   WebEncodePlugin,
@@ -190,14 +189,16 @@ export function applyEntry(
           targetSdkVersion,
 
           experimental_isLazyBundle,
-          cssPlugins: [
-            CSSPlugins.parserPlugins.removeFunctionWhiteSpace(),
-          ],
+          cssPlugins: [],
         }])
         .end()
     })
 
-    let finalFirstScreenSyncTiming = firstScreenSyncTiming
+    const rsbuildConfig = api.getRsbuildConfig()
+    const userConfig = api.getRsbuildConfig('original')
+
+    const enableChunkSplitting =
+      rsbuildConfig.performance?.chunkSplit?.strategy !== 'all-in-one'
 
     if (isLynx) {
       let inlineScripts
@@ -205,11 +206,8 @@ export function applyEntry(
         // TODO: support inlineScripts in lazyBundle
         inlineScripts = true
       } else {
-        inlineScripts = environment.config.output?.inlineScripts ?? true
-      }
-
-      if (inlineScripts !== true) {
-        finalFirstScreenSyncTiming = 'jsReady'
+        inlineScripts = environment.config.output?.inlineScripts
+          ?? !enableChunkSplitting
       }
 
       chain
@@ -247,13 +245,8 @@ export function applyEntry(
         .end()
     }
 
-    const rsbuildConfig = api.getRsbuildConfig()
-
     let extractStr = originalExtractStr
-    if (
-      rsbuildConfig.performance?.chunkSplit?.strategy !== 'all-in-one'
-      && originalExtractStr
-    ) {
+    if (enableChunkSplitting && originalExtractStr) {
       logger.warn(
         '`extractStr` is changed to `false` because it is only supported in `all-in-one` chunkSplit strategy, please set `performance.chunkSplit.strategy` to `all-in-one` to use `extractStr.`',
       )
@@ -266,14 +259,35 @@ export function applyEntry(
       .use(ReactWebpackPlugin, [{
         disableCreateSelectorQueryIncompatibleWarning: compat
           ?.disableCreateSelectorQueryIncompatibleWarning ?? false,
-        firstScreenSyncTiming: finalFirstScreenSyncTiming,
+        firstScreenSyncTiming,
         enableSSR,
         mainThreadChunks,
         extractStr,
         experimental_isLazyBundle,
-        profile: rsbuildConfig.performance?.profile,
+        profile: getDefaultProfile(),
       }])
+
+    function getDefaultProfile(): boolean | undefined {
+      if (userConfig.performance?.profile !== undefined) {
+        return userConfig.performance.profile
+      }
+
+      if (isDebug()) {
+        return true
+      }
+
+      return undefined
+    }
   })
+}
+
+export const isDebug = (): boolean => {
+  if (!process.env['DEBUG']) {
+    return false
+  }
+
+  const values = process.env['DEBUG'].toLocaleLowerCase().split(',')
+  return ['rspeedy', '*'].some((key) => values.includes(key))
 }
 
 // This is copied from https://github.com/web-infra-dev/rsbuild/blob/037da7b9d92e20c7136c8b2efa21eef539fa2f88/packages/core/src/plugins/html.ts#L168

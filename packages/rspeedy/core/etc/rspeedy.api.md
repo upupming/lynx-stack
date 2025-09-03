@@ -68,8 +68,7 @@ export interface Config {
     output?: Output | undefined;
     performance?: Performance | undefined;
     plugins?: RsbuildPlugins | undefined;
-    // @alpha
-    provider?: RsbuildConfig['provider'];
+    resolve?: Resolve | undefined;
     server?: Server | undefined;
     source?: Source | undefined;
     tools?: Tools | undefined;
@@ -141,6 +140,15 @@ export interface Decorators {
 export function defineConfig(config: Config): Config;
 
 // @public
+export function defineConfig(config: () => Config): () => Config;
+
+// @public
+export function defineConfig(config: Promise<Config>): Promise<Config>;
+
+// @public
+export function defineConfig(config: () => Promise<Config>): () => Promise<Config>;
+
+// @public
 export interface Dev {
     assetPrefix?: string | boolean | undefined;
     client?: DevClient | undefined;
@@ -184,15 +192,17 @@ export interface ExposedAPI {
 
 // @public
 export interface Filename {
+    assets?: Rspack.AssetModuleFilename;
     bundle?: string | undefined;
-    css?: string | undefined;
-    font?: string | undefined;
-    image?: string | undefined;
-    js?: string | undefined;
-    media?: string | undefined;
-    svg?: string | undefined;
+    css?: Rspack.CssFilename | undefined;
+    font?: Rspack.AssetModuleFilename | undefined;
+    image?: Rspack.AssetModuleFilename | undefined;
+    js?: Rspack.Filename | undefined;
+    media?: Rspack.AssetModuleFilename | undefined;
+    svg?: Rspack.AssetModuleFilename | undefined;
     // @deprecated
     template?: string | undefined;
+    wasm?: Rspack.WebassemblyModuleFilename;
 }
 
 // @public
@@ -250,6 +260,11 @@ export interface Performance {
     removeConsole?: boolean | ConsoleType[] | undefined;
 }
 
+// @public
+export interface Resolve {
+    alias?: Record<string, string | false | string[]> | undefined;
+}
+
 export { RsbuildPlugin }
 
 export { RsbuildPluginAPI }
@@ -286,6 +301,7 @@ export interface Server {
 
 // @public
 export interface Source {
+    // @deprecated
     alias?: Record<string, string | false | string[]> | undefined;
     assetsInclude?: Rspack.RuleSetCondition | undefined;
     decorators?: Decorators | undefined;

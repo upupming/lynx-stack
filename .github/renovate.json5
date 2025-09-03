@@ -2,8 +2,6 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "config:recommended",
-    ":automergeStableNonMajor",
-    ":automergeTypes",
     ":maintainLockFilesWeekly",
     "helpers:pinGitHubActionDigests",
   ],
@@ -24,6 +22,7 @@
     "npm",
     "nvm",
     "github-actions",
+    "custom.regex",
   ],
 
   "labels": ["bot:renovate"],
@@ -47,7 +46,6 @@
         "/@rspack/*/",
       ],
       "rangeStrategy": "pin",
-      "automerge": false,
     },
     {
       "groupName": "Rsbuild",
@@ -62,7 +60,6 @@
         "/rsbuild-plugin-*/",
       ],
       "rangeStrategy": "pin",
-      "automerge": false,
     },
     {
       "groupName": "Rspress",
@@ -102,7 +99,6 @@
         "@microsoft/api-extractor-model",
         "@microsoft/tsdoc",
       ],
-      "automerge": true,
     },
     {
       "groupName": "linting",
@@ -123,7 +119,6 @@
         "typia-rspack-plugin",
         "@samchon/openapi",
       ],
-      "automerge": false,
       "rangeStrategy": "pin",
     },
     {
@@ -145,7 +140,33 @@
         "/^@types/*/",
       ],
     },
+    {
+      "groupName": "Lynx Engine",
+      "groupSlug": "lynx-engine",
+      "matchManagers": ["custom.regex"],
+      "matchPackageNames": [
+        "https://github.com/lynx-family/lynx",
+      ],
+      // Schedule once a month on the first day of the month before 4 AM.
+      "schedule": [
+        "* 0-3 1 * *",
+      ],
+    },
   ],
+
+  "customManagers": [
+    {
+      // See: https://docs.renovatebot.com/modules/datasource/git-refs/
+      "customType": "regex",
+      "managerFilePatterns": ["packages/lynx/benchx_cli/scripts/build.mjs"],
+      "matchStrings": ["const COMMIT = '(?<currentDigest>.*?)';"],
+      "currentValueTemplate": "develop",
+      "depNameTemplate": "lynx",
+      "packageNameTemplate": "https://github.com/lynx-family/lynx",
+      "datasourceTemplate": "git-refs",
+    },
+  ],
+
   "postUpdateOptions": [
     "pnpmDedupe",
   ],
@@ -155,5 +176,13 @@
 
     // Rspress not compatible
     "@microsoft/api-documenter",
+
+    // Not following SemVer
+    "stormslowly/rust-cache",
+
+    // TODO: remove this after drop napi-rs
+    "@emnapi/core",
+    "@emnapi/runtime",
+    "@napi-rs/cli",
   ],
 }

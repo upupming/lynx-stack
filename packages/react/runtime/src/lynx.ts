@@ -5,6 +5,8 @@ import { options } from 'preact';
 // to make sure preact's hooks to register earlier than ours
 import './hooks/react.js';
 
+import { initAlog } from './alog/index.js';
+import { setupComponentStack } from './debug/component-stack.js';
 import { initProfileHook } from './debug/profile.js';
 import { document, setupBackgroundDocument } from './document.js';
 import { replaceCommitHook } from './lifecycle/patch/commit.js';
@@ -34,16 +36,29 @@ if (__MAIN_THREAD__) {
   }
 }
 
-// TODO: replace this with __PROFILE__
-if (__PROFILE__) {
-  // We are profiling both main-thread and background.
+if (__DEV__) {
+  setupComponentStack();
+}
+
+// We are profiling both main-thread and background.
+if (__MAIN_THREAD__ && __PROFILE__) {
   initProfileHook();
+}
+
+if (typeof __ALOG__ !== 'undefined' && __ALOG__) {
+  // We are logging both main-thread and background.
+  initAlog();
 }
 
 if (__BACKGROUND__) {
   // Trick Preact and TypeScript to accept our custom document adapter.
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-  options.document = document as any;
+  options.document = document as unknown as Document;
+  if (lynx.queueMicrotask) {
+    options.requestAnimationFrame = callback => lynx.queueMicrotask(callback);
+  } else if (globalThis.Promise) {
+    const realResolvedPromise = globalThis.Promise.resolve();
+    options.requestAnimationFrame = callback => void realResolvedPromise.then(callback);
+  }
   setupBackgroundDocument();
   injectTt();
   addCtxNotFoundEventListener();
@@ -52,6 +67,9 @@ if (__BACKGROUND__) {
   else {
     replaceCommitHook();
     initTimingAPI();
+    if (lynx.performance?.isProfileRecording?.()) {
+      initProfileHook();
+    }
   }
 }
 

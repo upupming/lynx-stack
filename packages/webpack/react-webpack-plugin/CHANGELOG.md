@@ -1,5 +1,20 @@
 # @lynx-js/react-webpack-plugin
 
+## 0.6.20
+
+### Patch Changes
+
+- Updated dependencies [[`aaca8f9`](https://github.com/lynx-family/lynx-stack/commit/aaca8f91d177061c7b0430cc5cb21a3602897534)]:
+  - @lynx-js/webpack-runtime-globals@0.0.6
+
+## 0.6.19
+
+### Patch Changes
+
+- Be compat with `@lynx-js/react` v0.112.0 ([#1323](https://github.com/lynx-family/lynx-stack/pull/1323))
+
+- Fix `REACT_PROFILE` not taking effect. ([#1306](https://github.com/lynx-family/lynx-stack/pull/1306))
+
 ## 0.6.18
 
 ### Patch Changes

@@ -4,12 +4,17 @@
 import { mergeRsbuildConfig } from '@rsbuild/core'
 import type { RsbuildMode } from '@rsbuild/core'
 
+import { isDebug } from '../debug.js'
 import type { Filename } from './output/filename.js'
 
 import type { Config } from './index.js'
 
 export function applyDefaultRspeedyConfig(config: Config): Config {
-  const ret = mergeRsbuildConfig({
+  // config.performance?.chunkSplit?.strategy has been explicitly set to a value other than 'all-in-one'
+  const enableChunkSplitting = config.performance?.chunkSplit?.strategy
+    && config.performance?.chunkSplit?.strategy !== 'all-in-one'
+
+  return mergeRsbuildConfig({
     mode: ((): RsbuildMode => {
       if (config.mode) {
         return config.mode
@@ -25,8 +30,12 @@ export function applyDefaultRspeedyConfig(config: Config): Config {
       // from the `output.filename.bundle` field.
       filename: getFilename(config.output?.filename),
 
-      // inlineScripts should be enabled by default
-      inlineScripts: true,
+      // inlineScripts defaults to false when chunk splitting is enabled, true otherwise
+      inlineScripts: !enableChunkSplitting,
+    },
+
+    performance: {
+      profile: isDebug() ? true : undefined,
     },
 
     tools: {
@@ -37,8 +46,6 @@ export function applyDefaultRspeedyConfig(config: Config): Config {
       },
     },
   }, config)
-
-  return ret
 }
 
 const DEFAULT_FILENAME = '[name].[platform].bundle'

@@ -53,6 +53,8 @@ export function clearPage(): void {
   __pageId = 0;
 }
 
+export const __DynamicPartChildren_0: [DynamicPartType, number][] = [[DynamicPartType.Children, 0]];
+
 export const snapshotManager: {
   values: Map<string, Snapshot>;
 } = {
@@ -69,7 +71,7 @@ export const snapshotManager: {
           return [__page!];
         },
         update: [],
-        slot: [[DynamicPartType.Children, 0]],
+        slot: __DynamicPartChildren_0,
         isListHolder: false,
         cssId: 0,
       },
@@ -86,7 +88,7 @@ export const snapshotManager: {
           return [__CreateWrapperElement(__pageId)];
         },
         update: [],
-        slot: [[DynamicPartType.Children, 0]],
+        slot: __DynamicPartChildren_0,
         isListHolder: false,
       },
     ],
@@ -99,7 +101,7 @@ export const snapshotManager: {
             return [];
           }
           /* v8 ignore stop */
-          return [__CreateElement('raw-text', __pageId)];
+          return [__CreateRawText('')];
         },
         update: [
           ctx => {
@@ -149,6 +151,17 @@ export const backgroundSnapshotInstanceManager: {
   updateId(id: number, newId: number) {
     const values = this.values;
     const si = values.get(id)!;
+    // For PreactDevtools, on first hydration,
+    // PreactDevtools can get the real snapshot instance id in main-thread
+    if (__DEV__) {
+      lynx.getJSModule('GlobalEventEmitter').emit('onBackgroundSnapshotInstanceUpdateId', [
+        {
+          backgroundSnapshotInstance: si,
+          oldId: id,
+          newId,
+        },
+      ]);
+    }
     values.delete(id);
     values.set(newId, si);
     si.__id = newId;
@@ -308,11 +321,13 @@ export class SnapshotInstance {
       }
     }
 
-    const values = this.__values;
-    if (values) {
-      this.__values = undefined;
-      this.setAttribute('values', values);
-    }
+    __pendingListUpdates.runWithoutUpdates(() => {
+      const values = this.__values;
+      if (values) {
+        this.__values = undefined;
+        this.setAttribute('values', values);
+      }
+    });
 
     if (isListHolder) {
       // never recurse into list's children
@@ -497,9 +512,11 @@ export class SnapshotInstance {
   insertBefore(newNode: SnapshotInstance, existingNode?: SnapshotInstance): void {
     const __snapshot_def = this.__snapshot_def;
     if (__snapshot_def.isListHolder) {
-      (__pendingListUpdates.values[this.__id] ??= new ListUpdateInfoRecording(
-        this,
-      )).onInsertBefore(newNode, existingNode);
+      if (__pendingListUpdates.values) {
+        (__pendingListUpdates.values[this.__id] ??= new ListUpdateInfoRecording(
+          this,
+        )).onInsertBefore(newNode, existingNode);
+      }
       this.__insertBefore(newNode, existingNode);
       return;
     }
@@ -554,9 +571,11 @@ export class SnapshotInstance {
   removeChild(child: SnapshotInstance): void {
     const __snapshot_def = this.__snapshot_def;
     if (__snapshot_def.isListHolder) {
-      (__pendingListUpdates.values[this.__id] ??= new ListUpdateInfoRecording(
-        this,
-      )).onRemoveChild(child);
+      if (__pendingListUpdates.values) {
+        (__pendingListUpdates.values[this.__id] ??= new ListUpdateInfoRecording(
+          this,
+        )).onRemoveChild(child);
+      }
 
       this.__removeChild(child);
       traverseSnapshotInstance(child, v => {

@@ -367,3 +367,94 @@ describe('setAttribute', () => {
     `);
   });
 });
+
+describe('dynamic key in snapshot', () => {
+  it('multiple slots 0', () => {
+    const snapshot = __SNAPSHOT__(
+      <view>
+        <view className='foo' key={`foo`}>
+          <view>
+            {<text>foo</text>}
+          </view>
+          <view>
+            {<text>bar</text>}
+          </view>
+        </view>
+      </view>,
+    );
+
+    const a = new SnapshotInstance(snapshot);
+    a.ensureElements();
+
+    expect(a.__element_root).toMatchInlineSnapshot(`
+      <view>
+        <view
+          class="foo"
+        >
+          <wrapper />
+        </view>
+      </view>
+    `);
+  });
+
+  it('multiple slots 2', () => {
+    const snapshot = __SNAPSHOT__(
+      <view className='foo' key={`foo`}>
+        <view>
+          <view>
+            {<text>foo</text>}
+          </view>
+          <view>
+            {<text>bar</text>}
+          </view>
+        </view>
+      </view>,
+    );
+
+    const a = new SnapshotInstance(snapshot);
+    a.ensureElements();
+
+    expect(a.__element_root).toMatchInlineSnapshot(`
+      <view
+        class="foo"
+      >
+        <wrapper />
+      </view>
+    `);
+  });
+
+  it('multiple slots 3', () => {
+    const snapshot = __SNAPSHOT__(
+      <view>
+        <text>Hello {HOLE}</text>
+        <view className='foo' key={`foo`}>
+          <view>
+            {<text>foo</text>}
+          </view>
+          <view>
+            {<text>bar</text>}
+          </view>
+        </view>
+      </view>,
+    );
+
+    const a = new SnapshotInstance(snapshot);
+    a.ensureElements();
+
+    expect(a.__element_root).toMatchInlineSnapshot(`
+      <view>
+        <text>
+          <raw-text
+            text="Hello "
+          />
+          <wrapper />
+        </text>
+        <view
+          class="foo"
+        >
+          <wrapper />
+        </view>
+      </view>
+    `);
+  });
+});

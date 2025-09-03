@@ -163,6 +163,17 @@ export type UpdateComponentIDPAPI = (
   componentID: string,
 ) => void;
 
+export type UpdateComponentInfoPAPI = (
+  element: WebFiberElementImpl,
+  params: {
+    componentID?: string;
+    name?: string;
+    path?: string;
+    entry?: string;
+    cssID?: number;
+  },
+) => void;
+
 export type GetClassesPAPI = (
   element: WebFiberElementImpl,
 ) => string[];
@@ -280,7 +291,19 @@ interface JSErrorInfo {
   release: string;
 }
 
+export type ElementFromBinaryPAPI = (
+  templateId: string,
+  parentComponentUniId: number,
+) => WebFiberElementImpl[];
+
+export type GetAttributeByNamePAPI = (
+  element: WebFiberElementImpl,
+  name: string,
+) => string | null;
+
 export interface MainThreadGlobalThis {
+  __ElementFromBinary: ElementFromBinaryPAPI;
+
   // __GetTemplateParts currently only provided by the thread-strategy = "all-on-ui" (default)
   __GetTemplateParts?: GetTemplatePartsPAPI;
 
@@ -316,6 +339,7 @@ export interface MainThreadGlobalThis {
   __SetDataset: SetDatasetPAPI;
   __SetID: SetIDPAPI;
   __UpdateComponentID: UpdateComponentIDPAPI;
+  __UpdateComponentInfo: UpdateComponentInfoPAPI;
   __GetClasses: GetClassesPAPI;
   __CreateView: CreateViewPAPI;
   __SwapElement: SwapElementPAPI;
@@ -336,6 +360,7 @@ export interface MainThreadGlobalThis {
   __SetInlineStyles: SetInlineStylesPAPI;
   __SetCSSId: SetCSSIdPAPI;
   __GetPageElement: GetPageElementPAPI;
+  __GetAttributeByName: GetAttributeByNamePAPI;
   __globalProps: unknown;
   SystemInfo: typeof systemInfo;
   globalThis?: MainThreadGlobalThis;
@@ -356,11 +381,6 @@ export interface MainThreadGlobalThis {
   ) => unknown | undefined;
   // This is an empty implementation, just to avoid business call errors
   _AddEventListener: (...args: unknown[]) => void;
-  /**
-   * private fields
-   */
-  _updateVars: () => void;
-  __lynxGlobalBindingValues: Record<string, unknown>;
   // the following methods is assigned by the main thread user code
   renderPage: ((data: unknown) => void) | undefined;
   updatePage?: (data: Cloneable, options?: Record<string, string>) => void;

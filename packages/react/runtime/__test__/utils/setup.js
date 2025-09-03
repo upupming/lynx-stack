@@ -16,7 +16,17 @@ function inject() {
 
 inject();
 
-afterEach(() => {
+afterEach((context) => {
+  const skippedTasks = [
+    // Skip preact/debug tests since it would throw errors and abort the rendering process
+    'preact/debug',
+    'should remove event listener when throw in cleanup',
+    'should not throw if error - instead it will render an empty page',
+  ];
+  if (skippedTasks.some(task => context.task.name.includes(task))) {
+    return;
+  }
+
   // check profile call times equal end call times
   expect(console.profile.mock.calls.length).toBe(
     console.profileEnd.mock.calls.length,

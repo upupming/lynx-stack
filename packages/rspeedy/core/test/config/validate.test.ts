@@ -43,6 +43,20 @@ describe('Config Validation', () => {
     `)
   })
 
+  describe('Config', () => {
+    test('valid type', () => {
+      const cases = [
+        {},
+        () => ({}),
+        new Promise(p => p({})),
+        () => new Promise(p => p({})),
+      ]
+      cases.forEach(config => {
+        expect(validate(config)).toStrictEqual(config)
+      })
+    })
+  })
+
   describe('Dev', () => {
     test('valid type', () => {
       const cases: Dev[] = [
@@ -1801,7 +1815,13 @@ describe('Config Validation', () => {
       ).toThrowErrorMatchingInlineSnapshot(`
         [Error: Invalid configuration.
 
-        Unknown property: \`$input.resolve\` in configuration
+        Unknown property: \`$input.resolve.aliasFields\` in configuration
+
+        Unknown property: \`$input.resolve.conditionNames\` in configuration
+
+        Unknown property: \`$input.resolve.extensions\` in configuration
+
+        Unknown property: \`$input.resolve.extensionAlias\` in configuration
         ]
       `)
 

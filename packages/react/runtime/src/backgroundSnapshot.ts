@@ -10,6 +10,7 @@
 
 import type { Worklet } from '@lynx-js/react/worklet-runtime/bindings';
 
+import { profileEnd, profileStart } from './debug/utils.js';
 import { processGestureBackground } from './gesture/processGestureBagkround.js';
 import type { GestureKind } from './gesture/types.js';
 import { diffArrayAction, diffArrayLepus } from './hydrate.js';
@@ -23,7 +24,7 @@ import {
 } from './lifecycle/patch/snapshotPatch.js';
 import { globalPipelineOptions } from './lynx/performance.js';
 import { DynamicPartType } from './snapshot/dynamicPartType.js';
-import { clearQueuedRefs, queueRefAttrUpdate } from './snapshot/ref.js';
+import { applyRef, clearQueuedRefs, queueRefAttrUpdate } from './snapshot/ref.js';
 import type { Ref } from './snapshot/ref.js';
 import { transformSpread } from './snapshot/spread.js';
 import type { SerializedSnapshotInstance, Snapshot } from './snapshot.js';
@@ -51,6 +52,7 @@ export class BackgroundSnapshotInstance {
   private __lastChild: BackgroundSnapshotInstance | null = null;
   private __previousSibling: BackgroundSnapshotInstance | null = null;
   private __nextSibling: BackgroundSnapshotInstance | null = null;
+  private __removed_from_tree?: boolean;
 
   get parentNode(): BackgroundSnapshotInstance | null {
     return this.__parent;
@@ -68,25 +70,28 @@ export class BackgroundSnapshotInstance {
     return child.parentNode === this;
   }
 
-  // TODO: write tests for this
   // This will be called in `lazy`/`Suspense`.
-  // We currently ignore this since we did not find a way to test.
-  /* v8 ignore start */
   appendChild(child: BackgroundSnapshotInstance): void {
     return this.insertBefore(child);
   }
-  /* v8 ignore stop */
 
   insertBefore(
     node: BackgroundSnapshotInstance,
     beforeNode?: BackgroundSnapshotInstance,
   ): void {
-    __globalSnapshotPatch?.push(
-      SnapshotOperation.InsertBefore,
-      this.__id,
-      node.__id,
-      beforeNode?.__id,
-    );
+    if (node.__removed_from_tree) {
+      node.__removed_from_tree = false;
+      // This is only called by `lazy`/`Suspense` through `appendChild` so beforeNode is always undefined.
+      /* v8 ignore next */
+      reconstructInstanceTree([node], this.__id, beforeNode?.__id);
+    } else {
+      __globalSnapshotPatch?.push(
+        SnapshotOperation.InsertBefore,
+        this.__id,
+        node.__id,
+        beforeNode?.__id,
+      );
+    }
 
     // If the node already has a parent, remove it from its current parent
     const p = node.__parent;
@@ -137,6 +142,7 @@ export class BackgroundSnapshotInstance {
       this.__id,
       node.__id,
     );
+    node.__removed_from_tree = true;
 
     if (node.__parent !== this) {
       throw new Error('The node to be removed is not a child of this node.');
@@ -158,23 +164,37 @@ export class BackgroundSnapshotInstance {
     node.__previousSibling = null;
     node.__nextSibling = null;
 
-    traverseSnapshotInstance(node, v => {
+    queueRefAttrUpdate(
+      () => {
+        traverseSnapshotInstance(node, v => {
+          if (v.__values) {
+            v.__snapshot_def.refAndSpreadIndexes?.forEach((i) => {
+              const value = v.__values![i] as unknown;
+              if (value && (typeof value === 'object' || typeof value === 'function')) {
+                if ('__spread' in value && 'ref' in value) {
+                  applyRef(value.ref as Ref, null);
+                } else if ('__ref' in value) {
+                  applyRef(value as Ref, null);
+                }
+              }
+            });
+          }
+        });
+      },
+      null,
+      0,
+      0,
+    );
+
+    globalBackgroundSnapshotInstancesToRemove.push(node.__id);
+  }
+
+  tearDown(): void {
+    traverseSnapshotInstance(this, v => {
       v.__parent = null;
       v.__previousSibling = null;
       v.__nextSibling = null;
-      if (v.__values) {
-        v.__snapshot_def.refAndSpreadIndexes?.forEach((i) => {
-          const value = v.__values![i] as unknown;
-          if (value && (typeof value === 'object' || typeof value === 'function')) {
-            if ('__spread' in value && 'ref' in value) {
-              queueRefAttrUpdate(value.ref as Ref, null, v.__id, i);
-            } else if ('__ref' in value) {
-              queueRefAttrUpdate(value as Ref, null, v.__id, i);
-            }
-          }
-        });
-      }
-      globalBackgroundSnapshotInstancesToRemove.push(v.__id);
+      backgroundSnapshotInstanceManager.values.delete(v.__id);
     });
   }
 
@@ -193,7 +213,7 @@ export class BackgroundSnapshotInstance {
 
   setAttribute(key: string | number, value: unknown): void {
     if (__PROFILE__) {
-      console.profile('setAttribute');
+      profileStart('ReactLynx::BSI::setAttribute');
     }
     if (key === 'values') {
       if (__globalSnapshotPatch) {
@@ -241,7 +261,7 @@ export class BackgroundSnapshotInstance {
       }
       this.__values = value as unknown[];
       if (__PROFILE__) {
-        console.profileEnd();
+        profileEnd();
       }
       return;
     }
@@ -260,7 +280,7 @@ export class BackgroundSnapshotInstance {
       value,
     );
     if (__PROFILE__) {
-      console.profileEnd();
+      profileEnd();
     }
   }
 
@@ -347,24 +367,6 @@ export function hydrate(
 ): SnapshotPatch {
   initGlobalSnapshotPatch();
 
-  const helper2 = (afters: BackgroundSnapshotInstance[], parentId: number, targetId?: number) => {
-    for (const child of afters) {
-      const id = child.__id;
-      __globalSnapshotPatch!.push(SnapshotOperation.CreateElement, child.type, id);
-      const values = child.__values;
-      if (values) {
-        child.__values = undefined;
-        child.setAttribute('values', values);
-      }
-      const extraProps = child.__extraProps;
-      for (const key in extraProps) {
-        child.setAttribute(key, extraProps[key]);
-      }
-      helper2(child.childNodes, id);
-      __globalSnapshotPatch!.push(SnapshotOperation.InsertBefore, parentId, id, targetId);
-    }
-  };
-
   const helper = (
     before: SerializedSnapshotInstance,
     after: BackgroundSnapshotInstance,
@@ -411,12 +413,18 @@ export function hydrate(
       }
 
       if (!isDirectOrDeepEqual(value, old)) {
-        __globalSnapshotPatch!.push(
-          SnapshotOperation.SetAttribute,
-          after.__id,
-          index,
-          value,
-        );
+        if (value === undefined && old === null) {
+          // This is a workaround for the case where we set an attribute to `undefined` in the main thread,
+          // but the old value becomes `null` during JSON serialization.
+          // In this case, we should not patch the value.
+        } else {
+          __globalSnapshotPatch!.push(
+            SnapshotOperation.SetAttribute,
+            after.__id,
+            index,
+            value,
+          );
+        }
       }
     });
 
@@ -468,7 +476,7 @@ export function hydrate(
             beforeChildNodes,
             diffResult,
             (node, target) => {
-              helper2([node], before.id, target?.id);
+              reconstructInstanceTree([node], before.id, target?.id);
               return undefined as unknown as SerializedSnapshotInstance;
             },
             node => {
@@ -498,4 +506,22 @@ export function hydrate(
   // Hydration should not trigger ref updates. They were incorrectly triggered when using `setAttribute` to add values to the patch list.
   clearQueuedRefs();
   return takeGlobalSnapshotPatch()!;
+}
+
+function reconstructInstanceTree(afters: BackgroundSnapshotInstance[], parentId: number, targetId?: number): void {
+  for (const child of afters) {
+    const id = child.__id;
+    __globalSnapshotPatch?.push(SnapshotOperation.CreateElement, child.type, id);
+    const values = child.__values;
+    if (values) {
+      child.__values = undefined;
+      child.setAttribute('values', values);
+    }
+    const extraProps = child.__extraProps;
+    for (const key in extraProps) {
+      child.setAttribute(key, extraProps[key]);
+    }
+    reconstructInstanceTree(child.childNodes, id);
+    __globalSnapshotPatch?.push(SnapshotOperation.InsertBefore, parentId, id, targetId);
+  }
 }

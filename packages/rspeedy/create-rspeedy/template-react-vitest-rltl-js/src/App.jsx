@@ -10,13 +10,13 @@ export function App(props) {
 
   useEffect(() => {
     console.info('Hello, ReactLynx')
-    props.onMounted?.()
   }, [])
+  props.onRender?.()
 
   const onTap = useCallback(() => {
     'background only'
-    setAlterLogo(!alterLogo)
-  }, [alterLogo])
+    setAlterLogo(prevAlterLogo => !prevAlterLogo)
+  }, [])
 
   return (
     <view>
@@ -46,7 +46,7 @@ export function App(props) {
             to see updates!
           </text>
         </view>
-        <view style={{ flex: 1 }}></view>
+        <view style={{ flex: 1 }} />
       </view>
     </view>
   )

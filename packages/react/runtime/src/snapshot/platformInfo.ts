@@ -5,7 +5,11 @@ import { ListUpdateInfoRecording } from '../listUpdateInfo.js';
 import { __pendingListUpdates } from '../pendingListUpdates.js';
 import { SnapshotInstance } from '../snapshot.js';
 
-const platformInfoVirtualAttributes: Set<string> = /* @__PURE__ */ new Set<string>(['reuse-identifier']);
+const platformInfoVirtualAttributes: Set<string> = /* @__PURE__ */ new Set<string>([
+  'reuse-identifier',
+  'recyclable',
+]);
+
 const platformInfoAttributes: Set<string> = /* @__PURE__ */ new Set<string>([
   'reuse-identifier',
   'full-span',
@@ -15,6 +19,7 @@ const platformInfoAttributes: Set<string> = /* @__PURE__ */ new Set<string>([
   'estimated-height',
   'estimated-height-px',
   'estimated-main-axis-size-px',
+  'recyclable',
 ]);
 
 export interface PlatformInfo {
@@ -26,6 +31,7 @@ export interface PlatformInfo {
   'estimated-height'?: number;
   'estimated-height-px'?: number;
   'estimated-main-axis-size-px'?: number;
+  'recyclable'?: boolean;
 }
 
 function updateListItemPlatformInfo(
@@ -36,13 +42,15 @@ function updateListItemPlatformInfo(
 ): void {
   const newValue = ctx.__listItemPlatformInfo = ctx.__values![index] as PlatformInfo;
 
-  const list = ctx.parentNode;
-  if (list?.__snapshot_def.isListHolder) {
-    (__pendingListUpdates.values[list.__id] ??= new ListUpdateInfoRecording(list)).onSetAttribute(
-      ctx,
-      newValue,
-      oldValue,
-    );
+  if (__pendingListUpdates.values) {
+    const list = ctx.parentNode;
+    if (list?.__snapshot_def.isListHolder) {
+      (__pendingListUpdates.values[list.__id] ??= new ListUpdateInfoRecording(list)).onSetAttribute(
+        ctx,
+        newValue,
+        oldValue,
+      );
+    }
   }
 
   // In this updater, unlike `updateSpread`, the shape of the value is guaranteed to be an fixed object.

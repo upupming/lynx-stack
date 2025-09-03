@@ -1,5 +1,92 @@
 # @lynx-js/react-rsbuild-plugin
 
+## 0.10.13
+
+### Patch Changes
+
+- Support using multiple times in different environments. ([#1498](https://github.com/lynx-family/lynx-stack/pull/1498))
+
+- Support caching Lynx native events when chunk splitting is enabled. ([#1370](https://github.com/lynx-family/lynx-stack/pull/1370))
+
+  When `performance.chunkSplit.strategy` is not `all-in-one`, Lynx native events are cached until the BTS chunk is fully loaded and are replayed when that chunk is ready. The `firstScreenSyncTiming` flag will no longer change to `jsReady` anymore.
+
+- Updated dependencies [[`f0d483c`](https://github.com/lynx-family/lynx-stack/commit/f0d483ca2d3e208a618727590061b0babc075737), [`e4d116b`](https://github.com/lynx-family/lynx-stack/commit/e4d116b6e5eaf49ced08c505c99f7e878a58dfb1), [`d33c1d2`](https://github.com/lynx-family/lynx-stack/commit/d33c1d27827f5e1ebc553447dabe5080671de94a)]:
+  - @lynx-js/react-alias-rsbuild-plugin@0.10.13
+  - @lynx-js/template-webpack-plugin@0.8.5
+  - @lynx-js/react-webpack-plugin@0.6.20
+  - @lynx-js/runtime-wrapper-webpack-plugin@0.1.3
+  - @lynx-js/use-sync-external-store@1.5.0
+  - @lynx-js/react-refresh-webpack-plugin@0.3.4
+  - @lynx-js/css-extract-webpack-plugin@0.6.2
+
+## 0.10.12
+
+### Patch Changes
+
+- `output.inlineScripts` defaults to `false` when chunkSplit strategy is not `'all-in-one'` ([#1504](https://github.com/lynx-family/lynx-stack/pull/1504))
+
+- Updated dependencies [[`51a0b19`](https://github.com/lynx-family/lynx-stack/commit/51a0b19078cb18c13f4f3e2ca4f471aa4ddeaa05), [`b391ef5`](https://github.com/lynx-family/lynx-stack/commit/b391ef5c6dd0a0945e68b38f40807df7e1ef672e)]:
+  - @lynx-js/template-webpack-plugin@0.8.4
+  - @lynx-js/css-extract-webpack-plugin@0.6.2
+  - @lynx-js/react-alias-rsbuild-plugin@0.10.12
+  - @lynx-js/use-sync-external-store@1.5.0
+  - @lynx-js/react-refresh-webpack-plugin@0.3.4
+  - @lynx-js/react-webpack-plugin@0.6.19
+
+## 0.10.11
+
+### Patch Changes
+
+- Updated dependencies [[`c8ce6aa`](https://github.com/lynx-family/lynx-stack/commit/c8ce6aa33abf42a7954e1e345b3a36febe76d048)]:
+  - @lynx-js/react-alias-rsbuild-plugin@0.10.11
+  - @lynx-js/use-sync-external-store@1.5.0
+  - @lynx-js/react-refresh-webpack-plugin@0.3.4
+  - @lynx-js/react-webpack-plugin@0.6.19
+
+## 0.10.10
+
+### Patch Changes
+
+- Updated dependencies [[`e9edca0`](https://github.com/lynx-family/lynx-stack/commit/e9edca0183c172b496f9d23ed17581ce3cb3d21d), [`6f37db2`](https://github.com/lynx-family/lynx-stack/commit/6f37db2bd4438ca60322b60f5144220e8d062074)]:
+  - @lynx-js/template-webpack-plugin@0.8.3
+  - @lynx-js/css-extract-webpack-plugin@0.6.1
+  - @lynx-js/react-webpack-plugin@0.6.19
+  - @lynx-js/react-alias-rsbuild-plugin@0.10.10
+  - @lynx-js/use-sync-external-store@1.5.0
+  - @lynx-js/react-refresh-webpack-plugin@0.3.4
+
+## 0.10.9
+
+### Patch Changes
+
+- Be compat with `@lynx-js/react` v0.112.0 ([#1323](https://github.com/lynx-family/lynx-stack/pull/1323))
+
+- Fix not having profile in development by default. ([#1306](https://github.com/lynx-family/lynx-stack/pull/1306))
+
+- Updated dependencies [[`fcafd54`](https://github.com/lynx-family/lynx-stack/commit/fcafd541c535f354476cf439b8ba97b00530aa52), [`fe38de5`](https://github.com/lynx-family/lynx-stack/commit/fe38de505b87b768035e3a833bdf8415dc4023ac), [`7cd5ea2`](https://github.com/lynx-family/lynx-stack/commit/7cd5ea2cebf12aa982ddc048dec4c5c7ed6bc1d6)]:
+  - @lynx-js/react-alias-rsbuild-plugin@0.10.9
+  - @lynx-js/react-webpack-plugin@0.6.19
+  - @lynx-js/use-sync-external-store@1.5.0
+  - @lynx-js/react-refresh-webpack-plugin@0.3.4
+
+## 0.10.8
+
+### Patch Changes
+
+- Fix "TypeError: cannot read property 'call' of undefined" error during HMR updates. ([#1304](https://github.com/lynx-family/lynx-stack/pull/1304))
+
+- Supports extractStr for large JSON ([#1230](https://github.com/lynx-family/lynx-stack/pull/1230))
+
+- Change `extractStr` to `false` when `performance.chunkSplit.strategy` is not `all-in-one`. ([#1251](https://github.com/lynx-family/lynx-stack/pull/1251))
+
+- Updated dependencies [[`cb7feb6`](https://github.com/lynx-family/lynx-stack/commit/cb7feb6e8cc9f4b83ac3147bd3e5a82059caa06a), [`ec7228f`](https://github.com/lynx-family/lynx-stack/commit/ec7228fadfb917a1f6149aca4775386badae73fa)]:
+  - @lynx-js/template-webpack-plugin@0.8.2
+  - @lynx-js/react-alias-rsbuild-plugin@0.10.8
+  - @lynx-js/use-sync-external-store@1.5.0
+  - @lynx-js/react-refresh-webpack-plugin@0.3.4
+  - @lynx-js/react-webpack-plugin@0.6.18
+  - @lynx-js/css-extract-webpack-plugin@0.6.0
+
 ## 0.10.7
 
 ### Patch Changes

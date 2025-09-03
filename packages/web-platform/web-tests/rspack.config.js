@@ -203,7 +203,9 @@ const config = {
       });
       return middlewares;
     },
-    watchFiles: ['./dist/**/*', './node_modules/@lynx-js/**/*'],
+    watchFiles: isCI
+      ? []
+      : ['./node_modules/@lynx-js/**/*'],
     static: [
       {
         directory: path.join(__dirname, 'resources'),
@@ -267,7 +269,7 @@ const config = {
     ],
   },
   experiments: {
-    css: true,
+    futureDefaults: true,
   },
 };
 

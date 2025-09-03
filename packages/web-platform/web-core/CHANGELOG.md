@@ -1,5 +1,154 @@
 # @lynx-js/web-core
 
+## 0.16.0
+
+### Minor Changes
+
+- refactor: provide the mts a real globalThis ([#1589](https://github.com/lynx-family/lynx-stack/pull/1589))
+
+  Before this change, We create a function wrapper and a fake globalThis for Javascript code.
+
+  This caused some issues.
+
+  After this change, we will create an iframe for createing an isolated Javascript context.
+
+  This means the globalThis will be the real one.
+
+### Patch Changes
+
+- refactor: add `:not([l-e-name])` at the end of selector for lazy component ([#1622](https://github.com/lynx-family/lynx-stack/pull/1622))
+
+- feat: remove multi-thread mts heating ([#1597](https://github.com/lynx-family/lynx-stack/pull/1597))
+
+  The default rendering mode is "all-on-ui". Therefore the preheating for "multi-thread" will be removed.
+
+- fix: the SystemInfo in bts should be assigned to the globalThis ([#1599](https://github.com/lynx-family/lynx-stack/pull/1599))
+
+- Updated dependencies [[`1a32dd8`](https://github.com/lynx-family/lynx-stack/commit/1a32dd886fe736c95639f67028cf7685377d9769), [`bb53d9a`](https://github.com/lynx-family/lynx-stack/commit/bb53d9a035f607e7c89952098d4ed77877a2e3c1), [`1a32dd8`](https://github.com/lynx-family/lynx-stack/commit/1a32dd886fe736c95639f67028cf7685377d9769), [`c1f8715`](https://github.com/lynx-family/lynx-stack/commit/c1f8715a81b2e69ff46fc363013626db4468c209)]:
+  - @lynx-js/web-mainthread-apis@0.16.0
+  - @lynx-js/web-constants@0.16.0
+  - @lynx-js/web-worker-runtime@0.16.0
+  - @lynx-js/offscreen-document@0.1.4
+  - @lynx-js/web-worker-rpc@0.16.0
+
+## 0.15.7
+
+### Patch Changes
+
+- fix: fake uidisappear event ([#1539](https://github.com/lynx-family/lynx-stack/pull/1539))
+
+- Updated dependencies [[`70863fb`](https://github.com/lynx-family/lynx-stack/commit/70863fbc311d8885ebda40855668097b0631f521)]:
+  - @lynx-js/web-mainthread-apis@0.15.7
+  - @lynx-js/web-constants@0.15.7
+  - @lynx-js/web-worker-runtime@0.15.7
+  - @lynx-js/web-worker-rpc@0.15.7
+
+## 0.15.6
+
+### Patch Changes
+
+- fix: systeminfo in mts function ([#1537](https://github.com/lynx-family/lynx-stack/pull/1537))
+
+- refactor: use utf-8 string ([#1473](https://github.com/lynx-family/lynx-stack/pull/1473))
+
+- Fix mtsGlobalThis race condition in createRenderAllOnUI ([#1506](https://github.com/lynx-family/lynx-stack/pull/1506))
+
+- Updated dependencies [[`405a917`](https://github.com/lynx-family/lynx-stack/commit/405a9170442ae32603b7687549b49ab4b34aff92), [`b8f89e2`](https://github.com/lynx-family/lynx-stack/commit/b8f89e25f106a15ba9d70f2df06dfb684cbb6633), [`f76aae9`](https://github.com/lynx-family/lynx-stack/commit/f76aae9ea06abdc7022ba508d22f9f4eb00864e8), [`b8b060b`](https://github.com/lynx-family/lynx-stack/commit/b8b060b9bef722bb47bd90c33fab3922160c711d), [`d8381a5`](https://github.com/lynx-family/lynx-stack/commit/d8381a58d12af6424cab4955617251e798bdc9f1), [`214898b`](https://github.com/lynx-family/lynx-stack/commit/214898bb9c74fc9b44e68cb220a4c02485102ce2), [`ab8cee4`](https://github.com/lynx-family/lynx-stack/commit/ab8cee4bab384fa905c045c4b4b93e5d4a95d57f)]:
+  - @lynx-js/web-mainthread-apis@0.15.6
+  - @lynx-js/web-constants@0.15.6
+  - @lynx-js/web-worker-runtime@0.15.6
+  - @lynx-js/web-worker-rpc@0.15.6
+
+## 0.15.5
+
+### Patch Changes
+
+- fix: load main-thread chunk in ESM format ([#1437](https://github.com/lynx-family/lynx-stack/pull/1437))
+
+  See [nodejs/node#59362](https://github.com/nodejs/node/issues/59362) for more details.
+
+- feat: support path() for `createQuerySelector` ([#1456](https://github.com/lynx-family/lynx-stack/pull/1456))
+
+  - Added `getPathInfo` API to `NativeApp` and its cross-thread handler for retrieving the path from a DOM node to the root.
+  - Implemented endpoint and handler registration in both background and UI threads.
+  - Implemented `nativeApp.getPathInfo()`
+
+- fix: when `onNativeModulesCall` is delayed in mounting, the NativeModules execution result may be undefined. ([#1457](https://github.com/lynx-family/lynx-stack/pull/1457))
+
+- fix: `onNativeModulesCall` && `onNapiModulesCall` use getter to get. ([#1466](https://github.com/lynx-family/lynx-stack/pull/1466))
+
+- Updated dependencies [[`29434ae`](https://github.com/lynx-family/lynx-stack/commit/29434aec853f14242f521316429cf07a93b8c371), [`fb7096b`](https://github.com/lynx-family/lynx-stack/commit/fb7096bb3c79166cd619a407095b8206eccb7918)]:
+  - @lynx-js/web-mainthread-apis@0.15.5
+  - @lynx-js/web-constants@0.15.5
+  - @lynx-js/web-worker-runtime@0.15.5
+  - @lynx-js/web-worker-rpc@0.15.5
+
+## 0.15.4
+
+### Patch Changes
+
+- feat: support `__ElementFromBinary` ([#1391](https://github.com/lynx-family/lynx-stack/pull/1391))
+
+- fix: crash on chrome<96 ([#1361](https://github.com/lynx-family/lynx-stack/pull/1361))
+
+  https://github.com/wasm-bindgen/wasm-bindgen/issues/4211#issuecomment-2505965903
+
+  https://github.com/WebAssembly/binaryen/issues/7358
+
+  The rust toolchain enables WASM feature `reference types` by default.
+
+  However this feature is not supported by chromium lower than version 96
+
+  Therefore we found a workaround for it.
+
+  In this implementation we detect if browser supports `reference types` first.
+
+  If user's browser supported it, we load the wasm file with `reference types` on, otherwise we load the wasm file with `reference types` off.
+
+- Updated dependencies [[`22ca433`](https://github.com/lynx-family/lynx-stack/commit/22ca433eb96b39724c6eb47ce0a938d291bbdef2), [`8645d12`](https://github.com/lynx-family/lynx-stack/commit/8645d1240ecb2005da52ab2ffeb10a5d08cc9cc2), [`143e481`](https://github.com/lynx-family/lynx-stack/commit/143e481b4353b3c3d2e8d9cc4f201442ca56f097)]:
+  - @lynx-js/web-mainthread-apis@0.15.4
+  - @lynx-js/web-constants@0.15.4
+  - @lynx-js/web-worker-runtime@0.15.4
+  - @lynx-js/web-worker-rpc@0.15.4
+
+## 0.15.3
+
+### Patch Changes
+
+- fix: improve compatibility with legacy template ([#1337](https://github.com/lynx-family/lynx-stack/pull/1337))
+
+  avoid "object Object" error for old version rspeedy outputs
+
+- Updated dependencies [[`0da5ef0`](https://github.com/lynx-family/lynx-stack/commit/0da5ef03e41f20e9f8019c6dc03cb4a38ab18854)]:
+  - @lynx-js/web-constants@0.15.3
+  - @lynx-js/web-mainthread-apis@0.15.3
+  - @lynx-js/web-worker-runtime@0.15.3
+  - @lynx-js/web-worker-rpc@0.15.3
+
+## 0.15.2
+
+### Patch Changes
+
+- feat: support SSR for all-on-ui ([#1029](https://github.com/lynx-family/lynx-stack/pull/1029))
+
+- feat: move SSR hydrate essential info to the ssr attribute ([#1292](https://github.com/lynx-family/lynx-stack/pull/1292))
+
+  We found that in browser there is no simple tool to decode a base64 string
+
+  Therefore we move the data to `ssr` attribute
+
+  Also fix some ssr issues
+
+- feat: support \_\_MarkTemplateElement, \_\_MarkPartElement and \_\_GetTemplateParts for all-on-ui ([#1275](https://github.com/lynx-family/lynx-stack/pull/1275))
+
+- feat: mark template elements for SSR and update part ID handling ([#1286](https://github.com/lynx-family/lynx-stack/pull/1286))
+
+- Updated dependencies [[`cebda59`](https://github.com/lynx-family/lynx-stack/commit/cebda592ac5c7d152c877c2ac5ec403d477077e1), [`1443e46`](https://github.com/lynx-family/lynx-stack/commit/1443e468a353363e29aab0d90cd8b91c232a5525), [`5062128`](https://github.com/lynx-family/lynx-stack/commit/5062128c68e21abcf276ebcb40d7cc8f6e54244b), [`f656b7f`](https://github.com/lynx-family/lynx-stack/commit/f656b7f0d390d69c0da0d11a6c9b3f66ae877ac8)]:
+  - @lynx-js/web-mainthread-apis@0.15.2
+  - @lynx-js/web-constants@0.15.2
+  - @lynx-js/web-worker-runtime@0.15.2
+  - @lynx-js/web-worker-rpc@0.15.2
+
 ## 0.15.1
 
 ### Patch Changes

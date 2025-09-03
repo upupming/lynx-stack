@@ -1,5 +1,61 @@
 # @lynx-js/web-core-server
 
+## 0.16.0
+
+### Minor Changes
+
+- refactor: provide the mts a real globalThis ([#1589](https://github.com/lynx-family/lynx-stack/pull/1589))
+
+  Before this change, We create a function wrapper and a fake globalThis for Javascript code.
+
+  This caused some issues.
+
+  After this change, we will create an iframe for createing an isolated Javascript context.
+
+  This means the globalThis will be the real one.
+
+## 0.15.7
+
+## 0.15.6
+
+### Patch Changes
+
+- refactor: use utf-8 string ([#1473](https://github.com/lynx-family/lynx-stack/pull/1473))
+
+## 0.15.5
+
+### Patch Changes
+
+- fix: load main-thread chunk in ESM format ([#1437](https://github.com/lynx-family/lynx-stack/pull/1437))
+
+  See [nodejs/node#59362](https://github.com/nodejs/node/issues/59362) for more details.
+
+## 0.15.4
+
+### Patch Changes
+
+- refactor: bundle web-core-server ([#819](https://github.com/lynx-family/lynx-stack/pull/819))
+
+## 0.15.3
+
+## 0.15.2
+
+### Patch Changes
+
+- feat: support SSR for all-on-ui ([#1029](https://github.com/lynx-family/lynx-stack/pull/1029))
+
+- feat: move SSR hydrate essential info to the ssr attribute ([#1292](https://github.com/lynx-family/lynx-stack/pull/1292))
+
+  We found that in browser there is no simple tool to decode a base64 string
+
+  Therefore we move the data to `ssr` attribute
+
+  Also fix some ssr issues
+
+- feat: dump the event info on ssr stage ([#1237](https://github.com/lynx-family/lynx-stack/pull/1237))
+
+- feat: mark template elements for SSR and update part ID handling ([#1286](https://github.com/lynx-family/lynx-stack/pull/1286))
+
 ## 0.15.1
 
 ## 0.15.0

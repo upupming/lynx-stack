@@ -17,6 +17,7 @@ import {
   COMMIT,
   COMPONENT,
   DIFF,
+  DIFF2,
   DIFFED,
   DIRTY,
   NEXT_STATE,
@@ -33,7 +34,7 @@ const isArray = /* @__PURE__ */ Array.isArray;
 const assign = /* @__PURE__ */ Object.assign;
 
 // Global state for the current render pass
-let beforeDiff, afterDiff, renderHook, ummountHook;
+let beforeDiff, beforeDiff2, afterDiff, renderHook, ummountHook;
 
 /**
  * Render Preact JSX + Components to an HTML string.
@@ -51,6 +52,7 @@ export function renderToString(vnode: any, context: any): any[] {
 
   // store options hooks once before each synchronous render call
   beforeDiff = options[DIFF];
+  beforeDiff2 = options[DIFF2];
   afterDiff = options[DIFFED];
   renderHook = options[RENDER];
   ummountHook = options.unmount;
@@ -68,6 +70,7 @@ export function renderToString(vnode: any, context: any): any[] {
       undefined,
       parent,
       opcodes,
+      0,
     );
   } finally {
     // options._commit, we don't schedule any effects in this library right now,
@@ -99,7 +102,13 @@ export const __OpText = 3;
 function renderClassComponent(vnode, context) {
   const type = /** @type {import("preact").ComponentClass<typeof vnode.props>} */ (vnode.type);
 
-  const c = new type(vnode.props, context);
+  let c;
+  if (vnode[COMPONENT]) {
+    c = vnode[COMPONENT];
+    c.state = c[NEXT_STATE];
+  } else {
+    c = new type(vnode.props, context);
+  }
 
   vnode[COMPONENT] = c;
   c[VNODE] = vnode;
@@ -144,6 +153,7 @@ function _renderToString(
   selectValue,
   parent,
   opcodes,
+  opcodesLength,
 ) {
   // Ignore non-rendered VNodes/values
   if (vnode == null || vnode === true || vnode === false || vnode === '') {
@@ -165,7 +175,7 @@ function _renderToString(
       const child = vnode[i];
       if (child == null || typeof child === 'boolean') continue;
 
-      _renderToString(child, context, isSvgMode, selectValue, parent, opcodes);
+      _renderToString(child, context, isSvgMode, selectValue, parent, opcodes, opcodes.length);
     }
     return;
   }
@@ -175,6 +185,7 @@ function _renderToString(
 
   vnode[PARENT] = parent;
   if (beforeDiff) beforeDiff(vnode);
+  if (beforeDiff2) beforeDiff2(vnode, EMPTY_OBJ);
 
   let type = vnode.type,
     props = vnode.props,
@@ -241,11 +252,28 @@ function _renderToString(
     rendered = isTopLevelFragment ? rendered.props.children : rendered;
 
     // Recurse into children before invoking the after-diff hook
-    _renderToString(rendered, context, isSvgMode, selectValue, vnode, opcodes);
-    if (afterDiff) afterDiff(vnode);
-    vnode[PARENT] = undefined;
+    try {
+      _renderToString(rendered, context, isSvgMode, selectValue, vnode, opcodes, opcodes.length);
+    } catch (e) {
+      if (e && typeof e === 'object' && e.then && component && /* _childDidSuspend */ component.__c) {
+        component.setState({ /* _suspended */ __a: true });
 
-    if (ummountHook) ummountHook(vnode);
+        if (component[DIRTY]) {
+          rendered = renderClassComponent(vnode, context);
+          component = vnode[COMPONENT];
+
+          opcodes.length = opcodesLength;
+          _renderToString(rendered, context, isSvgMode, selectValue, vnode, opcodes, opcodes.length);
+        }
+      } else {
+        throw e;
+      }
+    } finally {
+      if (afterDiff) afterDiff(vnode);
+      vnode[PARENT] = undefined;
+
+      if (ummountHook) ummountHook(vnode);
+    }
 
     return;
   }
@@ -279,12 +307,12 @@ function _renderToString(
     }
   }
 
-  if (typeof children === 'string') {
+  if (typeof children === 'string' || typeof children === 'number') {
     // single text child
     opcodes.push(__OpText, children);
   } else if (children != null && children !== false && children !== true) {
     // recurse into this element VNode's children
-    _renderToString(children, context, false, selectValue, vnode, opcodes);
+    _renderToString(children, context, false, selectValue, vnode, opcodes, opcodes.length);
   }
 
   if (afterDiff) afterDiff(vnode);
