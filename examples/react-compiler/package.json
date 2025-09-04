@@ -18,7 +18,7 @@
     "@lynx-js/qrcode-rsbuild-plugin": "workspace:*",
     "@lynx-js/react-rsbuild-plugin": "workspace:*",
     "@lynx-js/rspeedy": "workspace:*",
-    "@lynx-js/types": "3.3.0",
+    "@lynx-js/types": "3.4.11",
     "@swc/react-compiler": "^1.13.1",
     "@types/react": "^18.3.23",
     "babel-plugin-react-compiler": "0.0.0-experimental-0566679-20250709"

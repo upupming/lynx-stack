@@ -14,3 +14,9 @@ export function hook<T, K extends keyof T>(
     return fn.call(this, oldFn, ...args);
   } as T[K];
 }
+
+export const PREFIX = __REPO_FILEPATH__.split('/').slice(0, -2).join('/');
+
+export const isMainThread =
+  // @ts-expect-error safely check
+  typeof __CreatePage === 'function';
