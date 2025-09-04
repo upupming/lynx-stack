@@ -72,19 +72,24 @@ export const createVitestConfig = async (options) => {
       }),
     },
   ];
-  const reactCompilerRuntimeAlias = [
-    {
-      find: /^react-compiler-runtime$/,
-      replacement: path.join(
-        path.dirname(require.resolve('react-compiler-runtime/package.json', {
-          paths: [process.cwd()],
-        })),
-        // Use ts to ensure `react` can be aliased to `@lynx-js/react`
-        'src',
-        'index.ts',
-      ),
-    },
-  ];
+  let reactCompilerRuntimeAlias = [];
+  try {
+    reactCompilerRuntimeAlias = [
+      {
+        find: /^react-compiler-runtime$/,
+        replacement: path.join(
+          path.dirname(require.resolve('react-compiler-runtime/package.json', {
+            paths: [process.cwd()],
+          })),
+          // Use ts to ensure `react` can be aliased to `@lynx-js/react`
+          'src',
+          'index.ts',
+        ),
+      },
+    ];
+  } catch (e) {
+    // console.log('react-compiler-runtime not found, skip alias');
+  }
 
   function transformReactCompilerPlugin() {
     const missingBabelPackages = [];
@@ -132,7 +137,7 @@ export const createVitestConfig = async (options) => {
 
         const { isReactCompilerRequired } = require(swcReactCompilerPath);
         if (/\.(?:jsx|tsx)$/.test(sourcePath)) {
-          const needReactCompiler = await isReactCompilerRequired(sourceText);
+          const needReactCompiler = await isReactCompilerRequired(Buffer.from(sourceText));
           if (needReactCompiler) {
             try {
               const babel = require(babelPath);

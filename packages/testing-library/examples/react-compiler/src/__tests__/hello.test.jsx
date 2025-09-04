@@ -30,21 +30,18 @@ test('hello', () => {
         </text>
         <wrapper>
           <text>
-            Item 
             <wrapper>
-              1
+              Item 1
             </wrapper>
           </text>
           <text>
-            Item 
             <wrapper>
-              2
+              Item 2
             </wrapper>
           </text>
           <text>
-            Item 
             <wrapper>
-              3
+              Item 3
             </wrapper>
           </text>
         </wrapper>
@@ -65,21 +62,18 @@ test('hello', () => {
         </text>
         <wrapper>
           <text>
-            Item 
             <wrapper>
-              1
+              Item 1
             </wrapper>
           </text>
           <text>
-            Item 
             <wrapper>
-              2
+              Item 2
             </wrapper>
           </text>
           <text>
-            Item 
             <wrapper>
-              3
+              Item 3
             </wrapper>
           </text>
         </wrapper>
