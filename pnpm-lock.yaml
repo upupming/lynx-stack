@@ -677,8 +677,6 @@ importers:
         specifier: ^8.18.3
         version: 8.18.3
 
-  packages/testing-library/examples: {}
-
   packages/testing-library/examples/basic:
     dependencies:
       '@lynx-js/react':
@@ -783,8 +781,6 @@ importers:
       '@lynx-js/react':
         specifier: workspace:*
         version: link:../react
-
-  packages/web-platform/inline-style-parser: {}
 
   packages/web-platform/offscreen-document: {}
 
