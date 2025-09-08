@@ -59,13 +59,21 @@ export function applyCSS(
         .filter(rule => chain.module.rules.has(rule))
         .forEach(ruleName => {
           const rule = chain.module.rule(ruleName)
+          
+          // chain
+          //   .module
+          //   .rule(`${ruleName}:css-layer`)
+          //   .test(rule.get('test'))
+          //   .layer('css-layer')
+          //   .end();
 
           removeLightningCSS(rule)
 
           // Replace the CssExtractRspackPlugin.loader with ours.
           // This is for scoped CSS.
           rule
-            .issuerLayer(LAYERS.BACKGROUND)
+            // .issuerLayer(LAYERS.BACKGROUND)
+            .layer('css-layer')
             .use(CHAIN_ID.USE.MINI_CSS_EXTRACT)
             .loader(CssExtractPlugin.loader)
             .end()
@@ -88,32 +96,32 @@ export function applyCSS(
           //   - resolve-url-loader(for sass/less)
           //   - sass-loader/less-loader(for sass/less)
           // dprint-ignore
-          chain
-            .module
-              .rule(`${ruleName}:${LAYERS.MAIN_THREAD}`)
-              .merge(ruleEntries)
-              .issuerLayer(LAYERS.MAIN_THREAD)
-              .use(CHAIN_ID.USE.IGNORE_CSS)
-                .loader(path.resolve(__dirname, './loaders/ignore-css-loader'))
-              .end()
-              .uses
-                .merge(uses)
-                .delete(CHAIN_ID.USE.MINI_CSS_EXTRACT)
-                .delete(CHAIN_ID.USE.LIGHTNINGCSS)
-                .delete(CHAIN_ID.USE.CSS)
-              .end()
+          // chain
+          //   .module
+              // .rule(`${ruleName}:${LAYERS.MAIN_THREAD}`)
+              // .merge(ruleEntries)
+              // .issuerLayer(LAYERS.MAIN_THREAD)
+              // .use(CHAIN_ID.USE.IGNORE_CSS)
+              //   .loader(path.resolve(__dirname, './loaders/ignore-css-loader'))
+              // .end()
+              // .uses
+              //   .merge(uses)
+              //   .delete(CHAIN_ID.USE.MINI_CSS_EXTRACT)
+              //   .delete(CHAIN_ID.USE.LIGHTNINGCSS)
+              //   .delete(CHAIN_ID.USE.CSS)
+              // .end()
               // We replace the css-loader rules with the normalized one
               // to force setting `exportOnlyLocals: true`.
-              .use(CHAIN_ID.USE.CSS)
-                .after(CHAIN_ID.USE.IGNORE_CSS)
-                .merge(cssLoaderRule)
-                .options(
-                  normalizeCssLoaderOptions(
-                    cssLoaderRule.options as CSSLoaderOptions,
-                    true
-                  )
-                )
-              .end()
+              // .use(CHAIN_ID.USE.CSS)
+              //   .after(CHAIN_ID.USE.IGNORE_CSS)
+              //   .merge(cssLoaderRule)
+              //   .options(
+              //     normalizeCssLoaderOptions(
+              //       cssLoaderRule.options as CSSLoaderOptions,
+              //       true
+              //     )
+              //   )
+              // .end()
         })
 
       const inlineCSSRules = [
