@@ -47,25 +47,22 @@ export const applySplitChunksRule = (
 
   api.modifyBundlerChain((chain, { environment }) => {
     const { config } = environment
-    if (config.performance.chunkSplit.strategy !== 'split-by-experience') {
-      return
-    }
 
     const currentConfig = chain.optimization.splitChunks.values() as Exclude<
       SplitChunks,
       false
     >
-    if (!isPlainObject(currentConfig)) {
-      return
-    }
-
     const extraGroups: CacheGroups = {}
-
-    extraGroups['preact'] = {
-      name: 'lib-preact',
-      test:
-        /node_modules[\\/](.*?[\\/])?(?:preact|preact[\\/]compat|preact[\\/]hooks|preact[\\/]jsx-runtime)[\\/]/,
-      priority: 0,
+    if (
+      config.performance.chunkSplit.strategy === 'split-by-experience'
+      && isPlainObject(currentConfig)
+    ) {
+      extraGroups['preact'] = {
+        name: 'lib-preact',
+        test:
+          /node_modules[\\/](.*?[\\/])?(?:preact|preact[\\/]compat|preact[\\/]hooks|preact[\\/]jsx-runtime)[\\/]/,
+        priority: 0,
+      }
     }
 
     chain.optimization.splitChunks({
