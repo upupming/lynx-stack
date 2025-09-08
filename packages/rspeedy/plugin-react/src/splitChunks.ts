@@ -52,7 +52,25 @@ export const applySplitChunksRule = (
       SplitChunks,
       false
     >
-    const extraGroups: CacheGroups = {}
+    const extraGroups: CacheGroups = {
+      'extract-entry-common-css': {
+        name: (
+          _module: Rspack.Module,
+          chunks: Rspack.Chunk[],
+          _cacheGroupKey: string,
+        ) => {
+          // Merge all CSS of same entry together.
+          // entry: `main` and `main__main-thread` to `.styles-main.css`
+          // lazy bundle: `./Foo.jsx-react__main-thread` and `./Foo.jsx-react__background` to `.styles-__Foo_jsx-react.css`
+          return `.styles-${
+            chunks[0]!.name!.split('__')[0]!.replaceAll(/[./]/g, '_')
+          }`
+        },
+        type: 'css/mini-extract',
+        chunks: 'all',
+        enforce: true,
+      },
+    }
     if (
       config.performance.chunkSplit.strategy === 'split-by-experience'
       && isPlainObject(currentConfig)
