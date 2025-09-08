@@ -112,6 +112,7 @@ class CssExtractRspackPlugin {
    * @param compiler - the webpack compiler
    */
   apply(compiler: Compiler): void {
+    console.log('CssExtractRspackPlugin options', this.options)
     new CssExtractRspackPluginImpl(
       compiler,
       Object.assign({}, CssExtractRspackPlugin.defaultOptions, this.options),

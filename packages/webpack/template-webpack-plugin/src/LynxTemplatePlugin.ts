@@ -652,9 +652,14 @@ class LynxTemplatePluginImpl {
     asyncChunkGroups = groupBy(
       compilation.chunkGroups
         .filter(cg => !cg.isInitial())
-        .filter(cg => cg.name !== null && cg.name !== undefined),
+        .filter(cg => {
+          console.log('cg.name', cg.name)
+          return cg.name !== null && cg.name !== undefined
+        }),
       cg => hooks.asyncChunkName.call(cg.name!),
     );
+    
+    console.log('asyncChunkGroups', asyncChunkGroups)
 
     LynxTemplatePluginImpl.#asyncChunkGroups.set(compilation, asyncChunkGroups);
 

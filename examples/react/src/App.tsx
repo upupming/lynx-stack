@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from '@lynx-js/react';
+import { lazy, Suspense, useCallback, useEffect, useState } from '@lynx-js/react';
 
 import './App.css';
 import arrow from './assets/arrow.png';
@@ -6,6 +6,8 @@ import lynxLogo from './assets/lynx-logo.png';
 import reactLynxLogo from './assets/react-logo.png';
 import Comp from './Comp.js';
 import Comp1 from './Comp1.js';
+
+const Foo = lazy(() => import('./Foo.jsx'))
 
 export function App() {
   const [alterLogo, setAlterLogo] = useState(false);
@@ -22,6 +24,9 @@ export function App() {
   return (
     <view>
       {__MAIN_THREAD__ ? <Comp /> : <Comp1/>}
+      <Suspense>
+        <Foo/>
+      </Suspense>
       <view className='Background' />
       <view className='App'>
         <view className='Banner'>

@@ -253,6 +253,7 @@ export function applyEntry(
       extractStr = false
     }
 
+    console.log('mainThreadChunks', mainThreadChunks)
     chain
       .plugin(PLUGIN_NAME_REACT)
       .after(PLUGIN_NAME_TEMPLATE)
