@@ -78,7 +78,8 @@ export const applySplitChunksRule = (
     // })
     extraGroups[`rspeedy-css-merging`] = {
       name: (_module: Rspack.Module, chunks: Rspack.Chunk[], _cacheGroupKey: string) => {
-        return `.styles-${chunks[0]!.name!.split('__')[0]!.replace('/', '_')}`
+        return `.styles-${chunks[0]!.name!.split('__')[0]!.replaceAll(/[./]/g, '_')}`
+        // return `.styles-${chunks[0]!.name!.split('__')[0]!.replace('/', '_')}`
       },
       type: 'css/mini-extract',
       chunks: 'all',
