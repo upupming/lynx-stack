@@ -46,12 +46,13 @@ export const applySplitChunksRule = (
   })
 
   api.modifyBundlerChain((chain, { environment }) => {
-    const { config } = environment
+    const { name, config } = environment
 
     const currentConfig = chain.optimization.splitChunks.values() as Exclude<
       SplitChunks,
       false
     >
+    const extraSplitChunks: SplitChunks = {}
     const extraGroups: CacheGroups = {
       'extract-entry-common-css': {
         name: (
@@ -82,6 +83,15 @@ export const applySplitChunksRule = (
         priority: 0,
       }
     }
+    if (currentConfig) {
+      if (name === 'lynx') {
+        extraSplitChunks.chunks = function (chunk) {
+          // TODO: support `splitChunks.chunks: 'async'`
+          // We don't want main thread to be split
+          return !chunk.name?.includes('__main-thread')
+        }
+      }
+    }
 
     chain.optimization.splitChunks({
       ...currentConfig,
@@ -89,27 +99,7 @@ export const applySplitChunksRule = (
         ...currentConfig.cacheGroups,
         ...extraGroups,
       },
+      ...extraSplitChunks
     })
-  })
-
-  api.modifyRspackConfig((rspackConfig, { environment }) => {
-    if (environment.name !== 'lynx') {
-      return rspackConfig
-    }
-
-    if (!rspackConfig.optimization) {
-      return rspackConfig
-    }
-
-    if (!rspackConfig.optimization.splitChunks) {
-      return rspackConfig
-    }
-
-    rspackConfig.optimization.splitChunks.chunks = function chunks(chunk) {
-      // TODO: support `splitChunks.chunks: 'async'`
-      // We don't want main thread to be split
-      return !chunk.name?.includes('__main-thread')
-    }
-    return rspackConfig
   })
 }

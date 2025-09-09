@@ -62,6 +62,11 @@ export function applyCSS(
             .use(CHAIN_ID.USE.MINI_CSS_EXTRACT)
             .loader(CssExtractPlugin.loader)
             .end()
+            .use(ruleName)
+            .tap(options => normalizeCssLoaderOptions(
+              options as CSSLoaderOptions,
+              true
+            ))
         })
 
       const inlineCSSRules = [
