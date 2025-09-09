@@ -85,9 +85,9 @@ rm -rf lynx
 await $`
 git clone --branch=0.3.142 --depth=1 https://github.com/lynx-family/habitat
 cd habitat
-python3 -m venv venv
+uv venv venv
 source venv/bin/activate
-pip install .
+uv pip install .
 `.pipe(process.stdout);
 
 // prepare the lynx repo
@@ -104,6 +104,9 @@ git cherry-pick -n ${PICK_COMMIT}
 // hab sync .
 await $`
 cd lynx
+uv venv .venv
+source .venv/bin/activate
+uv pip install pip
 source tools/envsetup.sh
 ../habitat/venv/bin/hab sync .
 `.pipe(process.stdout);
