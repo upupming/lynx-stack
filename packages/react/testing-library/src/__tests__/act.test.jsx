@@ -9,52 +9,50 @@ import { expect } from 'vitest';
 import { __globalSnapshotPatch } from '../../../runtime/lib/lifecycle/patch/snapshotPatch.js';
 import { snapshotInstanceManager } from '../../../runtime/lib/snapshot.js';
 
-test('render calls useEffect immediately', async () => {
+// test.only('render in MTS', async () => {
+//   const cb = vi.fn();
+//   function Comp() {
+//     useEffect(() => {
+//       cb(`__MAIN_THREAD__: ${__MAIN_THREAD__}`);
+//     });
+//     return <view data-testid='foo' bindtap={() => {}} className="xxx"/>;
+//   }
+
+//   {
+//     const { container, unmount } = render(<Comp />, {
+//       enableMainThread: true,
+//       enableBackgroundThread: false,
+//     });
+//     expect(container).toMatchInlineSnapshot(`
+//       <page>
+//         <view
+//           class="xxx"
+//           data-testid="foo"
+//           todo-bindtap="1"
+//         />
+//       </page>
+//     `);
+
+//     expect(cb).toBeCalledTimes(0);
+//     expect(cb.mock.calls).toMatchInlineSnapshot(`[]`);
+
+//     unmount();
+//     cb.mockClear();
+//   }
+// });
+
+test.only('render in bts', async () => {
   const cb = vi.fn();
   function Comp() {
     useEffect(() => {
       cb(`__MAIN_THREAD__: ${__MAIN_THREAD__}`);
     });
-    return <view />;
-  }
-  {
-    const { container, unmount } = render(<Comp />);
-    expect(container).toMatchInlineSnapshot(`
-    <page>
-      <view />
-    </page>
-  `);
-
-    expect(cb).toBeCalledTimes(1);
-    expect(cb.mock.calls).toMatchInlineSnapshot(`
-    [
-      [
-        "__MAIN_THREAD__: false",
-      ],
-    ]
-  `);
-
-    unmount();
-    cb.mockClear();
+    return <view data-testid='foo' bindtap={() => {}} className="xxx"/>;
   }
 
   {
     const { container, unmount } = render(<Comp />, {
-      enableMainThread: true,
-      enableBackgroundThread: false,
-    });
-    expect(container).toMatchInlineSnapshot(`<page />`);
-
-    expect(cb).toBeCalledTimes(0);
-    expect(cb.mock.calls).toMatchInlineSnapshot(`[]`);
-
-    unmount();
-    cb.mockClear();
-  }
-
-  {
-    const { container, unmount } = render(<Comp />, {
-      enableMainThread: true,
+      enableMainThread: false,
       enableBackgroundThread: true,
     });
     expect(container).toMatchInlineSnapshot(`

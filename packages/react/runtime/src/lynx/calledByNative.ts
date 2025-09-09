@@ -29,7 +29,7 @@ function ssrEncode() {
   };
 
   try {
-    return JSON.stringify({ __opcodes, __root_values: __root.__values });
+    return JSON.stringify({ __opcodes, });
   } finally {
     SnapshotInstance.prototype.toJSON = oldToJSON;
   }
@@ -45,13 +45,13 @@ function ssrHydrate(info: string) {
   setupPage(nativePage);
   const refsMap = __GetTemplateParts(nativePage);
 
-  const { __opcodes, __root_values } = JSON.parse(info) as {
+  const { __opcodes, } = JSON.parse(info) as {
     __opcodes: unknown[];
-    __root_values: unknown[] | undefined;
+    // __root_values: unknown[] | undefined;
   };
-  if (__root_values) {
-    __root.setAttribute('values', __root_values);
-  }
+  // if (__root_values) {
+    // __root.setAttribute('values', __root_values);
+  // }
   ssrHydrateByOpcodes(__opcodes, __root as SnapshotInstance, refsMap);
 
   (__root as SnapshotInstance).__elements = [nativePage];
