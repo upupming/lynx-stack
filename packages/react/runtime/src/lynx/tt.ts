@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/dot-notation */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 // Copyright 2024 The Lynx Authors. All rights reserved.
 // Licensed under the Apache License Version 2.0 that can be found in the
 // LICENSE file in the root directory of this source tree.
@@ -165,11 +168,15 @@ function flushDelayedLifecycleEvents(): void {
   flushingDelayedLifecycleEvents = false;
 }
 
-function publishEvent(handlerName: string, data: unknown) {
+function publishEvent(label: string, data: unknown) {
+  console.log('publishEvent', label, data)
   lynxCoreInject.tt.callBeforePublishEvent?.(data);
-  const eventHandler = backgroundSnapshotInstanceManager.getValueBySign(
-    handlerName,
-  );
+  const [snapshotInstanceId, qualifiedName] = label.split(':')
+  const eventHandler = backgroundSnapshotInstanceManager.values.get(Number(snapshotInstanceId))!.__attributes[
+    // @ts-expect-error fix it later
+    qualifiedName
+  ];
+  console.log('eventHandler', eventHandler)
   if (eventHandler) {
     try {
       (eventHandler as (...args: unknown[]) => void)(data);

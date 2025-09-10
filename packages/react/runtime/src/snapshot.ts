@@ -1,6 +1,7 @@
 // Copyright 2024 The Lynx Authors. All rights reserved.
 // Licensed under the Apache License Version 2.0 that can be found in the
 // LICENSE file in the root directory of this source tree.
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
 
 /**
  * Core snapshot system that implements a compiler-hinted virtual DOM.
@@ -24,6 +25,7 @@ import { DynamicPartType } from './snapshot/dynamicPartType.js';
 import { snapshotDestroyList } from './snapshot/list.js';
 import type { PlatformInfo } from './snapshot/platformInfo.js';
 import { unref } from './snapshot/ref.js';
+import { isDirectOrDeepEqual } from './utils.js';
 
 /**
  * A snapshot definition that contains all the information needed to create and update elements
@@ -55,6 +57,15 @@ export function clearPage(): void {
 export const __DynamicPartChildren_0: [DynamicPartType, number][] = [[DynamicPartType.Children, 0]];
 
 
+// const eventRegExp = /^(?:[A-Za-z-]*:)?(?:bind|catch|capture-bind|capture-catch|global-bind)[A-Za-z]+$/;
+const eventTypeMap = {
+    bind: 'bindEvent',
+    catch: 'catchEvent',
+    'capture-bind': 'capture-bind',
+    'capture-catch': 'capture-catch',
+    'global-bind': 'global-bindEvent'
+};
+const eventTypeKeys = Object.keys(eventTypeMap)
 function setAttribute(ctx: SnapshotInstance, qualifiedName: string, value: string) {
   // if (
   //       key === 'style'
@@ -76,14 +87,17 @@ function setAttribute(ctx: SnapshotInstance, qualifiedName: string, value: strin
     __AddDataset(el, qualifiedName.slice(5), value);
     return
   }
-  if (/^(?:bind|catch|global-bind|capture-bind|capture-catch)[A-Za-z]/.exec(qualifiedName)) {
-    // TODO: handle this condition
-    __SetAttribute(el, `todo-${qualifiedName}`, value)
-    return
-  }
+
   switch (qualifiedName) {
     case "style":
-      __SetInlineStyles(el, value);
+      // if (typeof value === 'object') {
+      //   for (const key in value as Record<string, unknown>) {
+      //     (value  as Record<string, unknown>)[key] = value[key]
+      //   }
+      // } else {
+        
+      // }
+      __SetInlineStyles(el, value);  
       break
     // TODO: make sure if this will happen
     case "class":
@@ -100,6 +114,13 @@ function setAttribute(ctx: SnapshotInstance, qualifiedName: string, value: strin
     case "ref":
       break
     default:
+      for (const eventType of eventTypeKeys) {
+        if (qualifiedName.startsWith(eventType)) {
+          // @ts-expect-error fix it later
+          __AddEvent(el, eventTypeMap[eventType], qualifiedName.slice(4), `${ctx.__id}:${qualifiedName}`)
+          return
+        }
+      }
       __SetAttribute(el, qualifiedName, value)
   }
 }
@@ -188,6 +209,22 @@ export const snapshotManager: {
         slot: __DynamicPartChildren_0,
         isListHolder: false,
       },
+    ],
+    [
+      'image',
+      {
+        create() {
+          /* v8 ignore start */
+          if (__JS__ && !__DEV__) {
+            return [];
+          }
+          /* v8 ignore stop */
+          return [__CreateImage(__pageId)];
+        },
+        setAttribute,
+        slot: __DynamicPartChildren_0,
+        isListHolder: false,
+      },
     ]
   ]),
 };
@@ -210,7 +247,7 @@ export const backgroundSnapshotInstanceManager: {
   values: Map<number, BackgroundSnapshotInstance>;
   clear(): void;
   updateId(id: number, newId: number): void;
-  getValueBySign(str: string): unknown;
+  // getValueBySign(str: string): unknown;
 } = {
   nextId: 0,
   values: /* @__PURE__ */ new Map<number, BackgroundSnapshotInstance>(),
@@ -236,31 +273,32 @@ export const backgroundSnapshotInstanceManager: {
     values.set(newId, si);
     si.__id = newId;
   },
-  getValueBySign(str: string): unknown {
-    const res = str?.split(':');
-    if (!res || (res.length != 2 && res.length != 3)) {
-      throw new Error('Invalid ctx format: ' + str);
-    }
-    const id = Number(res[0]);
-    const expIndex = Number(res[1]);
-    const ctx = this.values.get(id);
-    if (!ctx) {
-      return null;
-    }
-    const spreadKey = res[2];
-    if (res[1] === '__extraProps') {
-      if (spreadKey) {
-        return ctx.__extraProps![spreadKey];
-      }
-      throw new Error('unreachable');
-    } else {
-      if (spreadKey) {
-        return (ctx.__values![expIndex] as { [spreadKey]: unknown })[spreadKey];
-      } else {
-        return ctx.__values![expIndex];
-      }
-    }
-  },
+  // getValueBySign(str: string): unknown {
+  //   const res = str?.split(':');
+  //   if (!res || (res.length != 2 && res.length != 3)) {
+  //     throw new Error('Invalid ctx format: ' + str);
+  //   }
+  //   const id = Number(res[0]);
+  //   // const expIndex = Number(res[1]);
+  //   const ctx = this.values.get(id);
+  //   if (!ctx) {
+  //     return null;
+  //   }
+  //   // const spreadKey = res[2];
+  //   throw new Error('not implemeneted')
+  //   // if (res[1] === '__extraProps') {
+  //   //   if (spreadKey) {
+  //   //     return ctx.__extraProps![spreadKey];
+  //   //   }
+  //   //   throw new Error('unreachable');
+  //   // } else {
+  //     // if (spreadKey) {
+  //     //   return (ctx.__values![expIndex] as { [spreadKey]: unknown })[spreadKey];
+  //     // } else {
+  //     //   return ctx.__values![expIndex];
+  //     // }
+  //   // }
+  // },
 };
 
 export function entryUniqID(uniqID: string, entryName?: string): string {
@@ -331,8 +369,7 @@ export function traverseSnapshotInstance<I extends WithChildren>(
 export interface SerializedSnapshotInstance {
   id: number;
   type: string;
-  values?: any[] | undefined;
-  extraProps?: Record<string, unknown> | undefined;
+  attributes?: Record<string, unknown> | undefined;
   children?: SerializedSnapshotInstance[] | undefined;
 }
 
@@ -351,6 +388,7 @@ export class SnapshotInstance {
   __snapshot_def: Snapshot;
   __elements?: FiberElement[] | undefined;
   __element_root?: FiberElement | undefined;
+  __attributes?: Record<string, string> | undefined;
   __current_slot_index = 0;
   __worklet_ref_set?: Set<WorkletRefImpl<any> | Worklet>;
   __listItemPlatformInfo?: PlatformInfo;
@@ -373,6 +411,15 @@ export class SnapshotInstance {
     const elements = create!(this);
     this.__elements = elements;
     this.__element_root = elements[0];
+    
+    console.log('ensureElements', this.type, this.__id, this.__attributes)
+    if (this.__attributes) {
+      const attributes = this.__attributes;
+      delete this.__attributes;
+      for (const key in attributes) {
+        this.setAttribute(key, attributes[key]!)
+      }
+    }
 
     if (cssId === undefined) {
       // This means either:
@@ -682,15 +729,22 @@ export class SnapshotInstance {
   }
 
   setAttribute(qualifiedName: string, value: string): void {
-    console.log('setAttribute', qualifiedName, value)
-    this.__snapshot_def.setAttribute!(this, qualifiedName, value)
+    console.log('SnapshotInstance setAttribute', qualifiedName, value)
+    this.__attributes ??= {};
+    
+    const oldValue = this.__attributes[qualifiedName]
+    if (isDirectOrDeepEqual(oldValue, value)) {}
+    else {
+      this.__attributes[qualifiedName] = value;
+      this.__snapshot_def.setAttribute!(this, qualifiedName, value)
+    }
   }
 
   toJSON(): Omit<SerializedSnapshotInstance, 'children'> & { children: SnapshotInstance[] | undefined } {
     return {
       id: this.__id,
       type: this.type,
-      extraProps: this.__extraProps,
+      attributes: this.__attributes,
       children: this.__firstChild ? this.childNodes : undefined,
     };
   }
