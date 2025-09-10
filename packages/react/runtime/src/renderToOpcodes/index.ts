@@ -309,7 +309,7 @@ function _renderToString(
         opcodes.push(__OpAttr, name, v);  
       } else {
         // TODO: handle bindtap correctly
-        opcodes.push(__OpAttr, name, "1");
+        opcodes.push(__OpAttr, name, "");
       }
     }
   }
