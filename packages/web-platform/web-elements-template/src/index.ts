@@ -164,13 +164,35 @@ export const templateXOverlayNg = `<style>
     right: 0;
     bottom: 0;
     position: fixed;
+    overscroll-behavior: contain;
+    scrollbar-width: none;
+  }
+  #dialog[open]::-webkit-scrollbar {
+    display: none;
   }
   #dialog::backdrop {
     background-color: transparent;
   }
+  .overlay-inner {
+    position: sticky;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+  .overlay-inner > * {
+    pointer-events: auto;
+  }
+  .overlay-placeholder {
+    width: 100%;
+    height: 1px;
+  }
 </style>
 <dialog id="dialog" part="dialog">
-  <slot></slot>
+  <div class="overlay-inner">
+    <slot></slot>
+  </div>
+  <div class="overlay-placeholder"></div>
 </dialog>`;
 
 export const templateXRefreshView = `<style>
