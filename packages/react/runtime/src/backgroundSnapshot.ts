@@ -8,6 +8,9 @@
  * This is the mirror of main thread's {@link SnapshotInstance}:
  */
 
+import { options } from 'preact';
+import type { VNode } from 'preact';
+
 import type { Worklet } from '@lynx-js/react/worklet-runtime/bindings';
 
 import { profileEnd, profileStart } from './debug/utils.js';
@@ -37,7 +40,6 @@ export class BackgroundSnapshotInstance {
   constructor(public type: string) {
     this.__snapshot_def = snapshotManager.values.get(type)!;
     const id = this.__id = backgroundSnapshotInstanceManager.nextId += 1;
-    backgroundSnapshotInstanceManager.values.set(id, this);
 
     __globalSnapshotPatch?.push(SnapshotOperation.CreateElement, type, id);
   }
@@ -524,4 +526,25 @@ function reconstructInstanceTree(afters: BackgroundSnapshotInstance[], parentId:
     reconstructInstanceTree(child.childNodes, id);
     __globalSnapshotPatch?.push(SnapshotOperation.InsertBefore, parentId, id, targetId);
   }
+}
+
+export function setupVnodeDom(): void {
+  // eslint-disable-next-line @typescript-eslint/unbound-method
+  const oldVnode = options.vnode;
+  options.vnode = (vnode: VNode & BackgroundSnapshotInstance) => {
+    oldVnode?.(vnode);
+
+    if (vnode.type == null || typeof vnode.type === 'string') {
+      const dom = new BackgroundSnapshotInstance(vnode.type);
+      // @ts-expect-error `vnode.__proto__` exists, and we should inherit it
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+      dom.__proto__.__proto__ = vnode.__proto__;
+      Object.assign(vnode, dom);
+      // @ts-expect-error `vnode.__proto__` exists, and we should inherit it
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      vnode.__proto__ = dom.__proto__;
+
+      backgroundSnapshotInstanceManager.values.set(vnode.__id, vnode);
+    }
+  };
 }
