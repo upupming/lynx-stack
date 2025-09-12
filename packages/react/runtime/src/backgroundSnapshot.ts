@@ -271,7 +271,7 @@ function insertBefore(this: BackgroundDOM, node: BackgroundDOM, beforeNode?: Bac
       node.previousSibling = beforeNode.previousSibling;
     } else {
       this.firstChild = node;
-      delete node.previousSibling;
+      node.previousSibling = undefined;
     }
     beforeNode.previousSibling = node;
     node.nextSibling = beforeNode;
@@ -282,11 +282,11 @@ function insertBefore(this: BackgroundDOM, node: BackgroundDOM, beforeNode?: Bac
       node.previousSibling = this.lastChild;
     } else {
       this.firstChild = node;
-      delete node.previousSibling;
+      node.previousSibling = undefined;
     }
     this.lastChild = node;
     node.parentNode = this;
-    delete node.nextSibling;
+    node.nextSibling = undefined;
   }
 }
 
@@ -314,9 +314,9 @@ function removeChild(this: BackgroundDOM, node: BackgroundDOM): void {
     this.lastChild = node.previousSibling;
   }
 
-  delete node.parentNode;
-  delete node.previousSibling;
-  delete node.nextSibling;
+  node.parentNode = undefined;
+  node.previousSibling = undefined;
+  node.nextSibling = undefined;
 
   queueRefAttrUpdate(
     () => {
@@ -345,9 +345,9 @@ function removeChild(this: BackgroundDOM, node: BackgroundDOM): void {
 
 function tearDown(this: BackgroundDOM): void {
   traverseSnapshotInstance(this, v => {
-    delete v.parentNode;
-    delete v.previousSibling;
-    delete v.nextSibling;
+    v.parentNode = undefined;
+    v.previousSibling = undefined;
+    v.nextSibling = undefined;
     backgroundSnapshotInstanceManager.values.delete(v.__id);
   });
 }
