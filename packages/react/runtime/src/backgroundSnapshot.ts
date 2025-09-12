@@ -534,11 +534,13 @@ export function setupVnodeDom(): void {
   options.vnode = (vnode: VNode & BackgroundSnapshotInstance) => {
     oldVnode?.(vnode);
 
-    if (vnode.type == null || typeof vnode.type === 'string') {
+    if (vnode.type === null || typeof vnode.type === 'string') {
       const dom = new BackgroundSnapshotInstance(vnode.type);
-      // @ts-expect-error `vnode.__proto__` exists, and we should inherit it
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-      dom.__proto__.__proto__ = vnode.__proto__;
+      if (__DEV__) {
+        // @ts-expect-error `vnode.__proto__` exists, and we should inherit it
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+        dom.__proto__.__proto__ = vnode.__proto__;
+      }
       Object.assign(vnode, dom);
       // @ts-expect-error `vnode.__proto__` exists, and we should inherit it
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
