@@ -1,0 +1,25 @@
+diff --git a/dist/preact.mjs b/dist/preact.mjs
+index e61116e4c94121ed4ad26b760f1292de5ff2cf5f..9320e3621162f7e19fad10695cdbfe1404796f82 100644
+--- a/dist/preact.mjs
++++ b/dist/preact.mjs
+@@ -1135,16 +1135,16 @@ function diffElementNodes(dom, newVNode, oldVNode, globalContext, namespace, exc
+     }
+   }
+   if (dom == null) {
+-    options.setupDom(newVNode);
++    dom = options.setupDom({ type: nodeType });
+     if (nodeType === null) {
+       // @ts-expect-error
+-      newVNode.setAttribute(0, newProps);
++      dom.setAttribute(0, newProps);
+       // @ts-expect-error
+-      return newVNode;
++      return dom;
+     }
+ 
+     // @ts-expect-error
+-    dom = newVNode;
++    // dom = newVNode;
+ 
+     // we are creating a new node, so we can assume this is a new subtree (in
+     // case we are hydrating), this deopts the hydrate

@@ -19,40 +19,20 @@ packages:
   - packages/webpack/*
   - website
 
-# From `@pnpm/plugin-better-defaults`
-enablePrePostScripts: false
-ignorePatchFailures: false
-optimisticRepeatInstall: true
-resolutionMode: "lowest-direct"
-
-# Default catalogs
 catalog:
-  "@microsoft/api-extractor": "7.52.11"
+  "@microsoft/api-extractor": 7.52.11
 
 catalogs:
-  # Rsbuild monorepo packages
   rsbuild:
-    "@rsbuild/core": "1.5.4"
-
-  # Rspack monorepo packages
+    "@rsbuild/core": 1.5.4
   rspack:
-    "@rspack/cli": "1.5.2"
-    "@rspack/core": "1.5.2"
-    "@rspack/test-tools": "1.5.2"
+    "@rspack/cli": 1.5.2
+    "@rspack/core": 1.5.2
+    "@rspack/test-tools": 1.5.2
 
-overrides:
-  "@rspack/core": "$@rspack/core"
-  "@rsbuild/core>@rspack/core": "$@rspack/core"
+enablePrePostScripts: false
 
-patchedDependencies:
-  "@napi-rs/cli@2.18.4": "patches/@napi-rs__cli@2.18.4.patch"
-  "@rollup/plugin-typescript": "patches/@rollup__plugin-typescript.patch"
-
-strictDepBuilds: true
-
-onlyBuiltDependencies:
-  - dprint
-  - esbuild
+ignorePatchFailures: false
 
 ignoredBuiltDependencies:
   - "@biomejs/biome"
@@ -60,3 +40,22 @@ ignoredBuiltDependencies:
   - "@swc/core"
   - core-js
   - unrs-resolver
+
+onlyBuiltDependencies:
+  - dprint
+  - esbuild
+
+optimisticRepeatInstall: true
+
+overrides:
+  "@rsbuild/core>@rspack/core": $@rspack/core
+  "@rspack/core": $@rspack/core
+
+patchedDependencies:
+  "@napi-rs/cli@2.18.4": patches/@napi-rs__cli@2.18.4.patch
+  "@rollup/plugin-typescript": patches/@rollup__plugin-typescript.patch
+  "@upupming/preact": patches/@upupming__preact.patch
+
+resolutionMode: lowest-direct
+
+strictDepBuilds: true
