@@ -279,7 +279,7 @@ function insertBefore(this: BackgroundDOM, node: BackgroundDOM, beforeNode?: Bac
   } else {
     if (this.lastChild) {
       this.lastChild.nextSibling = node;
-      delete node.previousSibling;
+      node.previousSibling = this.lastChild;
     } else {
       this.firstChild = node;
       delete node.previousSibling;
