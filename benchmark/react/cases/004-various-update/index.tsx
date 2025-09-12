@@ -112,6 +112,7 @@ if (typeof Codspeed !== 'undefined' && __BACKGROUND__) {
 
         return oldSetAttribute.call(this, key, value);
       };
+      return vnode;
     } as never,
   );
 }
