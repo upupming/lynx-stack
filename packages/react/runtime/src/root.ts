@@ -1,14 +1,15 @@
 // Copyright 2024 The Lynx Authors. All rights reserved.
 // Licensed under the Apache License Version 2.0 that can be found in the
 // LICENSE file in the root directory of this source tree.
-import { BackgroundSnapshotInstance } from './backgroundSnapshot.js';
-import { SnapshotInstance, backgroundSnapshotInstanceManager } from './snapshot.js';
+import { setupDom } from './backgroundSnapshot.js';
+import type { BackgroundDOM } from './backgroundSnapshot.js';
+import { SnapshotInstance } from './snapshot.js';
 
 /**
  * The internal ReactLynx's root.
  * {@link @lynx-js/react!Root | root}.
  */
-let __root: (SnapshotInstance | BackgroundSnapshotInstance) & {
+let __root: (SnapshotInstance | BackgroundDOM) & {
   __jsx?: React.ReactNode;
   __opcodes?: any[];
 
@@ -32,9 +33,7 @@ function setRoot(root: typeof __root): void {
 if (__MAIN_THREAD__) {
   setRoot(new SnapshotInstance('root'));
 } else if (__BACKGROUND__) {
-  const bsi = new BackgroundSnapshotInstance('root');
-  backgroundSnapshotInstanceManager.values.set(bsi.__id, bsi);
-  setRoot(bsi);
+  setRoot(setupDom({ type: 'root' } as unknown as BackgroundDOM));
 }
 
 export { __root, setRoot };

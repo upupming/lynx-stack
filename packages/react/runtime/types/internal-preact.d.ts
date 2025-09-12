@@ -2,7 +2,7 @@
 // Licensed under the Apache License Version 2.0 that can be found in the
 // LICENSE file in the root directory of this source tree.
 import 'preact';
-import type { BackgroundSnapshotInstance } from '../src/backgroundSnapshot.ts';
+import type { BackgroundSnapshotInstance, setupDom } from '../src/backgroundSnapshot.ts';
 
 declare module 'preact' {
   interface Options {
@@ -23,6 +23,7 @@ declare module 'preact' {
     __?(vnode: VNode, parentDom: any): void;
     /** vnode */
     vnode?(vnode: VNode & BackgroundSnapshotInstance): void;
+    setupDom?: typeof setupDom;
   }
 
   interface VNode {

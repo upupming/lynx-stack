@@ -8,7 +8,6 @@
  * This is the mirror of main thread's {@link SnapshotInstance}:
  */
 
-import { options } from 'preact';
 import type { VNode } from 'preact';
 
 import type { Worklet } from '@lynx-js/react/worklet-runtime/bindings';
@@ -36,342 +35,39 @@ import { hydrationMap } from './snapshotInstanceHydrationMap.js';
 import { isDirectOrDeepEqual } from './utils.js';
 import { onPostWorkletCtx } from './worklet/ctx.js';
 
-export class BackgroundSnapshotInstance {
-  constructor(public type: string) {
-    this.__snapshot_def = snapshotManager.values.get(type)!;
-    const id = this.__id = backgroundSnapshotInstanceManager.nextId += 1;
-
-    __globalSnapshotPatch?.push(SnapshotOperation.CreateElement, type, id);
-  }
-
+export interface BackgroundDOM extends VNode {
+  type: string;
   __id: number;
   __values: any[] | undefined;
   __snapshot_def: Snapshot;
   __extraProps?: Record<string, unknown> | undefined;
+  __removed_from_tree?: boolean;
 
-  private __parent: BackgroundSnapshotInstance | null = null;
-  private __firstChild: BackgroundSnapshotInstance | null = null;
-  private __lastChild: BackgroundSnapshotInstance | null = null;
-  private __previousSibling: BackgroundSnapshotInstance | null = null;
-  private __nextSibling: BackgroundSnapshotInstance | null = null;
-  private __removed_from_tree?: boolean;
+  parentNode?: BackgroundDOM | undefined;
+  previousSibling?: BackgroundDOM | undefined;
+  nextSibling?: BackgroundDOM | undefined;
+  firstChild?: BackgroundDOM | undefined;
+  lastChild?: BackgroundDOM | undefined;
 
-  get parentNode(): BackgroundSnapshotInstance | null {
-    return this.__parent;
-  }
+  childNodes: BackgroundDOM[];
 
-  get nextSibling(): BackgroundSnapshotInstance | null {
-    return this.__nextSibling;
-  }
-
-  // get isConnected() {
-  //   return !!this.__parent;
-  // }
-
-  contains(child: BackgroundSnapshotInstance): boolean {
-    return child.parentNode === this;
-  }
-
-  // This will be called in `lazy`/`Suspense`.
-  appendChild(child: BackgroundSnapshotInstance): void {
-    return this.insertBefore(child);
-  }
-
-  insertBefore(
-    node: BackgroundSnapshotInstance,
-    beforeNode?: BackgroundSnapshotInstance,
-  ): void {
-    if (node.__removed_from_tree) {
-      node.__removed_from_tree = false;
-      // This is only called by `lazy`/`Suspense` through `appendChild` so beforeNode is always undefined.
-      /* v8 ignore next */
-      reconstructInstanceTree([node], this.__id, beforeNode?.__id);
-    } else {
-      __globalSnapshotPatch?.push(
-        SnapshotOperation.InsertBefore,
-        this.__id,
-        node.__id,
-        beforeNode?.__id,
-      );
-    }
-
-    // If the node already has a parent, remove it from its current parent
-    const p = node.__parent;
-    if (p) {
-      if (node.__previousSibling) {
-        node.__previousSibling.__nextSibling = node.__nextSibling;
-      } else {
-        p.__firstChild = node.__nextSibling;
-      }
-
-      if (node.__nextSibling) {
-        node.__nextSibling.__previousSibling = node.__previousSibling;
-      } else {
-        p.__lastChild = node.__previousSibling;
-      }
-    }
-
-    // If beforeNode is not provided, add the new node as the last child
-    if (beforeNode) {
-      // If beforeNode is provided, insert the new node before beforeNode
-      if (beforeNode.__previousSibling) {
-        beforeNode.__previousSibling.__nextSibling = node;
-        node.__previousSibling = beforeNode.__previousSibling;
-      } else {
-        this.__firstChild = node;
-        node.__previousSibling = null;
-      }
-      beforeNode.__previousSibling = node;
-      node.__nextSibling = beforeNode;
-      node.__parent = this;
-    } else {
-      if (this.__lastChild) {
-        this.__lastChild.__nextSibling = node;
-        node.__previousSibling = this.__lastChild;
-      } else {
-        this.__firstChild = node;
-        node.__previousSibling = null;
-      }
-      this.__lastChild = node;
-      node.__parent = this;
-      node.__nextSibling = null;
-    }
-  }
-
-  removeChild(node: BackgroundSnapshotInstance): void {
-    __globalSnapshotPatch?.push(
-      SnapshotOperation.RemoveChild,
-      this.__id,
-      node.__id,
-    );
-    node.__removed_from_tree = true;
-
-    if (node.__parent !== this) {
-      throw new Error('The node to be removed is not a child of this node.');
-    }
-
-    if (node.__previousSibling) {
-      node.__previousSibling.__nextSibling = node.__nextSibling;
-    } else {
-      this.__firstChild = node.__nextSibling;
-    }
-
-    if (node.__nextSibling) {
-      node.__nextSibling.__previousSibling = node.__previousSibling;
-    } else {
-      this.__lastChild = node.__previousSibling;
-    }
-
-    node.__parent = null;
-    node.__previousSibling = null;
-    node.__nextSibling = null;
-
-    queueRefAttrUpdate(
-      () => {
-        traverseSnapshotInstance(node, v => {
-          if (v.__values) {
-            v.__snapshot_def.refAndSpreadIndexes?.forEach((i) => {
-              const value = v.__values![i] as unknown;
-              if (value && (typeof value === 'object' || typeof value === 'function')) {
-                if ('__spread' in value && 'ref' in value) {
-                  applyRef(value.ref as Ref, null);
-                } else if ('__ref' in value) {
-                  applyRef(value as Ref, null);
-                }
-              }
-            });
-          }
-        });
-      },
-      null,
-      0,
-      0,
-    );
-
-    globalBackgroundSnapshotInstancesToRemove.push(node.__id);
-  }
-
-  tearDown(): void {
-    traverseSnapshotInstance(this, v => {
-      v.__parent = null;
-      v.__previousSibling = null;
-      v.__nextSibling = null;
-      backgroundSnapshotInstanceManager.values.delete(v.__id);
-    });
-  }
-
-  get childNodes(): BackgroundSnapshotInstance[] {
-    const nodes: BackgroundSnapshotInstance[] = [];
-    let node = this.__firstChild;
-    while (node) {
-      nodes.push(node);
-      if (node === this.__lastChild) {
-        break;
-      }
-      node = node.__nextSibling;
-    }
-    return nodes;
-  }
-
-  setAttribute(key: string | number, value: unknown): void {
-    if (__PROFILE__) {
-      profileStart('ReactLynx::BSI::setAttribute');
-    }
-    if (key === 'values') {
-      if (__globalSnapshotPatch) {
-        const oldValues = this.__values;
-        if (oldValues) {
-          for (let index = 0; index < (value as unknown[]).length; index++) {
-            const { needUpdate, valueToCommit } = this.setAttributeImpl(
-              (value as unknown[])[index],
-              oldValues[index],
-              index,
-            );
-            if (needUpdate) {
-              __globalSnapshotPatch.push(
-                SnapshotOperation.SetAttribute,
-                this.__id,
-                index,
-                valueToCommit,
-              );
-            }
-          }
-        } else {
-          const patch = [];
-          const length = (value as unknown[]).length;
-          for (let index = 0; index < length; ++index) {
-            const { valueToCommit } = this.setAttributeImpl((value as unknown[])[index], null, index);
-            patch[index] = valueToCommit;
-          }
-          __globalSnapshotPatch.push(
-            SnapshotOperation.SetAttributes,
-            this.__id,
-            patch,
-          );
-        }
-      } else {
-        this.__snapshot_def.refAndSpreadIndexes?.forEach((index) => {
-          const v = (value as unknown[])[index];
-          if (v && (typeof v === 'object' || typeof v === 'function')) {
-            if ('__spread' in v && 'ref' in v) {
-              queueRefAttrUpdate(null, v.ref as Ref, this.__id, index);
-            } else if ('__ref' in v) {
-              queueRefAttrUpdate(null, v as Ref, this.__id, index);
-            }
-          }
-        });
-      }
-      this.__values = value as unknown[];
-      if (__PROFILE__) {
-        profileEnd();
-      }
-      return;
-    }
-
-    if (typeof key === 'string') {
-      (this.__extraProps ??= {})[key] = value;
-    } else {
-      // old path (`this.setAttribute(0, xxx)`)
-      // is reserved as slow path
-      (this.__values ??= [])[key] = value;
-    }
-    __globalSnapshotPatch?.push(
-      SnapshotOperation.SetAttribute,
-      this.__id,
-      key,
-      value,
-    );
-    if (__PROFILE__) {
-      profileEnd();
-    }
-  }
-
-  private setAttributeImpl(newValue: unknown, oldValue: unknown, index: number): {
-    needUpdate: boolean;
-    valueToCommit: unknown;
-  } {
-    if (!newValue) {
-      // `oldValue` can't be a spread.
-      if (oldValue && typeof oldValue === 'object' && '__ref' in oldValue) {
-        queueRefAttrUpdate(oldValue as Ref, null, this.__id, index);
-      }
-      return { needUpdate: oldValue !== newValue, valueToCommit: newValue };
-    }
-
-    const newType = typeof newValue;
-    if (newType === 'object') {
-      const newValueObj = newValue as Record<string, unknown>;
-      if ('__spread' in newValueObj) {
-        const oldSpread = (oldValue as { __spread?: Record<string, unknown> } | undefined)?.__spread;
-        const newSpread = transformSpread(this, index, newValueObj);
-        const needUpdate = !isDirectOrDeepEqual(oldSpread, newSpread);
-        // use __spread to cache the transform result for next diff
-        newValueObj['__spread'] = newSpread;
-        queueRefAttrUpdate(
-          oldSpread && ((oldValue as { ref?: Ref }).ref),
-          newValueObj['ref'] as Ref,
-          this.__id,
-          index,
-        );
-        if (needUpdate) {
-          for (const key in newSpread) {
-            const newSpreadValue = newSpread[key];
-            if (!newSpreadValue) {
-              continue;
-            }
-            if ((newSpreadValue as { _wkltId?: string })._wkltId) {
-              newSpread[key] = onPostWorkletCtx(newSpreadValue as Worklet);
-            } else if ((newSpreadValue as { __isGesture?: boolean }).__isGesture) {
-              processGestureBackground(newSpreadValue as GestureKind);
-            } else if (key == '__lynx_timing_flag' && oldSpread?.[key] != newSpreadValue && globalPipelineOptions) {
-              globalPipelineOptions.needTimestamps = true;
-            }
-          }
-        }
-        return { needUpdate, valueToCommit: newSpread };
-      }
-      if ('__ref' in newValueObj) {
-        queueRefAttrUpdate(oldValue as Ref, newValueObj as Ref, this.__id, index);
-        return { needUpdate: false, valueToCommit: 1 };
-      }
-      if ('_wkltId' in newValueObj) {
-        return { needUpdate: true, valueToCommit: onPostWorkletCtx(newValueObj as Worklet) };
-      }
-      if ('__isGesture' in newValueObj) {
-        processGestureBackground(newValueObj as unknown as GestureKind);
-        return { needUpdate: true, valueToCommit: newValue };
-      }
-      if ('__ltf' in newValueObj) {
-        // __lynx_timing_flag
-        if (globalPipelineOptions && (oldValue as { __ltf?: unknown } | undefined)?.__ltf != newValueObj['__ltf']) {
-          globalPipelineOptions.needTimestamps = true;
-          return { needUpdate: true, valueToCommit: newValue };
-        }
-        return { needUpdate: false, valueToCommit: newValue };
-      }
-      return { needUpdate: !isDirectOrDeepEqual(oldValue, newValue), valueToCommit: newValue };
-    }
-    if (newType === 'function') {
-      if ((newValue as { __ref?: unknown }).__ref) {
-        queueRefAttrUpdate(oldValue as Ref, newValue as Ref, this.__id, index);
-        return { needUpdate: false, valueToCommit: 1 };
-      }
-      /* event */
-      return { needUpdate: !oldValue, valueToCommit: 1 };
-    }
-    return { needUpdate: oldValue !== newValue, valueToCommit: newValue };
-  }
+  contains: (child: BackgroundDOM) => boolean;
+  appendChild: (child: BackgroundDOM) => void;
+  insertBefore: (node: BackgroundDOM, beforeNode?: BackgroundDOM) => void;
+  removeChild: (node: BackgroundDOM) => void;
+  tearDown: () => void;
+  setAttribute(key: string | number, value: unknown): void;
 }
 
 export function hydrate(
   before: SerializedSnapshotInstance,
-  after: BackgroundSnapshotInstance,
+  after: BackgroundDOM,
 ): SnapshotPatch {
   initGlobalSnapshotPatch();
 
   const helper = (
     before: SerializedSnapshotInstance,
-    after: BackgroundSnapshotInstance,
+    after: BackgroundDOM,
   ) => {
     hydrationMap.set(after.__id, before.id);
     backgroundSnapshotInstanceManager.updateId(after.__id, before.id);
@@ -510,7 +206,7 @@ export function hydrate(
   return takeGlobalSnapshotPatch()!;
 }
 
-function reconstructInstanceTree(afters: BackgroundSnapshotInstance[], parentId: number, targetId?: number): void {
+function reconstructInstanceTree(afters: BackgroundDOM[], parentId: number, targetId?: number): void {
   for (const child of afters) {
     const id = child.__id;
     __globalSnapshotPatch?.push(SnapshotOperation.CreateElement, child.type, id);
@@ -528,25 +224,313 @@ function reconstructInstanceTree(afters: BackgroundSnapshotInstance[], parentId:
   }
 }
 
-export function setupVnodeDom(): void {
-  // eslint-disable-next-line @typescript-eslint/unbound-method
-  const oldVnode = options.vnode;
-  options.vnode = (vnode: VNode & BackgroundSnapshotInstance) => {
-    oldVnode?.(vnode);
+function contains(this: BackgroundDOM, child: BackgroundDOM): boolean {
+  return child.parentNode === this;
+}
 
-    if (vnode.type === null || typeof vnode.type === 'string') {
-      const dom = new BackgroundSnapshotInstance(vnode.type);
-      if (__DEV__) {
-        // @ts-expect-error `vnode.__proto__` exists, and we should inherit it
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-        dom.__proto__.__proto__ = vnode.__proto__;
-      }
-      Object.assign(vnode, dom);
-      // @ts-expect-error `vnode.__proto__` exists, and we should inherit it
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      vnode.__proto__ = dom.__proto__;
+function appendChild(this: BackgroundDOM, child: BackgroundDOM): void {
+  return this.insertBefore(child);
+}
 
-      backgroundSnapshotInstanceManager.values.set(vnode.__id, vnode);
+function insertBefore(this: BackgroundDOM, node: BackgroundDOM, beforeNode?: BackgroundDOM): void {
+  if (node.__removed_from_tree) {
+    node.__removed_from_tree = false;
+    // This is only called by `lazy`/`Suspense` through `appendChild` so beforeNode is always undefined.
+    /* v8 ignore next */
+    reconstructInstanceTree([node], this.__id, beforeNode?.__id);
+  } else {
+    __globalSnapshotPatch?.push(
+      SnapshotOperation.InsertBefore,
+      this.__id,
+      node.__id,
+      beforeNode?.__id,
+    );
+  }
+
+  // If the node already has a parent, remove it from its current parent
+  const p = node.parentNode;
+  if (p) {
+    if (node.previousSibling) {
+      node.previousSibling.nextSibling = node.nextSibling;
+    } else {
+      p.firstChild = node.nextSibling;
     }
-  };
+
+    if (node.nextSibling) {
+      node.nextSibling.previousSibling = node.previousSibling;
+    } else {
+      p.lastChild = node.previousSibling;
+    }
+  }
+
+  // If beforeNode is not provided, add the new node as the last child
+  if (beforeNode) {
+    // If beforeNode is provided, insert the new node before beforeNode
+    if (beforeNode.previousSibling) {
+      beforeNode.previousSibling.nextSibling = node;
+      node.previousSibling = beforeNode.previousSibling;
+    } else {
+      this.firstChild = node;
+      delete node.previousSibling;
+    }
+    beforeNode.previousSibling = node;
+    node.nextSibling = beforeNode;
+    node.parentNode = this;
+  } else {
+    if (this.lastChild) {
+      this.lastChild.nextSibling = node;
+      delete node.previousSibling;
+    } else {
+      this.firstChild = node;
+      delete node.previousSibling;
+    }
+    this.lastChild = node;
+    node.parentNode = this;
+    delete node.nextSibling;
+  }
+}
+
+function removeChild(this: BackgroundDOM, node: BackgroundDOM): void {
+  __globalSnapshotPatch?.push(
+    SnapshotOperation.RemoveChild,
+    this.__id,
+    node.__id,
+  );
+  node.__removed_from_tree = true;
+
+  if (node.parentNode !== this) {
+    throw new Error('The node to be removed is not a child of this node.');
+  }
+
+  if (node.previousSibling) {
+    node.previousSibling.nextSibling = node.nextSibling;
+  } else {
+    this.firstChild = node.nextSibling;
+  }
+
+  if (node.nextSibling) {
+    node.nextSibling.previousSibling = node.previousSibling;
+  } else {
+    this.lastChild = node.previousSibling;
+  }
+
+  delete node.parentNode;
+  delete node.previousSibling;
+  delete node.nextSibling;
+
+  queueRefAttrUpdate(
+    () => {
+      traverseSnapshotInstance(node, v => {
+        if (v.__values) {
+          v.__snapshot_def.refAndSpreadIndexes?.forEach((i) => {
+            const value = v.__values![i] as unknown;
+            if (value && (typeof value === 'object' || typeof value === 'function')) {
+              if ('__spread' in value && 'ref' in value) {
+                applyRef(value.ref as Ref, null);
+              } else if ('__ref' in value) {
+                applyRef(value as Ref, null);
+              }
+            }
+          });
+        }
+      });
+    },
+    null,
+    0,
+    0,
+  );
+
+  globalBackgroundSnapshotInstancesToRemove.push(node.__id);
+}
+
+function tearDown(this: BackgroundDOM): void {
+  traverseSnapshotInstance(this, v => {
+    delete v.parentNode;
+    delete v.previousSibling;
+    delete v.nextSibling;
+    backgroundSnapshotInstanceManager.values.delete(v.__id);
+  });
+}
+
+function setAttribute(this: BackgroundDOM, key: string | number, value: unknown): void {
+  if (__PROFILE__) {
+    profileStart('ReactLynx::BSI::setAttribute');
+  }
+  if (key === 'values') {
+    if (__globalSnapshotPatch) {
+      const oldValues = this.__values;
+      if (oldValues) {
+        for (let index = 0; index < (value as unknown[]).length; index++) {
+          const { needUpdate, valueToCommit } = setAttributeImpl(
+            this,
+            (value as unknown[])[index],
+            oldValues[index],
+            index,
+          );
+          if (needUpdate) {
+            __globalSnapshotPatch.push(
+              SnapshotOperation.SetAttribute,
+              this.__id,
+              index,
+              valueToCommit,
+            );
+          }
+        }
+      } else {
+        const patch = [];
+        const length = (value as unknown[]).length;
+        for (let index = 0; index < length; ++index) {
+          const { valueToCommit } = setAttributeImpl(this, (value as unknown[])[index], null, index);
+          patch[index] = valueToCommit;
+        }
+        __globalSnapshotPatch.push(
+          SnapshotOperation.SetAttributes,
+          this.__id,
+          patch,
+        );
+      }
+    } else {
+      this.__snapshot_def.refAndSpreadIndexes?.forEach((index) => {
+        const v = (value as unknown[])[index];
+        if (v && (typeof v === 'object' || typeof v === 'function')) {
+          if ('__spread' in v && 'ref' in v) {
+            queueRefAttrUpdate(null, v.ref as Ref, this.__id, index);
+          } else if ('__ref' in v) {
+            queueRefAttrUpdate(null, v as Ref, this.__id, index);
+          }
+        }
+      });
+    }
+    this.__values = value as unknown[];
+    if (__PROFILE__) {
+      profileEnd();
+    }
+    return;
+  }
+
+  if (typeof key === 'string') {
+    (this.__extraProps ??= {})[key] = value;
+  } else {
+    // old path (`this.setAttribute(0, xxx)`)
+    // is reserved as slow path
+    (this.__values ??= [])[key] = value;
+  }
+  __globalSnapshotPatch?.push(
+    SnapshotOperation.SetAttribute,
+    this.__id,
+    key,
+    value,
+  );
+  if (__PROFILE__) {
+    profileEnd();
+  }
+}
+
+function setAttributeImpl(dom: BackgroundDOM, newValue: unknown, oldValue: unknown, index: number): {
+  needUpdate: boolean;
+  valueToCommit: unknown;
+} {
+  if (!newValue) {
+    // `oldValue` can't be a spread.
+    if (oldValue && typeof oldValue === 'object' && '__ref' in oldValue) {
+      queueRefAttrUpdate(oldValue as Ref, null, dom.__id, index);
+    }
+    return { needUpdate: oldValue !== newValue, valueToCommit: newValue };
+  }
+
+  const newType = typeof newValue;
+  if (newType === 'object') {
+    const newValueObj = newValue as Record<string, unknown>;
+    if ('__spread' in newValueObj) {
+      const oldSpread = (oldValue as { __spread?: Record<string, unknown> } | undefined)?.__spread;
+      const newSpread = transformSpread(dom, index, newValueObj);
+      const needUpdate = !isDirectOrDeepEqual(oldSpread, newSpread);
+      // use __spread to cache the transform result for next diff
+      newValueObj['__spread'] = newSpread;
+      queueRefAttrUpdate(
+        oldSpread && ((oldValue as { ref?: Ref }).ref),
+        newValueObj['ref'] as Ref,
+        dom.__id,
+        index,
+      );
+      if (needUpdate) {
+        for (const key in newSpread) {
+          const newSpreadValue = newSpread[key];
+          if (!newSpreadValue) {
+            continue;
+          }
+          if ((newSpreadValue as { _wkltId?: string })._wkltId) {
+            newSpread[key] = onPostWorkletCtx(newSpreadValue as Worklet);
+          } else if ((newSpreadValue as { __isGesture?: boolean }).__isGesture) {
+            processGestureBackground(newSpreadValue as GestureKind);
+          } else if (key == '__lynx_timing_flag' && oldSpread?.[key] != newSpreadValue && globalPipelineOptions) {
+            globalPipelineOptions.needTimestamps = true;
+          }
+        }
+      }
+      return { needUpdate, valueToCommit: newSpread };
+    }
+    if ('__ref' in newValueObj) {
+      queueRefAttrUpdate(oldValue as Ref, newValueObj as Ref, dom.__id, index);
+      return { needUpdate: false, valueToCommit: 1 };
+    }
+    if ('_wkltId' in newValueObj) {
+      return { needUpdate: true, valueToCommit: onPostWorkletCtx(newValueObj as Worklet) };
+    }
+    if ('__isGesture' in newValueObj) {
+      processGestureBackground(newValueObj as unknown as GestureKind);
+      return { needUpdate: true, valueToCommit: newValue };
+    }
+    if ('__ltf' in newValueObj) {
+      // __lynx_timing_flag
+      if (globalPipelineOptions && (oldValue as { __ltf?: unknown } | undefined)?.__ltf != newValueObj['__ltf']) {
+        globalPipelineOptions.needTimestamps = true;
+        return { needUpdate: true, valueToCommit: newValue };
+      }
+      return { needUpdate: false, valueToCommit: newValue };
+    }
+    return { needUpdate: !isDirectOrDeepEqual(oldValue, newValue), valueToCommit: newValue };
+  }
+  if (newType === 'function') {
+    if ((newValue as { __ref?: unknown }).__ref) {
+      queueRefAttrUpdate(oldValue as Ref, newValue as Ref, dom.__id, index);
+      return { needUpdate: false, valueToCommit: 1 };
+    }
+    /* event */
+    return { needUpdate: !oldValue, valueToCommit: 1 };
+  }
+  return { needUpdate: oldValue !== newValue, valueToCommit: newValue };
+}
+
+const childNodesGetter = {
+  get(this: BackgroundDOM) {
+    const nodes: BackgroundDOM[] = [];
+    let node = this.firstChild;
+    while (node) {
+      nodes.push(node);
+      if (node === this.lastChild) {
+        break;
+      }
+      node = node.nextSibling;
+    }
+    return nodes;
+  },
+};
+
+export function setupDom(vnode: BackgroundDOM): BackgroundDOM {
+  vnode.__snapshot_def = snapshotManager.values.get(vnode.type)!;
+  vnode.__id = backgroundSnapshotInstanceManager.nextId += 1;
+  __globalSnapshotPatch?.push(SnapshotOperation.CreateElement, vnode.type, vnode.__id);
+
+  vnode.contains = contains;
+  vnode.appendChild = appendChild;
+  vnode.insertBefore = insertBefore;
+  vnode.removeChild = removeChild;
+  vnode.tearDown = tearDown;
+  vnode.setAttribute = setAttribute;
+
+  Object.defineProperty(vnode, 'childNodes', childNodesGetter);
+
+  backgroundSnapshotInstanceManager.values.set(vnode.__id, vnode);
+  return vnode;
 }

@@ -6,7 +6,7 @@ import { options } from 'preact';
 import './hooks/react.js';
 
 import { initAlog } from './alog/index.js';
-import { setupVnodeDom } from './backgroundSnapshot.js';
+import { setupDom } from './backgroundSnapshot.js';
 import { setupComponentStack } from './debug/component-stack.js';
 import { initProfileHook } from './debug/profile.js';
 import { replaceCommitHook } from './lifecycle/patch/commit.js';
@@ -53,7 +53,7 @@ if (typeof __ALOG__ !== 'undefined' && __ALOG__) {
 
 if (__BACKGROUND__) {
   options.requestAnimationFrame = lynxQueueMicrotask;
-  setupVnodeDom();
+  options.setupDom = setupDom;
   injectTt();
   addCtxNotFoundEventListener();
 
