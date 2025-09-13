@@ -170,7 +170,7 @@
     "api-extractor": "api-extractor run --verbose"
   },
   "dependencies": {
-    "preact": "npm:@upupming/preact@10.24.0-simple-bsi.3"
+    "preact": "npm:@upupming/preact@10.24.0-simple-bsi.4"
   },
   "devDependencies": {
     "@lynx-js/types": "3.4.11",
