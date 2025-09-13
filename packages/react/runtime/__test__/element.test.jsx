@@ -27,12 +27,12 @@ describe('BackgroundSnapshotInstance', () => {
     root.insertBefore(child1);
     expect(root.__removed_from_tree).toEqual(undefined);
     expect(root.lastChild).toEqual(child1);
-    expect(child2.parentNode).toEqual(undefined);
+    expect(child2.parentNode).toEqual(null);
     root.insertBefore(child2);
     root.insertBefore(child3);
     expect(root.childNodes).toEqual([child1, child2, child3]);
     root.removeChild(child2);
-    expect(child2.parentNode).toEqual(undefined);
+    expect(child2.parentNode).toEqual(null);
     expect(root.childNodes).toEqual([child1, child3]);
 
     expect(() => root.removeChild(child2)).toThrowErrorMatchingInlineSnapshot(

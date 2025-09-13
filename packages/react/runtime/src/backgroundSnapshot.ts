@@ -43,11 +43,11 @@ export interface BackgroundDOM extends VNode {
   __extraProps?: Record<string, unknown> | undefined;
   __removed_from_tree?: boolean;
 
-  parentNode?: BackgroundDOM | undefined;
-  previousSibling?: BackgroundDOM | undefined;
-  nextSibling?: BackgroundDOM | undefined;
-  firstChild?: BackgroundDOM | undefined;
-  lastChild?: BackgroundDOM | undefined;
+  parentNode: BackgroundDOM | null;
+  previousSibling: BackgroundDOM | null;
+  nextSibling: BackgroundDOM | null;
+  firstChild: BackgroundDOM | null;
+  lastChild: BackgroundDOM | null;
 
   childNodes: BackgroundDOM[];
 
@@ -270,7 +270,7 @@ function insertBefore(this: BackgroundDOM, node: BackgroundDOM, beforeNode?: Bac
       node.previousSibling = beforeNode.previousSibling;
     } else {
       this.firstChild = node;
-      node.previousSibling = undefined;
+      node.previousSibling = null;
     }
     beforeNode.previousSibling = node;
     node.nextSibling = beforeNode;
@@ -281,11 +281,11 @@ function insertBefore(this: BackgroundDOM, node: BackgroundDOM, beforeNode?: Bac
       node.previousSibling = this.lastChild;
     } else {
       this.firstChild = node;
-      node.previousSibling = undefined;
+      node.previousSibling = null;
     }
     this.lastChild = node;
     node.parentNode = this;
-    node.nextSibling = undefined;
+    node.nextSibling = null;
   }
 }
 
@@ -313,9 +313,9 @@ function removeChild(this: BackgroundDOM, node: BackgroundDOM): void {
     this.lastChild = node.previousSibling;
   }
 
-  node.parentNode = undefined;
-  node.previousSibling = undefined;
-  node.nextSibling = undefined;
+  node.parentNode = null;
+  node.previousSibling = null;
+  node.nextSibling = null;
 
   queueRefAttrUpdate(
     () => {
@@ -518,6 +518,11 @@ export function setupDom(vnode: BackgroundDOM): BackgroundDOM {
   vnode.insertBefore = insertBefore;
   vnode.removeChild = removeChild;
   vnode.setAttribute = setAttribute;
+  vnode.parentNode = null;
+  vnode.previousSibling = null;
+  vnode.nextSibling = null;
+  vnode.firstChild = null;
+  vnode.lastChild = null;
 
   Object.defineProperty(vnode, 'childNodes', childNodesGetter);
 

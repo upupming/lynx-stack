@@ -94,9 +94,9 @@ function takeGlobalPatchOptions(): GlobalPatchOptions {
 
 export function tearDown(dom: BackgroundDOM): void {
   traverseSnapshotInstance(dom, v => {
-    v.parentNode = undefined;
-    v.previousSibling = undefined;
-    v.nextSibling = undefined;
+    v.parentNode = null;
+    v.previousSibling = null;
+    v.nextSibling = null;
     backgroundSnapshotInstanceManager.values.delete(v.__id);
   });
 }
