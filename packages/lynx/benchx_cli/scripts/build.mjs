@@ -7,7 +7,12 @@ import path from 'node:path';
 
 import { $ } from 'zx';
 
-if (!process.env.CI) {
+if (
+  !process.env.CI
+  // rspack-ecosystem-ci would set this
+  // https://github.com/rspack-contrib/rspack-ecosystem-ci/blob/113d2338da254ca341313a4a54afe789b45b1508/utils.ts#L108
+  || process.env['ECOSYSTEM_CI']
+) {
   // eslint-disable-next-line n/no-process-exit
   process.exit(0);
 }
@@ -30,7 +35,7 @@ console.log('noop')
 }
 
 const COMMIT = 'd6dd806293012c62e5104ad7ed2bed5c66f4f833';
-const PICK_COMMIT = 'ff0c7dbe93ddf526c3a2b814215797ceeb3bb085';
+const PICK_COMMIT = '3d75a38c2e5b422da9b32851a1bd5dfe25ca8ed6';
 
 function checkCwd() {
   try {

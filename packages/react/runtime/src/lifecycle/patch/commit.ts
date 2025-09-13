@@ -21,6 +21,8 @@
 
 import { options } from 'preact';
 
+import type { RunWorkletCtxData } from '@lynx-js/react/worklet-runtime/bindings';
+
 import type { BackgroundDOM } from '../../backgroundSnapshot.js';
 import { LifecycleConstant } from '../../lifecycleConstant.js';
 import { globalPipelineOptions, markTiming, markTimingLegacy, setPipeline } from '../../lynx/performance.js';
@@ -33,6 +35,7 @@ import { getReloadVersion } from '../pass.js';
 import type { SnapshotPatch } from './snapshotPatch.js';
 import { takeGlobalSnapshotPatch } from './snapshotPatch.js';
 import { profileEnd, profileStart } from '../../debug/utils.js';
+import { delayedRunOnMainThreadData, takeDelayedRunOnMainThreadData } from '../../worklet/runOnMainThread.js';
 import { isRendering } from '../isRendering.js';
 
 let globalFlushOptions: FlushOptions = {};
@@ -63,6 +66,7 @@ interface Patch {
  */
 interface PatchList {
   patchList: Patch[];
+  delayedRunOnMainThreadData?: RunWorkletCtxData[];
   flushOptions?: FlushOptions;
 }
 
@@ -166,6 +170,9 @@ function replaceCommitHook(): void {
       };
       if (!isEmptyObject(flushOptions)) {
         patchList.flushOptions = flushOptions;
+      }
+      if (snapshotPatch && delayedRunOnMainThreadData.length) {
+        patchList.delayedRunOnMainThreadData = takeDelayedRunOnMainThreadData();
       }
       const obj = commitPatchUpdate(patchList, patchOptions);
 

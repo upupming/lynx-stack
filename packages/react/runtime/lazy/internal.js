@@ -21,6 +21,7 @@ export const {
   loadLazyBundle,
   loadWorkletRuntime,
   options,
+  process,
   registerWorkletOnBackground,
   snapshotCreateList,
   snapshotManager,

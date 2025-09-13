@@ -1320,6 +1320,16 @@ test.describe('reactlynx3 tests', () => {
       },
     );
     test(
+      'config-css-remove-scope-false-import-css',
+      async ({ page }, { title }) => {
+        await goto(page, title);
+        await wait(100);
+        await expect(
+          page.locator('#sub'),
+        ).toHaveCSS('background-color', 'rgb(0, 128, 0)');
+      },
+    );
+    test(
       'config-css-remove-scope-true',
       async ({ page }, { title }) => {
         await goto(page, title);
@@ -1968,6 +1978,14 @@ test.describe('reactlynx3 tests', () => {
         await goto(page, title);
         await diffScreenShot(page, 'svg', 'with-css');
       });
+
+      test(
+        'basic-element-svg-background-image',
+        async ({ page }, { title }) => {
+          await goto(page, title);
+          await diffScreenShot(page, 'svg', 'background-image');
+        },
+      );
     });
     test.describe('scroll-view', () => {
       const elementName = 'scroll-view';
