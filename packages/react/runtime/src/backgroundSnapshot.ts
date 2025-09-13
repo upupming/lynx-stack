@@ -55,7 +55,6 @@ export interface BackgroundDOM extends VNode {
   appendChild: (child: BackgroundDOM) => void;
   insertBefore: (node: BackgroundDOM, beforeNode?: BackgroundDOM) => void;
   removeChild: (node: BackgroundDOM) => void;
-  tearDown: () => void;
   setAttribute(key: string | number, value: unknown): void;
 }
 
@@ -343,15 +342,6 @@ function removeChild(this: BackgroundDOM, node: BackgroundDOM): void {
   globalBackgroundSnapshotInstancesToRemove.push(node.__id);
 }
 
-function tearDown(this: BackgroundDOM): void {
-  traverseSnapshotInstance(this, v => {
-    v.parentNode = undefined;
-    v.previousSibling = undefined;
-    v.nextSibling = undefined;
-    backgroundSnapshotInstanceManager.values.delete(v.__id);
-  });
-}
-
 function setAttribute(this: BackgroundDOM, key: string | number, value: unknown): void {
   if (__PROFILE__) {
     profileStart('ReactLynx::BSI::setAttribute');
@@ -527,7 +517,6 @@ export function setupDom(vnode: BackgroundDOM): BackgroundDOM {
   vnode.appendChild = appendChild;
   vnode.insertBefore = insertBefore;
   vnode.removeChild = removeChild;
-  vnode.tearDown = tearDown;
   vnode.setAttribute = setAttribute;
 
   Object.defineProperty(vnode, 'childNodes', childNodesGetter);
