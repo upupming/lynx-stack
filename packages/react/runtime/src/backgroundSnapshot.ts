@@ -518,9 +518,10 @@ const childNodesGetter = {
 };
 
 export function setupDom(vnode: BackgroundDOM): BackgroundDOM {
-  vnode.__snapshot_def = snapshotManager.values.get(vnode.type)!;
-  vnode.__id = backgroundSnapshotInstanceManager.nextId += 1;
-  __globalSnapshotPatch?.push(SnapshotOperation.CreateElement, vnode.type, vnode.__id);
+  const type = vnode.type;
+  vnode.__snapshot_def = snapshotManager.values.get(type)!;
+  const id = vnode.__id = backgroundSnapshotInstanceManager.nextId += 1;
+  __globalSnapshotPatch?.push(SnapshotOperation.CreateElement, type, id);
 
   vnode.contains = contains;
   vnode.appendChild = appendChild;
@@ -531,6 +532,6 @@ export function setupDom(vnode: BackgroundDOM): BackgroundDOM {
 
   Object.defineProperty(vnode, 'childNodes', childNodesGetter);
 
-  backgroundSnapshotInstanceManager.values.set(vnode.__id, vnode);
+  backgroundSnapshotInstanceManager.values.set(id, vnode);
   return vnode;
 }
