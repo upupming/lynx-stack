@@ -22,8 +22,8 @@ catalogs:
       version: 1.5.2
 
 overrides:
-  '@rsbuild/core>@rspack/core': 1.5.2
   '@rspack/core': 1.5.2
+  '@rsbuild/core>@rspack/core': 1.5.2
 
 patchedDependencies:
   '@napi-rs/cli@2.18.4':
@@ -32,9 +32,6 @@ patchedDependencies:
   '@rollup/plugin-typescript':
     hash: 926ba262ec682d27369f1a8648a0dfb657fb5f1b28539ca3628d292276c91c3d
     path: patches/@rollup__plugin-typescript.patch
-  '@upupming/preact':
-    hash: 5587b60d1bd56aa330a0fc36deeb6bffb34784410bcf80d46186c616a8da7ce6
-    path: patches/@upupming__preact.patch
 
 importers:
 
@@ -263,7 +260,7 @@ importers:
     dependencies:
       preact:
         specifier: npm:@upupming/preact@10.24.0-simple-bsi.3
-        version: '@upupming/preact@10.24.0-simple-bsi.3(patch_hash=5587b60d1bd56aa330a0fc36deeb6bffb34784410bcf80d46186c616a8da7ce6)'
+        version: '@upupming/preact@10.24.0-simple-bsi.3'
     devDependencies:
       '@lynx-js/types':
         specifier: 3.4.11
@@ -2674,7 +2671,6 @@ packages:
   '@rslib/core@0.13.1':
     resolution: {integrity: sha512-XDyTHHXtLs9Cki5vzaabgFXbn/EksCmR571SVbIxJZB05zD7LwbbpcyTXgXk2DrW/6nOm7aTceh/mQHF5qq9gQ==}
     engines: {node: '>=18.12.0'}
-    deprecated: deprecated due to bug, please consider using 0.12.2 or >= 0.13.2
     hasBin: true
     peerDependencies:
       '@microsoft/api-extractor': ^7
@@ -10862,7 +10858,7 @@ snapshots:
   '@unrs/resolver-binding-win32-x64-msvc@1.11.1':
     optional: true
 
-  '@upupming/preact@10.24.0-simple-bsi.3(patch_hash=5587b60d1bd56aa330a0fc36deeb6bffb34784410bcf80d46186c616a8da7ce6)': {}
+  '@upupming/preact@10.24.0-simple-bsi.3': {}
 
   '@vitest/coverage-v8@3.2.4(vitest@3.2.4)':
     dependencies:
