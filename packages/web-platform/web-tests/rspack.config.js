@@ -17,6 +17,7 @@ const isCI = !!process.env.CI;
 const port = process.env.PORT ?? 3080;
 /** @type {import('@rspack/cli').Configuration} */
 const config = {
+  cache: false,
   entry: {
     main: './shell-project/index.ts',
     'web-elements': './shell-project/web-elements.ts',
@@ -205,7 +206,7 @@ const config = {
     },
     watchFiles: isCI
       ? []
-      : ['./node_modules/@lynx-js/**/*'],
+      : ['./node_modules/@lynx-js/**/*.js'],
     static: [
       {
         directory: path.join(__dirname, 'resources'),
@@ -236,6 +237,9 @@ const config = {
     hot: false,
   },
   watch: false,
+  watchOptions: {
+    ignored: isCI ? /.*/ : undefined,
+  },
   module: {
     rules: [
       {
