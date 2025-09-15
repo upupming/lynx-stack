@@ -1963,12 +1963,10 @@ describe('Config', () => {
         "enableCSSSelector": true,
         "enableICU": false,
         "enableNewGesture": false,
-        "enableParallelElement": false,
         "enableRemoveCSSScope": true,
         "experimental_isLazyBundle": false,
         "filename": "main.lynx.bundle",
         "intermediate": ".rspeedy/main",
-        "pipelineSchedulerConfig": 0,
         "removeDescendantSelectorScope": true,
         "targetSdkVersion": "3.2",
       }

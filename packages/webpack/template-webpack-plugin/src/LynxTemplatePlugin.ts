@@ -266,19 +266,9 @@ export interface LynxTemplatePluginOptions {
   enableNewGesture: boolean;
 
   /**
-   * {@inheritdoc @lynx-js/react-rsbuild-plugin#PluginReactLynxOptions.enableParallelElement}
-   */
-  enableParallelElement?: boolean;
-
-  /**
    * {@inheritdoc @lynx-js/react-rsbuild-plugin#PluginReactLynxOptions.enableRemoveCSSScope}
    */
   enableRemoveCSSScope: boolean;
-
-  /**
-   * {@inheritdoc @lynx-js/react-rsbuild-plugin#PluginReactLynxOptions.pipelineSchedulerConfig}
-   */
-  pipelineSchedulerConfig: number;
 
   /**
    * {@inheritdoc @lynx-js/react-rsbuild-plugin#PluginReactLynxOptions.removeDescendantSelectorScope}
@@ -405,10 +395,8 @@ export class LynxTemplatePlugin {
       enableCSSInvalidation: false,
       enableCSSSelector: true,
       enableNewGesture: false,
-      enableParallelElement: false,
       defaultDisplayLinear: true,
       enableRemoveCSSScope: false,
-      pipelineSchedulerConfig: 0,
       targetSdkVersion: '3.2',
       defaultOverflowVisible: true,
       removeDescendantSelectorScope: false,
@@ -748,9 +736,7 @@ class LynxTemplatePluginImpl {
       enableCSSInvalidation,
       enableCSSSelector,
       enableNewGesture,
-      enableParallelElement,
       enableRemoveCSSScope,
-      pipelineSchedulerConfig,
       removeDescendantSelectorScope,
       targetSdkVersion,
       defaultOverflowVisible,
@@ -782,7 +768,6 @@ class LynxTemplatePluginImpl {
         enableCSSInvalidation,
         enableCSSSelector,
         enableLepusDebug: isDev,
-        enableParallelElement,
         enableRemoveCSSScope,
         targetSdkVersion,
         defaultOverflowVisible,
@@ -801,7 +786,6 @@ class LynxTemplatePluginImpl {
           customCSSInheritanceList,
           enableCSSInheritance,
           enableNewGesture,
-          pipelineSchedulerConfig,
           removeDescendantSelectorScope,
         },
       },

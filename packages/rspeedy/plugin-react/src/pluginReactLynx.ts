@@ -189,15 +189,6 @@ export interface PluginReactLynxOptions {
   enableNewGesture?: boolean
 
   /**
-   * enableParallelElement enables Threaded Element Resolution.
-   *
-   * @defaultValue `true`
-   *
-   * @public
-   */
-  enableParallelElement?: boolean
-
-  /**
    * enableRemoveCSSScope controls whether CSS is restrict to use in the component scope.
    *
    * `true`: All CSS files are treated as global CSS.
@@ -236,31 +227,6 @@ export interface PluginReactLynxOptions {
    * @public
    */
   enableSSR?: boolean
-
-  /**
-   * Composite configuration representing pipeline scheduling strategies, including {@link PluginReactLynxOptions.enableParallelElement} and list batch-rendering. All newly introduced scheduling strategies will be managed by this uint64 configuration.
-   *
-   * @remarks
-   *
-   * Preallocate 64 bit unsigned integer for pipeline scheduler config.
-   *
-   * -  0 ~ 7 bit: Reserved for parsing binary bundle into C++ bundle.
-   *
-   * -  8 ~ 15 bit: Reserved for MTS Render.
-   *
-   * -  16 ~ 23 bit: Reserved for resolve stage in Pixel Pipeline.
-   *
-   * -  24 ~ 31 bit: Reserved for layout stage in Pixel Pipeline.
-   *
-   * -  32 ~ 39 bit: Reserved for execute UI OP stage in Pixel Pipeline.
-   *
-   * -  40 ~ 47 bit: Reserved for paint stage in Pixel Pipeline.
-   *
-   * -  48 ~ 63 bit: Flexible bits for extensibility.
-   *
-   * @defaultValue `0x00010000`
-   */
-  pipelineSchedulerConfig?: number
 
   /**
    * removeDescendantSelectorScope is used to remove the scope of descendant selectors.
@@ -341,11 +307,9 @@ export function pluginReactLynx(
     enableCSSInvalidation: true,
     enableCSSSelector: true,
     enableNewGesture: false,
-    enableParallelElement: false,
     enableRemoveCSSScope: true,
     firstScreenSyncTiming: 'immediately',
     enableSSR: false,
-    pipelineSchedulerConfig: 0,
     removeDescendantSelectorScope: true,
     shake: undefined,
     defineDCE: undefined,

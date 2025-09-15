@@ -23,7 +23,6 @@
     "enableCSSInvalidation": true,
     "enableCSSSelector": true,
     "enableLepusDebug": false,
-    "enableParallelElement": false,
     "enableRemoveCSSScope": true,
     "targetSdkVersion": "2.10"
   },

@@ -50,8 +50,6 @@ export default defineConfig({
   plugins: [
     pluginRepoFilePath(),
     pluginReactLynx({
-      enableParallelElement: false,
-      pipelineSchedulerConfig: 0,
       debugInfoOutside: false,
     }),
     pluginScriptLoad(),
