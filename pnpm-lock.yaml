@@ -256,8 +256,8 @@ importers:
   packages/react:
     dependencies:
       preact:
-        specifier: npm:@hongzhiyuan/preact@10.24.0-00213bad
-        version: '@hongzhiyuan/preact@10.24.0-00213bad'
+        specifier: file:../../../preact-hzy
+        version: file:../preact-hzy
     devDependencies:
       '@lynx-js/types':
         specifier: 3.4.11
@@ -276,7 +276,7 @@ importers:
         version: link:..
       '@prefresh/core':
         specifier: ^1.5.7
-        version: 1.5.7(preact@10.23.2)
+        version: 1.5.7(preact@10.26.8)
       '@prefresh/utils':
         specifier: ^1.2.1
         version: 1.2.1
@@ -2100,9 +2100,6 @@ packages:
   '@eslint/plugin-kit@0.3.5':
     resolution: {integrity: sha512-Z5kJ+wU3oA7MMIqVR9tyZRtjYPr4OC004Q4Rw7pgOKUOKkJfZ3O24nz3WYfGRpMDNmcOi3TwQOmgm7B7Tpii0w==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
-
-  '@hongzhiyuan/preact@10.24.0-00213bad':
-    resolution: {integrity: sha512-bHWp4ZDK5ZimcY+bTWw3S3xGiB8eROpZj0RK3FClNIaTOajb0b11CsT3K+pdeakgPgq1jWN3T2e2rfrPm40JsQ==}
 
   '@humanfs/core@0.19.1':
     resolution: {integrity: sha512-5DyQ4+1JEUzejeK1JGICcideyfUbGixgS9jNgex5nqkW+cY7WZhxBigmieN5Qnw9ZosSNVC9KQKyb+GUaGyKUA==}
@@ -6762,8 +6759,11 @@ packages:
     resolution: {integrity: sha512-3Ybi1tAuwAP9s0r1UQ2J4n5Y0G05bJkpUIO0/bI9MhwmD70S5aTWbXGBwxHrelT+XM1k6dM0pk+SwNkpTRN7Pg==}
     engines: {node: ^10 || ^12 || >=14}
 
-  preact@10.23.2:
-    resolution: {integrity: sha512-kKYfePf9rzKnxOAKDpsWhg/ysrHPqT+yQ7UW4JjdnqjFIeNUnNcEJvhuA8fDenxAGWzUqtd51DfVg7xp/8T9NA==}
+  preact@10.26.8:
+    resolution: {integrity: sha512-1nMfdFjucm5hKvq0IClqZwK4FJkGXhRrQstOQ3P4vp8HxKrJEMFcY6RdBRVTdfQS/UlnX6gfbPuTvaqx/bDoeQ==}
+
+  preact@file:../preact-hzy:
+    resolution: {directory: ../preact-hzy, type: directory}
 
   prelude-ls@1.2.1:
     resolution: {integrity: sha512-vkcDPrRZo1QZLbn5RLGPpg/WmIQ65qoWWhcGKf/b5eplkkarX0m9z8ppCat4mlOqUsWpyNuYgO3VRyrYHSzX5g==}
@@ -9147,8 +9147,6 @@ snapshots:
       '@eslint/core': 0.15.2
       levn: 0.4.1
 
-  '@hongzhiyuan/preact@10.24.0-00213bad': {}
-
   '@humanfs/core@0.19.1': {}
 
   '@humanfs/node@0.16.6':
@@ -9570,9 +9568,9 @@ snapshots:
 
   '@polka/url@1.0.0-next.25': {}
 
-  '@prefresh/core@1.5.7(preact@10.23.2)':
+  '@prefresh/core@1.5.7(preact@10.26.8)':
     dependencies:
-      preact: 10.23.2
+      preact: 10.26.8
 
   '@prefresh/utils@1.2.1': {}
 
@@ -14731,7 +14729,9 @@ snapshots:
       picocolors: 1.1.1
       source-map-js: 1.2.1
 
-  preact@10.23.2: {}
+  preact@10.26.8: {}
+
+  preact@file:../preact-hzy: {}
 
   prelude-ls@1.2.1: {}
 

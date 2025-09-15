@@ -22,7 +22,7 @@ import { SnapshotOperation, __globalSnapshotPatch } from './lifecycle/patch/snap
 import { ListUpdateInfoRecording } from './listUpdateInfo.js';
 import { __pendingListUpdates } from './pendingListUpdates.js';
 import { DynamicPartType } from './snapshot/dynamicPartType.js';
-import { snapshotDestroyList } from './snapshot/list.js';
+import { snapshotCreateList, snapshotDestroyList } from './snapshot/list.js';
 import type { PlatformInfo } from './snapshot/platformInfo.js';
 import { unref } from './snapshot/ref.js';
 import { isDirectOrDeepEqual } from './utils.js';
@@ -220,6 +220,38 @@ export const snapshotManager: {
           }
           /* v8 ignore stop */
           return [__CreateImage(__pageId)];
+        },
+        setAttribute,
+        slot: __DynamicPartChildren_0,
+        isListHolder: false,
+      },
+    ],
+    [
+      'list-item',
+      {
+        create() {
+          /* v8 ignore start */
+          if (__JS__ && !__DEV__) {
+            return [];
+          }
+          /* v8 ignore stop */
+          return [__CreateElement("list-item", __pageId)];
+        },
+        setAttribute,
+        slot: __DynamicPartChildren_0,
+        isListHolder: false,
+      },
+    ],
+    [
+      'list',
+      {
+        create() {
+          /* v8 ignore start */
+          if (__JS__ && !__DEV__) {
+            return [];
+          }
+          /* v8 ignore stop */
+          return [snapshotCreateList(__pageId)];
         },
         setAttribute,
         slot: __DynamicPartChildren_0,

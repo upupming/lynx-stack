@@ -5,6 +5,9 @@ import { defineConfig } from '@lynx-js/rspeedy';
 const enableBundleAnalysis = !!process.env['RSPEEDY_BUNDLE_ANALYSIS'];
 
 export default defineConfig({
+  output: {
+    filenameHash: 'contenthash:8',
+  },
   plugins: [
     pluginReactLynx(),
     pluginQRCode({
