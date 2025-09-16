@@ -23,7 +23,8 @@ import { ListUpdateInfoRecording } from './listUpdateInfo.js';
 import { __pendingListUpdates } from './pendingListUpdates.js';
 import { DynamicPartType } from './snapshot/dynamicPartType.js';
 import { snapshotCreateList, snapshotDestroyList } from './snapshot/list.js';
-import type { PlatformInfo } from './snapshot/platformInfo.js';
+import {  updateListItemPlatformInfo } from './snapshot/platformInfo.js';
+import type {PlatformInfo} from './snapshot/platformInfo.js';
 import { unref } from './snapshot/ref.js';
 import { isDirectOrDeepEqual } from './utils.js';
 
@@ -55,6 +56,7 @@ export function clearPage(): void {
 }
 
 export const __DynamicPartChildren_0: [DynamicPartType, number][] = [[DynamicPartType.Children, 0]];
+export const __DynamicPartListChildren_0: [DynamicPartType, number][] = [[DynamicPartType.ListChildren, 0]];
 
 
 // const eventRegExp = /^(?:[A-Za-z-]*:)?(?:bind|catch|capture-bind|capture-catch|global-bind)[A-Za-z]+$/;
@@ -237,7 +239,13 @@ export const snapshotManager: {
           /* v8 ignore stop */
           return [__CreateElement("list-item", __pageId)];
         },
-        setAttribute,
+        setAttribute: (ctx, qualifiedName, value) => {
+          updateListItemPlatformInfo(
+            ctx,
+            qualifiedName,
+            value
+          )
+        },
         slot: __DynamicPartChildren_0,
         isListHolder: false,
       },
@@ -254,8 +262,8 @@ export const snapshotManager: {
           return [snapshotCreateList(__pageId)];
         },
         setAttribute,
-        slot: __DynamicPartChildren_0,
-        isListHolder: false,
+        slot: __DynamicPartListChildren_0,
+        isListHolder: true,
       },
     ]
   ]),

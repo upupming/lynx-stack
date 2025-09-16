@@ -93,6 +93,7 @@ function renderPage(data: Record<string, unknown> | undefined): void {
 
   // always call this before `__FlushElementTree`
   // (There is an implicit `__FlushElementTree` in `renderPage`)
+  console.log('__pendingListUpdates.flush', JSON.stringify(__pendingListUpdates.values))
   __pendingListUpdates.flush();
   applyRefQueue();
 
