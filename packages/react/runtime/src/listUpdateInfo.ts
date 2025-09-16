@@ -134,9 +134,7 @@ export class ListUpdateInfoRecording implements ListUpdateInfo {
   }
 
   onSetAttribute(child: SnapshotInstance, attr: any): void {
-    console.log('onSetAttribute', child, attr)
     this.platformInfoUpdate.set(child, attr);
-    console.log('this.platformInfoUpdate', [...this.platformInfoUpdate.values()])
   }
 
   private __toAttribute(): ListOperations {

@@ -57,11 +57,12 @@ if (__BACKGROUND__) {
   // Trick Preact and TypeScript to accept our custom document adapter.
   options.document = document as unknown as Document;
   options.requestAnimationFrame = lynxQueueMicrotask;
-  // @ts-expect-error solve it later
   options.refProxy = (dom: BackgroundSnapshotInstance | null): RefProxy | null => {
-    return dom?.__id ? new RefProxy(
-      [dom.__id]
-    ) : null
+    return dom?.__id
+      ? new RefProxy(
+        [dom.__id],
+      )
+      : null;
   };
   setupBackgroundDocument();
   injectTt();

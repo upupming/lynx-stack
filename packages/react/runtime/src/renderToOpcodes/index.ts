@@ -282,7 +282,6 @@ function _renderToString(
 
   opcodes.push(__OpBegin, vnode);
 
-  console.log('props', props)
   for (const name in props) {
     const v = props[name];
 
@@ -298,7 +297,6 @@ function _renderToString(
       // case 'ref':
       case '__self':
       case '__source':
-        console.log('ignore known element prop', name)
         continue;
 
       default: {}
@@ -307,10 +305,9 @@ function _renderToString(
     // write this attribute to the buffer
     if (v != null && v !== false) {
       if (typeof v !== 'function') {
-        opcodes.push(__OpAttr, name, v);  
+        opcodes.push(__OpAttr, name, v);
       } else {
-        // TODO: handle bindtap correctly
-        opcodes.push(__OpAttr, name, "");
+        opcodes.push(__OpAttr, name, '');
       }
     }
   }

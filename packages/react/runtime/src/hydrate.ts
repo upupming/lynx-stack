@@ -220,7 +220,7 @@ export function hydrate(before: SnapshotInstance, after: SnapshotInstance, optio
   if ((swap = options?.swap)) {
     swap[before.__id] = after.__id;
   }
-  
+
   __pendingListUpdates.runWithoutUpdates(() => {
     if (after.__attributes) {
       Object.keys(after.__attributes).forEach(key => {
@@ -231,7 +231,7 @@ export function hydrate(before: SnapshotInstance, after: SnapshotInstance, optio
           after.__attributes[key] = old;
           after.setAttribute(key, value);
         }
-      })
+      });
     }
   });
 

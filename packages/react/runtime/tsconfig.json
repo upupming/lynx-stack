@@ -7,7 +7,6 @@
     "rootDir": "./src",
     "jsx": "react-jsx",
     "jsxImportSource": "./",
-    "sourceMap": false
   },
   "references": [{
     "path": "../worklet-runtime/tsconfig.json",

@@ -86,7 +86,7 @@ export function ssrHydrateByOpcodes(
       case Opcode.Text: {
         const [[type, __id, elements], text] = opcodes[i + 1] as [SSRSnapshotInstance, string];
         const s = new SnapshotInstance(type, __id);
-        s.setAttribute("text", text);
+        s.setAttribute('text', text);
         top.insertBefore(s);
         s.__elements = elements.map(({ ssrID }) => refMap![ssrID]!);
         s.__element_root = s.__elements[0];
@@ -98,7 +98,6 @@ export function ssrHydrateByOpcodes(
 }
 
 export function renderOpcodesInto(opcodes: any[], into: SnapshotInstance): void {
-  console.log('opcodes', opcodes)
   let top: SnapshotInstance = into;
   const stack: SnapshotInstance[] = [into];
   for (let i = 0; i < opcodes.length;) {
@@ -145,7 +144,7 @@ export function renderOpcodesInto(opcodes: any[], into: SnapshotInstance): void 
           // We need store the just created SnapshotInstance, or it will be lost when we leave the function
           opcodes[i + 1] = [s, text];
         }
-        s.setAttribute("text", text);
+        s.setAttribute('text', text);
         top.insertBefore(s);
 
         i += 2;

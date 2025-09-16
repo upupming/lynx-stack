@@ -23,8 +23,8 @@ import { ListUpdateInfoRecording } from './listUpdateInfo.js';
 import { __pendingListUpdates } from './pendingListUpdates.js';
 import { DynamicPartType } from './snapshot/dynamicPartType.js';
 import { snapshotCreateList, snapshotDestroyList } from './snapshot/list.js';
-import {  platformInfoAttributes, updateListItemPlatformInfo } from './snapshot/platformInfo.js';
-import type {PlatformInfo} from './snapshot/platformInfo.js';
+import { platformInfoAttributes, updateListItemPlatformInfo } from './snapshot/platformInfo.js';
+import type { PlatformInfo } from './snapshot/platformInfo.js';
 import { unref } from './snapshot/ref.js';
 import { isDirectOrDeepEqual } from './utils.js';
 
@@ -58,16 +58,15 @@ export function clearPage(): void {
 export const __DynamicPartChildren_0: [DynamicPartType, number][] = [[DynamicPartType.Children, 0]];
 export const __DynamicPartListChildren_0: [DynamicPartType, number][] = [[DynamicPartType.ListChildren, 0]];
 
-
 // const eventRegExp = /^(?:[A-Za-z-]*:)?(?:bind|catch|capture-bind|capture-catch|global-bind)[A-Za-z]+$/;
 const eventTypeMap = {
-    bind: 'bindEvent',
-    catch: 'catchEvent',
-    'capture-bind': 'capture-bind',
-    'capture-catch': 'capture-catch',
-    'global-bind': 'global-bindEvent'
+  bind: 'bindEvent',
+  catch: 'catchEvent',
+  'capture-bind': 'capture-bind',
+  'capture-catch': 'capture-catch',
+  'global-bind': 'global-bindEvent',
 };
-const eventTypeKeys = Object.keys(eventTypeMap)
+const eventTypeKeys = Object.keys(eventTypeMap);
 function setAttribute(ctx: SnapshotInstance, qualifiedName: string, value: string) {
   // if (
   //       key === 'style'
@@ -83,54 +82,54 @@ function setAttribute(ctx: SnapshotInstance, qualifiedName: string, value: strin
   //     ) {
   //       throw new Error(`Cannot use __SetAttribute for "${key}"`);
   //     }
-  if (!ctx.__elements) return
-  const el = ctx.__elements[0]!
+  if (!ctx.__elements) return;
+  const el = ctx.__elements[0]!;
   if (qualifiedName.startsWith('data-')) {
     __AddDataset(el, qualifiedName.slice(5), value);
-    return
+    return;
   }
 
   switch (qualifiedName) {
-    case "style":
+    case 'style':
       // if (typeof value === 'object') {
       //   for (const key in value as Record<string, unknown>) {
       //     (value  as Record<string, unknown>)[key] = value[key]
       //   }
       // } else {
-        
+
       // }
-      __SetInlineStyles(el, value);  
-      break
+      __SetInlineStyles(el, value);
+      break;
     // TODO: make sure if this will happen
-    case "class":
-    case "className":
+    case 'class':
+    case 'className':
       __SetClasses(el, value);
       break;
     // TODO: make sure if this will happen
-    case "key":
-      break
-    case "id":
+    case 'key':
+      break;
+    case 'id':
       __SetID(el, value);
-      break
+      break;
     // TODO: make ref works
-    case "ref":
+    case 'ref':
       {
         const ref = `react-ref-${ctx.__id}`;
         __SetAttribute(el, ref, 1);
       }
-      break
+      break;
     default:
       for (const eventType of eventTypeKeys) {
         if (qualifiedName.startsWith(eventType)) {
           // @ts-expect-error fix it later
-          __AddEvent(el, eventTypeMap[eventType], qualifiedName.slice(4), `${ctx.__id}:${qualifiedName}`)
-          return
+          __AddEvent(el, eventTypeMap[eventType], qualifiedName.slice(4), `${ctx.__id}:${qualifiedName}`);
+          return;
         }
       }
-      __SetAttribute(el, qualifiedName, value)
+      __SetAttribute(el, qualifiedName, value);
   }
 }
-        
+
 export const snapshotManager: {
   values: Map<string, Snapshot>;
 } = {
@@ -241,17 +240,17 @@ export const snapshotManager: {
             return [];
           }
           /* v8 ignore stop */
-          return [__CreateElement("list-item", __pageId)];
+          return [__CreateElement('list-item', __pageId)];
         },
         setAttribute: (ctx, qualifiedName, value) => {
           if (platformInfoAttributes.has(qualifiedName)) {
             updateListItemPlatformInfo(
               ctx,
               qualifiedName,
-              value
-            )
+              value,
+            );
           } else {
-            setAttribute(ctx, qualifiedName, value)
+            setAttribute(ctx, qualifiedName, value);
           }
         },
         slot: __DynamicPartChildren_0,
@@ -287,9 +286,9 @@ export const snapshotManager: {
         },
         setAttribute,
         slot: __DynamicPartListChildren_0,
-        isListHolder: false
+        isListHolder: false,
       },
-    ]
+    ],
   ]),
 };
 
@@ -475,13 +474,12 @@ export class SnapshotInstance {
     const elements = create!(this);
     this.__elements = elements;
     this.__element_root = elements[0];
-    
-    console.log('ensureElements', this.type, this.__id, this.__attributes)
+
     if (this.__attributes) {
       const attributes = this.__attributes;
       delete this.__attributes;
       for (const key in attributes) {
-        this.setAttribute(key, attributes[key]!)
+        this.setAttribute(key, attributes[key]!);
       }
     }
 
@@ -793,14 +791,13 @@ export class SnapshotInstance {
   }
 
   setAttribute(qualifiedName: string, value: string): void {
-    console.log('SnapshotInstance setAttribute', qualifiedName, value)
     this.__attributes ??= {};
-    
-    const oldValue = this.__attributes[qualifiedName]
+
+    const oldValue = this.__attributes[qualifiedName];
     if (isDirectOrDeepEqual(oldValue, value)) {}
     else {
       this.__attributes[qualifiedName] = value;
-      this.__snapshot_def.setAttribute!(this, qualifiedName, value)
+      this.__snapshot_def.setAttribute!(this, qualifiedName, value);
     }
   }
 

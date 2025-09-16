@@ -1,8 +1,6 @@
-import { useCallback, useEffect, useRef, useState } from '@lynx-js/react';
+import { useCallback, useEffect, useState } from '@lynx-js/react';
 
 import './App.css';
-import type { NodesRef } from '@lynx-js/types';
-
 import arrow from './assets/arrow.png';
 import lynxLogo from './assets/lynx-logo.png';
 import reactLynxLogo from './assets/react-logo.png';
@@ -18,16 +16,9 @@ export function App() {
     'background-only';
     setAlterLogo(prevAlterLogo => !prevAlterLogo);
   }, []);
-  const ref = useRef<NodesRef>(null)
-  const [title, setTitle] = useState('React');
 
   return (
-    <view bindtap={() => {
-      // setTitle("REACT")
-      ref.current?.setNativeProps({
-        text: 'New text set by setNativeProps',
-      }).exec();
-    }}>
+    <view>
       <view className='Background' />
       <view className='App'>
         <view className='Banner'>
@@ -36,9 +27,7 @@ export function App() {
               ? <image src={reactLynxLogo} className='Logo--react' />
               : <image src={lynxLogo} className='Logo--lynx' />}
           </view>
-          <text className='Title' ref={(_ref) => {
-            ref.current = _ref
-          }}>{title}</text>
+          <text className='Title'>React</text>
           <text className='Subtitle'>on Lynx</text>
         </view>
         <view className='Content'>
@@ -56,7 +45,7 @@ export function App() {
             to see updates!
           </text>
         </view>
-        <view style={{ flex: "1" }}></view>
+        <view style={{ flex: 1 }}></view>
       </view>
     </view>
   );

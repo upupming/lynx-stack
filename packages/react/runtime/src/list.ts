@@ -2,7 +2,6 @@
 // Licensed under the Apache License Version 2.0 that can be found in the
 // LICENSE file in the root directory of this source tree.
 import { LifecycleConstant } from './lifecycleConstant.js';
-import { applyRefQueue } from './snapshot/workletRef.js';
 import type { SnapshotInstance } from './snapshot.js';
 import { maybePromise } from './utils.js';
 
@@ -123,7 +122,6 @@ export function componentAtIndexFactory(
       const sign = __GetElementUniqueID(root);
 
       if (recycleSignMap?.has(sign)) {
-        console.log('recycleSignMap has sign', recycleSignMap, sign);
         signMap.set(sign, childCtx);
         recycleSignMap.delete(sign);
         if (!enableBatchRender) {
@@ -135,7 +133,6 @@ export function componentAtIndexFactory(
         // in this case, no need to invoke __FlushElementTree because in the end of componentAtIndexes(), the list will invoke __FlushElementTree.
         return sign;
       } else {
-        console.log('recycleSignMap not has sign', recycleSignMap, sign);
         const newCtx = childCtx.takeElements();
         signMap.set(sign, newCtx);
       }
@@ -145,7 +142,6 @@ export function componentAtIndexFactory(
       const [first] = recycleSignMap;
       const [sign, oldCtx] = first!;
       recycleSignMap.delete(sign);
-      console.log('hydrating', oldCtx, childCtx)
       hydrateFunction(oldCtx, childCtx);
       oldCtx.unRenderElements();
       if (!oldCtx.__id) {
@@ -157,7 +153,6 @@ export function componentAtIndexFactory(
         }]);
       }
       const root = childCtx.__element_root!;
-      applyRefQueue();
       if (!enableBatchRender) {
         const flushOptions: FlushOptions = {
           triggerLayout: true,
@@ -192,7 +187,6 @@ export function componentAtIndexFactory(
     const root = childCtx.__element_root!;
     __AppendElement(list, root);
     const sign = __GetElementUniqueID(root);
-    applyRefQueue();
     if (!enableBatchRender) {
       __FlushElementTree(root, {
         triggerLayout: true,
@@ -216,8 +210,6 @@ export function componentAtIndexFactory(
     operationID: number,
     enableReuseNotification: boolean,
   ) {
-    console.log('componentAtIndex', listID, cellIndex, operationID, enableReuseNotification);
-    
     const childCtx = ctx[cellIndex];
     if (!childCtx) {
       throw new Error('childCtx not found');
@@ -289,7 +281,6 @@ export function componentAtIndexFactory(
 export function enqueueComponentFactory(): EnqueueComponentCallback {
   // eslint-disable-next-line unicorn/consistent-function-scoping
   const enqueueComponent = (_: FiberElement, listID: number, sign: number) => {
-    console.log('enqueueComponent', listID, sign);
     const signMap = gSignMap[listID];
     const recycleMap = gRecycleMap[listID];
     if (!signMap || !recycleMap) {
@@ -297,7 +288,6 @@ export function enqueueComponentFactory(): EnqueueComponentCallback {
     }
 
     const childCtx = signMap.get(sign)!;
-    console.log('childCtx', childCtx)
     if (!childCtx) {
       return;
     }

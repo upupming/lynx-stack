@@ -1,7 +1,7 @@
 import '@testing-library/jest-dom';
 import { vi } from 'vitest';
 import { test } from 'vitest';
-import { render, fireEvent, waitSchedule } from '..';
+import { render, fireEvent } from '..';
 import { useEffect, useState } from 'preact/hooks';
 import { createRef } from 'preact';
 import { Component } from 'preact';
@@ -9,20 +9,47 @@ import { expect } from 'vitest';
 import { __globalSnapshotPatch } from '../../../runtime/lib/lifecycle/patch/snapshotPatch.js';
 import { snapshotInstanceManager } from '../../../runtime/lib/snapshot.js';
 
-
-test.only('render in bts', async () => {
-  vi.spyOn(lynxCoreInject.tt, 'OnLifecycleEvent');
-  vi.spyOn(lynx.getNativeApp(), 'callLepusMethod');
-  const OnLifecycleEventCalls = lynxCoreInject.tt.OnLifecycleEvent.mock.calls;
-  const callLepusMethodCalls = lynx.getNativeApp().callLepusMethod.mock.calls;
-  const cb = vi.fn((...args) => {
-    console.log('cb', args)
-  });
+test('render calls useEffect immediately', async () => {
+  const cb = vi.fn();
   function Comp() {
     useEffect(() => {
       cb(`__MAIN_THREAD__: ${__MAIN_THREAD__}`);
     });
-    return <view data-testid='foo' bindtap={() => {}} className="xxx"/>;
+    return <view />;
+  }
+  {
+    const { container, unmount } = render(<Comp />);
+    expect(container).toMatchInlineSnapshot(`
+    <page>
+      <view />
+    </page>
+  `);
+
+    expect(cb).toBeCalledTimes(1);
+    expect(cb.mock.calls).toMatchInlineSnapshot(`
+    [
+      [
+        "__MAIN_THREAD__: false",
+      ],
+    ]
+  `);
+
+    unmount();
+    cb.mockClear();
+  }
+
+  {
+    const { container, unmount } = render(<Comp />, {
+      enableMainThread: true,
+      enableBackgroundThread: false,
+    });
+    expect(container).toMatchInlineSnapshot(`<page />`);
+
+    expect(cb).toBeCalledTimes(0);
+    expect(cb.mock.calls).toMatchInlineSnapshot(`[]`);
+
+    unmount();
+    cb.mockClear();
   }
 
   {
@@ -32,63 +59,18 @@ test.only('render in bts', async () => {
     });
     expect(container).toMatchInlineSnapshot(`
       <page>
-        <view
-          class="xxx"
-          data-testid="foo"
-        />
+        <view />
       </page>
     `);
-    
-    console.log('OnLifecycleEventCalls', OnLifecycleEventCalls)
-    expect(OnLifecycleEventCalls).toMatchInlineSnapshot(`
+
+    expect(cb).toBeCalledTimes(1);
+    expect(cb.mock.calls).toMatchInlineSnapshot(`
       [
         [
-          [
-            "rLynxFirstScreen",
-            {
-              "jsReadyEventIdSwap": {},
-              "root": "{"id":-1,"type":"root","children":[{"id":-2,"type":"view","attributes":{"data-testid":"foo","bindtap":"","className":"xxx"}}]}",
-            },
-          ],
+          "__MAIN_THREAD__: false",
         ],
       ]
-    `)
-    
-    // {
-      expect(callLepusMethodCalls).toMatchInlineSnapshot(`
-        [
-          [
-            "rLynxChange",
-            {
-              "data": "{"patchList":[{"snapshotPatch":[],"id":2}]}",
-              "patchOptions": {
-                "isHydration": true,
-                "pipelineOptions": {
-                  "dsl": "reactLynx",
-                  "needTimestamps": true,
-                  "pipelineID": "pipelineID",
-                  "pipelineOrigin": "reactLynxHydrate",
-                  "stage": "hydrate",
-                },
-                "reloadVersion": 0,
-              },
-            },
-            [Function],
-          ],
-        ]
-      `)
-    // }
-
-    // {
-      expect(cb).toBeCalledTimes(1);
-      expect(cb.mock.calls).toMatchInlineSnapshot(`
-        [
-          [
-            "__MAIN_THREAD__: false",
-          ],
-        ]
-      `);
-    // }
+    `);
 
     unmount();
     cb.mockClear();

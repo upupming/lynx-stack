@@ -256,8 +256,8 @@ importers:
   packages/react:
     dependencies:
       preact:
-        specifier: file:../../../preact-hzy
-        version: file:../preact-hzy
+        specifier: npm:@upupming/preact@10.24.0-remove-snapshot.1
+        version: '@upupming/preact@10.24.0-remove-snapshot.1'
     devDependencies:
       '@lynx-js/types':
         specifier: 3.4.11
@@ -2663,6 +2663,7 @@ packages:
   '@rslib/core@0.13.0':
     resolution: {integrity: sha512-jRCKUQPBhIXKQT5LVC76pcpAg4H10xU8kjxxLqMW5qKTXka5PlF86zyZ/gSolgkHx+AHaFPYweGZKPxbMaI45A==}
     engines: {node: '>=18.12.0'}
+    deprecated: deprecated due to bug, please consider using 0.12.2 or >= 0.13.2
     hasBin: true
     peerDependencies:
       '@microsoft/api-extractor': ^7
@@ -3403,6 +3404,9 @@ packages:
     resolution: {integrity: sha512-lrW200hZdbfRtztbygyaq/6jP6AKE8qQN2KvPcJ+x7wiD038YtnYtZ82IMNJ69GJibV7bwL3y9FgK+5w/pYt6g==}
     cpu: [x64]
     os: [win32]
+
+  '@upupming/preact@10.24.0-remove-snapshot.1':
+    resolution: {integrity: sha512-B11mCo4/BGdDDxqD+UHu9/7stSVDNBfppBhLfRxOIZN5uYLWfs+jKNsKhFb7mL9v2dCbrXZGJUZIHBOtmXO2Ug==}
 
   '@vitest/coverage-v8@3.2.4':
     resolution: {integrity: sha512-EyF9SXU6kS5Ku/U82E259WSnvg6c8KTjppUncuNdm5QHpe17mwREHnjDzozC8x9MZ0xfBUFSaLkRv4TMA75ALQ==}
@@ -6761,9 +6765,6 @@ packages:
 
   preact@10.26.8:
     resolution: {integrity: sha512-1nMfdFjucm5hKvq0IClqZwK4FJkGXhRrQstOQ3P4vp8HxKrJEMFcY6RdBRVTdfQS/UlnX6gfbPuTvaqx/bDoeQ==}
-
-  preact@file:../preact-hzy:
-    resolution: {directory: ../preact-hzy, type: directory}
 
   prelude-ls@1.2.1:
     resolution: {integrity: sha512-vkcDPrRZo1QZLbn5RLGPpg/WmIQ65qoWWhcGKf/b5eplkkarX0m9z8ppCat4mlOqUsWpyNuYgO3VRyrYHSzX5g==}
@@ -10749,6 +10750,8 @@ snapshots:
   '@unrs/resolver-binding-win32-x64-msvc@1.11.1':
     optional: true
 
+  '@upupming/preact@10.24.0-remove-snapshot.1': {}
+
   '@vitest/coverage-v8@3.2.4(vitest@3.2.4)':
     dependencies:
       '@ampproject/remapping': 2.3.0
@@ -14730,8 +14733,6 @@ snapshots:
       source-map-js: 1.2.1
 
   preact@10.26.8: {}
-
-  preact@file:../preact-hzy: {}
 
   prelude-ls@1.2.1: {}
 

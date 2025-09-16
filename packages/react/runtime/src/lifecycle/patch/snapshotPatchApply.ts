@@ -31,14 +31,12 @@ import {
  * Each operation in the patch is processed sequentially to update the DOM.
  */
 export function snapshotPatchApply(snapshotPatch: SnapshotPatch): void {
-  console.log('snapshot patch apply', snapshotPatch);
   const length = snapshotPatch.length;
   for (let i = 0; i < length; ++i) {
     switch (snapshotPatch[i]) {
       case SnapshotOperation.CreateElement: {
         const type = snapshotPatch[++i] as string;
         const id = snapshotPatch[++i] as number;
-        console.log('create element', type, id);
         new SnapshotInstance(type, id);
         break;
       }
@@ -46,7 +44,6 @@ export function snapshotPatchApply(snapshotPatch: SnapshotPatch): void {
         const parentId = snapshotPatch[++i] as number;
         const childId = snapshotPatch[++i] as number;
         const beforeId = snapshotPatch[++i] as number | undefined;
-        console.log('insert before', parentId, childId, beforeId);
         const parent = snapshotInstanceManager.values.get(parentId);
         const child = snapshotInstanceManager.values.get(childId);
         const existingNode = snapshotInstanceManager.values.get(beforeId!);
@@ -60,7 +57,6 @@ export function snapshotPatchApply(snapshotPatch: SnapshotPatch): void {
       case SnapshotOperation.RemoveChild: {
         const parentId = snapshotPatch[++i] as number;
         const childId = snapshotPatch[++i] as number;
-        console.log('remove child', parentId, childId);
         const parent = snapshotInstanceManager.values.get(parentId);
         const child = snapshotInstanceManager.values.get(childId);
         if (!parent || !child) {
@@ -74,7 +70,6 @@ export function snapshotPatchApply(snapshotPatch: SnapshotPatch): void {
         const id = snapshotPatch[++i] as number;
         const key = snapshotPatch[++i] as string;
         const value = snapshotPatch[++i] as string;
-        console.log('set attribute', id, key, value);
         const si = snapshotInstanceManager.values.get(id);
         if (si) {
           si.setAttribute(key, value);
@@ -83,17 +78,6 @@ export function snapshotPatchApply(snapshotPatch: SnapshotPatch): void {
         }
         break;
       }
-      // case SnapshotOperation.SetAttributes: {
-      //   const id = snapshotPatch[++i] as number;
-      //   const values = snapshotPatch[++i];
-      //   const si = snapshotInstanceManager.values.get(id);
-      //   if (si) {
-      //     si.setAttribute('values', values);
-      //   } else {
-      //     sendCtxNotFoundEventToBackground(id);
-      //   }
-      //   break;
-      // }
       case SnapshotOperation.DEV_ONLY_AddSnapshot: {
         if (__DEV__) {
           const uniqID = snapshotPatch[++i] as string;
@@ -102,7 +86,6 @@ export function snapshotPatchApply(snapshotPatch: SnapshotPatch): void {
           const slot = snapshotPatch[++i] as [DynamicPartType, number][];
           const cssId = (snapshotPatch[++i] ?? 0) as number;
           const entryName = snapshotPatch[++i] as string | undefined;
-          console.log('add snapshot', uniqID, create, setAttribute, slot, cssId, entryName);
 
           if (!snapshotManager.values.has(entryUniqID(uniqID, entryName))) {
             // HMR-related
@@ -110,8 +93,6 @@ export function snapshotPatchApply(snapshotPatch: SnapshotPatch): void {
             createSnapshot(
               uniqID,
               evaluate<(ctx: SnapshotInstance) => FiberElement[]>(create),
-              // eslint-disable-next-line unicorn/no-array-callback-reference
-              // update.map<(ctx: SnapshotInstance, index: number, oldValue: any) => void>(evaluate),
               evaluate(setAttribute),
               slot,
               cssId,

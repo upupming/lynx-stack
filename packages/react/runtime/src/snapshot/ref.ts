@@ -1,11 +1,10 @@
 // Copyright 2024 The Lynx Authors. All rights reserved.
 // Licensed under the Apache License Version 2.0 that can be found in the
 // LICENSE file in the root directory of this source tree.
-import type { Element, Worklet, WorkletRefImpl } from '@lynx-js/react/worklet-runtime/bindings';
+// import type { Element, Worklet, WorkletRefImpl } from '@lynx-js/react/worklet-runtime/bindings';
 
-import type { SnapshotInstance } from '../snapshot.js';
-import { workletUnRef } from './workletRef.js';
 import { RefProxy } from '../lifecycle/ref/delay.js';
+import type { SnapshotInstance } from '../snapshot.js';
 
 const refsToClear: Ref[] = [];
 const refsToApply: (Ref | [snapshotInstanceId: number])[] = [];
@@ -18,7 +17,7 @@ type Ref = (((ref: RefProxy) => (() => void) | void) | { current: RefProxy | nul
 function unref(snapshot: SnapshotInstance, recursive: boolean): void {
   snapshot.__worklet_ref_set?.forEach(v => {
     if (v) {
-      workletUnRef(v as Worklet | WorkletRefImpl<Element>);
+      // workletUnRef(v as Worklet | WorkletRefImpl<Element>);
     }
   });
   snapshot.__worklet_ref_set?.clear();
@@ -53,17 +52,6 @@ function applyRef(ref: Ref, value: null | [snapshotInstanceId: number]): void {
     lynx.reportError(e as Error);
   }
   /* v8 ignore stop */
-}
-
-function updateRef(
-  // snapshot: SnapshotInstance,
-): void {
-  // const ref = `react-ref-${snapshot.__id}`;
-  // console.log('updateRef', ref)
-
-  // if (ref) {
-  //   __SetAttribute(snapshot.__elements![0]!, ref, 1);
-  // }
 }
 
 function transformRef(ref: unknown): Ref | null | undefined {
@@ -122,4 +110,4 @@ function clearQueuedRefs(): void {
 /**
  * @internal
  */
-export { updateRef, unref, transformRef, applyRef, applyQueuedRefs, clearQueuedRefs, type Ref };
+export { unref, transformRef, applyRef, applyQueuedRefs, clearQueuedRefs, type Ref };
