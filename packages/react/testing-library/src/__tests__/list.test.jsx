@@ -840,20 +840,21 @@ describe('list - deferred <list-item/> should render as normal', () => {
             "rLynxFirstScreen",
             {
               "jsReadyEventIdSwap": {},
-              "root": "{"id":-1,"type":"root","children":[{"id":-2,"type":"__Card__:__snapshot_a9e46_test_26","children":[{"id":-3,"type":"__Card__:__snapshot_a9e46_test_27","values":[{"item-key":0}],"children":[{"id":-4,"type":"__Card__:__snapshot_a9e46_test_25","values":[{"style":{"backgroundColor":"red","margin":"12px"},"__spread":true}],"children":[{"id":-5,"type":"__Card__:__snapshot_a9e46_test_28","children":[{"id":-12,"type":null,"values":[0]}]}]}]},{"id":-6,"type":"__Card__:__snapshot_a9e46_test_27","values":[{"item-key":1}],"children":[{"id":-7,"type":"__Card__:__snapshot_a9e46_test_25","values":[{"style":{"backgroundColor":"red","margin":"12px"},"__spread":true}],"children":[{"id":-8,"type":"__Card__:__snapshot_a9e46_test_28","children":[{"id":-13,"type":null,"values":[1]}]}]}]},{"id":-9,"type":"__Card__:__snapshot_a9e46_test_27","values":[{"item-key":2}],"children":[{"id":-10,"type":"__Card__:__snapshot_a9e46_test_25","values":[{"style":{"backgroundColor":"red","margin":"12px"},"__spread":true}],"children":[{"id":-11,"type":"__Card__:__snapshot_a9e46_test_28","children":[{"id":-14,"type":null,"values":[2]}]}]}]}]}]}",
+              "root": "{"id":-1,"type":"root","children":[{"id":-2,"type":"__Card__:__snapshot_a9e46_test_26","children":[{"id":-3,"type":"__Card__:__snapshot_a9e46_test_27","values":[{"item-key":0}],"children":[{"id":-4,"type":"__Card__:__snapshot_a9e46_test_25","values":[{"style":{"backgroundColor":"red","margin":"12px"}}],"children":[{"id":-5,"type":"__Card__:__snapshot_a9e46_test_28","children":[{"id":-12,"type":null,"values":[0]}]}]}]},{"id":-6,"type":"__Card__:__snapshot_a9e46_test_27","values":[{"item-key":1}],"children":[{"id":-7,"type":"__Card__:__snapshot_a9e46_test_25","values":[{"style":{"backgroundColor":"red","margin":"12px"}}],"children":[{"id":-8,"type":"__Card__:__snapshot_a9e46_test_28","children":[{"id":-13,"type":null,"values":[1]}]}]}]},{"id":-9,"type":"__Card__:__snapshot_a9e46_test_27","values":[{"item-key":2}],"children":[{"id":-10,"type":"__Card__:__snapshot_a9e46_test_25","values":[{"style":{"backgroundColor":"red","margin":"12px"}}],"children":[{"id":-11,"type":"__Card__:__snapshot_a9e46_test_28","children":[{"id":-14,"type":null,"values":[2]}]}]}]}]}]}",
             },
           ],
         ],
       ]
     `);
     expect(onLifecycleEventCalls[0][0][0]).toBe('rLynxFirstScreen');
-    // expect(onLifecycleEventCalls[0][0][1]['root'].includes('__spread')).toBe(false);
+    expect(onLifecycleEventCalls[0][0][1]['root'].includes('__spread')).toBe(false);
+
     expect(callLepusMethodCalls).toMatchInlineSnapshot(`
       [
         [
           "rLynxChange",
           {
-            "data": "{"patchList":[{"snapshotPatch":[3,-4,0,{"style":{"backgroundColor":"red","margin":"12px"}},3,-7,0,{"style":{"backgroundColor":"red","margin":"12px"}},3,-10,0,{"style":{"backgroundColor":"red","margin":"12px"}}],"id":2}]}",
+            "data": "{"patchList":[{"snapshotPatch":[],"id":2}]}",
             "patchOptions": {
               "isHydration": true,
               "pipelineOptions": {
@@ -871,6 +872,6 @@ describe('list - deferred <list-item/> should render as normal', () => {
       ]
     `);
     expect(callLepusMethodCalls[0][0]).toBe('rLynxChange');
-    // expect(JSON.parse(callLepusMethodCalls[0][1]['data']).patchList[0].snapshotPatch.length).toBe(0);
+    expect(JSON.parse(callLepusMethodCalls[0][1]['data']).patchList[0].snapshotPatch.length).toBe(0);
   });
 });
