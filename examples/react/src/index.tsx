@@ -2,9 +2,9 @@ import '@lynx-js/preact-devtools';
 import '@lynx-js/react/debug';
 import { root } from '@lynx-js/react';
 
-import { App } from './App-list.jsx';
+// import { App } from './App-list.jsx';
 // import { App } from './App-jsx.jsx';
-// import { App } from './App.jsx';
+import { App } from './App.jsx';
 
 
 if (__BACKGROUND__) {

@@ -294,7 +294,8 @@ function _renderToString(
       // VDOM-specific props
       /* c8 ignore next 5 */
       case 'key':
-      case 'ref':
+      // ref is supported now
+      // case 'ref':
       case '__self':
       case '__source':
         console.log('ignore known element prop', name)

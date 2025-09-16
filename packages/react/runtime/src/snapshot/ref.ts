@@ -8,7 +8,7 @@ import { workletUnRef } from './workletRef.js';
 import { RefProxy } from '../lifecycle/ref/delay.js';
 
 const refsToClear: Ref[] = [];
-const refsToApply: (Ref | [snapshotInstanceId: number, expIndex: number])[] = [];
+const refsToApply: (Ref | [snapshotInstanceId: number])[] = [];
 
 type Ref = (((ref: RefProxy) => (() => void) | void) | { current: RefProxy | null }) & {
   _unmount?: (() => void) | void;
@@ -31,7 +31,7 @@ function unref(snapshot: SnapshotInstance, recursive: boolean): void {
 }
 
 // This function is modified from preact source code.
-function applyRef(ref: Ref, value: null | [snapshotInstanceId: number, expIndex: number]): void {
+function applyRef(ref: Ref, value: null | [snapshotInstanceId: number]): void {
   const newRef = value && new RefProxy(value);
 
   try {
@@ -57,26 +57,12 @@ function applyRef(ref: Ref, value: null | [snapshotInstanceId: number, expIndex:
 
 function updateRef(
   // snapshot: SnapshotInstance,
-  // expIndex: number,
-  // oldValue: string | null,
-  // elementIndex: number,
 ): void {
-  // const value: unknown = snapshot.__values![expIndex];
-  // let ref;
-  // if (typeof value === 'string') {
-  //   ref = value;
-  // } else {
-  //   ref = `react-ref-${snapshot.__id}-${expIndex}`;
-  // }
+  // const ref = `react-ref-${snapshot.__id}`;
+  // console.log('updateRef', ref)
 
-  // snapshot.__values![expIndex] = ref;
-  // if (snapshot.__elements && oldValue !== ref) {
-  //   if (oldValue) {
-  //     __SetAttribute(snapshot.__elements[elementIndex]!, oldValue, undefined);
-  //   }
-  //   if (ref) {
-  //     __SetAttribute(snapshot.__elements[elementIndex]!, ref, 1);
-  //   }
+  // if (ref) {
+  //   __SetAttribute(snapshot.__elements![0]!, ref, 1);
   // }
 }
 
@@ -103,7 +89,7 @@ function applyQueuedRefs(): void {
     }
     for (let i = 0; i < refsToApply.length; i += 2) {
       const ref = refsToApply[i] as Ref;
-      const value = refsToApply[i + 1] as [snapshotInstanceId: number, expIndex: number] | null;
+      const value = refsToApply[i + 1] as [snapshotInstanceId: number] | null;
       applyRef(ref, value);
     }
   } finally {
@@ -111,22 +97,22 @@ function applyQueuedRefs(): void {
   }
 }
 
-function queueRefAttrUpdate(
-  oldRef: Ref | null | undefined,
-  newRef: Ref | null | undefined,
-  snapshotInstanceId: number,
-  expIndex: number,
-): void {
-  if (oldRef === newRef) {
-    return;
-  }
-  if (oldRef) {
-    refsToClear.push(oldRef);
-  }
-  if (newRef) {
-    refsToApply.push(newRef, [snapshotInstanceId, expIndex]);
-  }
-}
+// function queueRefAttrUpdate(
+//   oldRef: Ref | null | undefined,
+//   newRef: Ref | null | undefined,
+//   snapshotInstanceId: number,
+//   expIndex: number,
+// ): void {
+//   if (oldRef === newRef) {
+//     return;
+//   }
+//   if (oldRef) {
+//     refsToClear.push(oldRef);
+//   }
+//   if (newRef) {
+//     refsToApply.push(newRef, [snapshotInstanceId, expIndex]);
+//   }
+// }
 
 function clearQueuedRefs(): void {
   refsToClear.length = 0;
@@ -136,4 +122,4 @@ function clearQueuedRefs(): void {
 /**
  * @internal
  */
-export { queueRefAttrUpdate, updateRef, unref, transformRef, applyRef, applyQueuedRefs, clearQueuedRefs, type Ref };
+export { updateRef, unref, transformRef, applyRef, applyQueuedRefs, clearQueuedRefs, type Ref };

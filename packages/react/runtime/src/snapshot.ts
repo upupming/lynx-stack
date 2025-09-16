@@ -23,7 +23,7 @@ import { ListUpdateInfoRecording } from './listUpdateInfo.js';
 import { __pendingListUpdates } from './pendingListUpdates.js';
 import { DynamicPartType } from './snapshot/dynamicPartType.js';
 import { snapshotCreateList, snapshotDestroyList } from './snapshot/list.js';
-import {  updateListItemPlatformInfo } from './snapshot/platformInfo.js';
+import {  platformInfoAttributes, updateListItemPlatformInfo } from './snapshot/platformInfo.js';
 import type {PlatformInfo} from './snapshot/platformInfo.js';
 import { unref } from './snapshot/ref.js';
 import { isDirectOrDeepEqual } from './utils.js';
@@ -114,6 +114,10 @@ function setAttribute(ctx: SnapshotInstance, qualifiedName: string, value: strin
       break
     // TODO: make ref works
     case "ref":
+      {
+        const ref = `react-ref-${ctx.__id}`;
+        __SetAttribute(el, ref, 1);
+      }
       break
     default:
       for (const eventType of eventTypeKeys) {
@@ -240,11 +244,15 @@ export const snapshotManager: {
           return [__CreateElement("list-item", __pageId)];
         },
         setAttribute: (ctx, qualifiedName, value) => {
-          updateListItemPlatformInfo(
-            ctx,
-            qualifiedName,
-            value
-          )
+          if (platformInfoAttributes.has(qualifiedName)) {
+            updateListItemPlatformInfo(
+              ctx,
+              qualifiedName,
+              value
+            )
+          } else {
+            setAttribute(ctx, qualifiedName, value)
+          }
         },
         slot: __DynamicPartChildren_0,
         isListHolder: false,
