@@ -40,24 +40,27 @@ const {
  */
 function createIFrameRealm(parent: Node): JSRealm {
   const iframe = document.createElement('iframe');
-  const iframeLoaded = new Promise<void>((resolve) => {
-    iframe.onload = () => resolve();
-  });
   iframe.style.display = 'none';
-  iframe.src = 'about:blank';
+  iframe.srcdoc =
+    '<!DOCTYPE html><html><head></head><body style="display:none"></body></html>';
+  iframe.sandbox = 'allow-same-origin allow-scripts'; // Restrict capabilities for security
+  iframe.loading = 'eager';
   parent.appendChild(iframe);
   const iframeWindow = iframe.contentWindow! as unknown as typeof globalThis;
-  const iframeDocument = iframe.contentDocument!;
-  const loadScript: (url: string) => Promise<unknown> = (url) => {
+  const loadScript: (url: string) => Promise<unknown> = async (url) => {
+    const script = iframe.contentDocument!.createElement('script');
+    script.fetchPriority = 'high';
+    script.defer = true;
+    script.async = false;
+    if (!iframe.contentDocument!.head) {
+      await new Promise<void>((resolve) => {
+        iframe.onload = () => resolve();
+        // In case iframe is already loaded, wait a macro task
+        setTimeout(() => resolve(), 0);
+      });
+    }
+    iframe.contentDocument!.head.appendChild(script);
     return new Promise(async (resolve, reject) => {
-      if (iframeDocument.readyState !== 'complete') {
-        await iframeLoaded;
-      }
-      const script = iframeDocument.createElement('script');
-      script.src = url;
-      script.fetchPriority = 'high';
-      script.defer = true;
-      script.async = false;
       script.onload = () => {
         const ret = iframeWindow?.module?.exports;
         // @ts-expect-error
@@ -68,7 +71,7 @@ function createIFrameRealm(parent: Node): JSRealm {
         reject(new Error(`Failed to load script: ${url}`, { cause: err }));
       // @ts-expect-error
       iframeWindow.module = { exports: undefined };
-      iframe.contentDocument!.head.appendChild(script);
+      script.src = url;
     });
   };
   const loadScriptSync: (url: string) => unknown = (url) => {
