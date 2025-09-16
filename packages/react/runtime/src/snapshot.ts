@@ -273,6 +273,22 @@ export const snapshotManager: {
         slot: __DynamicPartListChildren_0,
         isListHolder: true,
       },
+    ],
+    [
+      'scroll-view',
+      {
+        create() {
+          /* v8 ignore start */
+          if (__JS__ && !__DEV__) {
+            return [];
+          }
+          /* v8 ignore stop */
+          return [__CreateElement('scroll-view', __pageId)];
+        },
+        setAttribute,
+        slot: __DynamicPartListChildren_0,
+        isListHolder: false
+      },
     ]
   ]),
 };
