@@ -17,19 +17,21 @@ This preset is not a 1:1 port of Tailwind's core. Instead, it provides a **Lynx-
 
 ```ts
 // tailwind.config.ts
+import type { Config } from 'tailwindcss';
 import preset from '@lynx-js/tailwind-preset';
 
 export default {
   content: ['./src/**/*.{ts,tsx}'],
   presets: [preset],
-};
+} satisfies Config;
 ```
 
 ```ts
 // tailwind.config.ts
+import type { Config } from 'tailwindcss';
 import { createLynxPreset } from '@lynx-js/tailwind-preset';
 
-export default {
+const config: Config = {
   content: ['./src/**/*.{js,ts,jsx,tsx}'],
   presets: [
     createLynxPreset({
@@ -37,6 +39,7 @@ export default {
     }),
   ],
 };
+export default config;
 ```
 
 ## Integration Notes

@@ -201,8 +201,19 @@ impl napi::bindgen_prelude::FromNapiValue for IsModuleConfig {
     }
 
     let str_val = <&str>::from_napi_value(env, napi_val);
-    if str_val.is_ok() && str_val.unwrap() == "unknown" {
-      return Ok(IsModuleConfig(IsModule::Unknown));
+
+    if let Ok(val) = str_val {
+      match val {
+        "unknown" => return Ok(IsModuleConfig(IsModule::Unknown)),
+        "commonjs" => return Ok(IsModuleConfig(IsModule::CommonJS)),
+        _ => {
+          return Err(napi::bindgen_prelude::error!(
+            napi::bindgen_prelude::Status::InvalidArg,
+            "Invalid variant '{}' for enum IsModuleConfig",
+            val
+          ));
+        }
+      }
     }
 
     Err(napi::bindgen_prelude::error!(
@@ -221,6 +232,7 @@ impl napi::bindgen_prelude::ToNapiValue for IsModuleConfig {
     match val.0 {
       IsModule::Bool(v) => <bool>::to_napi_value(env, v),
       IsModule::Unknown => <&str>::to_napi_value(env, "unknown"),
+      IsModule::CommonJS => <&str>::to_napi_value(env, "commonjs"),
     }
   }
 }
@@ -468,9 +480,7 @@ fn transform_react_lynx_inner(
       visit_mut_pass(
         JSXTransformer::new(
           snapshot_plugin_config,
-          cm.clone(),
           Some(&comments),
-          top_level_mark,
           unresolved_mark,
           options.mode.unwrap_or(TransformMode::Production),
         )
@@ -638,6 +648,7 @@ fn transform_react_lynx_inner(
         source_root: "".into(), // TODO: add root
         source_file_name: options.source_file_name.as_deref(),
         source_map_url: None,
+        source_map_ignore_list: None,
         output_path: None,
         inline_sources_content: options.inline_sources_content.unwrap_or(true),
         source_map: match options.sourcemap {
@@ -761,23 +772,6 @@ pub fn transform_bundle_result(
 
 #[cfg(all(target_arch = "wasm32", target_os = "unknown"))]
 mod wasm {
-  use getrandom::register_custom_getrandom;
-  use getrandom::Error;
-
-  #[link(wasm_import_module = "getrandom")]
-  extern "C" {
-    fn random_fill_sync(offset: *mut u8, size: usize);
-  }
-
-  fn custom_getrandom(buf: &mut [u8]) -> Result<(), Error> {
-    unsafe {
-      random_fill_sync(buf.as_mut_ptr(), buf.len());
-    }
-    Ok(())
-  }
-
-  register_custom_getrandom!(custom_getrandom);
-
   use ::napi::{JsObject, NapiValue};
 
   const fn max(a: usize, b: usize) -> usize {

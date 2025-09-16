@@ -55,36 +55,36 @@ function updateSpread(
   //   const platformInfo = pick(newValue, platformInfoAttributes);
   //   if (!isDirectOrDeepEqual(oldPlatformInfo, platformInfo)) {
   //     if (__pendingListUpdates.values) {
-  //       (__pendingListUpdates.values[list.__id] ??= new ListUpdateInfoRecording(list)).onSetAttribute(
-  //         snapshot,
-  //         platformInfo,
-  //         oldPlatformInfo,
-  //       );
-  //     }
-  //     snapshot.__listItemPlatformInfo = platformInfo;
+  // //       (__pendingListUpdates.values[list.__id] ??= new ListUpdateInfoRecording(list)).onSetAttribute(
+  // //         snapshot,
+  // //         platformInfo,
+  // //         oldPlatformInfo,
+  // //       );
+  // //     }
+  // //     snapshot.__listItemPlatformInfo = platformInfo;
 
-  //     // The fakeSnapshot is missing `__parent`, so no `ListUpdateInfoRecording#onSetAttribute` will be called
-  //     const fakeSnapshot = {
-  //       __values: {
-  //         get [index]() {
-  //           return platformInfo;
-  //         },
-  //       },
-  //       __id: snapshot.__id,
-  //       __elements: snapshot.__elements,
-  //     } as SnapshotInstance;
-  //     updateListItemPlatformInfo(fakeSnapshot, index, oldPlatformInfo, elementIndex);
-  //   }
-  // }
-
-  // if (!snapshot.__elements) {
-  //   return;
-  // }
+  // //     // The fakeSnapshot is missing `__parent`, so no `ListUpdateInfoRecording#onSetAttribute` will be called
+  // //     const fakeSnapshot = {
+  // //       __values: {
+  // //         get [index]() {
+  // //           return platformInfo;
+  // //         },
+  // //       },
+  // //       __id: snapshot.__id,
+  // //       __elements: snapshot.__elements,
+  // //     } as SnapshotInstance;
+  // //     updateListItemPlatformInfo(fakeSnapshot, index, oldPlatformInfo, elementIndex);
+  // //   }
+  // // }
 
   // if ('__spread' in newValue) {
   //   // first screen
   //   newValue = transformSpread(snapshot, index, newValue);
   //   snapshot.__values![index] = newValue;
+  // }
+
+  // if (!snapshot.__elements) {
+  //   return;
   // }
 
   // const dataset: Record<string, unknown> = {};

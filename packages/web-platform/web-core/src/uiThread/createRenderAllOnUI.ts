@@ -16,10 +16,12 @@ import {
   lynxUniqueIdAttribute,
   type SSRDumpInfo,
   type JSRealm,
+  type TemplateLoader,
 } from '@lynx-js/web-constants';
 import { Rpc } from '@lynx-js/web-worker-rpc';
 import { dispatchLynxViewEvent } from '../utils/dispatchLynxViewEvent.js';
 import { createExposureMonitor } from './crossThreadHandlers/createExposureMonitor.js';
+import type { StartUIThreadCallbacks } from './startUIThread.js';
 
 const {
   prepareMainThreadAPIs,
@@ -38,30 +40,38 @@ const {
  */
 function createIFrameRealm(parent: Node): JSRealm {
   const iframe = document.createElement('iframe');
-  const iframeLoaded = new Promise<void>((resolve) => {
-    iframe.onload = () => resolve();
-  });
   iframe.style.display = 'none';
-  iframe.src = 'about:blank';
+  iframe.srcdoc =
+    '<!DOCTYPE html><html><head></head><body style="display:none"></body></html>';
+  iframe.sandbox = 'allow-same-origin allow-scripts'; // Restrict capabilities for security
+  iframe.loading = 'eager';
   parent.appendChild(iframe);
   const iframeWindow = iframe.contentWindow! as unknown as typeof globalThis;
-  const iframeDocument = iframe.contentDocument!;
-  const loadScript: (url: string) => Promise<unknown> = (url) => {
+  const loadScript: (url: string) => Promise<unknown> = async (url) => {
+    const script = iframe.contentDocument!.createElement('script');
+    script.fetchPriority = 'high';
+    script.defer = true;
+    script.async = false;
+    if (!iframe.contentDocument!.head) {
+      await new Promise<void>((resolve) => {
+        iframe.onload = () => resolve();
+        // In case iframe is already loaded, wait a macro task
+        setTimeout(() => resolve(), 0);
+      });
+    }
+    iframe.contentDocument!.head.appendChild(script);
     return new Promise(async (resolve, reject) => {
-      if (iframeDocument.readyState !== 'complete') {
-        await iframeLoaded;
-      }
-      const script = iframeDocument.createElement('script');
-      script.src = url;
-      script.fetchPriority = 'high';
-      script.defer = true;
-      script.async = false;
-      script.onload = () => resolve(iframeWindow?.module?.exports);
+      script.onload = () => {
+        const ret = iframeWindow?.module?.exports;
+        // @ts-expect-error
+        iframeWindow.module = { exports: undefined };
+        resolve(ret);
+      };
       script.onerror = (err) =>
         reject(new Error(`Failed to load script: ${url}`, { cause: err }));
       // @ts-expect-error
       iframeWindow.module = { exports: undefined };
-      iframe.contentDocument!.head.appendChild(script);
+      script.src = url;
     });
   };
   const loadScriptSync: (url: string) => unknown = (url) => {
@@ -74,7 +84,10 @@ function createIFrameRealm(parent: Node): JSRealm {
       // @ts-expect-error
       iframeWindow.module = { exports: undefined };
       iframe.contentDocument!.head.appendChild(script);
-      return iframeWindow?.module?.exports;
+      const ret = iframeWindow?.module?.exports;
+      // @ts-expect-error
+      iframeWindow.module = { exports: undefined };
+      return ret;
     } else {
       throw new Error(`Failed to load script: ${url}`, { cause: xhr });
     }
@@ -85,15 +98,14 @@ function createIFrameRealm(parent: Node): JSRealm {
 export function createRenderAllOnUI(
   mainToBackgroundRpc: Rpc,
   shadowRoot: ShadowRoot,
+  loadTemplate: TemplateLoader,
   markTimingInternal: (
     timingKey: string,
     pipelineId?: string,
     timeStamp?: number,
   ) => void,
   flushMarkTimingInternal: () => void,
-  callbacks: {
-    onError?: (err: Error, release: string, fileName: string) => void;
-  },
+  callbacks: StartUIThreadCallbacks,
   ssrDumpInfo: SSRDumpInfo | undefined,
 ) {
   if (!globalThis.module) {
@@ -130,6 +142,7 @@ export function createRenderAllOnUI(
       i18nResources.setData(initI18nResources);
       return i18nResources;
     },
+    loadTemplate,
   );
   const pendingUpdateCalls: Parameters<
     RpcCallType<typeof updateDataEndpoint>

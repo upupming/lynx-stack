@@ -17,6 +17,7 @@ const isCI = !!process.env.CI;
 const port = process.env.PORT ?? 3080;
 /** @type {import('@rspack/cli').Configuration} */
 const config = {
+  cache: false,
   entry: {
     main: './shell-project/index.ts',
     'web-elements': './shell-project/web-elements.ts',
@@ -48,7 +49,7 @@ const config = {
       meta: {
         viewport:
           'width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no',
-        'apple-mobile-web-app-capable': 'yes',
+        'mobile-web-app-capable': 'yes',
         'apple-mobile-web-app-status-bar-style': 'default',
         'screen-orientation': 'portrait',
         'format-detection': 'telephone=no',
@@ -205,7 +206,7 @@ const config = {
     },
     watchFiles: isCI
       ? []
-      : ['./node_modules/@lynx-js/**/*'],
+      : ['./node_modules/@lynx-js/**/*.js'],
     static: [
       {
         directory: path.join(__dirname, 'resources'),
@@ -236,6 +237,9 @@ const config = {
     hot: false,
   },
   watch: false,
+  watchOptions: {
+    ignored: isCI ? /.*/ : undefined,
+  },
   module: {
     rules: [
       {

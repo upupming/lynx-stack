@@ -46,11 +46,9 @@ export function applyEntry(
     enableCSSInvalidation,
     enableCSSSelector,
     enableNewGesture,
-    enableParallelElement,
     enableRemoveCSSScope,
     firstScreenSyncTiming,
     enableSSR,
-    pipelineSchedulerConfig,
     removeDescendantSelectorScope,
     targetSdkVersion,
     extractStr: originalExtractStr,
@@ -61,7 +59,7 @@ export function applyEntry(
   const { config, logger } = api.useExposed<ExposedAPI>(
     Symbol.for('rspeedy.api'),
   )!
-  api.modifyBundlerChain((chain, { environment, isDev, isProd }) => {
+  api.modifyBundlerChain(async (chain, { environment, isDev, isProd }) => {
     const entries = chain.entryPoints.entries() ?? {}
     const isLynx = environment.name === 'lynx'
     const isWeb = environment.name === 'web'
@@ -182,9 +180,7 @@ export function applyEntry(
           enableCSSInvalidation,
           enableCSSSelector,
           enableNewGesture,
-          enableParallelElement,
           enableRemoveCSSScope: enableRemoveCSSScope ?? true,
-          pipelineSchedulerConfig,
           removeDescendantSelectorScope,
           targetSdkVersion,
 
@@ -253,6 +249,10 @@ export function applyEntry(
       extractStr = false
     }
 
+    const { resolve } = api.useExposed<
+      { resolve: (request: string) => Promise<string> }
+    >(Symbol.for('@lynx-js/react/internal:resolve'))!
+
     chain
       .plugin(PLUGIN_NAME_REACT)
       .after(PLUGIN_NAME_TEMPLATE)
@@ -265,6 +265,9 @@ export function applyEntry(
         extractStr,
         experimental_isLazyBundle,
         profile: getDefaultProfile(),
+        workletRuntimePath: await resolve(
+          `@lynx-js/react/${isDev ? 'worklet-dev-runtime' : 'worklet-runtime'}`,
+        ),
       }])
 
     function getDefaultProfile(): boolean | undefined {

@@ -10,6 +10,7 @@ import type { DistPathConfig } from '@rsbuild/core';
 import type { InlineChunkConfig } from '@rsbuild/core';
 import { logger } from '@rsbuild/core';
 import type { PerformanceConfig } from '@rsbuild/core';
+import type { ProxyConfig } from '@rsbuild/core';
 import type { RsbuildConfig } from '@rsbuild/core';
 import type { RsbuildInstance } from '@rsbuild/core';
 import { RsbuildPlugin } from '@rsbuild/core';
@@ -270,6 +271,7 @@ export interface Performance {
 // @public
 export interface Resolve {
     alias?: Record<string, string | false | string[]> | undefined;
+    aliasStrategy?: 'prefer-tsconfig' | 'prefer-alias' | undefined;
     dedupe?: string[] | undefined;
 }
 
@@ -304,6 +306,7 @@ export interface Server {
     headers?: Record<string, string | string[]> | undefined;
     host?: string | undefined;
     port?: number | undefined;
+    proxy?: ProxyConfig | undefined;
     strictPort?: boolean | undefined;
 }
 

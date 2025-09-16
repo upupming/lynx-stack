@@ -6,6 +6,8 @@ import { test, expect } from './coverage-fixture.js';
 import type { Page, Worker } from '@playwright/test';
 
 const ENABLE_MULTI_THREAD = !!process.env.ENABLE_MULTI_THREAD;
+const isSSR = !!process.env['ENABLE_SSR'];
+
 const wait = async (ms: number) => {
   await new Promise((resolve) => {
     setTimeout(resolve, ms);
@@ -61,6 +63,7 @@ async function getBackgroundThreadWorker(
 }
 
 test.describe('web core tests', () => {
+  test.skip(isSSR, 'not support ssr');
   test('selectComponent', async ({ page, browserName }) => {
     // firefox not support
     test.skip(browserName === 'firefox');
@@ -104,8 +107,10 @@ test.describe('web core tests', () => {
     expect(isSuccess).toBeTruthy();
   });
   test('lynx.requireModuleAsync', async ({ page, browserName }) => {
-    // firefox dose not support this.
-    test.skip(browserName === 'firefox');
+    test.skip(
+      browserName === 'firefox' && ENABLE_MULTI_THREAD,
+      'firefox flaky',
+    );
     await goto(page);
     const mainWorker = await getMainThreadWorker(page);
     await mainWorker.evaluate(() => {
@@ -125,8 +130,10 @@ test.describe('web core tests', () => {
     expect(importedValue).toBe('hello');
   });
   test('lynx.requireModuleAsync-2', async ({ page, browserName }) => {
-    // firefox dose not support this.
-    test.skip(browserName === 'firefox');
+    test.skip(
+      browserName === 'firefox' && ENABLE_MULTI_THREAD,
+      'firefox flaky',
+    );
     await goto(page);
     const mainWorker = await getMainThreadWorker(page);
     await mainWorker.evaluate(() => {
@@ -154,8 +161,10 @@ test.describe('web core tests', () => {
     expect(world).toBe('world');
   });
   test('lynx.requireModule+sync', async ({ page, browserName }) => {
-    // firefox dose not support this.
-    test.skip(browserName === 'firefox');
+    test.skip(
+      browserName === 'firefox' && ENABLE_MULTI_THREAD,
+      'firefox flaky',
+    );
     await goto(page);
     const mainWorker = await getMainThreadWorker(page);
     await mainWorker.evaluate(() => {
@@ -181,8 +190,6 @@ test.describe('web core tests', () => {
   });
 
   test('loadLepusChunk', async ({ page, browserName }) => {
-    // firefox dose not support this.
-    test.skip(browserName === 'firefox');
     await goto(page);
     const mainWorker = await getMainThreadWorker(page);
     await mainWorker.evaluate(() => {
