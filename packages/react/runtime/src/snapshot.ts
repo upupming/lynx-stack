@@ -24,7 +24,6 @@ import { DynamicPartType } from './snapshot/dynamicPartType.js';
 import { snapshotDestroyList } from './snapshot/list.js';
 import type { PlatformInfo } from './snapshot/platformInfo.js';
 import { unref } from './snapshot/ref.js';
-import { isDirectOrDeepEqual } from './utils.js';
 
 /**
  * A snapshot definition that contains all the information needed to create and update elements
@@ -32,7 +31,7 @@ import { isDirectOrDeepEqual } from './utils.js';
  */
 export interface Snapshot {
   create: null | ((ctx: SnapshotInstance) => FiberElement[]);
-  update: null | ((ctx: SnapshotInstance, index: number, oldValue: any) => void)[];
+  setAttribute: null | ((ctx: SnapshotInstance, qualifiedName: string, value: string) => void);
   slot: [DynamicPartType, number][];
 
   isListHolder?: boolean;
@@ -55,6 +54,56 @@ export function clearPage(): void {
 
 export const __DynamicPartChildren_0: [DynamicPartType, number][] = [[DynamicPartType.Children, 0]];
 
+
+function setAttribute(ctx: SnapshotInstance, qualifiedName: string, value: string) {
+  // if (
+  //       key === 'style'
+  //       || key === 'class'
+  //       || key === 'className'
+  //       || key === 'key'
+  //       || key === 'id'
+  //       || key === 'ref'
+  //       || (/^data-/.exec(key))
+  //       || (/^(bind|catch|global-bind|capture-bind|capture-catch)[A-Za-z]/.exec(
+  //         key,
+  //       ))
+  //     ) {
+  //       throw new Error(`Cannot use __SetAttribute for "${key}"`);
+  //     }
+  if (!ctx.__elements) return
+  const el = ctx.__elements[0]!
+  if (qualifiedName.startsWith('data-')) {
+    __AddDataset(el, qualifiedName.slice(5), value);
+    return
+  }
+  if (/^(?:bind|catch|global-bind|capture-bind|capture-catch)[A-Za-z]/.exec(qualifiedName)) {
+    // TODO: handle this condition
+    __SetAttribute(el, `todo-${qualifiedName}`, value)
+    return
+  }
+  switch (qualifiedName) {
+    case "style":
+      __SetInlineStyles(el, value);
+      break
+    // TODO: make sure if this will happen
+    case "class":
+    case "className":
+      __SetClasses(el, value);
+      break;
+    // TODO: make sure if this will happen
+    case "key":
+      break
+    case "id":
+      __SetID(el, value);
+      break
+    // TODO: make ref works
+    case "ref":
+      break
+    default:
+      __SetAttribute(el, qualifiedName, value)
+  }
+}
+        
 export const snapshotManager: {
   values: Map<string, Snapshot>;
 } = {
@@ -70,7 +119,7 @@ export const snapshotManager: {
           /* v8 ignore stop */
           return [__page!];
         },
-        update: [],
+        setAttribute,
         slot: __DynamicPartChildren_0,
         isListHolder: false,
         cssId: 0,
@@ -87,7 +136,7 @@ export const snapshotManager: {
           /* v8 ignore stop */
           return [__CreateWrapperElement(__pageId)];
         },
-        update: [],
+        setAttribute,
         slot: __DynamicPartChildren_0,
         isListHolder: false,
       },
@@ -103,22 +152,43 @@ export const snapshotManager: {
           /* v8 ignore stop */
           return [__CreateRawText('')];
         },
-        update: [
-          ctx => {
-            /* v8 ignore start */
-            if (__JS__ && !__DEV__) {
-              return;
-            }
-            /* v8 ignore stop */
-            if (ctx.__elements) {
-              __SetAttribute(ctx.__elements[0]!, 'text', ctx.__values![0]);
-            }
-          },
-        ],
+        setAttribute,
         slot: [],
         isListHolder: false,
       },
     ],
+    [
+      'view',
+      {
+        create() {
+          /* v8 ignore start */
+          if (__JS__ && !__DEV__) {
+            return [];
+          }
+          /* v8 ignore stop */
+          return [__CreateView(__pageId)];
+        },
+        setAttribute,
+        slot: __DynamicPartChildren_0,
+        isListHolder: false,
+      },
+    ],
+    [
+      'text',
+      {
+        create() {
+          /* v8 ignore start */
+          if (__JS__ && !__DEV__) {
+            return [];
+          }
+          /* v8 ignore stop */
+          return [__CreateText(__pageId)];
+        },
+        setAttribute,
+        slot: __DynamicPartChildren_0,
+        isListHolder: false,
+      },
+    ]
   ]),
 };
 
@@ -200,7 +270,7 @@ export function entryUniqID(uniqID: string, entryName?: string): string {
 export function createSnapshot(
   uniqID: string,
   create: Snapshot['create'] | null,
-  update: Snapshot['update'] | null,
+  setAttribute: Snapshot['setAttribute'] | null,
   slot: Snapshot['slot'],
   cssId: number | undefined,
   entryName: string | undefined,
@@ -214,6 +284,7 @@ export function createSnapshot(
     && !snapshotManager.values.has(entryUniqID(uniqID, entryName))
     // `create` may be `null` when loading a lazy bundle after hydration.
     && create !== null
+    && setAttribute !== null
   ) {
     // We only update the lepus snapshot if the `uniqID` is different.
     // This means that `uniqID` is considered the "hash" of the snapshot.
@@ -225,7 +296,7 @@ export function createSnapshot(
       // This allows the updates to be applied to Lepus.
       // As a result, both the static part (`create`) and the dynamic parts (`update` and `slot`) can be updated.
       create.toString(),
-      update?.map(f => f.toString()) ?? [],
+      setAttribute.toString(),
       slot,
       cssId,
       entryName,
@@ -234,7 +305,7 @@ export function createSnapshot(
 
   uniqID = entryUniqID(uniqID, entryName);
 
-  const s: Snapshot = { create, update, slot, cssId, entryName, refAndSpreadIndexes };
+  const s: Snapshot = { create, setAttribute, slot, cssId, entryName, refAndSpreadIndexes };
   snapshotManager.values.set(uniqID, s);
   if (slot && slot[0] && slot[0][0] === DynamicPartType.ListChildren) {
     s.isListHolder = true;
@@ -280,7 +351,6 @@ export class SnapshotInstance {
   __snapshot_def: Snapshot;
   __elements?: FiberElement[] | undefined;
   __element_root?: FiberElement | undefined;
-  __values?: unknown[] | undefined;
   __current_slot_index = 0;
   __worklet_ref_set?: Set<WorkletRefImpl<any> | Worklet>;
   __listItemPlatformInfo?: PlatformInfo;
@@ -321,13 +391,13 @@ export class SnapshotInstance {
       }
     }
 
-    __pendingListUpdates.runWithoutUpdates(() => {
-      const values = this.__values;
-      if (values) {
-        this.__values = undefined;
-        this.setAttribute('values', values);
-      }
-    });
+    // __pendingListUpdates.runWithoutUpdates(() => {
+    //   const values = this.__values;
+    //   if (values) {
+    //     this.__values = undefined;
+    //     this.setAttribute('values', values);
+    //   }
+    // });
 
     if (isListHolder) {
       // never recurse into list's children
@@ -394,7 +464,6 @@ export class SnapshotInstance {
 
     a.__id = this.__id;
     a.__snapshot_def = this.__snapshot_def;
-    a.__values = this.__values;
 
     // all clear
     a.__parent = null;
@@ -612,47 +681,17 @@ export class SnapshotInstance {
     });
   }
 
-  setAttribute(key: string | number, value: any): void {
-    if (key === 'values') {
-      const oldValues = this.__values;
-      const values = value as unknown[];
-      this.__values = values;
-      if (oldValues) {
-        for (let index = 0; index < values.length; index++) {
-          this.callUpdateIfNotDirectOrDeepEqual(index, oldValues[index], values[index]);
-        }
-      } else {
-        for (let index = 0; index < values.length; index++) {
-          this.callUpdateIfNotDirectOrDeepEqual(index, undefined, values[index]);
-        }
-      }
-      return;
-    }
-
-    if (typeof key === 'string') {
-      // for more flexible usage, we allow setting non-indexed attributes
-      (this.__extraProps ??= {})[key] = value;
-      return;
-    }
-
-    this.__values ??= [];
-    this.callUpdateIfNotDirectOrDeepEqual(key, this.__values[key], this.__values[key] = value);
+  setAttribute(qualifiedName: string, value: string): void {
+    console.log('setAttribute', qualifiedName, value)
+    this.__snapshot_def.setAttribute!(this, qualifiedName, value)
   }
 
   toJSON(): Omit<SerializedSnapshotInstance, 'children'> & { children: SnapshotInstance[] | undefined } {
     return {
       id: this.__id,
       type: this.type,
-      values: this.__values,
       extraProps: this.__extraProps,
       children: this.__firstChild ? this.childNodes : undefined,
     };
-  }
-
-  callUpdateIfNotDirectOrDeepEqual(index: number, oldValue: any, newValue: any): void {
-    if (isDirectOrDeepEqual(oldValue, newValue)) {}
-    else {
-      this.__snapshot_def.update![index]!(this, index, oldValue);
-    }
   }
 }

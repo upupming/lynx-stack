@@ -65,10 +65,10 @@ function setupDocument(): void {
   };
   document.createTextNode = function(text: string) {
     const i = new SnapshotInstance(null as unknown as string);
-    i.setAttribute(0, text);
+    i.setAttribute("text", text);
     Object.defineProperty(i, 'data', {
-      set(v) {
-        i.setAttribute(0, v);
+      set(v: string) {
+        i.setAttribute("text", v);
       },
     });
     return i;

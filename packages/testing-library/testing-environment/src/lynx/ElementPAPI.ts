@@ -98,6 +98,7 @@ export const initElementTree = () => {
     }
 
     __SetClasses(e: LynxElement, cls: string) {
+      // e.setAttribute()
       e.className = cls;
     }
 
