@@ -12,6 +12,7 @@ import type {
   Minify,
   Output,
   Performance,
+  Resolve,
   Server,
   Source,
   Tools,
@@ -41,6 +42,18 @@ describe('Config Validation', () => {
       Unknown property: \`$input["long-unknown-function"]\` in configuration
       ]
     `)
+  })
+
+  describe('Config', () => {
+    test('valid type', () => {
+      const cases = [
+        {},
+        new Promise(p => p({})),
+      ]
+      cases.forEach(config => {
+        expect(validate(config)).toStrictEqual(config)
+      })
+    })
   })
 
   describe('Dev', () => {
@@ -788,6 +801,18 @@ describe('Config Validation', () => {
         { dataUriLimit: Number.NaN },
         { dataUriLimit: Number.POSITIVE_INFINITY },
         { dataUriLimit: Number.MAX_SAFE_INTEGER },
+        {
+          dataUriLimit: {},
+        },
+        {
+          dataUriLimit: {
+            assets: 0,
+            image: 10,
+            svg: 100,
+            font: 1000,
+            media: 10000,
+          },
+        },
         { cssModules: { auto: true } },
         { cssModules: { auto: false } },
         { cssModules: { auto: /module/ } },
@@ -1041,7 +1066,7 @@ describe('Config Validation', () => {
           [Error: Invalid configuration.
 
           Invalid config on \`$input.output.dataUriLimit\`.
-            - Expect to be (number | undefined)
+            - Expect to be (DataUriLimit | number | undefined)
             - Got: string
           ]
         `)
@@ -1757,6 +1782,23 @@ describe('Config Validation', () => {
       cases.forEach(source => {
         expect(validate({ source })).toStrictEqual({ source })
       })
+
+      const resolveCases: Resolve[] = [
+        {},
+        { alias: {} },
+        { alias: { foo: 'bar', bar$: 'baz', baz: false } },
+        { alias: { foo: 'bar', bar$: ['baz'] } },
+        { dedupe: [] },
+        { dedupe: ['foo'] },
+        { dedupe: ['foo', 'bar', 'baz'] },
+        { aliasStrategy: undefined },
+        { aliasStrategy: 'prefer-tsconfig' },
+        { aliasStrategy: 'prefer-alias' },
+      ]
+
+      resolveCases.forEach(resolve => {
+        expect(validate({ resolve })).toStrictEqual({ resolve })
+      })
     })
 
     test('invalid type', () => {
@@ -1801,7 +1843,15 @@ describe('Config Validation', () => {
       ).toThrowErrorMatchingInlineSnapshot(`
         [Error: Invalid configuration.
 
-        Unknown property: \`$input.resolve\` in configuration
+        Invalid config on \`$input.resolve.extensions\`.
+          - Expect to be (Array<string> | undefined)
+          - Got: string
+
+        Unknown property: \`$input.resolve.aliasFields\` in configuration
+
+        Unknown property: \`$input.resolve.conditionNames\` in configuration
+
+        Unknown property: \`$input.resolve.extensionAlias\` in configuration
         ]
       `)
 
@@ -1864,6 +1914,74 @@ describe('Config Validation', () => {
         Invalid config on \`$input.source.tsconfigPath\`.
           - Expect to be (string | undefined)
           - Got: array
+        ]
+      `)
+
+      expect(() =>
+        validate({
+          resolve: {
+            dedupe: {},
+          },
+        })
+      ).toThrowErrorMatchingInlineSnapshot(`
+        [Error: Invalid configuration.
+
+        Invalid config on \`$input.resolve.dedupe\`.
+          - Expect to be (Array<string> | undefined)
+          - Got: object
+        ]
+      `)
+
+      expect(() =>
+        validate({
+          resolve: {
+            dedupe: [Symbol.for('foo'), 0, null],
+          },
+        })
+      ).toThrowErrorMatchingInlineSnapshot(`
+        [Error: Invalid configuration.
+
+        Invalid config on \`$input.resolve.dedupe[0]\`.
+          - Expect to be string
+          - Got: symbol
+
+        Invalid config on \`$input.resolve.dedupe[1]\`.
+          - Expect to be string
+          - Got: number
+
+        Invalid config on \`$input.resolve.dedupe[2]\`.
+          - Expect to be string
+          - Got: null
+        ]
+      `)
+
+      expect(() =>
+        validate({
+          resolve: {
+            aliasStrategy: 'invalid-strategy',
+          },
+        })
+      ).toThrowErrorMatchingInlineSnapshot(`
+        [Error: Invalid configuration.
+
+        Invalid config on \`$input.resolve.aliasStrategy\`.
+          - Expect to be ("prefer-alias" | "prefer-tsconfig" | undefined)
+          - Got: string
+        ]
+      `)
+
+      expect(() =>
+        validate({
+          resolve: {
+            aliasStrategy: 123,
+          },
+        })
+      ).toThrowErrorMatchingInlineSnapshot(`
+        [Error: Invalid configuration.
+
+        Invalid config on \`$input.resolve.aliasStrategy\`.
+          - Expect to be ("prefer-alias" | "prefer-tsconfig" | undefined)
+          - Got: number
         ]
       `)
     })

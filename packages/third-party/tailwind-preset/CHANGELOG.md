@@ -1,5 +1,23 @@
 # @lynx-js/tailwind-preset
 
+## 0.3.0
+
+### Minor Changes
+
+- Added `group-*`, `peer-*`, and `parent-*` modifiers (ancestor, sibling, and direct-parent scopes) for `uiVariants` plugin. ([#1741](https://github.com/lynx-family/lynx-stack/pull/1741))
+
+  Fixed prefix handling in prefixed projects — `ui-*` state markers are not prefixed, while scope markers (`.group`/`.peer`) honor `config('prefix')`.
+
+  **BREAKING**: Removed slash-based naming modifiers on self (non-standard); slash modifiers remain supported for scoped markers (e.g. `group/menu`, `peer/tab`).
+
+  Bumped peer dependency to `tailwindcss@^3.4.0` (required for use of internal features).
+
+## 0.2.1
+
+### Patch Changes
+
+- Extend the `uiVariants` plugin with additional states: `initial`, `closed`, `indeterminate`, and `invalid`. These can be used with the `ui-*` prefix (e.g., `ui-initial`, `ui-closed`, `ui-indeterminate`, `ui-invalid`). ([#1663](https://github.com/lynx-family/lynx-stack/pull/1663))
+
 ## 0.2.0
 
 ### Minor Changes

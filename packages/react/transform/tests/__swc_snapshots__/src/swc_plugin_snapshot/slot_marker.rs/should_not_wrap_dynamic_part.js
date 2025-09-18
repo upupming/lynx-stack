@@ -10,10 +10,10 @@
 </view>;
 <view className="parent">
   <view className="child">
-    {}
+    { /** foo */ }
   </view>
   <view className="child">
-    {}
+    { /** bar */ }
   </view>
 </view>;
 // TODO: fix the redundant <internal-slot> here

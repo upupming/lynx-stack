@@ -1,5 +1,5 @@
 import * as ReactLynx from "@lynx-js/react";
-const __snapshot_da39a_test_2 = /*#__PURE__*/ ReactLynx.createSnapshot("__snapshot_da39a_test_2", function() {
+const __snapshot_da39a_test_2 = ReactLynx.createSnapshot("__snapshot_da39a_test_2", function() {
     const pageId = ReactLynx.__pageId;
     const el = __CreateView(pageId);
     __SetClasses(el, "child");
@@ -7,7 +7,7 @@ const __snapshot_da39a_test_2 = /*#__PURE__*/ ReactLynx.createSnapshot("__snapsh
         el
     ];
 }, null, ReactLynx.__DynamicPartChildren_0, undefined, globDynamicComponentEntry, null);
-const __snapshot_da39a_test_3 = /*#__PURE__*/ ReactLynx.createSnapshot("__snapshot_da39a_test_3", function() {
+const __snapshot_da39a_test_3 = ReactLynx.createSnapshot("__snapshot_da39a_test_3", function() {
     const pageId = ReactLynx.__pageId;
     const el = __CreateView(pageId);
     __SetClasses(el, "child");
@@ -15,7 +15,7 @@ const __snapshot_da39a_test_3 = /*#__PURE__*/ ReactLynx.createSnapshot("__snapsh
         el
     ];
 }, null, ReactLynx.__DynamicPartChildren_0, undefined, globDynamicComponentEntry, null);
-const __snapshot_da39a_test_1 = /*#__PURE__*/ ReactLynx.createSnapshot("__snapshot_da39a_test_1", function() {
+const __snapshot_da39a_test_1 = ReactLynx.createSnapshot("__snapshot_da39a_test_1", function() {
     const pageId = ReactLynx.__pageId;
     const el = __CreateView(pageId);
     __SetClasses(el, "parent");

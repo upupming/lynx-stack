@@ -67,6 +67,7 @@ jobs:
     name: Build (${{ matrix.runs-on.name }})
     runs-on: ${{ matrix.runs-on.label }}
     strategy:
+      fail-fast: false
       matrix:
         runs-on:
           - label: lynx-ubuntu-24.04-xlarge
@@ -81,7 +82,13 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
-          node-version: "24"
+          node-version: "22"
+      - name: Setup Rust
+        uses: ./.github/actions/rustup
+        with:
+          key: build
+          save-if: ${{ github.ref_name == 'main' }}
+      - uses: astral-sh/setup-uv@4959332f0f014c5280e7eac8b70c90cb574c9f9b # v6
       - name: TurboCache
         uses: lynx-infra/cache@5c6160a6a4c7fca80a2f3057bb9dfc9513fcb732
         with:
@@ -96,9 +103,9 @@ jobs:
             turbo-v4-${{ runner.os }}-${{ hashFiles('**/packages/**/src/**/*.rs') }}-
             turbo-v4-${{ runner.os }}-
       - name: Install wasm-bindgen
-        uses: taiki-e/install-action@4351b0c7eac445cb6f5a730526fcaef1473d3ea6 # v2
+        uses: taiki-e/install-action@14083e64ac8cf1f5e54356df00b9779b23e192a1 # v2
         with:
-          tool: wasm-bindgen
+          tool: wasm-bindgen@0.2.101
       - name: Install
         run: |
           npm install -g corepack@latest
@@ -111,7 +118,6 @@ jobs:
         env:
           NODE_OPTIONS: --max-old-space-size=32768
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-        continue-on-error: true
       - name: Upload turbo summary
         if: runner.debug == '1'
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
@@ -121,15 +127,3 @@ jobs:
           retention-days: 1
           overwrite: true
           include-hidden-files: true
-      - name: Setup Rust and retry build if failed
-        if: steps.build.outcome == 'failure'
-        uses: actions-rust-lang/setup-rust-toolchain@fb51252c7ba57d633bc668f941da052e410add48 # v1
-        with:
-          target: wasm32-unknown-unknown
-          cache-key: test-${{ runner.os }}
-      - name: Retry Build
-        if: steps.build.outcome == 'failure'
-        run: |
-          pnpm turbo build --summarize
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}

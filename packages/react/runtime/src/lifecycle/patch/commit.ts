@@ -21,18 +21,27 @@
 
 import { options } from 'preact';
 
+import type { RunWorkletCtxData } from '@lynx-js/react/worklet-runtime/bindings';
+
 import { LifecycleConstant } from '../../lifecycleConstant.js';
 import { globalPipelineOptions, markTiming, markTimingLegacy, setPipeline } from '../../lynx/performance.js';
 import { COMMIT } from '../../renderToOpcodes/constants.js';
 import { applyQueuedRefs } from '../../snapshot/ref.js';
 import { backgroundSnapshotInstanceManager } from '../../snapshot.js';
 import { hook, isEmptyObject } from '../../utils.js';
-import { takeWorkletRefInitValuePatch } from '../../worklet/workletRefPool.js';
+import { sendMTRefInitValueToMainThread } from '../../worklet/ref/updateInitValue.js';
 import { getReloadVersion } from '../pass.js';
 import type { SnapshotPatch } from './snapshotPatch.js';
 import { takeGlobalSnapshotPatch } from './snapshotPatch.js';
+import { profileEnd, profileStart } from '../../debug/utils.js';
+import {
+  delayedRunOnMainThreadData,
+  takeDelayedRunOnMainThreadData,
+} from '../../worklet/call/delayedRunOnMainThreadData.js';
+import { isRendering } from '../isRendering.js';
 
 let globalFlushOptions: FlushOptions = {};
+
 function takeGlobalFlushOptions() {
   const res = globalFlushOptions;
   globalFlushOptions = {};
@@ -51,7 +60,6 @@ interface Patch {
   // TODO: ref: do we need `id`?
   id: number;
   snapshotPatch?: SnapshotPatch;
-  workletRefInitValuePatch?: [id: number, value: unknown][];
 }
 
 /**
@@ -59,6 +67,7 @@ interface Patch {
  */
 interface PatchList {
   patchList: Patch[];
+  delayedRunOnMainThreadData?: RunWorkletCtxData[];
   flushOptions?: FlushOptions;
 }
 
@@ -77,6 +86,7 @@ interface PatchOptions {
  */
 export type GlobalPatchOptions = Omit<PatchOptions, 'reloadVersion'>;
 export let globalPatchOptions: GlobalPatchOptions = {};
+
 function takeGlobalPatchOptions(): GlobalPatchOptions {
   const res = globalPatchOptions;
   globalPatchOptions = {};
@@ -102,6 +112,8 @@ function replaceCommitHook(): void {
         return;
       }
 
+      isRendering.value = false;
+
       // Mark the end of virtual DOM diffing phase for performance tracking
       markTimingLegacy('updateDiffVdomEnd');
       markTiming('diffVdomEnd');
@@ -122,12 +134,13 @@ function replaceCommitHook(): void {
         }
       });
 
+      sendMTRefInitValueToMainThread();
+
       // Collect patches for this update
       const snapshotPatch = takeGlobalSnapshotPatch();
       const flushOptions = takeGlobalFlushOptions();
       const patchOptions = takeGlobalPatchOptions();
-      const workletRefInitValuePatch = takeWorkletRefInitValuePatch();
-      if (!snapshotPatch && workletRefInitValuePatch.length === 0) {
+      if (!snapshotPatch) {
         // before hydration, skip patch
         applyQueuedRefs();
         originalPreactCommit?.(vnode, commitQueue);
@@ -141,14 +154,14 @@ function replaceCommitHook(): void {
       if (snapshotPatch?.length) {
         patch.snapshotPatch = snapshotPatch;
       }
-      if (workletRefInitValuePatch.length) {
-        patch.workletRefInitValuePatch = workletRefInitValuePatch;
-      }
       const patchList: PatchList = {
         patchList: [patch],
       };
       if (!isEmptyObject(flushOptions)) {
         patchList.flushOptions = flushOptions;
+      }
+      if (snapshotPatch && delayedRunOnMainThreadData.length) {
+        patchList.delayedRunOnMainThreadData = takeDelayedRunOnMainThreadData();
       }
       const obj = commitPatchUpdate(patchList, patchOptions);
 
@@ -181,7 +194,7 @@ function commitPatchUpdate(patchList: PatchList, patchOptions: GlobalPatchOption
   // console.debug('commitPatchUpdate:', prettyFormatSnapshotPatch(patchList.patchList[0]?.snapshotPatch));
 
   if (__PROFILE__) {
-    console.profile('commitChanges');
+    profileStart('ReactLynx::commitChanges');
   }
   markTiming('packChangesStart');
   const obj: {
@@ -200,7 +213,7 @@ function commitPatchUpdate(patchList: PatchList, patchOptions: GlobalPatchOption
     setPipeline(undefined);
   }
   if (__PROFILE__) {
-    console.profileEnd();
+    profileEnd();
   }
 
   return obj;

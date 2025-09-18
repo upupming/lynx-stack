@@ -76,7 +76,8 @@ test.describe('reactlynx3 tests', () => {
       await expect(target).toHaveCSS('background-color', 'rgb(255, 192, 203)');
     });
 
-    test('basic-reload', async ({ page }, { title }) => {
+    test('basic-reload', async ({ page, browserName }, { title }) => {
+      test.skip(browserName === 'webkit', 'playwright issue, tested locally');
       await goto(page, title);
       await wait(100);
       const target = page.locator('#target');
@@ -90,7 +91,8 @@ test.describe('reactlynx3 tests', () => {
       await wait(100);
       await expect(await target.getAttribute('style')).toContain('pink');
     });
-    test('basic-reload-page-only-one', async ({ page }, { title }) => {
+    test('basic-reload-page-only-one', async ({ page, browserName }) => {
+      test.skip(browserName === 'webkit', 'playwright issue, tested locally');
       await goto(page, 'basic-reload');
       await wait(100);
       await page.evaluate(() => {
@@ -173,7 +175,8 @@ test.describe('reactlynx3 tests', () => {
         'green',
       );
     });
-    test('basic-globalProps-reload', async ({ page }, { title }) => {
+    test('basic-globalProps-reload', async ({ page, browserName }, {}) => {
+      test.skip(browserName === 'webkit', 'playwright issue, tested locally');
       await goto(page, 'basic-globalProps');
       await wait(100);
       expect(await page.locator('#target').getAttribute('style')).toContain(
@@ -436,6 +439,277 @@ test.describe('reactlynx3 tests', () => {
         await wait(800);
         const target = page.locator('#target');
         await expect(target).toHaveCSS('background-color', 'rgb(0, 128, 0)'); // green
+      },
+    );
+
+    // lazy component
+    test(
+      'basic-lazy-component',
+      async ({ page }, { title }) => {
+        test.skip(isSSR, 'Lazy Component not support on SSR');
+        await goto(page, title);
+        await wait(500);
+        await expect(page.locator('#target1')).toHaveCSS(
+          'background-color',
+          'rgb(0, 128, 0)',
+        ); // green
+        await page.locator('#target2').click();
+        await wait(100);
+        await expect(page.locator('#target1')).toHaveCSS(
+          'background-color',
+          'rgb(255, 192, 203)',
+        ); // pink
+        await page.locator('#target2').click();
+        await wait(100);
+        await expect(page.locator('#target1')).toHaveCSS(
+          'background-color',
+          'rgb(0, 128, 0)',
+        ); // green
+      },
+    );
+    // lazy component with relative path
+    test(
+      'basic-lazy-component-relative-path',
+      async ({ page }, { title }) => {
+        test.skip(isSSR, 'Lazy Component not support on SSR');
+        await goto(page, title);
+        await wait(500);
+        await expect(page.locator('#target1')).toHaveCSS(
+          'background-color',
+          'rgb(0, 128, 0)',
+        ); // green
+        await page.locator('#target2').click();
+        await wait(100);
+        await expect(page.locator('#target1')).toHaveCSS(
+          'background-color',
+          'rgb(255, 192, 203)',
+        ); // pink
+        await page.locator('#target2').click();
+        await wait(100);
+        await expect(page.locator('#target1')).toHaveCSS(
+          'background-color',
+          'rgb(0, 128, 0)',
+        ); // green
+      },
+    );
+    test(
+      'basic-lazy-component-fail',
+      async ({ page }, { title }) => {
+        test.skip(isSSR, 'Lazy Component not support on SSR');
+        await goto(page, title);
+        await wait(500);
+        const result = await page.locator('#fallback').first().innerText();
+        expect(result).toBe('Loading...');
+      },
+    );
+    test(
+      'basic-lazy-component-effect',
+      async ({ page }, { title }) => {
+        test.skip(isSSR, 'Lazy Component not support on SSR');
+        await goto(page, title);
+        await wait(500);
+        await expect(page.locator('#target')).toHaveCSS(
+          'background-color',
+          'rgb(255, 192, 203)',
+        ); // pink
+      },
+    );
+    // use the same lazy component multiple times
+    test(
+      'basic-lazy-component-multi',
+      async ({ page }, { title }) => {
+        test.skip(isSSR, 'Lazy Component not support on SSR');
+        await goto(page, title);
+        await wait(500);
+        await expect(page.locator('#target1').nth(0)).toHaveCSS(
+          'background-color',
+          'rgb(0, 128, 0)',
+        ); // green
+        await expect(page.locator('#target1').nth(1)).toHaveCSS(
+          'background-color',
+          'rgb(0, 128, 0)',
+        ); // green
+        await page.locator('#target2').nth(0).click();
+        await wait(100);
+        await expect(page.locator('#target1').nth(0)).toHaveCSS(
+          'background-color',
+          'rgb(255, 192, 203)',
+        ); // pink
+        await expect(page.locator('#target1').nth(1)).toHaveCSS(
+          'background-color',
+          'rgb(0, 128, 0)',
+        ); // green
+        await page.locator('#target2').nth(1).click();
+        await wait(100);
+        await expect(page.locator('#target1').nth(0)).toHaveCSS(
+          'background-color',
+          'rgb(255, 192, 203)',
+        ); // pink
+        await expect(page.locator('#target1').nth(1)).toHaveCSS(
+          'background-color',
+          'rgb(255, 192, 203)',
+        ); // pink
+      },
+    );
+    // import the same lazy component multiple times and use it multiple times
+    test(
+      'basic-lazy-component-multi-import',
+      async ({ page }, { title }) => {
+        test.skip(isSSR, 'Lazy Component not support on SSR');
+        await goto(page, title);
+        await wait(500);
+        await expect(page.locator('#target1').nth(0)).toHaveCSS(
+          'background-color',
+          'rgb(0, 128, 0)',
+        ); // green
+        await expect(page.locator('#target1').nth(1)).toHaveCSS(
+          'background-color',
+          'rgb(0, 128, 0)',
+        ); // green
+        await page.locator('#target2').nth(0).click();
+        await wait(100);
+        await expect(page.locator('#target1').nth(0)).toHaveCSS(
+          'background-color',
+          'rgb(255, 192, 203)',
+        ); // pink
+        await expect(page.locator('#target1').nth(1)).toHaveCSS(
+          'background-color',
+          'rgb(0, 128, 0)',
+        ); // green
+        await page.locator('#target2').nth(1).click();
+        await wait(100);
+        await expect(page.locator('#target1').nth(0)).toHaveCSS(
+          'background-color',
+          'rgb(255, 192, 203)',
+        ); // pink
+        await expect(page.locator('#target1').nth(1)).toHaveCSS(
+          'background-color',
+          'rgb(255, 192, 203)',
+        ); // pink
+      },
+    );
+    // the card's style and lazy component are displayed correctly.
+    test(
+      'basic-lazy-component-css',
+      async ({ page }, { title }) => {
+        test.skip(isSSR, 'Lazy Component not support on SSR');
+        await goto(page, title);
+        await wait(500);
+        await expect(page.locator('.container').nth(0)).toHaveCSS(
+          'background-color',
+          'rgb(255, 0, 0)',
+        ); // red
+        await expect(page.locator('.container').nth(1)).toHaveCSS(
+          'background-color',
+          'rgb(255, 165, 0)',
+        ); // orange
+      },
+    );
+    // the card's style should not affect the lazy component.
+    test(
+      'basic-lazy-component-css-blank',
+      async ({ page }, { title }) => {
+        test.skip(isSSR, 'Lazy Component not support on SSR');
+        await goto(page, title);
+        await wait(500);
+        await expect(page.locator('.container').nth(0)).toHaveCSS(
+          'background-color',
+          'rgb(255, 0, 0)',
+        ); // red
+        await expect(page.locator('.container').nth(1)).not.toHaveCSS(
+          'background-color',
+          'rgb(255, 165, 0)',
+        ); // orange
+      },
+    );
+    // two different lazy component
+    // the styles between lazy components need to be independent
+    test(
+      'basic-lazy-component-css-multi',
+      async ({ page }, { title }) => {
+        test.skip(isSSR, 'Lazy Component not support on SSR');
+        await goto(page, title);
+        await wait(500);
+        await expect(page.locator('.container').nth(0)).toHaveCSS(
+          'background-color',
+          'rgb(255, 0, 0)',
+        ); // red
+        await expect(page.locator('.container').nth(1)).toHaveCSS(
+          'background-color',
+          'rgb(255, 165, 0)',
+        ); // orange
+        await expect(page.locator('.container').nth(2)).toHaveCSS(
+          'background-color',
+          'rgb(128, 128, 128)',
+        ); // gray
+      },
+    );
+    // load lazy component when needed
+    test(
+      'basic-lazy-component-when-needed',
+      async ({ page }, { title }) => {
+        test.skip(isSSR, 'Lazy Component not support on SSR');
+        await goto(page, title);
+        await wait(500);
+        await page.locator('#target').click();
+        await wait(300);
+        await expect(page.locator('#target1')).toHaveCSS(
+          'background-color',
+          'rgb(0, 128, 0)',
+        ); // green
+        await page.locator('#target2').click();
+        await wait(100);
+        await expect(page.locator('#target1')).toHaveCSS(
+          'background-color',
+          'rgb(255, 192, 203)',
+        ); // pink
+        await page.locator('#target2').click();
+        await wait(100);
+        await expect(page.locator('#target1')).toHaveCSS(
+          'background-color',
+          'rgb(0, 128, 0)',
+        ); // green
+      },
+    );
+    // load the same lazy component twice: use it directly, use it when needed
+    test(
+      'basic-lazy-component-when-need-with-itself',
+      async ({ page }, { title }) => {
+        test.skip(isSSR, 'Lazy Component not support on SSR');
+        await goto(page, title);
+        await wait(500);
+        await page.locator('#target').click();
+        await wait(300);
+        await expect(page.locator('#target1').nth(0)).toHaveCSS(
+          'background-color',
+          'rgb(0, 128, 0)',
+        ); // green
+        await page.locator('#target2').nth(0).click();
+        await wait(100);
+        await expect(page.locator('#target1').nth(0)).toHaveCSS(
+          'background-color',
+          'rgb(255, 192, 203)',
+        ); // pink
+        await page.locator('#target').click();
+        await wait(100);
+        await expect(page.locator('#target1').nth(0)).toHaveCSS(
+          'background-color',
+          'rgb(255, 192, 203)',
+        ); // pink
+        await expect(page.locator('#target1').nth(1)).toHaveCSS(
+          'background-color',
+          'rgb(0, 128, 0)',
+        ); // green
+        await page.locator('#target2').nth(1).click();
+        await wait(100);
+        await expect(page.locator('#target1').nth(0)).toHaveCSS(
+          'background-color',
+          'rgb(255, 192, 203)',
+        ); // pink
+        await expect(page.locator('#target1').nth(1)).toHaveCSS(
+          'background-color',
+          'rgb(255, 192, 203)',
+        ); // pink
       },
     );
   });
@@ -720,7 +994,7 @@ test.describe('reactlynx3 tests', () => {
       });
       await wait(50);
       expect(message).toContain('fin');
-      expect(page.workers().length).toStrictEqual(1);
+      expect(page.workers().length).toStrictEqual(0);
     });
 
     test('api-error', async ({ page }, { title }) => {
@@ -886,43 +1160,6 @@ test.describe('reactlynx3 tests', () => {
       await expect(offset).toBe(true);
     });
 
-    test('api-preheat', async ({ page }, { title }) => {
-      await goto(page, title);
-      const target = page.locator('#target');
-      await expect(target).toHaveCSS('background-color', 'rgb(255, 192, 203)'); // pink
-      expect(page.workers().length).toStrictEqual(ENABLE_MULTI_THREAD ? 3 : 2);
-    });
-
-    test('api-preheat-at-least-one', async ({ page }, { title }) => {
-      await goto(page, title);
-      const target = page.locator('#target');
-      await expect(target).toHaveCSS('background-color', 'rgb(255, 192, 203)'); // pink
-      expect(page.workers().length).toBe(ENABLE_MULTI_THREAD ? 3 : 2);
-      await page.evaluate(() => {
-        document.body.querySelector('lynx-view')?.remove();
-      });
-      await wait(100);
-      const threadStrategy = ENABLE_MULTI_THREAD ? 'multi-thread' : 'all-on-ui';
-      expect(page.workers().length).toBe(1);
-      await page.evaluate((threadStrategy) => {
-        const newView = document.createElement('lynx-view');
-        newView.setAttribute('style', 'height:50vh; width:100vw;');
-        newView.setAttribute('thread-strategy', threadStrategy);
-        newView.setAttribute('url', '/dist/api-preheat/main-thread.js');
-        document.body.append(newView);
-      }, threadStrategy);
-
-      await page.evaluate((threadStrategy) => {
-        const newView = document.createElement('lynx-view');
-        newView.setAttribute('style', 'height:50vh; width:100vw;');
-        newView.setAttribute('thread-strategy', threadStrategy);
-        newView.setAttribute('url', '/dist/api-preheat/main-thread.js');
-        document.body.append(newView);
-      }, threadStrategy);
-      await wait(500);
-      expect(page.workers().length).toBe(ENABLE_MULTI_THREAD ? 5 : 3);
-    });
-
     test('api-setSharedData', async ({ page }, { title }) => {
       await goto(page, title);
       await wait(100);
@@ -945,23 +1182,23 @@ test.describe('reactlynx3 tests', () => {
     test('api-shared-context-worker-count', async ({ page }) => {
       await goto(page, 'api-setSharedData', 'api-getSharedData');
       await wait(100);
-      expect(page.workers().length).toBeLessThanOrEqual(4);
+      expect(page.workers().length).toBeLessThanOrEqual(3);
     });
 
     test('api-shared-context-worker-count-release', async ({ page }) => {
       await goto(page, 'api-setSharedData', 'api-getSharedData');
-      await wait(100);
-      expect(page.workers().length).toBeLessThanOrEqual(4);
-      await page.evaluate(() =>
-        document.body.querySelector('lynx-view')?.remove()
-      );
       await wait(100);
       expect(page.workers().length).toBeLessThanOrEqual(3);
       await page.evaluate(() =>
         document.body.querySelector('lynx-view')?.remove()
       );
       await wait(100);
-      expect(page.workers().length).toBeLessThanOrEqual(1);
+      expect(page.workers().length).toBeLessThanOrEqual(2);
+      await page.evaluate(() =>
+        document.body.querySelector('lynx-view')?.remove()
+      );
+      await wait(100);
+      expect(page.workers().length).toBeLessThanOrEqual(0);
     });
 
     test.describe('api-exposure', () => {
@@ -1321,6 +1558,25 @@ test.describe('reactlynx3 tests', () => {
         expect(bts).toBe(true);
       },
     );
+    test(
+      'api-globalThis',
+      async ({ page }, { title }) => {
+        let mts = false;
+        let bts = false;
+        page.on('console', (message) => {
+          if (message.text() === 'mtsFoo 123') {
+            mts = true;
+          }
+          if (message.text() === 'btsFoo 123') {
+            bts = true;
+          }
+        });
+        await goto(page, title);
+        await wait(200);
+        !isSSR && expect(mts).toBe(true);
+        expect(bts).toBe(true);
+      },
+    );
   });
 
   test.describe('configs', () => {
@@ -1338,6 +1594,16 @@ test.describe('reactlynx3 tests', () => {
       },
     );
     test(
+      'config-css-remove-scope-false-import-css',
+      async ({ page }, { title }) => {
+        await goto(page, title);
+        await wait(100);
+        await expect(
+          page.locator('#sub'),
+        ).toHaveCSS('background-color', 'rgb(0, 128, 0)');
+      },
+    );
+    test(
       'config-css-remove-scope-true',
       async ({ page }, { title }) => {
         await goto(page, title);
@@ -1348,6 +1614,15 @@ test.describe('reactlynx3 tests', () => {
         await expect(
           page.locator('#sub'),
         ).toHaveCSS('background-color', 'rgb(0, 128, 0)');
+      },
+    );
+    test(
+      'config-css-remove-scope-false-display-linear',
+      async ({ page }, { title }) => {
+        await goto(page, title);
+        await wait(100);
+        const target = page.locator('#sub');
+        await expect(target).toHaveCSS('--lynx-display', 'linear'); // green
       },
     );
     test(
@@ -1469,10 +1744,7 @@ test.describe('reactlynx3 tests', () => {
     test(
       'config-splitchunk-single-vendor',
       async ({ page }, { title }) => {
-        test.skip(
-          !ENABLE_MULTI_THREAD,
-          'main thread do not support importScript',
-        );
+        test.skip(true, 'incorrectly implemented test case');
         await goto(page, title, undefined, true);
         await wait(1500);
         const target = page.locator('#target');
@@ -1482,10 +1754,7 @@ test.describe('reactlynx3 tests', () => {
     test(
       'config-splitchunk-split-by-experience',
       async ({ page }, { title }) => {
-        test.skip(
-          !ENABLE_MULTI_THREAD,
-          'main thread do not support importScript',
-        );
+        test.skip(true, 'incorrectly implemented test case');
         await goto(page, title, undefined, true);
         await wait(1500);
         const target = page.locator('#target');
@@ -1495,10 +1764,7 @@ test.describe('reactlynx3 tests', () => {
     test(
       'config-splitchunk-split-by-module',
       async ({ page }, { title }) => {
-        test.skip(
-          !ENABLE_MULTI_THREAD,
-          'main thread do not support importScript',
-        );
+        test.skip(true, 'incorrectly implemented test case');
         await goto(page, title, undefined, true);
         await wait(1500);
         const target = page.locator('#target');
@@ -1986,6 +2252,19 @@ test.describe('reactlynx3 tests', () => {
         await goto(page, title);
         await diffScreenShot(page, 'svg', 'with-css');
       });
+
+      test('basic-element-svg-with-position', async ({ page }, { title }) => {
+        await goto(page, title);
+        await diffScreenShot(page, 'svg', 'with-position');
+      });
+
+      test(
+        'basic-element-svg-background-image',
+        async ({ page }, { title }) => {
+          await goto(page, title);
+          await diffScreenShot(page, 'svg', 'background-image');
+        },
+      );
     });
     test.describe('scroll-view', () => {
       const elementName = 'scroll-view';

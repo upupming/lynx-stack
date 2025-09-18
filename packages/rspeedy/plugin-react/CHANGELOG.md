@@ -1,5 +1,42 @@
 # @lynx-js/react-rsbuild-plugin
 
+## 0.10.14
+
+### Patch Changes
+
+- Fix using wrong version of `@lynx-js/react/worklet-runtime`. ([#1711](https://github.com/lynx-family/lynx-stack/pull/1711))
+
+- Be compat with `@lynx-js/react` v0.113.0 ([#1667](https://github.com/lynx-family/lynx-stack/pull/1667))
+
+- Disable `builtin:lightningcss-loader` for `environments.web`. ([#1732](https://github.com/lynx-family/lynx-stack/pull/1732))
+
+- Updated dependencies [[`5ad38e6`](https://github.com/lynx-family/lynx-stack/commit/5ad38e6b3970a537f13d7f4caf0d765d16b6b322), [`69b3ae0`](https://github.com/lynx-family/lynx-stack/commit/69b3ae031a24161b8513cc804bf6b82c03da6d0c), [`69b3ae0`](https://github.com/lynx-family/lynx-stack/commit/69b3ae031a24161b8513cc804bf6b82c03da6d0c), [`c2f90bd`](https://github.com/lynx-family/lynx-stack/commit/c2f90bdb0ce465702b0b4a46108b16e78678225f)]:
+  - @lynx-js/template-webpack-plugin@0.8.6
+  - @lynx-js/react-webpack-plugin@0.7.0
+  - @lynx-js/react-alias-rsbuild-plugin@0.10.14
+  - @lynx-js/css-extract-webpack-plugin@0.6.2
+  - @lynx-js/use-sync-external-store@1.5.0
+  - @lynx-js/react-refresh-webpack-plugin@0.3.4
+
+## 0.10.13
+
+### Patch Changes
+
+- Support using multiple times in different environments. ([#1498](https://github.com/lynx-family/lynx-stack/pull/1498))
+
+- Support caching Lynx native events when chunk splitting is enabled. ([#1370](https://github.com/lynx-family/lynx-stack/pull/1370))
+
+  When `performance.chunkSplit.strategy` is not `all-in-one`, Lynx native events are cached until the BTS chunk is fully loaded and are replayed when that chunk is ready. The `firstScreenSyncTiming` flag will no longer change to `jsReady` anymore.
+
+- Updated dependencies [[`f0d483c`](https://github.com/lynx-family/lynx-stack/commit/f0d483ca2d3e208a618727590061b0babc075737), [`e4d116b`](https://github.com/lynx-family/lynx-stack/commit/e4d116b6e5eaf49ced08c505c99f7e878a58dfb1), [`d33c1d2`](https://github.com/lynx-family/lynx-stack/commit/d33c1d27827f5e1ebc553447dabe5080671de94a)]:
+  - @lynx-js/react-alias-rsbuild-plugin@0.10.13
+  - @lynx-js/template-webpack-plugin@0.8.5
+  - @lynx-js/react-webpack-plugin@0.6.20
+  - @lynx-js/runtime-wrapper-webpack-plugin@0.1.3
+  - @lynx-js/use-sync-external-store@1.5.0
+  - @lynx-js/react-refresh-webpack-plugin@0.3.4
+  - @lynx-js/css-extract-webpack-plugin@0.6.2
+
 ## 0.10.12
 
 ### Patch Changes

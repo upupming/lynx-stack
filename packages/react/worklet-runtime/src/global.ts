@@ -4,6 +4,7 @@
 import type { ClosureValueType, Worklet } from './bindings/types.js';
 import type { RunOnBackgroundDelayImpl } from './delayRunOnBackground.js';
 import type { EventDelayImpl } from './delayWorkletEvent.js';
+import type { EomImpl } from './eomImpl.js';
 import type { JsFunctionLifecycleManager } from './jsFunctionLifecycle.js';
 import type { RefImpl } from './workletRef.js';
 
@@ -16,6 +17,8 @@ declare global {
     _refImpl: RefImpl;
     _runOnBackgroundDelayImpl: RunOnBackgroundDelayImpl;
     _hydrateCtx: (worklet: Worklet, firstScreenWorklet: Worklet) => void;
+    _eomImpl: EomImpl;
+    _runRunOnMainThreadTask: (task: Worklet, params: ClosureValueType[], resolveId: number) => void;
   };
 
   function runWorklet(ctx: Worklet, params: ClosureValueType[]): unknown;

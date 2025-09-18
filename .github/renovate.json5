@@ -19,9 +19,11 @@
   ],
 
   "enabledManagers": [
+    "cargo",
+    "custom.regex",
+    "github-actions",
     "npm",
     "nvm",
-    "github-actions",
   ],
 
   "labels": ["bot:renovate"],
@@ -139,7 +141,54 @@
         "/^@types/*/",
       ],
     },
+    {
+      "groupName": "Lynx Engine",
+      "groupSlug": "lynx-engine",
+      "matchManagers": ["custom.regex"],
+      "matchPackageNames": [
+        "https://github.com/lynx-family/lynx",
+      ],
+      // Schedule once a month on the first day of the month before 4 AM.
+      "schedule": [
+        "* 0-3 1 * *",
+      ],
+    },
+        {
+      "groupName": "Rust Crates",
+      "groupSlug": "rust-crates",
+      "matchManagers": ["cargo"],
+      "matchPackageNames": [
+        "!swc",
+        "!swc_*",
+      ],
+    },
+    {
+      "groupName": "SWC",
+      "groupSlug": "swc",
+      "matchManagers": ["cargo"],
+      "matchPackageNames": [
+        "swc",
+        "swc_*",
+      ],
+      "matchUpdateTypes": [
+        "major",
+      ],
+    },
   ],
+
+  "customManagers": [
+    {
+      // See: https://docs.renovatebot.com/modules/datasource/git-refs/
+      "customType": "regex",
+      "managerFilePatterns": ["packages/lynx/benchx_cli/scripts/build.mjs"],
+      "matchStrings": ["const COMMIT = '(?<currentDigest>.*?)';"],
+      "currentValueTemplate": "develop",
+      "depNameTemplate": "lynx",
+      "packageNameTemplate": "https://github.com/lynx-family/lynx",
+      "datasourceTemplate": "git-refs",
+    },
+  ],
+
   "postUpdateOptions": [
     "pnpmDedupe",
   ],
@@ -149,5 +198,15 @@
 
     // Rspress not compatible
     "@microsoft/api-documenter",
+
+    // Not following SemVer
+    "stormslowly/rust-cache",
+
+    // TODO: remove this after drop napi-rs
+    "@emnapi/core",
+    "@emnapi/runtime",
+    "@napi-rs/cli",
+    "napi",
+    "napi-derive",
   ],
 }

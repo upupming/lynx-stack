@@ -1,13 +1,14 @@
 // Copyright 2024 The Lynx Authors. All rights reserved.
 // Licensed under the Apache License Version 2.0 that can be found in the
 // LICENSE file in the root directory of this source tree.
-import { render } from 'preact';
+import { process, render } from 'preact';
 
 import { LifecycleConstant, NativeUpdateDataType } from '../lifecycleConstant.js';
 import type { FirstScreenData } from '../lifecycleConstant.js';
 import { PerformanceTimingFlags, PipelineOrigins, beginPipeline, markTiming } from './performance.js';
 import { BackgroundSnapshotInstance, hydrate } from '../backgroundSnapshot.js';
 import { runWithForce } from './runWithForce.js';
+import { profileEnd, profileStart } from '../debug/utils.js';
 import { destroyBackground } from '../lifecycle/destroy.js';
 import { delayedEvents, delayedPublishEvent } from '../lifecycle/event/delayEvents.js';
 import { delayLifecycleEvent, delayedLifecycleEvents } from '../lifecycle/event/delayLifecycleEvents.js';
@@ -20,7 +21,12 @@ import { CHILDREN } from '../renderToOpcodes/constants.js';
 import { __root } from '../root.js';
 import { backgroundSnapshotInstanceManager } from '../snapshot.js';
 import type { SerializedSnapshotInstance } from '../snapshot.js';
+import {
+  delayedRunOnMainThreadData,
+  takeDelayedRunOnMainThreadData,
+} from '../worklet/call/delayedRunOnMainThreadData.js';
 import { destroyWorklet } from '../worklet/destroy.js';
+import { sendMTRefInitValueToMainThread } from '../worklet/ref/updateInitValue.js';
 
 export { runWithForce };
 
@@ -52,7 +58,7 @@ function onLifecycleEvent([type, data]: [LifecycleConstant, unknown]) {
   }
 
   if (__PROFILE__) {
-    console.profile(`OnLifecycleEvent::${type}`);
+    profileStart(`OnLifecycleEvent::${type}`);
   }
 
   try {
@@ -62,16 +68,22 @@ function onLifecycleEvent([type, data]: [LifecycleConstant, unknown]) {
   }
 
   if (__PROFILE__) {
-    console.profileEnd();
+    profileEnd();
   }
 }
 
 function onLifecycleEventImpl(type: LifecycleConstant, data: unknown): void {
   switch (type) {
     case LifecycleConstant.firstScreen: {
+      let processErr;
+      try {
+        process();
+      } catch (e) {
+        processErr = e;
+      }
       const { root: lepusSide, jsReadyEventIdSwap } = data as FirstScreenData;
       if (__PROFILE__) {
-        console.profile('hydrate');
+        profileStart('ReactLynx::hydrate');
       }
       beginPipeline(true, PipelineOrigins.reactLynxHydrate, PerformanceTimingFlags.reactLynxHydrate);
       markTiming('hydrateParseSnapshotStart');
@@ -83,7 +95,7 @@ function onLifecycleEventImpl(type: LifecycleConstant, data: unknown): void {
         __root as BackgroundSnapshotInstance,
       );
       if (__PROFILE__) {
-        console.profileEnd();
+        profileEnd();
       }
       markTiming('diffVdomEnd');
 
@@ -109,15 +121,15 @@ function onLifecycleEventImpl(type: LifecycleConstant, data: unknown): void {
 
       // console.debug("********** After hydration:");
       // printSnapshotInstance(__root as BackgroundSnapshotInstance);
-      if (__PROFILE__) {
-        console.profile('commitChanges');
-      }
       const commitTaskId = genCommitTaskId();
       const patchList: PatchList = {
         patchList: [{ snapshotPatch, id: commitTaskId }],
       };
+      if (delayedRunOnMainThreadData.length) {
+        patchList.delayedRunOnMainThreadData = takeDelayedRunOnMainThreadData();
+      }
       const obj = commitPatchUpdate(patchList, { isHydration: true });
-
+      sendMTRefInitValueToMainThread();
       lynx.getNativeApp().callLepusMethod(LifecycleConstant.patchUpdate, obj, () => {
         globalCommitTaskMap.forEach((commitTask, id) => {
           if (id > commitTaskId) {
@@ -128,6 +140,10 @@ function onLifecycleEventImpl(type: LifecycleConstant, data: unknown): void {
         });
       });
       runDelayedUiOps();
+
+      if (processErr) {
+        throw processErr;
+      }
       break;
     }
     case LifecycleConstant.globalEventFromLepus: {
@@ -209,7 +225,7 @@ function updateCardData(newData: Record<string, any>, options?: Record<string, a
 
   // COW when modify `lynx.__initData` to make sure Provider & Consumer works
   lynx.__initData = Object.assign({}, lynx.__initData, restNewData);
-  lynxCoreInject.tt.GlobalEventEmitter.emit('onDataChanged', undefined);
+  lynxCoreInject.tt.GlobalEventEmitter.emit('onDataChanged', [restNewData]);
 }
 
 export { injectTt, flushDelayedLifecycleEvents };

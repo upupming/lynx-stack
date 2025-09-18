@@ -41,7 +41,7 @@ describe('Plugins - SWC', () => {
           },
           "rspackExperiments": {
             "collectTypeScriptInfo": {
-              "exportedEnum": false,
+              "exportedEnum": true,
               "typeExports": true,
             },
           },

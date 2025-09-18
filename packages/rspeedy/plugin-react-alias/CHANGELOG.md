@@ -1,5 +1,31 @@
 # @lynx-js/react-alias-rsbuild-plugin
 
+## 0.10.14
+
+### Patch Changes
+
+- Allow customization of the react$ alias. ([#1653](https://github.com/lynx-family/lynx-stack/pull/1653))
+
+  ```js
+  import { defineConfig } from '@lynx-js/rspeedy'
+
+  export default defineConfig({
+    resolve: {
+      alias: {
+        react$: '@lynx-js/react/compat',
+      },
+    },
+  })
+  ```
+
+## 0.10.13
+
+### Patch Changes
+
+- Support using multiple times in different environments. ([#1498](https://github.com/lynx-family/lynx-stack/pull/1498))
+
+- Alias `@lynx-js/preact-devtools` to `false` to reduce an import of empty webpack module. ([#1593](https://github.com/lynx-family/lynx-stack/pull/1593))
+
 ## 0.10.12
 
 ## 0.10.11

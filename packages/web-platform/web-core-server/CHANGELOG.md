@@ -1,5 +1,29 @@
 # @lynx-js/web-core-server
 
+## 0.16.1
+
+### Patch Changes
+
+- refactor: improve chunk loading ([#1703](https://github.com/lynx-family/lynx-stack/pull/1703))
+
+- feat: supports lazy bundle. (This feature requires `@lynx-js/lynx-core >= 0.1.3`) ([#1235](https://github.com/lynx-family/lynx-stack/pull/1235))
+
+## 0.16.0
+
+### Minor Changes
+
+- refactor: provide the mts a real globalThis ([#1589](https://github.com/lynx-family/lynx-stack/pull/1589))
+
+  Before this change, We create a function wrapper and a fake globalThis for Javascript code.
+
+  This caused some issues.
+
+  After this change, we will create an iframe for createing an isolated Javascript context.
+
+  This means the globalThis will be the real one.
+
+## 0.15.7
+
 ## 0.15.6
 
 ### Patch Changes

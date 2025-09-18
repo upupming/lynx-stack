@@ -17,6 +17,7 @@ export function toRsbuildConfig(
 ): UndefinedOnPartialDeep<RsbuildConfig> {
   return {
     dev: {
+      lazyCompilation: false,
       watchFiles: config.dev?.watchFiles,
       // We expect to use different default writeToDisk with Rsbuild
       writeToDisk: config.dev?.writeToDisk ?? true,
@@ -55,9 +56,17 @@ export function toRsbuildConfig(
       sourceMap: config.output?.sourceMap as SourceMap,
     },
     resolve: {
-      alias: config.source?.alias,
+      alias: config.resolve?.alias,
+
+      aliasStrategy: config.resolve?.aliasStrategy,
+
+      dedupe: config.resolve?.dedupe,
+
+      extensions: config.resolve?.extensions,
     },
     source: {
+      alias: config.source?.alias,
+
       assetsInclude: config.source?.assetsInclude,
 
       decorators: config.source?.decorators,
@@ -84,6 +93,8 @@ export function toRsbuildConfig(
       host: config.server?.host,
 
       port: config.server?.port,
+
+      proxy: config.server?.proxy,
 
       strictPort: config.server?.strictPort,
     },

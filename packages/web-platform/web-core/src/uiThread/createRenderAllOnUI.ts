@@ -15,27 +15,97 @@ import {
   type Cloneable,
   lynxUniqueIdAttribute,
   type SSRDumpInfo,
+  type JSRealm,
+  type TemplateLoader,
 } from '@lynx-js/web-constants';
 import { Rpc } from '@lynx-js/web-worker-rpc';
 import { dispatchLynxViewEvent } from '../utils/dispatchLynxViewEvent.js';
 import { createExposureMonitor } from './crossThreadHandlers/createExposureMonitor.js';
+import type { StartUIThreadCallbacks } from './startUIThread.js';
 
 const {
   prepareMainThreadAPIs,
-} = await import('@lynx-js/web-mainthread-apis');
+} = await import(
+  /* webpackChunkName: "web-core-main-thread-apis" */
+  /* webpackMode: "lazy-once" */
+  /* webpackPreload: true */
+  /* webpackPrefetch: true */
+  /* webpackFetchPriority: "high" */
+  '@lynx-js/web-mainthread-apis'
+);
+
+/**
+ * Creates a isolated JavaScript context for executing mts code.
+ * This context has its own global variables and functions.
+ */
+function createIFrameRealm(parent: Node): JSRealm {
+  const iframe = document.createElement('iframe');
+  iframe.style.display = 'none';
+  iframe.srcdoc =
+    '<!DOCTYPE html><html><head></head><body style="display:none"></body></html>';
+  iframe.sandbox = 'allow-same-origin allow-scripts'; // Restrict capabilities for security
+  iframe.loading = 'eager';
+  parent.appendChild(iframe);
+  const iframeWindow = iframe.contentWindow! as unknown as typeof globalThis;
+  const loadScript: (url: string) => Promise<unknown> = async (url) => {
+    const script = iframe.contentDocument!.createElement('script');
+    script.fetchPriority = 'high';
+    script.defer = true;
+    script.async = false;
+    if (!iframe.contentDocument!.head) {
+      await new Promise<void>((resolve) => {
+        iframe.onload = () => resolve();
+        // In case iframe is already loaded, wait a macro task
+        setTimeout(() => resolve(), 0);
+      });
+    }
+    iframe.contentDocument!.head.appendChild(script);
+    return new Promise(async (resolve, reject) => {
+      script.onload = () => {
+        const ret = iframeWindow?.module?.exports;
+        // @ts-expect-error
+        iframeWindow.module = { exports: undefined };
+        resolve(ret);
+      };
+      script.onerror = (err) =>
+        reject(new Error(`Failed to load script: ${url}`, { cause: err }));
+      // @ts-expect-error
+      iframeWindow.module = { exports: undefined };
+      script.src = url;
+    });
+  };
+  const loadScriptSync: (url: string) => unknown = (url) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open('GET', url, false); // Synchronous request
+    xhr.send(null);
+    if (xhr.status === 200) {
+      const script = iframe.contentDocument!.createElement('script');
+      script.textContent = xhr.responseText;
+      // @ts-expect-error
+      iframeWindow.module = { exports: undefined };
+      iframe.contentDocument!.head.appendChild(script);
+      const ret = iframeWindow?.module?.exports;
+      // @ts-expect-error
+      iframeWindow.module = { exports: undefined };
+      return ret;
+    } else {
+      throw new Error(`Failed to load script: ${url}`, { cause: xhr });
+    }
+  };
+  return { globalWindow: iframeWindow, loadScript, loadScriptSync };
+}
 
 export function createRenderAllOnUI(
   mainToBackgroundRpc: Rpc,
   shadowRoot: ShadowRoot,
+  loadTemplate: TemplateLoader,
   markTimingInternal: (
     timingKey: string,
     pipelineId?: string,
     timeStamp?: number,
   ) => void,
   flushMarkTimingInternal: () => void,
-  callbacks: {
-    onError?: (err: Error, release: string, fileName: string) => void;
-  },
+  callbacks: StartUIThreadCallbacks,
   ssrDumpInfo: SSRDumpInfo | undefined,
 ) {
   if (!globalThis.module) {
@@ -52,10 +122,15 @@ export function createRenderAllOnUI(
   };
   const i18nResources = new I18nResources();
   const { exposureChangedCallback } = createExposureMonitor(shadowRoot);
+  const mtsRealm = createIFrameRealm(shadowRoot);
+  const mtsGlobalThis = mtsRealm.globalWindow as
+    & typeof globalThis
+    & MainThreadGlobalThis;
   const { startMainThread } = prepareMainThreadAPIs(
     mainToBackgroundRpc,
     shadowRoot,
-    document.createElement.bind(document),
+    document,
+    mtsRealm,
     exposureChangedCallback,
     markTimingInternal,
     flushMarkTimingInternal,
@@ -67,8 +142,8 @@ export function createRenderAllOnUI(
       i18nResources.setData(initI18nResources);
       return i18nResources;
     },
+    loadTemplate,
   );
-  let mtsGlobalThis: MainThreadGlobalThis | undefined;
   const pendingUpdateCalls: Parameters<
     RpcCallType<typeof updateDataEndpoint>
   >[] = [];
@@ -107,7 +182,7 @@ export function createRenderAllOnUI(
         }
       }
 
-      mtsGlobalThis = await startMainThread(configs, {
+      await startMainThread(configs, {
         // @ts-expect-error
         lynxUniqueIdToElement: lynxUniqueIdToElement,
         lynxUniqueIdToStyleRulesIndex,
@@ -115,7 +190,7 @@ export function createRenderAllOnUI(
         cardStyleElement: hydrateStyleElement,
       });
     } else {
-      mtsGlobalThis = await startMainThread(configs);
+      await startMainThread(configs);
     }
 
     // Process any pending update calls that were queued while mtsGlobalThis was undefined

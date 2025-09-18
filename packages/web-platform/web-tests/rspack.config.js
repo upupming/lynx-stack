@@ -17,6 +17,7 @@ const isCI = !!process.env.CI;
 const port = process.env.PORT ?? 3080;
 /** @type {import('@rspack/cli').Configuration} */
 const config = {
+  cache: false,
   entry: {
     main: './shell-project/index.ts',
     'web-elements': './shell-project/web-elements.ts',
@@ -48,7 +49,7 @@ const config = {
       meta: {
         viewport:
           'width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no',
-        'apple-mobile-web-app-capable': 'yes',
+        'mobile-web-app-capable': 'yes',
         'apple-mobile-web-app-status-bar-style': 'default',
         'screen-orientation': 'portrait',
         'format-detection': 'telephone=no',
@@ -204,33 +205,41 @@ const config = {
       return middlewares;
     },
     watchFiles: isCI
-      ? undefined
-      : ['./node_modules/@lynx-js/**/*'],
+      ? []
+      : ['./node_modules/@lynx-js/**/*.js'],
     static: [
       {
         directory: path.join(__dirname, 'resources'),
         publicPath: '/resources',
+        watch: !isCI,
       },
       {
         directory: path.join(__dirname, 'tests', 'web-elements'),
         publicPath: '/web-element-tests',
+        watch: !isCI,
       },
       {
         directory: path.join(__dirname, 'node_modules'),
         publicPath: '/node_modules',
+        watch: !isCI,
       },
       {
         directory: path.join(__dirname, 'dist'),
         publicPath: '/dist',
+        watch: !isCI,
       },
       {
         directory: path.join(__dirname, 'tests', 'common.css'),
         publicPath: '/common.css',
+        watch: !isCI,
       },
     ],
     hot: false,
   },
   watch: false,
+  watchOptions: {
+    ignored: isCI ? /.*/ : undefined,
+  },
   module: {
     rules: [
       {

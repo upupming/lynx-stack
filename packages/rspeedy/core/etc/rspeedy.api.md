@@ -5,10 +5,12 @@
 ```ts
 
 import type { CreateRsbuildOptions } from '@rsbuild/core';
+import type { DataUriLimit } from '@rsbuild/core';
 import type { DistPathConfig } from '@rsbuild/core';
 import type { InlineChunkConfig } from '@rsbuild/core';
 import { logger } from '@rsbuild/core';
 import type { PerformanceConfig } from '@rsbuild/core';
+import type { ProxyConfig } from '@rsbuild/core';
 import type { RsbuildConfig } from '@rsbuild/core';
 import type { RsbuildInstance } from '@rsbuild/core';
 import { RsbuildPlugin } from '@rsbuild/core';
@@ -68,9 +70,16 @@ export interface Config {
     output?: Output | undefined;
     performance?: Performance | undefined;
     plugins?: RsbuildPlugins | undefined;
+    resolve?: Resolve | undefined;
     server?: Server | undefined;
     source?: Source | undefined;
     tools?: Tools | undefined;
+}
+
+// @public
+export interface ConfigParams {
+    command: 'build' | 'dev' | 'inspect' | 'preview' | (string & Record<never, never>);
+    env: 'production' | 'development' | 'test' | (string & Record<never, never>);
 }
 
 // @public
@@ -137,6 +146,15 @@ export interface Decorators {
 
 // @public
 export function defineConfig(config: Config): Config;
+
+// @public
+export function defineConfig(config: (params: ConfigParams) => Config): (params: ConfigParams) => Config;
+
+// @public
+export function defineConfig(config: Promise<Config>): Promise<Config>;
+
+// @public
+export function defineConfig(config: (params: ConfigParams) => Promise<Config>): (params: ConfigParams) => Promise<Config>;
 
 // @public
 export interface Dev {
@@ -230,7 +248,7 @@ export interface Output {
     cleanDistPath?: boolean | undefined;
     copy?: Rspack.CopyRspackPluginOptions | Rspack.CopyRspackPluginOptions['patterns'] | undefined;
     cssModules?: CssModules | undefined;
-    dataUriLimit?: number | undefined;
+    dataUriLimit?: number | DataUriLimit | undefined;
     distPath?: DistPath | undefined;
     filename?: string | Filename | undefined;
     filenameHash?: boolean | string | undefined;
@@ -248,6 +266,14 @@ export interface Performance {
     printFileSize?: PerformanceConfig['printFileSize'] | undefined;
     profile?: boolean | undefined;
     removeConsole?: boolean | ConsoleType[] | undefined;
+}
+
+// @public
+export interface Resolve {
+    alias?: Record<string, string | false | string[]> | undefined;
+    aliasStrategy?: 'prefer-tsconfig' | 'prefer-alias' | undefined;
+    dedupe?: string[] | undefined;
+    extensions?: string[] | undefined;
 }
 
 export { RsbuildPlugin }
@@ -281,11 +307,13 @@ export interface Server {
     headers?: Record<string, string | string[]> | undefined;
     host?: string | undefined;
     port?: number | undefined;
+    proxy?: ProxyConfig | undefined;
     strictPort?: boolean | undefined;
 }
 
 // @public
 export interface Source {
+    // @deprecated
     alias?: Record<string, string | false | string[]> | undefined;
     assetsInclude?: Rspack.RuleSetCondition | undefined;
     decorators?: Decorators | undefined;

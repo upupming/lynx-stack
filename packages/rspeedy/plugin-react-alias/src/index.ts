@@ -27,13 +27,6 @@ export function pluginReactAlias(options: Options): RsbuildPlugin {
   return {
     name: 'lynx:react-alias',
     setup(api) {
-      const hasAlias = api.useExposed<boolean>(S_PLUGIN_REACT_ALIAS)
-      if (hasAlias) {
-        // We make sure that only make aliased once
-        return
-      }
-      api.expose(S_PLUGIN_REACT_ALIAS, true)
-
       const require = createRequire(import.meta.url)
 
       const reactLynxPkg = require.resolve('@lynx-js/react/package.json', {
@@ -47,6 +40,9 @@ export function pluginReactAlias(options: Options): RsbuildPlugin {
         lazy ? ['lazy', 'import'] : ['import'],
       )
       const resolvePreact = createLazyResolver(reactLynxDir, ['import'])
+      api.expose(Symbol.for('@lynx-js/react/internal:resolve'), {
+        resolve,
+      })
 
       api.modifyRsbuildConfig((config, { mergeRsbuildConfig }) => {
         return mergeRsbuildConfig(config, {
@@ -56,7 +52,14 @@ export function pluginReactAlias(options: Options): RsbuildPlugin {
         })
       })
 
-      api.modifyBundlerChain(async (chain, { isProd }) => {
+      api.modifyBundlerChain(async (chain, { isProd, environment }) => {
+        if (Object.hasOwn(environment, S_PLUGIN_REACT_ALIAS)) {
+          // This environment has already been processed
+          return
+        }
+        Object.defineProperty(environment, S_PLUGIN_REACT_ALIAS, {
+          value: true,
+        })
         const [
           jsxRuntimeBackground,
           jsxRuntimeMainThread,
@@ -148,15 +151,19 @@ export function pluginReactAlias(options: Options): RsbuildPlugin {
 
         if (isProd) {
           chain.resolve.alias.set('@lynx-js/react/debug$', false)
+          chain.resolve.alias.set('@lynx-js/preact-devtools$', false)
+        }
+
+        if (!chain.resolve.alias.has('react$')) {
+          chain.resolve.alias.set(
+            'react$',
+            reactLepus.background,
+          )
         }
 
         chain
           .resolve
           .alias
-          .set(
-            'react$',
-            reactLepus.background,
-          )
           .set(
             '@lynx-js/react$',
             reactLepus.background,

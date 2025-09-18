@@ -8,14 +8,14 @@ import {
   triggerComponentEventEndpoint,
   selectComponentEndpoint,
   type BundleInitReturnObj,
-  type LynxJSModule,
   type NativeApp,
   type LynxCrossThreadContext,
-  systemInfo,
   type BackMainThreadContextConfig,
   I18nResource,
   reportErrorEndpoint,
-  globalDisallowedVars,
+  type LynxTemplate,
+  queryComponentEndpoint,
+  updateBTSTemplateCacheEndpoint,
 } from '@lynx-js/web-constants';
 import { createInvokeUIMethod } from './crossThreadHandlers/createInvokeUIMethod.js';
 import { registerPublicComponentEventHandler } from './crossThreadHandlers/registerPublicComponentEventHandler.js';
@@ -47,7 +47,6 @@ export async function createNativeApp(
     template,
     nativeModulesMap,
     timingSystem,
-    browserConfig,
   } = config;
   const performanceApis = createPerformanceApis(
     timingSystem,
@@ -64,41 +63,23 @@ export async function createNativeApp(
     selectComponentEndpoint,
     3,
   );
+  const queryComponent = mainThreadRpc.createCall(
+    queryComponentEndpoint,
+  );
   const reportError = uiThreadRpc.createCall(reportErrorEndpoint);
   const createBundleInitReturnObj = (): BundleInitReturnObj => {
-    const entry = (globalThis.module as LynxJSModule).exports;
-    return {
-      init: (lynxCoreInject) => {
-        lynxCoreInject.tt.lynxCoreInject = lynxCoreInject;
-        lynxCoreInject.tt.globalThis ??= new Proxy(lynxCoreInject, {
-          get(target, prop) {
-            if (
-              typeof prop === 'string' && globalDisallowedVars.includes(prop)
-            ) {
-              return undefined;
-            }
-            // @ts-expect-error
-            return target[prop] ?? globalThis[prop];
-          },
-          set(target, prop, value) {
-            // @ts-expect-error
-            target[prop] = value;
-            return true;
-          },
-          ownKeys(target) {
-            return Reflect.ownKeys(target).filter((key) =>
-              key !== 'globalThis'
-            );
-          },
-        });
-        Object.assign(lynxCoreInject.tt, {
-          SystemInfo: { ...systemInfo, ...browserConfig },
-        });
-        const ret = entry?.(lynxCoreInject.tt);
-        return ret;
-      },
-    };
+    const ret = globalThis.module.exports ?? globalThis.__bundle__holder;
+    globalThis.module.exports = null;
+    globalThis.__bundle__holder = null;
+    return ret as unknown as BundleInitReturnObj;
   };
+  const templateCache = new Map<string, LynxTemplate>([['__Card__', template]]);
+  mainThreadRpc.registerHandler(
+    updateBTSTemplateCacheEndpoint,
+    (url, template) => {
+      templateCache.set(url, template);
+    },
+  );
   const i18nResource = new I18nResource();
   let release = '';
   const nativeApp: NativeApp = {
@@ -116,9 +97,15 @@ export async function createNativeApp(
     loadScriptAsync: function(
       sourceURL: string,
       callback: (message: string | null, exports?: BundleInitReturnObj) => void,
+      entryName?: string,
     ): void {
-      const manifestUrl = template.manifest[`/${sourceURL}`];
+      entryName = entryName ?? '__Card__';
+      const manifestUrl = templateCache.get(entryName!)
+        ?.manifest[`/${sourceURL}`];
       if (manifestUrl) sourceURL = manifestUrl;
+      else throw Error(`Cannot find ${sourceURL} in manifest`);
+      globalThis.module.exports = null;
+      globalThis.__bundle__holder = null;
       import(
         /* webpackIgnore: true */
         sourceURL
@@ -126,9 +113,14 @@ export async function createNativeApp(
         callback(null, createBundleInitReturnObj());
       });
     },
-    loadScript: (sourceURL: string) => {
-      const manifestUrl = template.manifest[`/${sourceURL}`];
+    loadScript: (sourceURL: string, entryName?: string) => {
+      entryName = entryName ?? '__Card__';
+      const manifestUrl = templateCache.get(entryName!)
+        ?.manifest[`/${sourceURL}`];
       if (manifestUrl) sourceURL = manifestUrl;
+      else throw Error(`Cannot find ${sourceURL} in manifest`);
+      globalThis.module.exports = null;
+      globalThis.__bundle__holder = null;
       importScripts(sourceURL);
       return createBundleInitReturnObj();
     },
@@ -142,6 +134,7 @@ export async function createNativeApp(
     setNativeProps,
     getPathInfo: createGetPathInfo(uiThreadRpc),
     invokeUIMethod: createInvokeUIMethod(uiThreadRpc),
+    tt: null,
     setCard(tt) {
       registerPublicComponentEventHandler(
         mainThreadRpc,
@@ -167,6 +160,7 @@ export async function createNativeApp(
       registerUpdateI18nResource(uiThreadRpc, mainThreadRpc, i18nResource, tt);
       timingSystem.registerGlobalEmitter(tt.GlobalEventEmitter);
       (tt.lynx.getCoreContext() as LynxCrossThreadContext).__start();
+      nativeApp.tt = tt;
     },
     triggerComponentEvent,
     selectComponent,
@@ -180,6 +174,15 @@ export async function createNativeApp(
     i18nResource,
     reportException: (err: Error, _: unknown) => reportError(err, _, release),
     __SetSourceMapRelease: (err: Error) => release = err.message,
+    queryComponent: (source, callback) => {
+      if (templateCache.has(source)) {
+        callback({ __hasReady: true });
+      } else {
+        queryComponent(source).then(res => {
+          callback?.(res);
+        });
+      }
+    },
   };
   return nativeApp;
 }

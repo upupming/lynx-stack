@@ -14,6 +14,7 @@ describe('Config - toRsBuildConfig', () => {
       })
       expect(rsbuildConfig.dev).toMatchInlineSnapshot(`
         {
+          "lazyCompilation": false,
           "progressBar": true,
           "watchFiles": undefined,
           "writeToDisk": true,
@@ -555,7 +556,7 @@ describe('Config - toRsBuildConfig', () => {
 
     test('transform empty resolve.alias', () => {
       const rsbuildConfig = toRsbuildConfig({
-        source: {
+        resolve: {
           alias: {},
         },
       })
@@ -564,9 +565,9 @@ describe('Config - toRsBuildConfig', () => {
       )
     })
 
-    test('transform source.alias', () => {
+    test('transform resolve.alias', () => {
       const rsbuildConfig = toRsbuildConfig({
-        source: {
+        resolve: {
           alias: {
             foo: 'bar',
           },
@@ -579,9 +580,72 @@ describe('Config - toRsBuildConfig', () => {
         foo: 'baz',
       })
     })
+
+    test('transform resolve.dedupe', () => {
+      const rsbuildConfig = toRsbuildConfig({
+        resolve: {
+          dedupe: ['foo', 'bar', 'baz'],
+        },
+      })
+      expect(rsbuildConfig.resolve?.dedupe).toStrictEqual(['foo', 'bar', 'baz'])
+    })
+
+    test('transform resolve.aliasStrategy with prefer-tsconfig', () => {
+      const rsbuildConfig = toRsbuildConfig({
+        resolve: {
+          aliasStrategy: 'prefer-tsconfig',
+        },
+      })
+      expect(rsbuildConfig.resolve?.aliasStrategy).toBe('prefer-tsconfig')
+    })
+
+    test('transform resolve.aliasStrategy with prefer-alias', () => {
+      const rsbuildConfig = toRsbuildConfig({
+        resolve: {
+          aliasStrategy: 'prefer-alias',
+        },
+      })
+      expect(rsbuildConfig.resolve?.aliasStrategy).toBe('prefer-alias')
+    })
+
+    test('transform resolve.aliasStrategy with undefined', () => {
+      const rsbuildConfig = toRsbuildConfig({
+        resolve: {
+          aliasStrategy: undefined,
+        },
+      })
+      expect(rsbuildConfig.resolve?.aliasStrategy).toBeUndefined()
+    })
   })
 
   describe('Source', () => {
+    test('transform empty source.alias', () => {
+      const rsbuildConfig = toRsbuildConfig({
+        source: {
+          alias: {},
+        },
+      })
+      expect(rsbuildConfig.source?.alias).toStrictEqual(
+        {},
+      )
+    })
+
+    test('transform source.alias', () => {
+      const rsbuildConfig = toRsbuildConfig({
+        source: {
+          alias: {
+            foo: 'bar',
+          },
+        },
+      })
+      expect(rsbuildConfig.source?.alias).toStrictEqual(
+        { foo: 'bar' },
+      )
+      expect(rsbuildConfig.source?.alias).not.toStrictEqual({
+        foo: 'baz',
+      })
+    })
+
     test('source.decorators', () => {
       const rsbuildConfig = toRsbuildConfig({
         source: {
