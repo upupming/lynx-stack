@@ -1601,6 +1601,201 @@ mod tests {
       jsx: true,
       ..Default::default()
     }),
+    |t| {
+      let unresolved_mark = Mark::new();
+      let top_level_mark = Mark::new();
+
+      (
+        resolver(unresolved_mark, top_level_mark, true),
+        visit_mut_pass(JSXTransformer::new(
+          super::JSXTransformerConfig {
+            preserve_jsx: true,
+            ..Default::default()
+          },
+          Some(t.comments.clone()),
+          TransformMode::Test,
+        )),
+      )
+    },
+    full_static_children_self_close,
+    // Input codes
+    r#"
+    <view className="parent">
+			<view className="child"/>
+			<view className="child"/>
+		</view>
+    "#
+  );
+
+  test!(
+    module,
+    Syntax::Es(EsSyntax {
+      jsx: true,
+      ..Default::default()
+    }),
+    |t| {
+      let unresolved_mark = Mark::new();
+      let top_level_mark = Mark::new();
+
+      (
+        resolver(unresolved_mark, top_level_mark, true),
+        visit_mut_pass(JSXTransformer::new(
+          super::JSXTransformerConfig {
+            preserve_jsx: true,
+            ..Default::default()
+          },
+          Some(t.comments.clone()),
+          TransformMode::Test,
+        )),
+      )
+    },
+    full_static_children_new_line,
+    // Input codes
+    r#"
+    <view className="parent">
+			<view className="child">
+      </view>
+			<view className="child">
+      </view>
+		</view>
+    "#
+  );
+
+  test!(
+    module,
+    Syntax::Es(EsSyntax {
+      jsx: true,
+      ..Default::default()
+    }),
+    |t| {
+      let unresolved_mark = Mark::new();
+      let top_level_mark = Mark::new();
+
+      (
+        resolver(unresolved_mark, top_level_mark, true),
+        visit_mut_pass(JSXTransformer::new(
+          super::JSXTransformerConfig {
+            preserve_jsx: true,
+            ..Default::default()
+          },
+          Some(t.comments.clone()),
+          TransformMode::Test,
+        )),
+      )
+    },
+    full_static_children_comments,
+    // Input codes
+    r#"
+    <view className="parent">
+			<view className="child">
+        {/** foo */}
+      </view>
+			<view className="child">
+        {/** bar */}
+      </view>
+		</view>
+    "#
+  );
+
+  test!(
+    module,
+    Syntax::Es(EsSyntax {
+      jsx: true,
+      ..Default::default()
+    }),
+    |t| {
+      let unresolved_mark = Mark::new();
+      let top_level_mark = Mark::new();
+
+      (
+        resolver(unresolved_mark, top_level_mark, true),
+        visit_mut_pass(JSXTransformer::new(
+          super::JSXTransformerConfig {
+            preserve_jsx: true,
+            ..Default::default()
+          },
+          Some(t.comments.clone()),
+          TransformMode::Test,
+        )),
+      )
+    },
+    full_static_children_map_jsx,
+    // Input codes
+    r#"
+    <view className="parent">
+			<view className="child">{[].map(() => null)}</view>
+			<view className="child">{[].map(() => null)}</view>
+		</view>
+    "#
+  );
+
+  test!(
+    module,
+    Syntax::Es(EsSyntax {
+      jsx: true,
+      ..Default::default()
+    }),
+    |t| {
+      let unresolved_mark = Mark::new();
+      let top_level_mark = Mark::new();
+
+      (
+        resolver(unresolved_mark, top_level_mark, true),
+        visit_mut_pass(JSXTransformer::new(
+          super::JSXTransformerConfig {
+            preserve_jsx: true,
+            ..Default::default()
+          },
+          Some(t.comments.clone()),
+          TransformMode::Test,
+        )),
+      )
+    },
+    basic_full_static_snapshot_extract,
+    // Input codes
+    r#"let s = __SNAPSHOT__(<view><text>!!!</text></view>);"#
+  );
+
+  test!(
+    module,
+    Syntax::Es(EsSyntax {
+      jsx: true,
+      ..Default::default()
+    }),
+    |t| {
+      let unresolved_mark = Mark::new();
+      let top_level_mark = Mark::new();
+
+      (
+        resolver(unresolved_mark, top_level_mark, true),
+        visit_mut_pass(JSXTransformer::new(
+          super::JSXTransformerConfig {
+            preserve_jsx: true,
+            ..Default::default()
+          },
+          Some(t.comments.clone()),
+          TransformMode::Test,
+        )),
+      )
+    },
+    basic_full_static_snapshot_extract_it,
+    // Input codes
+    r#"
+    it('basic', async function() {
+      const run = withEnv(function() {
+        let s = __SNAPSHOT__(<view><text>!!!</text></view>);
+      });
+      await run();
+    });
+    "#
+  );
+
+  test!(
+    module,
+    Syntax::Es(EsSyntax {
+      jsx: true,
+      ..Default::default()
+    }),
     |t| visit_mut_pass(JSXTransformer::new(
       super::JSXTransformerConfig {
         preserve_jsx: true,
