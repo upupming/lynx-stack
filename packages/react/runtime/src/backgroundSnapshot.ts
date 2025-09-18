@@ -34,18 +34,20 @@ import { isDirectOrDeepEqual } from './utils.js';
 import { onPostWorkletCtx } from './worklet/ctx.js';
 
 export class BackgroundSnapshotInstance {
-  constructor(public type: string) {
+  constructor(public type: string, __slotIndex?: number) {
+    this.__slotIndex = __slotIndex;
     this.__snapshot_def = snapshotManager.values.get(type)!;
     const id = this.__id = backgroundSnapshotInstanceManager.nextId += 1;
     backgroundSnapshotInstanceManager.values.set(id, this);
 
-    __globalSnapshotPatch?.push(SnapshotOperation.CreateElement, type, id);
+    __globalSnapshotPatch?.push(SnapshotOperation.CreateElement, type, id, __slotIndex);
   }
 
   __id: number;
   __values: any[] | undefined;
   __snapshot_def: Snapshot;
   __extraProps?: Record<string, unknown> | undefined;
+  __slotIndex?: number | undefined;
 
   private __parent: BackgroundSnapshotInstance | null = null;
   private __firstChild: BackgroundSnapshotInstance | null = null;
@@ -79,6 +81,7 @@ export class BackgroundSnapshotInstance {
     node: BackgroundSnapshotInstance,
     beforeNode?: BackgroundSnapshotInstance,
   ): void {
+    console.log('bts insertBefore', node.type, beforeNode?.type);
     if (node.__removed_from_tree) {
       node.__removed_from_tree = false;
       // This is only called by `lazy`/`Suspense` through `appendChild` so beforeNode is always undefined.
@@ -463,7 +466,9 @@ export function hydrate(
           break;
         }
         case DynamicPartType.Children:
-        case DynamicPartType.ListChildren: {
+        case DynamicPartType.ListChildren:
+        case DynamicPartType.SlotV2:
+        case DynamicPartType.ListSlotV2: {
           const diffResult = diffArrayLepus(
             beforeChildNodes,
             afterChildNodes,
@@ -498,6 +503,8 @@ export function hydrate(
           );
           break;
         }
+        default:
+          throw new Error('Unexpected slot type: ' + type);
       }
     });
   };
@@ -511,7 +518,7 @@ export function hydrate(
 function reconstructInstanceTree(afters: BackgroundSnapshotInstance[], parentId: number, targetId?: number): void {
   for (const child of afters) {
     const id = child.__id;
-    __globalSnapshotPatch?.push(SnapshotOperation.CreateElement, child.type, id);
+    __globalSnapshotPatch?.push(SnapshotOperation.CreateElement, child.type, id, child.__slotIndex);
     const values = child.__values;
     if (values) {
       child.__values = undefined;

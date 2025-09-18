@@ -37,7 +37,9 @@ export function snapshotPatchApply(snapshotPatch: SnapshotPatch): void {
       case SnapshotOperation.CreateElement: {
         const type = snapshotPatch[++i] as string;
         const id = snapshotPatch[++i] as number;
-        new SnapshotInstance(type, id);
+        const s = new SnapshotInstance(type, id);
+        s.__slotIndex = snapshotPatch[++i] as number | undefined;
+        console.log('snapshotPatchApply: CreateElement', type, id, s.__slotIndex);
         break;
       }
       case SnapshotOperation.InsertBefore: {
@@ -50,6 +52,20 @@ export function snapshotPatchApply(snapshotPatch: SnapshotPatch): void {
         if (!parent || !child) {
           sendCtxNotFoundEventToBackground(parent ? childId : parentId);
         } else {
+          console.log(
+            'snapshotPatchApply: InsertBefore',
+            'parent',
+            parentId,
+            parent.type,
+            'child',
+            childId,
+            child.type,
+            child.__slotIndex,
+            'before',
+            beforeId,
+            existingNode?.type,
+            existingNode?.__slotIndex,
+          );
           parent.insertBefore(child, existingNode);
         }
         break;
@@ -59,6 +75,7 @@ export function snapshotPatchApply(snapshotPatch: SnapshotPatch): void {
         const childId = snapshotPatch[++i] as number;
         const parent = snapshotInstanceManager.values.get(parentId);
         const child = snapshotInstanceManager.values.get(childId);
+        console.log('snapshotPatchApply: RemoveChild', 'parent', parentId, parent?.type, 'child', childId, child?.type);
         if (!parent || !child) {
           sendCtxNotFoundEventToBackground(parent ? childId : parentId);
         } else {
@@ -71,6 +88,7 @@ export function snapshotPatchApply(snapshotPatch: SnapshotPatch): void {
         const dynamicPartIndex = snapshotPatch[++i] as number;
         const value = snapshotPatch[++i];
         const si = snapshotInstanceManager.values.get(id);
+        console.log('snapshotPatchApply: SetAttribute', si?.__id, si?.type, value);
         if (si) {
           si.setAttribute(dynamicPartIndex, value);
         } else {
@@ -82,6 +100,7 @@ export function snapshotPatchApply(snapshotPatch: SnapshotPatch): void {
         const id = snapshotPatch[++i] as number;
         const values = snapshotPatch[++i];
         const si = snapshotInstanceManager.values.get(id);
+        console.log('snapshotPatchApply: SetAttributes', si?.__id, si?.type, values);
         if (si) {
           si.setAttribute('values', values);
         } else {

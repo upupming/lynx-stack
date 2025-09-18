@@ -241,12 +241,16 @@ export function hydrate(before: SnapshotInstance, after: SnapshotInstance, optio
   const afterChildNodes = after.childNodes;
 
   slot.forEach(([type, elementIndex], index) => {
+    console.log('hydrate slot', 'after.type', after.type, 'type', type, elementIndex, index);
     switch (type) {
+      case DynamicPartType.SlotV2:
       case DynamicPartType.Slot:
       case DynamicPartType.MultiChildren: {
         // TODO: the following null assertions are not 100% safe
         const v1 = beforeChildNodes[index]!;
         const v2 = afterChildNodes[index]!;
+        console.log('beforeChildNodes', before.type, beforeChildNodes, 'afterChildNodes', afterChildNodes);
+        console.log('v1', v1?.type, 'v2', v2?.type);
         hydrate(v1, v2, options);
         break;
       }
@@ -291,6 +295,7 @@ export function hydrate(before: SnapshotInstance, after: SnapshotInstance, optio
         );
         break;
       }
+      case DynamicPartType.ListSlotV2:
       case DynamicPartType.ListChildren: {
         const removals: number[] = [];
         const insertions: number[] = [];
@@ -379,7 +384,10 @@ export function hydrate(before: SnapshotInstance, after: SnapshotInstance, optio
         // The `before` & `after` target to the same list element, so we need to
         // avoid the newly created list's (behind snapshot instance `after`) "update-list-info" being recorded.
         __pendingListUpdates.clear(after.__id);
+        break;
       }
+      default:
+        throw new Error('Unexpected slot type: ' + type);
     }
   });
 }
