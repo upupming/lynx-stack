@@ -1,6 +1,19 @@
 use std::{collections::HashMap, fmt::Debug};
 
+use crate::DefineDCEVisitorConfig as CoreConfig;
 use napi_derive::napi;
+
+impl From<DefineDCEVisitorConfig> for CoreConfig {
+  fn from(val: DefineDCEVisitorConfig) -> Self {
+    CoreConfig { define: val.define }
+  }
+}
+
+impl From<CoreConfig> for DefineDCEVisitorConfig {
+  fn from(val: CoreConfig) -> Self {
+    DefineDCEVisitorConfig { define: val.define }
+  }
+}
 
 /// {@inheritdoc PluginReactLynxOptions.defineDCE}
 /// @public
@@ -38,7 +51,7 @@ pub struct DefineDCEVisitorConfig {
   ///
   /// Then, `__FOO__` and `process.env.PLATFORM` could be used in source code.
   ///
-  /// ```
+  /// ```javascript
   /// if (process.env.PLATFORM === 'lynx') {
   ///   console.log('lynx')
   /// }
