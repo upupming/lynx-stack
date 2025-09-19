@@ -2,7 +2,7 @@
 // Licensed under the Apache License Version 2.0 that can be found in the
 // LICENSE file in the root directory of this source tree.
 
-import type { CSSLoaderOptions, RsbuildPluginAPI } from '@rsbuild/core'
+import type { CSSLoaderOptions, RsbuildPluginAPI, Rspack } from '@rsbuild/core'
 
 import type {
   CssExtractRspackPluginOptions,
@@ -10,6 +10,8 @@ import type {
 } from '@lynx-js/css-extract-webpack-plugin'
 
 import type { PluginReactLynxOptions } from './pluginReactLynx.js'
+
+const CSS_LAYER = 'css-layer'
 
 export function applyCSS(
   api: RsbuildPluginAPI,
@@ -63,10 +65,16 @@ export function applyCSS(
             .loader(CssExtractPlugin.loader)
             .end()
             .use(ruleName)
-            .tap(options => normalizeCssLoaderOptions(
-              options as CSSLoaderOptions,
-              true
-            ))
+            .tap(options =>
+              normalizeCssLoaderOptions(
+                options as CSSLoaderOptions,
+                true,
+              )
+            )
+
+          chain.module.rule(CSS_LAYER)
+            .test(rule.get('test') as Rspack.RuleSetCondition)
+            .layer(CSS_LAYER)
         })
 
       const inlineCSSRules = [

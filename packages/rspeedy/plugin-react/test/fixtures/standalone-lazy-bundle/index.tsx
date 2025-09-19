@@ -1,5 +1,5 @@
-import CompBackground from "./CompBackground.js";
-import CompMain from "./CompMain.js";
+import CompBackground from './CompBackground.js'
+import CompMain from './CompMain.js'
 
 export default function LazyBundleComp() {
   return (

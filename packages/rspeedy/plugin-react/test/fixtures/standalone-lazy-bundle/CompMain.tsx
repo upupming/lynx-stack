@@ -1,5 +1,5 @@
 import './CompMain.css'
 
-export default function () {
+export default function() {
   return null
 }

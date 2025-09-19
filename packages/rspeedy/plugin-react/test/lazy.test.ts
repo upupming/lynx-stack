@@ -6,6 +6,8 @@ import path from 'node:path'
 import type { Rspack } from '@rsbuild/core'
 import { describe, expect, test, vi } from 'vitest'
 
+import { LynxTemplatePlugin } from '@lynx-js/template-webpack-plugin'
+
 import { createStubRspeedy as createRspeedy } from './createRspeedy.js'
 import { pluginStubRspeedyAPI } from './stub-rspeedy-api.plugin.js'
 
@@ -71,9 +73,24 @@ describe('Lazy', () => {
   ;['development', 'production'].forEach(mode => {
     test(`exports should have the component exported on ${mode} mode`, async () => {
       vi.stubEnv('NODE_ENV', mode)
+      vi.stubEnv('DEBUG', 'rspeedy,rsbuild')
 
       const { pluginReactLynx } = await import('../src/pluginReactLynx.js')
       let backgroundJSContent = ''
+
+      interface TasmJson {
+        css: {
+          cssMap: Record<
+            string,
+            Array<{
+              selectorText: {
+                value: string
+              }
+            }>
+          >
+        }
+      }
+      let tasmJson!: TasmJson
 
       const rsbuild = await createRspeedy({
         rspeedyConfig: {
@@ -100,10 +117,10 @@ describe('Lazy', () => {
             rspack: {
               plugins: [
                 {
-                  name: 'extractBackgroundJSContent',
+                  name: 'extractDist',
                   apply(compiler) {
                     compiler.hooks.compilation.tap(
-                      'extractBackgroundJSContent',
+                      'extractDist',
                       (compilation) => {
                         compilation.hooks.processAssets.tap(
                           'extractBackgroundJSContent',
@@ -116,6 +133,17 @@ describe('Lazy', () => {
                             }
                           },
                         )
+
+                        const hooks = LynxTemplatePlugin
+                          .getLynxTemplatePluginHooks(
+                            // @ts-expect-error Rspack to Webpack Compilation
+                            compilation,
+                          )
+                        hooks.beforeEncode.tap('extractTasmJson', (args) => {
+                          tasmJson = args.encodeData as unknown as TasmJson
+
+                          return args
+                        })
                       },
                     )
                   },
@@ -129,15 +157,11 @@ describe('Lazy', () => {
       await rsbuild.build()
 
       const handler = {
-        get: function(_target: any, prop: string) {
-          if (prop === 'Promise') return Promise
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+        get: function() {
           return new Proxy(() => infiniteNestedObject, handler)
         },
       }
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const infiniteNestedObject = new Proxy(
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         () => infiniteNestedObject,
         handler,
       )
@@ -154,7 +178,6 @@ describe('Lazy', () => {
         },
         require: (key: string) => {
           // biome-ignore lint/suspicious/noExplicitAny: args passed to tt.define of lazy bundle
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-return
           const args: any[] = Array(18).fill(0).map(() => infiniteNestedObject)
           args[2] = exports
           args[10] = console
@@ -164,7 +187,6 @@ describe('Lazy', () => {
           )
         },
       }
-      // TODO: fix here, should not generate .x() for css merging
       eval(backgroundJSContent)
 
       expect(exports).toHaveProperty(
@@ -172,6 +194,70 @@ describe('Lazy', () => {
       )
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       expect(exports['default'].name).toBe('LazyBundleComp')
+
+      expect(Object.keys(tasmJson.css.cssMap).length).toBe(1)
+      expect(tasmJson.css.cssMap['0']![0]!.selectorText.value).toBe(
+        '.main-thread',
+      )
+      expect(tasmJson.css.cssMap['0']![1]!.selectorText.value).toBe(
+        '.background-thread',
+      )
+      expect(tasmJson.css.cssMap).toMatchInlineSnapshot(`
+        {
+          "0": [
+            {
+              "selectorText": {
+                "loc": {
+                  "column": 13,
+                  "line": 1,
+                },
+                "value": ".main-thread",
+              },
+              "style": [
+                {
+                  "keyLoc": {
+                    "column": 19,
+                    "line": 1,
+                  },
+                  "name": "color",
+                  "valLoc": {
+                    "column": 24,
+                    "line": 1,
+                  },
+                  "value": "red",
+                },
+              ],
+              "type": "StyleRule",
+              "variables": {},
+            },
+            {
+              "selectorText": {
+                "loc": {
+                  "column": 42,
+                  "line": 1,
+                },
+                "value": ".background-thread",
+              },
+              "style": [
+                {
+                  "keyLoc": {
+                    "column": 48,
+                    "line": 1,
+                  },
+                  "name": "color",
+                  "valLoc": {
+                    "column": 56,
+                    "line": 1,
+                  },
+                  "value": "yellow",
+                },
+              ],
+              "type": "StyleRule",
+              "variables": {},
+            },
+          ],
+        }
+      `)
 
       vi.unstubAllEnvs()
     })

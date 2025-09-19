@@ -46,51 +46,26 @@ export const applySplitChunksRule = (
   })
 
   api.modifyBundlerChain((chain, { environment }) => {
-    const { name, config } = environment
+    const { config } = environment
+    if (config.performance.chunkSplit.strategy !== 'split-by-experience') {
+      return
+    }
 
     const currentConfig = chain.optimization.splitChunks.values() as Exclude<
       SplitChunks,
       false
     >
-    const extraSplitChunks: SplitChunks = {}
-    const extraGroups: CacheGroups = {
-      'extract-entry-common-css': {
-        name: (
-          _module: Rspack.Module,
-          chunks: Rspack.Chunk[],
-          _cacheGroupKey: string,
-        ) => {
-          // Merge all CSS of same entry together.
-          // entry: `main` and `main__main-thread` to `.styles-main.css`
-          // lazy bundle: `./Foo.jsx-react__main-thread` and `./Foo.jsx-react__background` to `.styles-__Foo_jsx-react.css`
-          return `.styles-${
-            chunks[0]!.name!.split('__')[0]!.replaceAll(/[./]/g, '_')
-          }`
-        },
-        type: 'css/mini-extract',
-        chunks: 'all',
-        enforce: true,
-      },
+    if (!isPlainObject(currentConfig)) {
+      return
     }
-    if (
-      config.performance.chunkSplit.strategy === 'split-by-experience'
-      && isPlainObject(currentConfig)
-    ) {
-      extraGroups['preact'] = {
-        name: 'lib-preact',
-        test:
-          /node_modules[\\/](.*?[\\/])?(?:preact|preact[\\/]compat|preact[\\/]hooks|preact[\\/]jsx-runtime)[\\/]/,
-        priority: 0,
-      }
-    }
-    if (currentConfig) {
-      if (name === 'lynx') {
-        extraSplitChunks.chunks = function (chunk) {
-          // TODO: support `splitChunks.chunks: 'async'`
-          // We don't want main thread to be split
-          return !chunk.name?.includes('__main-thread')
-        }
-      }
+
+    const extraGroups: CacheGroups = {}
+
+    extraGroups['preact'] = {
+      name: 'lib-preact',
+      test:
+        /node_modules[\\/](.*?[\\/])?(?:preact|preact[\\/]compat|preact[\\/]hooks|preact[\\/]jsx-runtime)[\\/]/,
+      priority: 0,
     }
 
     chain.optimization.splitChunks({
@@ -99,7 +74,27 @@ export const applySplitChunksRule = (
         ...currentConfig.cacheGroups,
         ...extraGroups,
       },
-      ...extraSplitChunks
     })
+  })
+
+  api.modifyRspackConfig((rspackConfig, { environment }) => {
+    if (environment.name !== 'lynx') {
+      return rspackConfig
+    }
+
+    if (!rspackConfig.optimization) {
+      return rspackConfig
+    }
+
+    if (!rspackConfig.optimization.splitChunks) {
+      return rspackConfig
+    }
+
+    rspackConfig.optimization.splitChunks.chunks = function chunks(chunk) {
+      // TODO: support `splitChunks.chunks: 'async'`
+      // We don't want main thread to be split
+      return !chunk.name?.includes('__main-thread')
+    }
+    return rspackConfig
   })
 }

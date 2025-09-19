@@ -245,7 +245,7 @@ describe('Plugins - CSS', () => {
       )
 
       expect(mainThreadRule).toBeUndefined()
-      
+
       const backgroundRule = config?.module?.rules?.find(
         (rule): rule is Rspack.RuleSetRule => {
           return !!rule && rule !== '...'
