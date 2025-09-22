@@ -57,6 +57,12 @@ export function toRsbuildConfig(
     },
     resolve: {
       alias: config.resolve?.alias,
+
+      aliasStrategy: config.resolve?.aliasStrategy,
+
+      dedupe: config.resolve?.dedupe,
+
+      extensions: config.resolve?.extensions,
     },
     source: {
       alias: config.source?.alias,
@@ -87,6 +93,8 @@ export function toRsbuildConfig(
       host: config.server?.host,
 
       port: config.server?.port,
+
+      proxy: config.server?.proxy,
 
       strictPort: config.server?.strictPort,
     },

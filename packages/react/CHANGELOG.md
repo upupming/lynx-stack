@@ -1,5 +1,45 @@
 # @lynx-js/react
 
+## 0.114.0
+
+### Minor Changes
+
+- Partially fix the "cannot read property 'update' of undefined" error. ([#1771](https://github.com/lynx-family/lynx-stack/pull/1771))
+
+  This error happens when rendering a JSX expression in a [background-only](https://lynxjs.org/react/thinking-in-reactlynx.html) context.
+
+  See [lynx-family/lynx-stack#894](https://github.com/lynx-family/lynx-stack/issues/894) for more details.
+
+### Patch Changes
+
+- Reduce extra snapshot when children are pure text ([#1562](https://github.com/lynx-family/lynx-stack/pull/1562))
+
+- feat: Support `SelectorQuery` `animation` APIs ([#1768](https://github.com/lynx-family/lynx-stack/pull/1768))
+
+- Fix spread props inside list-item caused redundant snapshot patch ([#1760](https://github.com/lynx-family/lynx-stack/pull/1760))
+
+- fix: `ref is not initialized` error on template reload ([#1757](https://github.com/lynx-family/lynx-stack/pull/1757))
+
+## 0.113.0
+
+### Minor Changes
+
+- fix: Delay execution of `runOnMainThread()` during initial render ([#1667](https://github.com/lynx-family/lynx-stack/pull/1667))
+
+  When called during the initial render, `runOnMainThread()` would execute before the `main-thread:ref` was hydrated, causing it to be incorrectly set to null.
+
+  This change delays the function's execution to ensure the ref is available and correctly assigned.
+
+### Patch Changes
+
+- Fix "TypeError: cannot read property '0' of undefined" in deferred list-item scenarios. ([#1692](https://github.com/lynx-family/lynx-stack/pull/1692))
+
+  Deferred `componentAtIndex` causes nodes that quickly appear/disappear to be enqueued without `__elements`. Update `signMap` before `__FlushElementTree` to resolve the issue.
+
+- Keep the same `<page/>` element when calling `rerender` in testing library. ([#1656](https://github.com/lynx-family/lynx-stack/pull/1656))
+
+- Bump `swc_core` to `39.0.3`. ([#1721](https://github.com/lynx-family/lynx-stack/pull/1721))
+
 ## 0.112.6
 
 ### Patch Changes

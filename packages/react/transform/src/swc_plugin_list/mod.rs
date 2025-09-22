@@ -182,7 +182,7 @@ where
 #[cfg(test)]
 mod tests {
   use swc_core::{
-    common::{comments::SingleThreadedComments, Mark},
+    common::comments::SingleThreadedComments,
     ecma::{
       parser::{EsSyntax, Syntax},
       transforms::testing::test,
@@ -193,9 +193,9 @@ mod tests {
   use super::ListVisitor;
   use crate::{
     swc_plugin_snapshot::{JSXTransformer, JSXTransformerConfig},
-    target::TransformTarget,
     TransformMode,
   };
+  use swc_plugins_shared::target_napi::TransformTarget;
 
   test!(
     module,
@@ -304,8 +304,6 @@ mod tests {
       ..Default::default()
     }),
     |t| {
-      let top_level_mark = Mark::new();
-      let unresolved_mark = Mark::new();
       (
         visit_mut_pass(ListVisitor::new(Some(t.comments.clone()))),
         visit_mut_pass(JSXTransformer::<&SingleThreadedComments>::new(
@@ -314,10 +312,7 @@ mod tests {
             target: TransformTarget::MIXED,
             ..Default::default()
           },
-          t.cm.clone(),
           None,
-          top_level_mark,
-          unresolved_mark,
           TransformMode::Development,
         )),
       )

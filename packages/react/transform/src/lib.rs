@@ -4,24 +4,17 @@
 #[macro_use]
 extern crate napi_derive;
 mod bundle;
-mod css;
 mod esbuild;
 mod swc_plugin_compat;
 mod swc_plugin_compat_post;
-mod swc_plugin_css_scope;
-mod swc_plugin_define_dce;
-mod swc_plugin_directive_dce;
 mod swc_plugin_dynamic_import;
 mod swc_plugin_extract_str;
-mod swc_plugin_inject;
 mod swc_plugin_list;
 mod swc_plugin_refresh;
 mod swc_plugin_shake;
 mod swc_plugin_snapshot;
 mod swc_plugin_worklet;
 mod swc_plugin_worklet_post_process;
-mod target;
-mod utils;
 
 use std::vec;
 
@@ -64,16 +57,16 @@ use swc_core::{
 // So we have to use different name
 use swc_plugin_compat::{CompatVisitor, CompatVisitorConfig};
 use swc_plugin_compat_post::CompatPostVisitor;
-use swc_plugin_css_scope::{CSSScopeVisitor, CSSScopeVisitorConfig};
-use swc_plugin_define_dce::DefineDCEVisitorConfig;
-use swc_plugin_directive_dce::{DirectiveDCEVisitor, DirectiveDCEVisitorConfig};
+use swc_plugin_css_scope::napi::{CSSScopeVisitor, CSSScopeVisitorConfig};
+use swc_plugin_define_dce::napi::DefineDCEVisitorConfig;
+use swc_plugin_directive_dce::napi::{DirectiveDCEVisitor, DirectiveDCEVisitorConfig};
 use swc_plugin_dynamic_import::{DynamicImportVisitor, DynamicImportVisitorConfig};
-use swc_plugin_inject::{InjectVisitor, InjectVisitorConfig};
+use swc_plugin_inject::napi::{InjectVisitor, InjectVisitorConfig};
 use swc_plugin_refresh::{RefreshVisitor, RefreshVisitorConfig};
 use swc_plugin_shake::{ShakeVisitor, ShakeVisitorConfig};
 use swc_plugin_snapshot::{JSXTransformer, JSXTransformerConfig};
 use swc_plugin_worklet::{WorkletVisitor, WorkletVisitorConfig};
-use utils::calc_hash;
+use swc_plugins_shared::utils::calc_hash;
 
 #[derive(Debug, PartialEq, Clone, Copy)]
 pub enum TransformMode {
@@ -201,8 +194,19 @@ impl napi::bindgen_prelude::FromNapiValue for IsModuleConfig {
     }
 
     let str_val = <&str>::from_napi_value(env, napi_val);
-    if str_val.is_ok() && str_val.unwrap() == "unknown" {
-      return Ok(IsModuleConfig(IsModule::Unknown));
+
+    if let Ok(val) = str_val {
+      match val {
+        "unknown" => return Ok(IsModuleConfig(IsModule::Unknown)),
+        "commonjs" => return Ok(IsModuleConfig(IsModule::CommonJS)),
+        _ => {
+          return Err(napi::bindgen_prelude::error!(
+            napi::bindgen_prelude::Status::InvalidArg,
+            "Invalid variant '{}' for enum IsModuleConfig",
+            val
+          ));
+        }
+      }
     }
 
     Err(napi::bindgen_prelude::error!(
@@ -221,6 +225,7 @@ impl napi::bindgen_prelude::ToNapiValue for IsModuleConfig {
     match val.0 {
       IsModule::Bool(v) => <bool>::to_napi_value(env, v),
       IsModule::Unknown => <&str>::to_napi_value(env, "unknown"),
+      IsModule::CommonJS => <&str>::to_napi_value(env, "commonjs"),
     }
   }
 }
@@ -468,10 +473,7 @@ fn transform_react_lynx_inner(
       visit_mut_pass(
         JSXTransformer::new(
           snapshot_plugin_config,
-          cm.clone(),
           Some(&comments),
-          top_level_mark,
-          unresolved_mark,
           options.mode.unwrap_or(TransformMode::Production),
         )
         .with_content_hash(content_hash.clone()),
@@ -638,6 +640,7 @@ fn transform_react_lynx_inner(
         source_root: "".into(), // TODO: add root
         source_file_name: options.source_file_name.as_deref(),
         source_map_url: None,
+        source_map_ignore_list: None,
         output_path: None,
         inline_sources_content: options.inline_sources_content.unwrap_or(true),
         source_map: match options.sourcemap {
@@ -761,23 +764,6 @@ pub fn transform_bundle_result(
 
 #[cfg(all(target_arch = "wasm32", target_os = "unknown"))]
 mod wasm {
-  use getrandom::register_custom_getrandom;
-  use getrandom::Error;
-
-  #[link(wasm_import_module = "getrandom")]
-  extern "C" {
-    fn random_fill_sync(offset: *mut u8, size: usize);
-  }
-
-  fn custom_getrandom(buf: &mut [u8]) -> Result<(), Error> {
-    unsafe {
-      random_fill_sync(buf.as_mut_ptr(), buf.len());
-    }
-    Ok(())
-  }
-
-  register_custom_getrandom!(custom_getrandom);
-
   use ::napi::{JsObject, NapiValue};
 
   const fn max(a: usize, b: usize) -> usize {
