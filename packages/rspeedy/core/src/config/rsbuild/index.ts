@@ -88,6 +88,8 @@ export function toRsbuildConfig(
     server: {
       base: config.server?.base,
 
+      compress: config.server?.compress,
+
       headers: config.server?.headers,
 
       host: config.server?.host,
