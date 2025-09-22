@@ -1,5 +1,5 @@
 ---
-"@lynx-js/react-rsbuild-plugin": patch
+"@lynx-js/css-extract-webpack-plugin": minor
 ---
 
-Make main-thread only CSS to be extracted correctly.
+**BREAKING CHANGE:** Make main-thread only CSS to be extracted correctly.

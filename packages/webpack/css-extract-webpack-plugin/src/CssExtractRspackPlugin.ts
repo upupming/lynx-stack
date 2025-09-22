@@ -318,7 +318,7 @@ class CssExtractRspackPluginImpl {
             ...args.encodeData,
             css: {
               ...css,
-              cssChunks: [...entrySet].map(entryName => ({
+              chunks: [...entrySet].map(entryName => ({
                 name: this.options.filename!.replaceAll('[name]', entryName),
                 source: new compiler.webpack.sources.RawSource(
                   entryName2CssContent.get(entryName) ?? '',

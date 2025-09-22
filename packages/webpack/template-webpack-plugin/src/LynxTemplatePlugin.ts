@@ -313,7 +313,7 @@ interface EncodeRawData {
    */
   manifest: Record<string, string>;
   css: {
-    cssChunks: Asset[];
+    chunks: Asset[];
   } & ReturnType<typeof cssChunksToMap>;
   // `customSections` option only takes effect on Lynx >= 2.16.
   customSections: Record<string, {
@@ -770,7 +770,7 @@ class LynxTemplatePluginImpl {
         cssMap: {},
         cssSource: {},
         contentMap: new Map(),
-        cssChunks: [],
+        chunks: [],
       },
       lepusCode: {
         // TODO: support multiple lepus chunks
@@ -800,6 +800,8 @@ class LynxTemplatePluginImpl {
       ...encodeData,
       css: {
         ...encodeData.css,
+        chunks: undefined,
+        contentMap: undefined,
       },
       lepusCode: {
         // TODO: support multiple lepus chunks
@@ -874,7 +876,7 @@ class LynxTemplatePluginImpl {
         outputName: filename,
         mainThreadAssets: [lepusCode.root, ...encodeData.lepusCode.chunks]
           .filter(i => i !== undefined),
-        cssChunks: encodeData.css.cssChunks,
+        cssChunks: encodeData.css.chunks,
       });
 
       compilation.emitAsset(filename, new RawSource(template, false));
@@ -957,8 +959,6 @@ class LynxTemplatePluginImpl {
     const assets: AssetsInformationByGroups = {
       // Will contain all js and mjs files
       backgroundThread: [],
-      // Will contain all css files
-      css: [],
       // Will contain all lepus files
       mainThread: [],
     };
@@ -991,9 +991,11 @@ class LynxTemplatePluginImpl {
       entryPointPublicPathMap[filename] = true;
 
       // ext will contain .js or .css, because .mjs recognizes as .js
-      const ext = (extMatch[1] === 'mjs' ? 'js' : extMatch[1]) as 'js' | 'css';
+      const ext = (extMatch[1] === 'mjs' ? 'js' : extMatch[1]) as 'js';
 
-      assets[ext === 'js' ? 'backgroundThread' : 'css'].push(asset);
+      if (ext === 'js') {
+        assets.backgroundThread.push(asset);
+      }
     });
 
     return assets;
@@ -1004,7 +1006,6 @@ class LynxTemplatePluginImpl {
 
 interface AssetsInformationByGroups {
   backgroundThread: Asset[];
-  css: Asset[];
   mainThread: Asset[];
 }
 
