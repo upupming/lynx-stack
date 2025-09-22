@@ -727,11 +727,20 @@ class LynxTemplatePluginImpl {
       targetSdkVersion,
       defaultOverflowVisible,
       dsl,
+      cssPlugins,
     } = this.#options;
 
     const isDev = process.env['NODE_ENV'] === 'development'
       || compiler.options.mode === 'development';
 
+    const css = cssChunksToMap(
+      assetsInfoByGroups.css
+        .map(chunk => compilation.getAsset(chunk.name))
+        .filter((v): v is Asset => !!v)
+        .map(asset => asset.source.source().toString()),
+      cssPlugins,
+      enableCSSSelector,
+    );
     const encodeRawData: EncodeRawData = {
       compilerOptions: {
         enableFiberArch: true,
@@ -766,11 +775,8 @@ class LynxTemplatePluginImpl {
         },
       },
       css: {
-        // This will be injected by CssExtractRspackPlugin later
-        cssMap: {},
-        cssSource: {},
-        contentMap: new Map(),
-        chunks: [],
+        ...css,
+        chunks: assetsInfoByGroups.css,
       },
       lepusCode: {
         // TODO: support multiple lepus chunks
@@ -959,6 +965,8 @@ class LynxTemplatePluginImpl {
     const assets: AssetsInformationByGroups = {
       // Will contain all js and mjs files
       backgroundThread: [],
+      // Will contain all css files
+      css: [],
       // Will contain all lepus files
       mainThread: [],
     };
@@ -991,11 +999,9 @@ class LynxTemplatePluginImpl {
       entryPointPublicPathMap[filename] = true;
 
       // ext will contain .js or .css, because .mjs recognizes as .js
-      const ext = (extMatch[1] === 'mjs' ? 'js' : extMatch[1]) as 'js';
+      const ext = (extMatch[1] === 'mjs' ? 'js' : extMatch[1]) as 'js' | 'css';
 
-      if (ext === 'js') {
-        assets.backgroundThread.push(asset);
-      }
+      assets[ext === 'js' ? 'backgroundThread' : 'css'].push(asset);
     });
 
     return assets;
@@ -1006,6 +1012,7 @@ class LynxTemplatePluginImpl {
 
 interface AssetsInformationByGroups {
   backgroundThread: Asset[];
+  css: Asset[];
   mainThread: Asset[];
 }
 
