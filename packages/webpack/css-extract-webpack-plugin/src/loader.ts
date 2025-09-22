@@ -246,7 +246,9 @@ ${content}
     const compiler = this._compiler! as unknown as {
       cssModuleId2Deps: CSSModuleId2Deps;
     };
-    compiler.cssModuleId2Deps[this._module!.identifier()] = dependencies;
+    if (compiler.cssModuleId2Deps) {
+      compiler.cssModuleId2Deps[this._module!.identifier()] = dependencies;
+    }
   } else {
     dependencies = [[null, exportContent]];
   }

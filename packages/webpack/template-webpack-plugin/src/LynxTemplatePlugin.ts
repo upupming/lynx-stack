@@ -327,7 +327,9 @@ interface EncodeRawData {
    * background thread
    */
   manifest: Record<string, string>;
-  css: ReturnType<typeof cssChunksToMap>;
+  css: {
+    cssChunks: Asset[];
+  } & ReturnType<typeof cssChunksToMap>;
   // `customSections` option only takes effect on Lynx >= 2.16.
   customSections: Record<string, {
     type?: 'lazy';
@@ -786,9 +788,11 @@ class LynxTemplatePluginImpl {
         },
       },
       css: {
+        // This will be injected by CssExtractRspackPlugin later
         cssMap: {},
         cssSource: {},
         contentMap: new Map(),
+        cssChunks: [],
       },
       lepusCode: {
         // TODO: support multiple lepus chunks
@@ -892,7 +896,7 @@ class LynxTemplatePluginImpl {
         outputName: filename,
         mainThreadAssets: [lepusCode.root, ...encodeData.lepusCode.chunks]
           .filter(i => i !== undefined),
-        cssChunks: assetsInfoByGroups.css,
+        cssChunks: encodeData.css.cssChunks,
       });
 
       compilation.emitAsset(filename, new RawSource(template, false));

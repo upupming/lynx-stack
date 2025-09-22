@@ -174,21 +174,28 @@ class CssExtractRspackPluginImpl {
        *
        * `./Foo.jsx` -> `Set(['./src/CompFoo.css'])`
        */
-      const entryName2CssModuleSet = new Map<string, Set<string>>();
       const cssModuleId2PreOrder = new Map<string, number>();
+      const entryName2CssContent: Map<string, string> = new Map<
+        string,
+        string
+      >();
 
       // This hook is before module concatenation so we can
       // get all css modules before concatenated
       compilation.hooks.afterOptimizeModules.tap(this.name, () => {
         const entryName2MainThreadChunkGroup = new Map<string, ChunkGroup>();
         const groupName2BackgroundChunkGroup = new Map<string, ChunkGroup>();
+        const entryName2CssModuleSet = new Map<string, Set<string>>();
         /**
          * Map from the chunk group to all css modules it contains
          */
         const chunkGroup2CssModuleSet = new WeakMap<ChunkGroup, Set<string>>();
         for (const group of compilation.chunkGroups) {
+          if (!group.name) {
+            continue;
+          }
           const { entryName, isMainThread } = this.normalizeEntryName(
-            group.name!,
+            group.name,
           );
           if (isMainThread) {
             entryName2MainThreadChunkGroup.set(entryName, group);
@@ -204,7 +211,7 @@ class CssExtractRspackPluginImpl {
               if (cssModuleId2Deps[id]) {
                 cssModuleSet.add(id);
                 // Always make main-thread group before background group
-                // this will keep css order consistant in both
+                // this will keep css order consistent in both
                 // development and production environment
                 cssModuleId2PreOrder.set(
                   id,
@@ -218,29 +225,62 @@ class CssExtractRspackPluginImpl {
           chunkGroup2CssModuleSet.set(group, cssModuleSet);
         }
 
-        for (const entryName of entryName2MainThreadChunkGroup.keys()) {
+        for (
+          const entryName of new Set([
+            ...entryName2MainThreadChunkGroup.keys(),
+            ...groupName2BackgroundChunkGroup.keys(),
+          ])
+        ) {
           const mainThreadChunkGroup = entryName2MainThreadChunkGroup.get(
             entryName,
           );
           const backgroundChunkGroup = groupName2BackgroundChunkGroup.get(
             entryName,
           );
-          if (!mainThreadChunkGroup || !backgroundChunkGroup) {
-            continue;
-          }
-          const mainThreadCssModuleSet = chunkGroup2CssModuleSet.get(
-            mainThreadChunkGroup,
-          )!;
-          const backgroundCssModuleSet = chunkGroup2CssModuleSet.get(
-            backgroundChunkGroup,
-          )!;
 
-          const cssModuleSet = new Set([
-            ...mainThreadCssModuleSet,
-            ...backgroundCssModuleSet,
-          ]);
+          let cssModuleSet = new Set<string>();
+
+          if (mainThreadChunkGroup) {
+            const mainThreadCssModuleSet = chunkGroup2CssModuleSet.get(
+              mainThreadChunkGroup,
+            )!;
+            cssModuleSet = new Set([
+              ...cssModuleSet,
+              ...mainThreadCssModuleSet,
+            ]);
+          }
+          if (backgroundChunkGroup) {
+            const backgroundCssModuleSet = chunkGroup2CssModuleSet.get(
+              backgroundChunkGroup,
+            )!;
+            cssModuleSet = new Set([
+              ...cssModuleSet,
+              ...backgroundCssModuleSet,
+            ]);
+          }
 
           entryName2CssModuleSet.set(entryName, cssModuleSet);
+        }
+
+        for (const [entryName, cssModuleSet] of entryName2CssModuleSet) {
+          let cssContent = '';
+          for (
+            const cssModule of [...cssModuleSet].sort((a, b) =>
+              cssModuleId2PreOrder.get(a)! - cssModuleId2PreOrder.get(b)!
+            )
+          ) {
+            const deps = cssModuleId2Deps[cssModule]!;
+            deps.forEach(dep => {
+              cssContent += dep.content.toString() + '\n';
+            });
+          }
+          if (cssContent) {
+            compilation.emitAsset(
+              this.options.filename!.replaceAll('[name]', entryName),
+              new compiler.webpack.sources.RawSource(cssContent),
+            );
+          }
+          entryName2CssContent.set(entryName, cssContent);
         }
       });
 
@@ -254,39 +294,18 @@ class CssExtractRspackPluginImpl {
         stage: -256,
       }, async (args) => {
         const { entryNames } = args;
-        let cssModuleSet = new Set<string>();
         const entrySet = new Set(
           entryNames.map(entryName =>
             this.normalizeEntryName(entryName).entryName
           ),
         );
+        const cssContentList = [];
         for (const entryName of entrySet) {
-          cssModuleSet = new Set([
-            ...cssModuleSet,
-            ...entryName2CssModuleSet.get(entryName)!,
-          ]);
-        }
-        let cssContent = '';
-        for (
-          const cssModule of [...cssModuleSet].sort((a, b) =>
-            cssModuleId2PreOrder.get(a)! - cssModuleId2PreOrder.get(b)!
-          )
-        ) {
-          const deps = cssModuleId2Deps[cssModule]!;
-          deps.forEach(dep => {
-            cssContent += dep.content.toString() + '\n';
-          });
-        }
-
-        for (const entryName of entrySet) {
-          compilation.emitAsset(
-            this.options.filename!.replaceAll('[name]', entryName),
-            new compiler.webpack.sources.RawSource(cssContent),
-          );
+          cssContentList.push(entryName2CssContent.get(entryName) ?? '');
         }
 
         const css = LynxTemplatePlugin.convertCSSChunksToMap(
-          [cssContent],
+          cssContentList,
           options.cssPlugins,
           Boolean(
             args.encodeData.compilerOptions.enableCSSSelector,
@@ -297,7 +316,16 @@ class CssExtractRspackPluginImpl {
           ...args,
           encodeData: {
             ...args.encodeData,
-            css,
+            css: {
+              ...css,
+              cssChunks: [...entrySet].map(entryName => ({
+                name: this.options.filename!.replaceAll('[name]', entryName),
+                source: new compiler.webpack.sources.RawSource(
+                  entryName2CssContent.get(entryName) ?? '',
+                ),
+                info: {},
+              })),
+            },
           },
         };
       });
