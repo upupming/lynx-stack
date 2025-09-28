@@ -92,6 +92,31 @@ export interface Resolve {
   alias?: Record<string, string | false | string[]> | undefined
 
   /**
+   * Set the strategy for path alias resolution, to control the priority relationship
+   * between the `paths` option in `tsconfig.json` and the `resolve.alias` option of Rsbuild.
+   * - `prefer-tsconfig` (default): The `paths` option in `tsconfig.json` will take precedence over the
+   * `resolve.alias` option of Rsbuild.
+   * - `prefer-alias`: The `resolve.alias` option of Rsbuild will take precedence over the
+   * `paths` option in `tsconfig.json`.
+   *
+   * @example
+   *
+   * ```js
+   * import { defineConfig } from '@lynx-js/rspeedy'
+   *
+   * export default defineConfig({
+   *   resolve: {
+   *     alias: {
+   *       '@': './src',
+   *     },
+   *     aliasStrategy: 'prefer-alias',
+   *   },
+   * })
+   * ```
+   */
+  aliasStrategy?: 'prefer-tsconfig' | 'prefer-alias' | undefined
+
+  /**
    * Force to resolve the specified packages from project root, which is useful for deduplicating packages and reducing the bundle size.
    *
    * @remarks
@@ -115,4 +140,43 @@ export interface Resolve {
    * ```
    */
   dedupe?: string[] | undefined
+
+  /**
+   * Automatically resolve file extensions when importing modules. This means you can import files without explicitly writing their extensions.
+   *
+   * Default: `['.ts', '.tsx', '.mjs', '.js', '.jsx', '.json', '.cjs']`
+   *
+   * For example, if importing './index', Rsbuild will try to resolve using the following order:
+   *
+   * - `./index.ts`
+   *
+   * - `./index.tsx`
+   *
+   * - `./index.mjs`
+   *
+   * - `./index.js`
+   *
+   * - `./index.jsx`
+   *
+   * - `./index.json`
+   *
+   * - `./index.cjs`
+   *
+   * @remarks
+   * The difference between `resolve.extensions` and `tools.rspack.resolve.extensions`:
+   *
+   * `resolve.extensions`: Completely overrides Rspeedy's default resolution.
+   *
+   * `tools.rspack.resolve.extensions`: Merges with the default configuration using [`webpack-merge`](https://github.com/survivejs/webpack-merge).
+   *
+   * @example
+   * ```js
+   * export default {
+   *   resolve: {
+   *     extensions: ['.ts', '.tsx', '.js'],
+   *   },
+   * }
+   * ```
+   */
+  extensions?: string[] | undefined
 }

@@ -1,5 +1,39 @@
 # @lynx-js/web-mainthread-apis
 
+## 0.17.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @lynx-js/web-constants@0.17.1
+  - @lynx-js/web-style-transformer@0.17.1
+
+## 0.17.0
+
+### Patch Changes
+
+- fix: \_\_QueryComponentImpl in mts should execute only once for same url ([#1763](https://github.com/lynx-family/lynx-stack/pull/1763))
+
+- fix: avoid duplicate style transformation ([#1748](https://github.com/lynx-family/lynx-stack/pull/1748))
+
+  After this commit, we use DAG methods to handle the styleInfos
+
+- feat: support lazy bundle with CSSOG(`enableCSSSelector: false`). ([#1770](https://github.com/lynx-family/lynx-stack/pull/1770))
+
+- Updated dependencies [[`93d707b`](https://github.com/lynx-family/lynx-stack/commit/93d707b82a59f7256952e21da6dcad2999f8233d)]:
+  - @lynx-js/web-constants@0.17.0
+  - @lynx-js/web-style-transformer@0.17.0
+
+## 0.16.1
+
+### Patch Changes
+
+- feat: supports lazy bundle. (This feature requires `@lynx-js/lynx-core >= 0.1.3`) ([#1235](https://github.com/lynx-family/lynx-stack/pull/1235))
+
+- Updated dependencies [[`608f375`](https://github.com/lynx-family/lynx-stack/commit/608f375e20732cc4c9f141bfbf9800ba6896100b)]:
+  - @lynx-js/web-constants@0.16.1
+  - @lynx-js/web-style-transformer@0.16.1
+
 ## 0.16.0
 
 ### Minor Changes

@@ -459,9 +459,9 @@ export interface Lynx {
 }
 
 export { useLynxGlobalEventListener } from './hooks/useLynxGlobalEventListener.js';
-export { runOnBackground } from './worklet/runOnBackground.js';
-export { runOnMainThread } from './worklet/runOnMainThread.js';
-export { MainThreadRef, useMainThreadRef } from './worklet/workletRef.js';
+export { runOnBackground } from './worklet/call/runOnBackground.js';
+export { runOnMainThread } from './worklet/call/runOnMainThread.js';
+export { MainThreadRef, useMainThreadRef } from './worklet/ref/workletRef.js';
 
 export { GlobalLazyBundleResponseListener } from './lynx/lazy-bundle.js';
 export type {

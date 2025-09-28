@@ -233,7 +233,7 @@ describe(`list "update-list-info"`, () => {
 
     expect(__pendingListUpdates.values).toMatchInlineSnapshot(`
       {
-        "-2": [
+        "-6": [
           {
             "insertAction": [
               {
@@ -269,7 +269,7 @@ describe(`list "update-list-info"`, () => {
       b.removeChild(d2);
       expect(__pendingListUpdates.values).toMatchInlineSnapshot(`
         {
-          "-2": [
+          "-6": [
             {
               "insertAction": [
                 {
@@ -304,7 +304,7 @@ describe(`list "update-list-info"`, () => {
       b.insertBefore(d3); // move
       expect(__pendingListUpdates.values).toMatchInlineSnapshot(`
         {
-          "-2": [
+          "-6": [
             {
               "insertAction": [
                 {
@@ -352,7 +352,7 @@ describe(`list "update-list-info"`, () => {
     d3.setAttribute(0, { 'item-key': 3 });
     expect(__pendingListUpdates.values).toMatchInlineSnapshot(`
       {
-        "-1": [
+        "-2": [
           {
             "insertAction": [],
             "removeAction": [],
@@ -572,7 +572,7 @@ describe(`list componentAtIndex`, () => {
           <text
             event={
               {
-                "bindEvent:tap": "-6:1:",
+                "bindEvent:tap": "-7:1:",
               }
             }
           >
@@ -587,7 +587,7 @@ describe(`list componentAtIndex`, () => {
           <text
             event={
               {
-                "bindEvent:tap": "-7:1:",
+                "bindEvent:tap": "-8:1:",
               }
             }
           >
@@ -602,7 +602,7 @@ describe(`list componentAtIndex`, () => {
           <text
             event={
               {
-                "bindEvent:tap": "-4:1:",
+                "bindEvent:tap": "-5:1:",
               }
             }
           >
@@ -617,7 +617,7 @@ describe(`list componentAtIndex`, () => {
           <text
             event={
               {
-                "bindEvent:tap": "-5:1:",
+                "bindEvent:tap": "-6:1:",
               }
             }
           >
@@ -2033,7 +2033,7 @@ describe('list bug', () => {
 
     expect(__pendingListUpdates.values).toMatchInlineSnapshot(`
       {
-        "-2": [
+        "-5": [
           {
             "insertAction": [
               {
@@ -2080,7 +2080,7 @@ describe('list bug', () => {
       b.insertBefore(d3); // move
       expect(__pendingListUpdates.values).toMatchInlineSnapshot(`
         {
-          "-2": [
+          "-5": [
             {
               "insertAction": [
                 {
@@ -2122,7 +2122,7 @@ describe('list bug', () => {
       b.removeChild(d3); // move
       expect(__pendingListUpdates.values).toMatchInlineSnapshot(`
         {
-          "-2": [
+          "-5": [
             {
               "insertAction": [],
               "removeAction": [
@@ -3032,6 +3032,60 @@ describe('list componentAtIndexes', () => {
       ]
     `);
   });
+
+  it('should update signMap before __FlushElementTree', () => {
+    const b = new SnapshotInstance(s0);
+    b.ensureElements();
+    const listRef = b.__elements[3];
+    const d0 = new SnapshotInstance(s1);
+    const d1 = new SnapshotInstance(s1);
+    const d2 = new SnapshotInstance(s1);
+    d0.setAttribute(0, { 'item-key': 'list-item-0' });
+    d1.setAttribute(0, { 'item-key': 'list-item-1' });
+    d2.setAttribute(0, { 'item-key': 'list-item-2' });
+    b.insertBefore(d0);
+    b.insertBefore(d1);
+    b.insertBefore(d2);
+    __pendingListUpdates.flush();
+
+    const listID = __GetElementUniqueID(listRef);
+    const signMap = gSignMap[listID];
+    const recycleMap = gRecycleMap[listID];
+
+    {
+      const flushElementTreeSpy = vi.spyOn(globalThis, '__FlushElementTree');
+      const signMapSetSpy = vi.spyOn(signMap, 'set');
+
+      const component = [];
+      component[0] = elementTree.triggerComponentAtIndex(listRef, 0);
+      component[1] = elementTree.triggerComponentAtIndex(listRef, 1);
+      elementTree.triggerEnqueueComponent(listRef, component[0]);
+      elementTree.triggerEnqueueComponent(listRef, component[1]);
+      // no reuse occurs
+      expect(signMapSetSpy).toHaveBeenCalled();
+      expect(flushElementTreeSpy).toHaveBeenCalled();
+      expect(signMapSetSpy.mock.invocationCallOrder[0])
+        .toBeLessThan(flushElementTreeSpy.mock.invocationCallOrder[0]);
+
+      flushElementTreeSpy.mockRestore();
+      signMapSetSpy.mockRestore();
+    }
+
+    // re-spy
+    const flushElementTreeSpy = vi.spyOn(globalThis, '__FlushElementTree');
+    const signMapSetSpy = vi.spyOn(signMap, 'set');
+    const recycleSignMap = recycleMap.get(s1);
+    expect(Array.from(recycleSignMap.keys()).length).toBe(2);
+    // reuse occurs
+    elementTree.triggerComponentAtIndex(listRef, 2);
+    expect(signMapSetSpy).toHaveBeenCalled();
+    expect(flushElementTreeSpy).toHaveBeenCalled();
+    expect(signMapSetSpy.mock.invocationCallOrder[0])
+      .toBeLessThan(flushElementTreeSpy.mock.invocationCallOrder[0]);
+
+    flushElementTreeSpy.mockRestore();
+    signMapSetSpy.mockRestore();
+  });
 });
 
 describe('list-item with "defer" attribute', () => {
@@ -3511,7 +3565,7 @@ describe('list-item with "defer" attribute', () => {
               "rLynxPublishEvent",
               {
                 "data": {},
-                "handlerName": "-6:__extraProps:onComponentAtIndex",
+                "handlerName": "-7:__extraProps:onComponentAtIndex",
               },
             ],
           ],
@@ -3520,7 +3574,7 @@ describe('list-item with "defer" attribute', () => {
               "rLynxPublishEvent",
               {
                 "data": {},
-                "handlerName": "-4:__extraProps:onRecycleComponent",
+                "handlerName": "-5:__extraProps:onRecycleComponent",
               },
             ],
           ],
@@ -3609,7 +3663,7 @@ describe('nested list', () => {
 
     expect(__pendingListUpdates.values).toMatchInlineSnapshot(`
       {
-        "-2": [
+        "-5": [
           {
             "insertAction": [
               {
@@ -3629,7 +3683,7 @@ describe('nested list', () => {
             "updateAction": [],
           },
         ],
-        "-3": [
+        "-6": [
           {
             "insertAction": [
               {
@@ -3641,7 +3695,7 @@ describe('nested list', () => {
             "updateAction": [],
           },
         ],
-        "-4": [
+        "-7": [
           {
             "insertAction": [
               {
@@ -3653,7 +3707,7 @@ describe('nested list', () => {
             "updateAction": [],
           },
         ],
-        "-5": [
+        "-8": [
           {
             "insertAction": [
               {
@@ -3673,7 +3727,7 @@ describe('nested list', () => {
     // children list should not be cleared
     expect(__pendingListUpdates.values).toMatchInlineSnapshot(`
       {
-        "-3": [
+        "-6": [
           {
             "insertAction": [
               {
@@ -3685,7 +3739,7 @@ describe('nested list', () => {
             "updateAction": [],
           },
         ],
-        "-4": [
+        "-7": [
           {
             "insertAction": [
               {
@@ -3697,7 +3751,7 @@ describe('nested list', () => {
             "updateAction": [],
           },
         ],
-        "-5": [
+        "-8": [
           {
             "insertAction": [
               {

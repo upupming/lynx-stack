@@ -16,50 +16,6 @@ describe('Lazy Exports', () => {
       await import('@lynx-js/react'),
     );
 
-    expect(Object.keys(ReactExports)).toMatchInlineSnapshot(`
-      [
-        "Children",
-        "Component",
-        "Fragment",
-        "InitDataConsumer",
-        "InitDataProvider",
-        "MainThreadRef",
-        "PureComponent",
-        "Suspense",
-        "cloneElement",
-        "createContext",
-        "createElement",
-        "createRef",
-        "forwardRef",
-        "isValidElement",
-        "lazy",
-        "memo",
-        "root",
-        "runOnBackground",
-        "runOnMainThread",
-        "useCallback",
-        "useContext",
-        "useDebugValue",
-        "useEffect",
-        "useErrorBoundary",
-        "useId",
-        "useImperativeHandle",
-        "useInitData",
-        "useInitDataChanged",
-        "useLynxGlobalEventListener",
-        "useLayoutEffect",
-        "useMainThreadRef",
-        "useMemo",
-        "useReducer",
-        "useRef",
-        "useState",
-        "useSyncExternalStore",
-        "withInitDataInState",
-        "GlobalLazyBundleResponseListener",
-        "default",
-      ]
-    `);
-
     expect(
       new Set(Object.keys(ReactExports)),
     ).toStrictEqual(
