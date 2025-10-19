@@ -4,6 +4,60 @@
 // LICENSE file in the root directory of this source tree.
 */
 
+type ValueAttr<T extends string = string> = {
+  type: "value";
+  value: T;
+};
+
+type AttrSlot = {
+  type: "attrSlot";
+  slotIndex: number;
+};
+
+// 属性值联合
+type ClassAttr = ValueAttr<string>;
+type StyleAttr = ValueAttr<string> | AttrSlot; // 允许整体由 attrSlot 提供
+type IdAttr = AttrSlot;
+type BindtapAttr = AttrSlot;
+type SpreadAttr = AttrSlot;
+type TextAttr = ValueAttr<string> | AttrSlot;
+
+// 合法属性键
+// type AttributeKey = "class" | "style" | "id" | "bindtap" | "spread";
+
+// 根据键约束对应的值类型
+type AttributeEntry =
+  | ["class", ClassAttr]
+  | ["style", StyleAttr]
+  | ["id", IdAttr]
+  | ["bindtap", BindtapAttr]
+  | ["spread", SpreadAttr]
+  | ["text", TextAttr];
+
+// ========== 节点定义 ==========
+
+// 原子节点：原始文本
+interface RawTextNode {
+  type: "raw-text";
+  value: string;
+  attributes: AttributeEntry[];
+}
+
+// 元素插槽节点（用于 children 中的动态位置）
+interface ElementSlotNode {
+  type: "elementSlot";
+  slotIndex: number;
+}
+interface ElementNode {
+  type: "page" | "view" | "text";
+  attributes: AttributeEntry[]; // class/style/id/bindtap/spread 等
+  children: Array<TemplateNode | ElementSlotNode>; 
+  // 如果你目前不允许 view 嵌套 view，可改成 Array<TextNode | ElementSlotNode>
+}
+
+// 根模板的节点联合（如作为任意位置复用）
+type TemplateNode = ElementNode | RawTextNode;
+
 /**
  * Any Lynx Element, such as `view`, `text`, `image`, etc.
  *
@@ -114,6 +168,13 @@ export const initElementTree = () => {
           tag,
         ) as LynxElement;
       this.countElement(element, parentComponentUniqueId);
+      
+      
+      if (tag === 'page') {
+        this.root = element;
+        lynxTestingEnv.jsdom.window.document.body.appendChild(element);
+      }
+      
       return element;
     }
 
@@ -417,6 +478,81 @@ export const initElementTree = () => {
       return ele.getAttribute(name);
     }
 
+    
+    __CreateTemplateElement(schema: TemplateNode, parentComponentUniqueId: number): {
+      root: LynxElement,
+      slots: LynxElement[],
+      attrSlots: [LynxElement, AttributeEntry][],
+      updateSlot: (slotIndex: number, value: LynxElement) => void,
+      updateAttrSlot: (slotIndex: number, value: string) => void,
+    } {
+      const slots: LynxElement[] = []
+      const attrSlots: [LynxElement, AttributeEntry][] = []
+      const dfs = (node: TemplateNode) => {
+        const ele = this.__CreateElement(node.type, parentComponentUniqueId);
+        if (node.type !== 'raw-text') {
+          node.children.forEach((child) => {
+            if (child.type === 'elementSlot') {
+              const slotIndex = child.slotIndex
+              const childEle = lynxTestingEnv.jsdom.window.document.createElement('slot');
+              childEle.setAttribute('index', slotIndex.toString());
+              slots[slotIndex] = childEle as unknown as LynxElement;
+              this.__AppendElement(ele, childEle as unknown as LynxElement);
+            } else {
+              const childEle = dfs(child);
+              this.__AppendElement(ele, childEle);
+            }
+          });
+        } else {
+          ele.textContent = node.value;
+        }
+        
+        node.attributes?.forEach((attr) => {
+          if (attr[1].type === 'attrSlot') {
+            attrSlots[attr[1].slotIndex] = [ele, attr]
+          } else {
+            if (ele.nodeName === '#text' && attr[0] === 'text') {
+              ele.textContent = attr[1].value
+            } else {
+              ele.setAttribute(attr[0], attr[1].value);
+            }
+          }
+        })
+        
+        return ele;
+      }
+      
+      function updateSlot(slotIndex: number, value: LynxElement) {
+        const slot = slots[slotIndex]!;
+        slot.replaceWith(value);
+        slots[slotIndex] = value;
+      }
+      
+      function updateAttrSlot(slotIndex: number, value: string) {
+        const [ele, attr] = attrSlots[slotIndex]!;
+        console.log('updateAttrSlot', slotIndex, value, attr)
+        if (attr[1].type === 'attrSlot') {
+          if (ele.nodeName === '#text' && attr[0] === 'text') {
+            ele.textContent = value;
+          } else {
+            ele.setAttribute(attr[0], value);
+          }
+          
+          
+        } else {
+          throw new Error('updateAttrSlot only support attrSlot');
+        }
+      }
+      
+      return {
+        root: dfs(schema),
+        slots,
+        attrSlots,
+        updateSlot,
+        updateAttrSlot
+      }
+    }
+    
     clear() {
       this.root = undefined;
     }

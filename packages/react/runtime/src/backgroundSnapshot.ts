@@ -36,7 +36,7 @@ import { onPostWorkletCtx } from './worklet/ctx.js';
 export class BackgroundSnapshotInstance {
   constructor(public type: string, __slotIndex?: number) {
     this.__slotIndex = __slotIndex;
-    this.__snapshot_def = snapshotManager.values.get(type)!;
+    this.__snapshot_def = globalThis.elementTemplateDefines[type];
     const id = this.__id = backgroundSnapshotInstanceManager.nextId += 1;
     backgroundSnapshotInstanceManager.values.set(id, this);
 
@@ -139,6 +139,7 @@ export class BackgroundSnapshotInstance {
   }
 
   removeChild(node: BackgroundSnapshotInstance): void {
+    console.log('removeChild1', this.type, node.type)
     __globalSnapshotPatch?.push(
       SnapshotOperation.RemoveChild,
       this.__id,
@@ -445,17 +446,18 @@ export function hydrate(
       }
     }
 
-    const { slot } = after.__snapshot_def;
+    // const { slot } = after.__snapshot_def;
 
     const beforeChildNodes = before.children ?? [];
     const afterChildNodes = after.childNodes;
 
-    if (!slot) {
-      return;
-    }
+    // if (!slot) {
+    //   return;
+    // }
 
-    slot.forEach(([type], index) => {
-      switch (type) {
+    afterChildNodes.forEach((node, index) => {
+      const type = DynamicPartType.SlotV2;
+      switch (DynamicPartType.SlotV2) {
         case DynamicPartType.Slot:
         case DynamicPartType.MultiChildren: {
           // TODO: the following null assertions are not 100% safe
@@ -492,6 +494,7 @@ export function hydrate(
               return undefined as unknown as SerializedSnapshotInstance;
             },
             node => {
+              console.log('removeChild2', before.type, node.type)
               __globalSnapshotPatch!.push(
                 SnapshotOperation.RemoveChild,
                 before.id,

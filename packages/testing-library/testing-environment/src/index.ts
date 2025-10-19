@@ -216,7 +216,60 @@ function createPreconfiguredConsole() {
   console.alog = () => {};
   return console;
 }
-
+const elementTemplateDefines = {
+  'null': {
+    type: 'raw-text',
+    attributes: [
+      ["text", { type: "attrSlot", slotIndex: 0 }]
+    ],
+  },
+  'root': {
+    type: 'page',
+    attributes: [],
+    children: [
+      { type: "elementSlot", slotIndex: 0 },
+    ],
+  },
+  'et1': {
+    type: "text",
+    attributes: [],
+    children: [{ type: "raw-text", value: "A" }],
+  },
+  'et2': {
+    type: "view",
+    attributes: [
+      ["class", { type: "value", value: "view" }],
+      ["style", { type: "attrSlot", slotIndex: 0 }],
+      ["id", { type: "attrSlot", slotIndex: 1 }],
+      ["bindtap", { type: "attrSlot", slotIndex: 2 }],
+    ],
+    children: [
+      {
+        type: "text",
+        attributes: [
+          ["class", { type: "value", value: "text" }],
+          ["id", { type: "attrSlot", slotIndex: 3 }],
+          ["bindtap", { type: "attrSlot", slotIndex: 4 }],
+        ],
+        children: [
+          { type: "raw-text", value: "Hello, ReactLynx, " },
+          { type: "elementSlot", slotIndex: 0 }, // {hello0}
+        ],
+      },
+      { type: "elementSlot", slotIndex: 1 }, // <A/>
+      {
+        type: "text",
+        attributes: [
+          ["spread", { type: "attrSlot", slotIndex: 5 }], // {...textProps}
+        ],
+        children: [
+          { type: "raw-text", value: "Hello, ReactLynx, " },
+          { type: "elementSlot", slotIndex: 2 }, // {hello1}
+        ],
+      },
+    ],
+  },
+}
 function injectMainThreadGlobals(target?: any, polyfills?: any) {
   __injectElementApi(target);
 
@@ -268,7 +321,9 @@ function injectMainThreadGlobals(target?: any, polyfills?: any) {
   target.console = createPreconfiguredConsole();
 
   target.__LoadLepusChunk = __LoadLepusChunk;
-
+  
+  target.elementTemplateDefines = elementTemplateDefines;
+  
   globalThis.onInjectMainThreadGlobals?.(target);
 }
 
@@ -427,6 +482,8 @@ function injectBackgroundThreadGlobals(target?: any, polyfills?: any) {
   };
 
   target.__LoadLepusChunk = __LoadLepusChunk;
+  
+  target.elementTemplateDefines = elementTemplateDefines;
 
   globalThis.onInjectBackgroundThreadGlobals?.(target);
 }

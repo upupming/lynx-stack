@@ -1676,7 +1676,14 @@ mod tests {
     },
     basic_full_static_snapshot_extract,
     // Input codes
-    r#"let s = __SNAPSHOT__(<view><text>!!!</text></view>);"#
+    r#"
+    <view className="view" style={`background-color: red; width: ${w};`} id={id1} bindtap={handle1}>
+      <text className="text" id={id2} bindtap={handle2}>Hello, ReactLynx, {hello0}</text>
+      <A/>
+      <text {...textProps}>Hello, ReactLynx, {hello1}</text>
+    </view>
+
+    "#
   );
 
   test!(

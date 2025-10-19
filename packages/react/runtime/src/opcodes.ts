@@ -88,8 +88,8 @@ export function ssrHydrateByOpcodes(
         const [[type, __id, elements], text] = opcodes[i + 1] as [SSRSnapshotInstance, string];
         const s = new SnapshotInstance(type, __id);
         s.__slotIndex = opcodes[i + 2];
-        s.setAttribute(0, text);
         top.insertBefore(s);
+        s.setAttribute(0, text);
         s.__elements = elements.map(({ ssrID }) => refMap![ssrID]!);
         s.__element_root = s.__elements[0];
         i += 3;
@@ -106,6 +106,7 @@ export function renderOpcodesInto(opcodes: any[], into: SnapshotInstance): void 
     const opcode = opcodes[i];
     switch (opcode) {
       case Opcode.Begin: {
+        console.log('Opcode.Begin', opcodes[i + 1]);
         const p = top;
         top = opcodes[i + 1];
         // @ts-ignore
@@ -122,6 +123,7 @@ export function renderOpcodesInto(opcodes: any[], into: SnapshotInstance): void 
         break;
       }
       case Opcode.End: {
+        console.log('Opcode.End', opcodes[i + 1]);
         // @ts-ignore
         top[CHILDREN] = undefined;
 
@@ -141,6 +143,7 @@ export function renderOpcodesInto(opcodes: any[], into: SnapshotInstance): void 
         break;
       }
       case Opcode.Text: {
+        console.log('Opcode.Text', opcodes[i + 1]);
         const text = opcodes[i + 1];
         const s = new SnapshotInstance(null as unknown as string);
         if (__ENABLE_SSR__) {
@@ -148,8 +151,8 @@ export function renderOpcodesInto(opcodes: any[], into: SnapshotInstance): void 
           opcodes[i + 1] = [s, text];
         }
         s.__slotIndex = opcodes[i + 2];
-        s.setAttribute(0, text);
         top.insertBefore(s);
+        s.setAttribute(0, text);
 
         i += 3;
         break;

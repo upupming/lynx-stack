@@ -90,10 +90,12 @@ function onLifecycleEventImpl(type: LifecycleConstant, data: unknown): void {
       const before = JSON.parse(lepusSide) as SerializedSnapshotInstance;
       markTiming('hydrateParseSnapshotEnd');
       markTiming('diffVdomStart');
+      debugger
       const snapshotPatch = hydrate(
         before,
         __root as BackgroundSnapshotInstance,
       );
+      console.log('snapshotPatch', snapshotPatch)
       if (__PROFILE__) {
         profileEnd();
       }

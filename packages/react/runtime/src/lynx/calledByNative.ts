@@ -86,8 +86,8 @@ function renderPage(data: Record<string, unknown> | undefined): void {
 
   lynx.__initData = data ?? {};
 
-  setupPage(__CreatePage('0', 0));
   (__root as SnapshotInstance).ensureElements();
+  setupPage((__root as SnapshotInstance).__element_root.root);
 
   renderMainThread();
 

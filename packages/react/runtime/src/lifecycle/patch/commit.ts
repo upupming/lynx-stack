@@ -138,6 +138,7 @@ function replaceCommitHook(): void {
 
       // Collect patches for this update
       const snapshotPatch = takeGlobalSnapshotPatch();
+      console.log('snapshotPatch', snapshotPatch)
       const flushOptions = takeGlobalFlushOptions();
       const patchOptions = takeGlobalPatchOptions();
       if (!snapshotPatch) {

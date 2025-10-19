@@ -293,7 +293,8 @@ export class SnapshotInstance {
   __slotIndex?: number | undefined;
 
   constructor(public type: string, id?: number) {
-    this.__snapshot_def = snapshotManager.values.get(type)!;
+    console.log('__LEPUS__', __LEPUS__)
+    this.__snapshot_def = globalThis.elementTemplateDefines[type];
     // Suspense uses 'div'
     if (!this.__snapshot_def && type !== 'div') {
       throw new Error('Snapshot not found: ' + type);
@@ -306,7 +307,7 @@ export class SnapshotInstance {
 
   ensureElements(): void {
     const { create, slot, isListHolder, cssId, entryName } = this.__snapshot_def;
-    const elements = create!(this);
+    const elements = [__CreateTemplateElement(this.__snapshot_def)];
     this.__elements = elements;
     this.__element_root = elements[0];
 
@@ -525,6 +526,7 @@ export class SnapshotInstance {
   }
 
   insertBefore(newNode: SnapshotInstance, existingNode?: SnapshotInstance): void {
+    console.log('insertBefore', this.type, newNode.type)
     const __snapshot_def = this.__snapshot_def;
     if (__snapshot_def.isListHolder) {
       if (__pendingListUpdates.values) {
@@ -536,7 +538,7 @@ export class SnapshotInstance {
       return;
     }
 
-    const shouldRemove = newNode.__parent === this;
+    // const shouldRemove = newNode.__parent === this;
     this.__insertBefore(newNode, existingNode);
     const __elements = this.__elements;
     if (__elements) {
@@ -547,49 +549,57 @@ export class SnapshotInstance {
       return;
     }
 
-    const count = __snapshot_def.slot.length;
-    if (
-      count === 1
-      || (__snapshot_def.isSlotV2 ??= __snapshot_def.slot.every(([type]) =>
-        type === DynamicPartType.SlotV2 || type === DynamicPartType.ListSlotV2
-      ))
-    ) {
-      const [, elementIndex] = __snapshot_def.slot[typeof newNode.__slotIndex === 'number' ? newNode.__slotIndex : 0]!;
-      const parent = __elements[elementIndex]!;
-      if (shouldRemove) {
-        __RemoveElement(parent, newNode.__element_root!);
-      }
-      if (existingNode) {
-        if (__snapshot_def.isSlotV2 && newNode.__slotIndex! < existingNode.__slotIndex!) {
-          __AppendElement(parent, newNode.__element_root!);
-        } else {
-          __InsertElementBefore(
-            parent,
-            newNode.__element_root!,
-            existingNode.__element_root,
-          );
-        }
-      } else {
-        __AppendElement(parent, newNode.__element_root!);
-      }
-    } else if (count > 1) {
-      const index = this.__current_slot_index++;
-      const [s, elementIndex] = __snapshot_def.slot[index]!;
+    
+    
+    // const count = __snapshot_def.slot.length;
+    // if (
+    //   count === 1
+    //   || (__snapshot_def.isSlotV2 ??= __snapshot_def.slot.every(([type]) =>
+    //     type === DynamicPartType.SlotV2 || type === DynamicPartType.ListSlotV2
+    //   ))
+    // ) {
+    //   const [, elementIndex] = __snapshot_def.slot[typeof newNode.__slotIndex === 'number' ? newNode.__slotIndex : 0]!;
+      
+      // 永远都只有 element_root 一个节点可以访问
+      this.__element_root.updateSlot(
+        newNode.__slotIndex,
+        newNode.__element_root.root
+      )
+      
+      // if (shouldRemove) {
+      //   __RemoveElement(parent, newNode.__element_root!);
+      // }
+      // if (existingNode) {
+    //     if (__snapshot_def.isSlotV2 && newNode.__slotIndex! < existingNode.__slotIndex!) {
+    //       __AppendElement(parent, newNode.__element_root!);
+    //     } else {
+    //       __InsertElementBefore(
+    //         parent,
+    //         newNode.__element_root!,
+    //         existingNode.__element_root,
+    //       );
+    //     }
+    //   } else {
+    //     __AppendElement(parent, newNode.__element_root!);
+    //   }
+    // } else if (count > 1) {
+    //   const index = this.__current_slot_index++;
+    //   const [s, elementIndex] = __snapshot_def.slot[index]!;
 
-      if (s === DynamicPartType.Slot) {
-        __ReplaceElement(newNode.__element_root!, __elements[elementIndex]!);
-        __elements[elementIndex] = newNode.__element_root!;
+    //   if (s === DynamicPartType.Slot) {
+    //     __ReplaceElement(newNode.__element_root!, __elements[elementIndex]!);
+    //     __elements[elementIndex] = newNode.__element_root!;
 
-        /* v8 ignore start */
-      } else if (s === DynamicPartType.MultiChildren) {
-        if (__GetTag(__elements[elementIndex]!) === 'wrapper') {
-          __ReplaceElement(newNode.__element_root!, __elements[elementIndex]!);
-        } else {
-          __AppendElement(__elements[elementIndex]!, newNode.__element_root!);
-        }
-      }
-      /* v8 ignore end */
-    }
+    //     /* v8 ignore start */
+    //   } else if (s === DynamicPartType.MultiChildren) {
+    //     if (__GetTag(__elements[elementIndex]!) === 'wrapper') {
+    //       __ReplaceElement(newNode.__element_root!, __elements[elementIndex]!);
+    //     } else {
+    //       __AppendElement(__elements[elementIndex]!, newNode.__element_root!);
+    //     }
+    //   }
+    //   /* v8 ignore end */
+    // }
   }
 
   removeChild(child: SnapshotInstance): void {
@@ -612,8 +622,9 @@ export class SnapshotInstance {
 
     unref(child, true);
     if (this.__elements) {
-      const [, elementIndex] = __snapshot_def.slot[typeof child.__slotIndex === 'number' ? child.__slotIndex : 0]!;
-      __RemoveElement(this.__elements[elementIndex]!, child.__element_root!);
+      // const [, elementIndex] = __snapshot_def.slot[typeof child.__slotIndex === 'number' ? child.__slotIndex : 0]!;
+      // __RemoveElement(this.__elements[elementIndex]!, child.__element_root!);
+      this.__element_root.updateSlot(child.__slotIndex, null);
     }
 
     if (child.__snapshot_def.isListHolder) {
@@ -632,6 +643,7 @@ export class SnapshotInstance {
   }
 
   setAttribute(key: string | number, value: any): void {
+    console.log('setAttribute', this.type, key, value)
     if (key === 'values') {
       const oldValues = this.__values;
       const values = value as unknown[];
@@ -672,7 +684,9 @@ export class SnapshotInstance {
   callUpdateIfNotDirectOrDeepEqual(index: number, oldValue: any, newValue: any): void {
     if (isDirectOrDeepEqual(oldValue, newValue)) {}
     else {
-      this.__snapshot_def.update![index]!(this, index, oldValue);
+      // this.__snapshot_def.update![index]!(this, index, oldValue);
+      // console.log('this.__element_root.updateAttrSlot', this)
+      this.__element_root.updateAttrSlot!(index, newValue);
     }
   }
 }
