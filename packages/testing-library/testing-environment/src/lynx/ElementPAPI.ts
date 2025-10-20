@@ -528,14 +528,20 @@ export const initElementTree = () => {
         slots[slotIndex] = value;
       }
       
-      function updateAttrSlot(slotIndex: number, value: string) {
+      function updateAttrSlot(slotIndex: number, value: string | Record<string, string>) {
         const [ele, attr] = attrSlots[slotIndex]!;
         console.log('updateAttrSlot', slotIndex, value, attr)
         if (attr[1].type === 'attrSlot') {
           if (ele.nodeName === '#text' && attr[0] === 'text') {
-            ele.textContent = value;
+            ele.textContent = value as string;
           } else {
-            ele.setAttribute(attr[0], value);
+            if (attr[0] === 'spread') {
+              for (let key in value as Record<string, string>) {
+                ele.setAttribute(key, (value as Record<string, string>)[key]!);
+              }
+            } else {
+              ele.setAttribute(attr[0], value as string);
+            }
           }
           
           

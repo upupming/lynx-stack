@@ -49,7 +49,7 @@ test('basic', async () => {
           handle2,
           {
             ...textProps,
-            __spread: true,
+            // __spread: true,
           },
         ],
         $0: hello0,
@@ -82,7 +82,8 @@ test('basic', async () => {
           A
         </text>
         <text
-          spread="[object Object]"
+          classname="text"
+          style="font-size: 10px;"
         >
           Hello, ReactLynx, 
           hello1
@@ -120,7 +121,8 @@ test('basic', async () => {
           A
         </text>
         <text
-          spread="[object Object]"
+          classname="text-1"
+          style="font-size: 10px; color: red;"
         >
           Hello, ReactLynx, 
           hello1-1
@@ -156,8 +158,7 @@ test('basic', async () => {
             "handle2",
             {
               "className": "text",
-              "style": "font-size: 10px;",
-              "__spread": true
+              "style": "font-size: 10px;"
             }
           ],
           "children": [
@@ -206,92 +207,82 @@ test('basic', async () => {
     );
   }
   expect(callLepusMethodCalls).toMatchInlineSnapshot(`
-    [
-      [
-        "rLynxChange",
-        {
-          "data": "{
-      "patchList": [
-        {
-          "snapshotPatch": [
-            {
-              "op": "SetAttribute",
-              "id": -2,
-              "dynamicPartIndex": 5,
-              "value": {
-                "className": "text",
-                "style": "font-size: 10px;"
-              }
-            }
-          ]
-        }
-      ]
-    }",
-          "patchOptions": {
-            "isHydration": true,
-            "pipelineOptions": {
-              "dsl": "reactLynx",
-              "needTimestamps": true,
-              "pipelineID": "pipelineID",
-              "pipelineOrigin": "reactLynxHydrate",
-              "stage": "hydrate",
-            },
-            "reloadVersion": 0,
-          },
-        },
-        [Function],
-      ],
-      [
-        "rLynxChange",
-        {
-          "data": "{
-      "patchList": [
-        {
-          "snapshotPatch": [
-            {
-              "op": "SetAttribute",
-              "id": -2,
-              "dynamicPartIndex": 0,
-              "value": "background-color: red; width: 200px;"
-            },
-            {
-              "op": "SetAttribute",
-              "id": -2,
-              "dynamicPartIndex": 5,
-              "value": {
-                "className": "text-1",
-                "style": "font-size: 10px; color: red;"
-              }
-            },
-            {
-              "op": "SetAttribute",
-              "id": -4,
-              "dynamicPartIndex": 0,
-              "value": "hello0-1"
-            },
-            {
-              "op": "SetAttribute",
-              "id": -5,
-              "dynamicPartIndex": 0,
-              "value": "hello1-1"
-            }
-          ]
-        }
-      ]
-    }",
-          "patchOptions": {
-            "pipelineOptions": {
-              "dsl": "reactLynx",
-              "needTimestamps": true,
-              "pipelineID": "pipelineID",
-              "pipelineOrigin": "reactLynxHydrate",
-              "stage": "hydrate",
-            },
-            "reloadVersion": 0,
-          },
-        },
-        [Function],
-      ],
-    ]
-  `);
+                  [
+                    [
+                      "rLynxChange",
+                      {
+                        "data": "{
+                    "patchList": [
+                      {
+                        "snapshotPatch": []
+                      }
+                    ]
+                  }",
+                        "patchOptions": {
+                          "isHydration": true,
+                          "pipelineOptions": {
+                            "dsl": "reactLynx",
+                            "needTimestamps": true,
+                            "pipelineID": "pipelineID",
+                            "pipelineOrigin": "reactLynxHydrate",
+                            "stage": "hydrate",
+                          },
+                          "reloadVersion": 0,
+                        },
+                      },
+                      [Function],
+                    ],
+                    [
+                      "rLynxChange",
+                      {
+                        "data": "{
+                    "patchList": [
+                      {
+                        "snapshotPatch": [
+                          {
+                            "op": "SetAttribute",
+                            "id": -2,
+                            "dynamicPartIndex": 0,
+                            "value": "background-color: red; width: 200px;"
+                          },
+                          {
+                            "op": "SetAttribute",
+                            "id": -2,
+                            "dynamicPartIndex": 5,
+                            "value": {
+                              "className": "text-1",
+                              "style": "font-size: 10px; color: red;"
+                            }
+                          },
+                          {
+                            "op": "SetAttribute",
+                            "id": -4,
+                            "dynamicPartIndex": 0,
+                            "value": "hello0-1"
+                          },
+                          {
+                            "op": "SetAttribute",
+                            "id": -5,
+                            "dynamicPartIndex": 0,
+                            "value": "hello1-1"
+                          }
+                        ]
+                      }
+                    ]
+                  }",
+                        "patchOptions": {
+                          "pipelineOptions": {
+                            "dsl": "reactLynx",
+                            "needTimestamps": true,
+                            "pipelineID": "pipelineID",
+                            "pipelineOrigin": "reactLynxHydrate",
+                            "stage": "hydrate",
+                          },
+                          "reloadVersion": 0,
+                        },
+                      },
+                      [Function],
+                    ],
+                  ]
+                `);
 });
