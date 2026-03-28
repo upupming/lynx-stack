@@ -543,7 +543,10 @@ describe('Config', () => {
         p && p.constructor.name === 'LynxEncodePlugin'
       )
 
-      expect(encodePlugin).toHaveProperty('options', { inlineScripts: true })
+      expect(encodePlugin).toHaveProperty('options', {
+        enableEventsCacheManifest: false,
+        inlineScripts: true,
+      })
     })
 
     test('output.inlineScripts: false', async () => {
@@ -566,7 +569,10 @@ describe('Config', () => {
         p && p.constructor.name === 'LynxEncodePlugin'
       )
 
-      expect(encodePlugin).toHaveProperty('options', { inlineScripts: false })
+      expect(encodePlugin).toHaveProperty('options', {
+        enableEventsCacheManifest: false,
+        inlineScripts: false,
+      })
     })
 
     test('output.inlineScripts: function', async () => {
@@ -651,7 +657,10 @@ describe('Config', () => {
         p && p.constructor.name === 'LynxEncodePlugin'
       )
 
-      expect(encodePlugin).toHaveProperty('options', { inlineScripts: false })
+      expect(encodePlugin).toHaveProperty('options', {
+        enableEventsCacheManifest: false,
+        inlineScripts: false,
+      })
     })
 
     test('legacy Rspeedy version (with `output.inlineScripts` defaults to `false`)', async () => {
@@ -674,7 +683,10 @@ describe('Config', () => {
         p && p.constructor.name === 'LynxEncodePlugin'
       )
 
-      expect(encodePlugin).toHaveProperty('options', { inlineScripts: true })
+      expect(encodePlugin).toHaveProperty('options', {
+        enableEventsCacheManifest: false,
+        inlineScripts: true,
+      })
     })
 
     test('output.inlineScripts defaults to `true`, when chunkSplit strategy is `all-in-one`', async () => {
@@ -702,7 +714,10 @@ describe('Config', () => {
         p && p.constructor.name === 'LynxEncodePlugin'
       )
 
-      expect(encodePlugin).toHaveProperty('options', { inlineScripts: true })
+      expect(encodePlugin).toHaveProperty('options', {
+        enableEventsCacheManifest: false,
+        inlineScripts: true,
+      })
     })
 
     test('output.inlineScripts defaults to `false`, when chunkSplit strategy is not `all-in-one`', async () => {
@@ -730,7 +745,10 @@ describe('Config', () => {
         p && p.constructor.name === 'LynxEncodePlugin'
       )
 
-      expect(encodePlugin).toHaveProperty('options', { inlineScripts: false })
+      expect(encodePlugin).toHaveProperty('options', {
+        enableEventsCacheManifest: true,
+        inlineScripts: false,
+      })
     })
 
     test('output.inlineScripts: function, when chunkSplit strategy is not `all-in-one`', async () => {
@@ -1681,6 +1699,15 @@ describe('Config', () => {
             "test": /node_modules\\[\\\\\\\\/\\]\\(\\.\\*\\?\\[\\\\\\\\/\\]\\)\\?\\(\\?:preact\\|preact\\[\\\\\\\\/\\]compat\\|preact\\[\\\\\\\\/\\]hooks\\|preact\\[\\\\\\\\/\\]jsx-runtime\\)\\[\\\\\\\\/\\]/,
           }
         `)
+
+      const encodePlugin = config?.plugins?.find(p =>
+        p && p.constructor.name === 'LynxEncodePlugin'
+      )
+
+      expect(encodePlugin).toHaveProperty('options', {
+        enableEventsCacheManifest: true,
+        inlineScripts: false,
+      })
     })
 
     test('performance.chunkSplit.strategy: "split-by-experience" along with extractStr: true', async () => {

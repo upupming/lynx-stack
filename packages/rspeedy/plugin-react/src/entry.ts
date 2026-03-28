@@ -71,6 +71,7 @@ export function applyEntry(
     chain.entryPoints.clear()
 
     const mainThreadChunks: string[] = []
+    const backgroundChunks: string[] = []
 
     Object.entries(entries).forEach(([entryName, entryPoint]) => {
       const { imports } = getChunks(entryName, entryPoint.values())
@@ -113,6 +114,7 @@ export function applyEntry(
       const backgroundEntry = entryName
 
       mainThreadChunks.push(mainThreadName)
+      backgroundChunks.push(backgroundName)
 
       chain
         .entry(mainThreadEntry)
@@ -234,10 +236,14 @@ export function applyEntry(
           // Inject runtime wrapper for all `.js` but not `main-thread.js` and `main-thread.[hash].js`.
           test: /^(?!.*main-thread(?:\.[A-Fa-f0-9]*)?\.js$).*\.js$/,
           experimental_isLazyBundle,
+          backgroundChunks,
         }])
         .end()
         .plugin(`${LynxEncodePlugin.name}`)
-        .use(LynxEncodePlugin, [{ inlineScripts }])
+        .use(LynxEncodePlugin, [{
+          inlineScripts,
+          enableEventsCacheManifest: enableChunkSplitting,
+        }])
         .end()
     }
 
