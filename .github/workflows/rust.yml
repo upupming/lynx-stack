@@ -1,8 +1,9 @@
 name: Rust
 
 on:
-  # No `push` trigger: this needs the turbo cache the build job writes, and a
-  # standalone run races it. `deploy-main.yml` calls it after `build-all`.
+  push:
+    branches:
+      - main
   workflow_call:
     secrets:
       CODECOV_TOKEN:
