@@ -415,10 +415,10 @@ describe('Config - toRsBuildConfig', () => {
   })
 
   describe('Environments', () => {
-    test('with default lynx environment', () => {
+    test('without environments', () => {
       const rsbuildConfig = toRsbuildConfig({})
 
-      expect(rsbuildConfig.environments?.['lynx']).toStrictEqual({})
+      expect(rsbuildConfig.environments).toBeUndefined()
     })
 
     test('with web-only environment', () => {
