@@ -21,12 +21,12 @@ Rspeedy 项目包含几个带有 `peerDependencies` 约束的 NPM 包。不匹�
 要将 `@lynx-js/rspeedy` 及其插件升级到最新版本，请在你的项目中使用以下命令：
 
 <PackageManagerTabs
-  command={{
-    npm: `npx upgrade-rspeedy@latest`,
-    pnpm: `pnpm dlx upgrade-rspeedy@latest`,
-    bun: `bunx upgrade-rspeedy@latest`,
-    yarn: `yarn dlx upgrade-rspeedy@latest`,
-  }}
+command={{
+npm: `npx upgrade-rspeedy@latest`,
+pnpm: `pnpm dlx upgrade-rspeedy@latest`,
+bun: `bunx upgrade-rspeedy@latest`,
+yarn: `yarn dlx upgrade-rspeedy@latest`,
+}}
 />
 
 > 为了避免在较大的仓库中使用 npx 遇到的性能问题，在基于 pnpm 的 monorepo 中可以使用 **pnpm dlx**
@@ -36,12 +36,12 @@ Rspeedy 项目包含几个带有 `peerDependencies` 约束的 NPM 包。不匹�
 要将 `@lynx-js/rspeedy` 及其插件升级到特定版本，请在你的项目中使用以下命令：
 
 <PackageManagerTabs
-  command={{
-    npm: `npx upgrade-rspeedy@0.15.0`,
-    pnpm: `pnpm dlx upgrade-rspeedy@0.15.0`,
-    bun: `bunx upgrade-rspeedy@0.15.0`,
-    yarn: `yarn dlx upgrade-rspeedy@0.15.0`,
-  }}
+command={{
+npm: `npx upgrade-rspeedy@0.15.0`,
+pnpm: `pnpm dlx upgrade-rspeedy@0.15.0`,
+bun: `bunx upgrade-rspeedy@0.15.0`,
+yarn: `yarn dlx upgrade-rspeedy@0.15.0`,
+}}
 />
 
 将 `0.15.0` 替换为你想要安装的版本。

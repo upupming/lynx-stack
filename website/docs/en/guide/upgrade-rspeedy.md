@@ -21,12 +21,12 @@ Please remember to install the dependencies with your package manager.
 To upgrade `@lynx-js/rspeedy` and its plugins to the latest version, use the following command in your project:
 
 <PackageManagerTabs
-  command={{
-    npm: `npx upgrade-rspeedy@latest`,
-    pnpm: `pnpm dlx upgrade-rspeedy@latest`,
-    bun: `bunx upgrade-rspeedy@latest`,
-    yarn: `yarn dlx upgrade-rspeedy@latest`,
-  }}
+command={{
+npm: `npx upgrade-rspeedy@latest`,
+pnpm: `pnpm dlx upgrade-rspeedy@latest`,
+bun: `bunx upgrade-rspeedy@latest`,
+yarn: `yarn dlx upgrade-rspeedy@latest`,
+}}
 />
 
 > For better performance when using **pnpm** in a monolithic repository, use **pnpm dlx** instead of **npx**.
@@ -36,12 +36,12 @@ To upgrade `@lynx-js/rspeedy` and its plugins to the latest version, use the fol
 To upgrade `@lynx-js/rspeedy` and its plugins to a specific version, use the following command in your project:
 
 <PackageManagerTabs
-  command={{
-    npm: `npx upgrade-rspeedy@0.15.0`,
-    pnpm: `pnpm dlx upgrade-rspeedy@0.15.0`,
-    bun: `bunx upgrade-rspeedy@0.15.0`,
-    yarn: `yarn dlx upgrade-rspeedy@0.15.0`,
-  }}
+command={{
+npm: `npx upgrade-rspeedy@0.15.0`,
+pnpm: `pnpm dlx upgrade-rspeedy@0.15.0`,
+bun: `bunx upgrade-rspeedy@0.15.0`,
+yarn: `yarn dlx upgrade-rspeedy@0.15.0`,
+}}
 />
 
 Replace the `0.15.0` with the one you would like to install.

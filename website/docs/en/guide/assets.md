@@ -31,7 +31,7 @@ You can also use static assets in CSS:
 
 ```css
 .logo {
-  background-image: url('../static/logo.png');
+  background-image: url("../static/logo.png");
 }
 ```
 

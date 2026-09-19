@@ -27,7 +27,7 @@ function App() {
 
 ```css
 .logo {
-  background-image: url('../static/logo.png');
+  background-image: url("../static/logo.png");
 }
 ```
 
