@@ -159,6 +159,8 @@ If the built-in asset types in Rsbuild cannot meet your requirements, you can:
 
 For example, if you want to treat `*.pdf` files as assets and directly output them to the dist directory, you can add the following configuration:
 
+<!-- eslint-disable import/export -->
+
 ```ts title="lynx.config.ts"
 import { defineConfig } from '@lynx-js/rspeedy';
 

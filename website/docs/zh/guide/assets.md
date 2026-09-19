@@ -155,6 +155,8 @@ console.log(img); // "/static/foo.fe0bb4d0.png"
 
 例如，如果你希望将 `*.pdf` 文件视为资源并直接输出到 `dist` 目录，可以添加以下配置：
 
+<!-- eslint-disable import/export -->
+
 ```ts title="lynx.config.ts"
 import { defineConfig } from '@lynx-js/rspeedy';
 

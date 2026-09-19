@@ -107,6 +107,8 @@ export {}; // 这个导出使文件成为一个模块
 
 以下是一个 `<input>` 元件的示例，它具有必需的 `type` 属性和可选的 `bindinput` 和 `value` 属性。
 
+<!-- eslint-disable import/no-unresolved -->
+
 ```ts title="src/intrinsic-element.d.ts"
 import * as Lynx from '@lynx-js/types';
 

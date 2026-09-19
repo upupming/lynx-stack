@@ -52,6 +52,7 @@ Rsbuild 提供 [source.alias](../api/rspeedy.source.alias.md) 配置项，对应
 
 ```js title="lynx.config.ts"
 import { createRequire } from 'node:module';
+
 import { defineConfig } from '@lynx-js/rspeedy';
 
 const require = createRequire(import.meta.url);

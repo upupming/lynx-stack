@@ -107,6 +107,8 @@ You can extends the `interface IntrinsicElements` from `@lynx-js/types` to add y
 
 Here is an example for a `<input>` element with required `type` and optional `bindinput` and `value`.
 
+<!-- eslint-disable import/no-unresolved -->
+
 ```ts title="src/intrinsic-element.d.ts"
 import * as Lynx from '@lynx-js/types';
 
