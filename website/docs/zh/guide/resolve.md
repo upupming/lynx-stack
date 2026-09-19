@@ -211,4 +211,4 @@ export default defineConfig({
 });
 ```
 
-[`tools.rspack`]: ../../api/rspeedy/rspeedy.tools.rspack
+[`tools.rspack`]: ../api/rspeedy.tools.rspack.md

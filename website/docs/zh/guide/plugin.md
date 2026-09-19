@@ -53,7 +53,7 @@ Rspack/Webpack 插件需要配置在 [`tools.rspack.plugins`] 中
 
 详见 [Rspack - Compiler 钩子](https://rspack.rs/api/plugin-api/compiler-hooks)和 [Rspack - Compilation 钩子](https://rspack.rs/api/plugin-api/compilation-hooks)
 
-[`tools.rspack.plugins`]: ../../api/rspeedy/rspeedy.tools.rspack#example-4
+[`tools.rspack.plugins`]: ../api/rspeedy.tools.rspack.md#example-4
 [Banner 插件]: https://rspack.rs/plugins/webpack/banner-plugin
 [Define 插件]: https://rspack.rs/plugins/webpack/define-plugin
 [Environment 插件]: https://rspack.rs/plugins/webpack/environment-plugin

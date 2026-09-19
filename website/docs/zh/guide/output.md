@@ -114,10 +114,10 @@ dist
 └── [name].lynx.bundle
 ```
 
-[`output.filename`]: ../../api/rspeedy/rspeedy.output.filename
-[`output.filename.js`]: ../../api/rspeedy/rspeedy.filename.js
-[`output.filename.bundle`]: ../../api/rspeedy/rspeedy.filename.bundle
-[`output.distPath`]: ../../api/rspeedy/rspeedy.output.distpath
-[`output.distPath.js`]: ../../api/rspeedy/rspeedy.distpath.js
-[`output.legalComments`]: ../../api/rspeedy/rspeedy.output.legalcomments
-[`output.sourceMap`]: ../../api/rspeedy/rspeedy.output.sourcemap
+[`output.filename`]: ../api/rspeedy.output.filename.md
+[`output.filename.js`]: ../api/rspeedy.filename.js.md
+[`output.filename.bundle`]: ../api/rspeedy.filename.bundle.md
+[`output.distPath`]: ../api/rspeedy.output.distpath.md
+[`output.distPath.js`]: ../api/rspeedy.output.distpath.md
+[`output.legalComments`]: ../api/rspeedy.output.legalcomments.md
+[`output.sourceMap`]: ../api/rspeedy.output.sourcemap.md
