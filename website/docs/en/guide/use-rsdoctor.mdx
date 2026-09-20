@@ -6,7 +6,7 @@ import { PackageManagerTabs } from '@theme';
 
 # Use Rsdoctor
 
-[Rsdoctor](https://rsdoctor.dev/) is a build analyzer that can visually display the build process, such as compilation time, code changes before and after compilation, module reference relationships, duplicate modules, etc.
+[Rsdoctor](https://rsdoctor.rs/) is a build analyzer that can visually display the build process, such as compilation time, code changes before and after compilation, module reference relationships, duplicate modules, etc.
 
 If you need to debug the build outputs or build process, you can use Rsdoctor for troubleshooting.
 
@@ -38,11 +38,11 @@ RSDOCTOR=true rspeedy dev
 RSDOCTOR=true rspeedy build
 ```
 
-After running the above commands, Rspeedy will automatically register the Rsdoctor plugin, and after the build is completed, it will open the build analysis page. For complete features, please refer to [Rsdoctor document](https://rsdoctor.dev/).
+After running the above commands, Rspeedy will automatically register the Rsdoctor plugin, and after the build is completed, it will open the build analysis page. For complete features, please refer to [Rsdoctor document](https://rsdoctor.rs/).
 
 ## Options
 
-If you need to configure the [options](https://rsdoctor.dev/config/options/options#options) provided by the Rsdoctor plugin, use [`tools.rsdoctor`](../api/rspeedy.tools.rsdoctor.md).
+If you need to configure the [options](https://rsdoctor.rs/config/options/options#options) provided by the Rsdoctor plugin, use [`tools.rsdoctor`](../api/rspeedy.tools.rsdoctor.md).
 
 ```ts title="lynx.config.ts"
 import { defineConfig } from '@lynx-js/rspeedy';

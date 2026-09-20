@@ -49,7 +49,7 @@ For example, you can set `output.assetPrefix` to `https://example.com`:
 ```js
 import logo from './static/logo.png';
 
-console.log(logo); // "https://example.com/assets/logo.6c12aba3.png"
+console.log(logo); // "https://example.com/static/logo.6c12aba3.png"
 ```
 
 ### Public Folder

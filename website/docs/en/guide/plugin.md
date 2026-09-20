@@ -48,7 +48,7 @@ If none of the existing ecosystem plugins meet your requirements, you might cons
 
 ### Rsbuild Plugin API
 
-See [Rsbuild - Plugin Hooks](https://rsbuild.dev/plugins/dev/hooks) for more details.
+See [Rsbuild - Plugin Hooks](https://rsbuild.rs/plugins/dev/hooks) for more details.
 
 ### Rspack Plugin API
 

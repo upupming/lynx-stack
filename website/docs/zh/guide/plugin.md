@@ -47,7 +47,7 @@ Rspack/Webpack 插件需要配置在 [`tools.rspack.plugins`] 中
 
 ### Rsbuild 插件 API
 
-详见 [Rsbuild - 插件钩子](https://rsbuild.dev/plugins/dev/hooks)
+详见 [Rsbuild - 插件钩子](https://rsbuild.rs/plugins/dev/hooks)
 
 ### Rspack 插件 API
 

@@ -13,8 +13,8 @@
 ```txt
 dist/
 ├── [name].lynx.bundle
-├── async
-│   └── [name].lynx.bundle
+├── lazy-bundle
+│   └── [name].[hash].bundle
 └── static
     ├── image
     │   └── [name].[hash].png
@@ -22,15 +22,13 @@ dist/
     │   └── [name].[hash].svg
     └── js
         ├── [id].[hash].js
-        │   └── async
-        │       └── [id].[hash].js
         └── lib-preact.[hash].js
 ```
 
 最常见的输出文件包括 Bundle 文件、JS 文件和静态资源：
 
 - Bundle（`[name].lynx.bundle`），可通过 [`output.filename.bundle`] 配置
-- 异步 Bundle（`async/[name].lynx.bundle`）
+- 懒加载 Bundle（`lazy-bundle/[name].[hash].bundle`），每个动态 `import()` 产出一个
 - JS 文件（`static/js/*.js`），可通过 [`output.distPath.js`] 和 [`output.filename.js`] 配置
 - 静态资源目录（`static/{font,image,media,svg}`）
 
@@ -47,11 +45,12 @@ dist/
 ```txt
 dist/
 ├── .lynx
-│   ├── async
+│   ├── lazy-bundle
 │   │   └── [name]
+│   │       ├── background.css
+│   │       ├── background.js
 │   │       ├── debug-metadata.json
-│   │       ├── tasm.json
-│   │       └── [name].css
+│   │       └── tasm.json
 │   ├── [name]
 │   │   ├── background.js
 │   │   ├── debug-metadata.json
@@ -66,8 +65,6 @@ dist/
     │   └── [name].[hash].svg
     └── js
         ├── [id].[hash].js
-        │   └── async
-        │       └── [id].[hash].js
         └── lib-preact.[hash].js
 ```
 
