@@ -1097,16 +1097,16 @@ class LynxTemplatePluginImpl {
           LynxTemplatePluginImpl.#getAsyncChunkGroups(compilation),
         )
       ) {
-        // A named chunk group means the user wrote an explicit
-        // `webpackChunkName` — keep the user-controlled `[name]` placement.
         // Context imports (`import(`./x/${y}`)`) group under an empty name
-        // and are not lazy bundles — leave them on the default template.
-        if (
-          name === ''
-          || chunkGroups.some(cg => cg.name !== null && cg.name !== undefined)
-        ) {
+        // and are not lazy bundles — leave them on the default template. A
+        // named group is a lazy bundle like any other: its name went through
+        // the `asyncChunkName` hook, so both layers share it here.
+        if (name === '') {
           continue;
         }
+        const named = chunkGroups.some(cg =>
+          cg.name !== null && cg.name !== undefined
+        );
         for (const chunk of chunkGroups.flatMap(cg => cg.chunks)) {
           if (chunk.id === null || chunk.id === undefined) {
             continue;
@@ -1117,6 +1117,12 @@ class LynxTemplatePluginImpl {
               layer = String(module.layer);
               break;
             }
+          }
+          // Names of the groups a build without layers writes by hand collapse
+          // into one path once the layer suffix is stripped, so those keep the
+          // `[name]` placement they had.
+          if (named && layer === undefined) {
+            continue;
           }
           layouts.set(chunk.id, { name, layer });
         }
