@@ -507,8 +507,8 @@ class ReactWebpackPlugin {
         this.constructor.name,
         (chunkName) =>
           chunkName
-            ?.replaceAll(`-react__background`, '')
-            ?.replaceAll(`-react__main-thread`, ''),
+            .replaceAll(`-react__background`, '')
+            .replaceAll(`-react__main-thread`, ''),
       );
 
       const { RawSource, ConcatSource } = compiler.webpack.sources;

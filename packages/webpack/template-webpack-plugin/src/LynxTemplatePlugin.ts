@@ -1121,10 +1121,9 @@ class LynxTemplatePluginImpl {
           // Names of the groups a build without layers writes by hand collapse
           // into one path once the layer suffix is stripped, so those keep the
           // `[name]` placement they had.
-          if (named && layer === undefined) {
-            continue;
+          if (layer !== undefined || !named) {
+            layouts.set(chunk.id, { name, layer });
           }
-          layouts.set(chunk.id, { name, layer });
         }
       }
       LynxTemplatePluginImpl.#asyncChunkLayouts.set(compilation, layouts);
