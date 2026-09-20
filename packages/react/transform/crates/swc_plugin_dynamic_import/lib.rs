@@ -350,6 +350,38 @@ mod tests {
 
   use super::{DynamicImportVisitor, DynamicImportVisitorConfig};
 
+  use super::suffix_chunk_name;
+
+  #[test]
+  fn should_suffix_a_chunk_name() {
+    assert_eq!(
+      suffix_chunk_name(" webpackChunkName: \"comp\" ", "-test").as_deref(),
+      Some(" webpackChunkName: \"comp-test\" ")
+    );
+    assert_eq!(
+      suffix_chunk_name("webpackChunkName: 'comp'", "-test").as_deref(),
+      Some("webpackChunkName: 'comp-test'")
+    );
+  }
+
+  #[test]
+  fn should_leave_other_comments_alone() {
+    // already suffixed
+    assert_eq!(
+      suffix_chunk_name(" webpackChunkName: \"comp-test\" ", "-test"),
+      None
+    );
+    // another magic comment
+    assert_eq!(suffix_chunk_name(" webpackPrefetch: true ", "-test"), None);
+    // empty name
+    assert_eq!(suffix_chunk_name(" webpackChunkName: \"\" ", "-test"), None);
+    // no closing quote
+    assert_eq!(
+      suffix_chunk_name(" webpackChunkName: \"comp ", "-test"),
+      None
+    );
+  }
+
   test!(
     module,
     Syntax::Es(EsSyntax {
@@ -427,6 +459,30 @@ mod tests {
     r#"
     (async function () {
       await import("./index.js");
+    })();
+    "#
+  );
+
+  test!(
+    module,
+    Syntax::Es(EsSyntax {
+      jsx: true,
+      ..Default::default()
+    }),
+    |t| visit_mut_pass(DynamicImportVisitor::new(
+      DynamicImportVisitorConfig {
+        layer: "react__background".into(),
+        inject_lazy_bundle: Some(false),
+        ..Default::default()
+      },
+      Some(t.comments.clone())
+    )),
+    should_suffix_webpack_chunk_name,
+    r#"
+    (async function () {
+      await import(/* webpackChunkName: "comp" */ "./comp.js");
+      await import(/* webpackPrefetch: true */ "./other.js");
+      await import("./plain.js");
     })();
     "#
   );
