@@ -538,7 +538,7 @@ const SECTION_BACKGROUND = 'background';
 
 interface AsyncChunkLayout {
   name: string;
-  layer: string | undefined;
+  layer: string;
 }
 
 function shortLayerName(layer: string): string {
@@ -739,9 +739,6 @@ class LynxTemplatePluginImpl {
           );
           if (layout !== undefined) {
             const { name, layer } = layout;
-            if (layer === undefined) {
-              return `${prefix}lazy-bundle/${name}.js`;
-            }
             // A lazy bundle's chunk in a layer mirrors the entry of that layer:
             // `<root>/main/background.[contenthash:8].js` becomes
             // `<root>/lazy-bundle/<name>/background.[contenthash:8].js`, so it
@@ -1080,7 +1077,7 @@ class LynxTemplatePluginImpl {
       return undefined;
     }
     const { name, layer } = layout;
-    return layer === undefined ? name : `${name}/${shortLayerName(layer)}`;
+    return `${name}/${shortLayerName(layer)}`;
   }
 
   static #getAsyncChunkLayout(
@@ -1104,9 +1101,6 @@ class LynxTemplatePluginImpl {
         if (name === '') {
           continue;
         }
-        const named = chunkGroups.some(cg =>
-          cg.name !== null && cg.name !== undefined
-        );
         for (const chunk of chunkGroups.flatMap(cg => cg.chunks)) {
           if (chunk.id === null || chunk.id === undefined) {
             continue;
@@ -1118,12 +1112,13 @@ class LynxTemplatePluginImpl {
               break;
             }
           }
-          // Names of the groups a build without layers writes by hand collapse
-          // into one path once the layer suffix is stripped, so those keep the
-          // `[name]` placement they had.
-          if (layer !== undefined || !named) {
-            layouts.set(chunk.id, { name, layer });
+          // Every Lynx DSL compiles its two threads as Rspack layers. Without
+          // one there is nothing to tell the chunks of a lazy bundle apart, so
+          // they keep the default `[name]` placement.
+          if (layer === undefined) {
+            continue;
           }
+          layouts.set(chunk.id, { name, layer });
         }
       }
       LynxTemplatePluginImpl.#asyncChunkLayouts.set(compilation, layouts);
