@@ -506,9 +506,7 @@ class ReactWebpackPlugin {
       hooks.asyncChunkName.tap(
         this.constructor.name,
         (chunkName) =>
-          chunkName
-            .replaceAll(`-react__background`, '')
-            .replaceAll(`-react__main-thread`, ''),
+          chunkName.replace(/-react__(?:background|main-thread)$/, ''),
       );
 
       const { RawSource, ConcatSource } = compiler.webpack.sources;

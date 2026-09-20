@@ -57,4 +57,7 @@ it('should strip the layer a lazy bundle name carries', async () => {
   await expect(stripSuffix('comp-react__background')).resolves.toBe('comp');
   await expect(stripSuffix('comp-react__main-thread')).resolves.toBe('comp');
   await expect(stripSuffix('comp')).resolves.toBe('comp');
+  await expect(stripSuffix('comp-react__background-v2')).resolves.toBe(
+    'comp-react__background-v2',
+  );
 });
