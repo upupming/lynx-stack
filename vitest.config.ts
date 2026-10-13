@@ -40,6 +40,13 @@ export default defineConfig({
         // This module is also covered by Rstest; an unexecuted V8 report would
         // add uncovered lines when Codecov merges the two collectors.
         'packages/rspeedy/plugin-react-alias/src/index.ts',
+        // These plugin modules are exercised by their Rstest projects.
+        // Keep Vitest's unexecuted V8 report out of their merged coverage.
+        'packages/rspeedy/plugin-react/src/entry.ts',
+        'packages/rspeedy/plugin-react/src/pluginReactLynx.ts',
+        'packages/webpack/react-webpack-plugin/src/ReactWebpackPlugin.ts',
+        'packages/webpack/runtime-wrapper-webpack-plugin/src/RuntimeWrapperWebpackPlugin.ts',
+        'packages/webpack/template-webpack-plugin/src/LynxTemplatePlugin.ts',
         'packages/rspeedy/plugin-lynx/**',
         'packages/web-platform/web-core-e2e/**',
         'packages/webpack/test-tools/**',
