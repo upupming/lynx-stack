@@ -269,6 +269,11 @@ export default defineConfig({
     assetPrefix: process.env.ASSET_PREFIX,
     copy: [
       {
+        from: 'src/mock/openui/chat',
+        to: 'demos/openui/chat',
+        globOptions: { ignore: ['**/README.md'] },
+      },
+      {
         from: 'src/mock/basic/*.json',
         to: 'demos/[name][ext]',
       },
@@ -293,7 +298,7 @@ export default defineConfig({
       module: {
         rules: [
           {
-            test: /\.lynxml$/,
+            test: /\.(lynxml|openui)$/,
             resourceQuery: /raw/,
             type: 'asset/source',
           },
@@ -307,14 +312,15 @@ export default defineConfig({
     cors: {
       origin: '*',
     },
+    // Rspeedy also copies public assets into www; authored files take precedence.
     publicDir: [
       {
-        name: 'public',
+        name: 'www',
         copyOnBuild: true,
         watch: true,
       },
       {
-        name: 'www',
+        name: 'public',
         copyOnBuild: true,
         watch: true,
       },
