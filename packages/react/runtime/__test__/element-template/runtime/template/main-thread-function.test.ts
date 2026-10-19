@@ -60,6 +60,7 @@ describe('ElementTemplate runOnMainThread', () => {
         worklet,
         params: ['hello'],
         resolveId: 1,
+        reloadVersion: 0,
       }),
     });
 
@@ -208,6 +209,7 @@ describe('ElementTemplate runOnMainThread', () => {
         worklet,
         params: ['from-layout-effect'],
         resolveId: 1,
+        reloadVersion: 0,
       }),
     });
     expect(takeDelayedRunOnMainThreadData()).toEqual([]);

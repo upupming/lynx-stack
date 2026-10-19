@@ -12,6 +12,7 @@ import { render } from 'preact';
 import { destroyBackground } from './destroy.js';
 import { renderMainThread } from './render.js';
 import { increaseReloadVersion } from '../../core/reload-version.js';
+import { resetFunctionCallReturnListener } from '../../core/thread-function-call/return-value.js';
 import { __root, setRoot } from '../../root.js';
 import { profileEnd, profileStart } from '../../shared/profile.js';
 import { isEmptyObject } from '../../utils.js';
@@ -30,6 +31,7 @@ function reloadMainThread(data: unknown, options: UpdatePageOption): void {
     profileStart('ReactLynx::reloadMainThread');
   }
 
+  resetFunctionCallReturnListener();
   increaseReloadVersion();
 
   if (typeof data == 'object' && data !== null && !isEmptyObject(data)) {
@@ -82,6 +84,7 @@ function reloadBackground(updateData: Record<string, any>): void {
 
   destroyBackground();
 
+  resetFunctionCallReturnListener();
   increaseReloadVersion();
 
   // COW when modify `lynx.__initData` to make sure Provider & Consumer works
