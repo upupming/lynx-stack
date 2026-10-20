@@ -1,3 +1,7 @@
+import {
+  installElementTemplateRefInitValueListener,
+  resetElementTemplateRefInitValueListener,
+} from '../../../../src/element-template/main-thread-ref-init-value.js';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WorkletEvents } from '@lynx-js/react/worklet-runtime/bindings';
@@ -262,8 +266,12 @@ describe('ElementTemplate hydration listener', () => {
       isHydration: true,
       reloadVersion: getReloadVersion(),
       delayedRunOnMainThreadData: undefined,
-      mainThreadRefInitValuePatch: [[1, 'hydrate-init']],
     });
+    expect(dispatchSpy.mock.calls.map(([event]) => event.type)).toEqual([
+      ElementTemplateLifecycleConstant.updateMTRefInitValue,
+      ElementTemplateLifecycleConstant.update,
+    ]);
+    expect(dispatchSpy.mock.calls[0]![0].data).toBe(JSON.stringify([[1, 'hydrate-init']]));
     expect(takeMainThreadRefInitValuePatch()).toEqual([]);
   });
 
@@ -287,6 +295,7 @@ describe('ElementTemplate hydration listener', () => {
       new MainThreadRef('reload-init');
 
       envManager.switchToMainThread();
+      installElementTemplateRefInitValueListener();
       installElementTemplatePatchListener();
       dispatchHydrate([createSerializedTemplate(after.instanceId, '_et_test')]);
 
@@ -302,6 +311,7 @@ describe('ElementTemplate hydration listener', () => {
     } finally {
       envManager.switchToMainThread();
       resetElementTemplatePatchListener();
+      resetElementTemplateRefInitValueListener();
       globalThis.lynxWorkletImpl = previousWorkletImpl;
       envManager.switchToBackground();
     }

@@ -222,30 +222,29 @@ describe('ElementTemplate commit hook', () => {
     expect(takeDelayedRunOnMainThreadData()).toEqual([]);
   });
 
-  it('dispatches MainThreadRef init-value patch after commit when hydrated', () => {
-    markElementTemplateHydrated();
+  it.each([false, true])('dispatches ref initialization separately (hydrated: %s)', (hydrated) => {
+    if (hydrated) markElementTemplateHydrated();
+    const dispatch = vi.spyOn(lynx.getCoreContext(), 'dispatchEvent');
     new MainThreadRef('commit-init');
 
     options.__c?.({} as unknown as object, []);
 
-    envManager.switchToMainThread();
-    expect(updateEvents).toEqual([
-      {
-        ops: [],
-        flushOptions: { emptyPatch: true },
-        flowIds: undefined,
-        reloadVersion: getReloadVersion(),
-        mainThreadRefInitValuePatch: [[1, 'commit-init']],
-      },
-    ]);
-    envManager.switchToBackground();
+    expect(dispatch).toHaveBeenCalledExactlyOnceWith({
+      type: ElementTemplateLifecycleConstant.updateMTRefInitValue,
+      data: JSON.stringify([[1, 'commit-init']]),
+    });
     expect(takeMainThreadRefInitValuePatch()).toEqual([]);
+    envManager.switchToMainThread();
+    expect(updateEvents).toEqual([]);
+    envManager.switchToBackground();
   });
 
   it('cleans commit state when update serialization throws', () => {
     vi.useFakeTimers();
     globalThis.__ALOG__ = false;
     const serializeError = new Error('update serialization failed');
+    const dispatch = vi.spyOn(lynx.getCoreContext(), 'dispatchEvent');
+    new MainThreadRef('survives-ui-serialization');
     const throwingValue = {
       toJSON() {
         throw serializeError;
@@ -267,6 +266,11 @@ describe('ElementTemplate commit hook', () => {
       });
 
       expect(() => options.__c?.({} as unknown as object, [])).toThrow(serializeError);
+      expect(dispatch).toHaveBeenCalledExactlyOnceWith({
+        type: ElementTemplateLifecycleConstant.updateMTRefInitValue,
+        data: JSON.stringify([[1, 'survives-ui-serialization']]),
+      });
+      expect(takeMainThreadRefInitValuePatch()).toEqual([]);
       expect(takeDelayedRunOnMainThreadData()).toEqual([]);
       expect(removeEventListener).toHaveBeenCalledWith(WorkletEvents.FunctionCallRet, expect.any(Function));
       expect(globalCommitContext.ops).toEqual([]);
