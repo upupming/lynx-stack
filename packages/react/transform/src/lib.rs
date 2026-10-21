@@ -305,7 +305,7 @@ pub struct Define {
   pub unmergeable: Option<bool>,
   /// @internal
   pub runtime_requirements: Option<TransformRuntimeRequirements>,
-  /// Compiler-owned imports needed when this definition moves to another module.
+  /// Imports needed when this definition moves to another module.
   /// @internal
   pub imports: Option<Vec<DefineImport>>,
 }
@@ -319,6 +319,8 @@ pub struct DefineImport {
   pub imported: String,
   /// @internal
   pub local: String,
+  /// @internal
+  pub namespace: Option<bool>,
 }
 
 #[napi(object)]
@@ -365,6 +367,7 @@ fn print_define(
   items: Vec<ModuleItem>,
   top_level_mark: Mark,
   comments: &SingleThreadedComments,
+  filename: &str,
 ) -> Result<(String, Vec<DefineImport>), String> {
   let mut module = match Program::Module(Module {
     span: DUMMY_SP,
@@ -384,23 +387,40 @@ fn print_define(
 
   // Print imports and statements through the same hygiene pass before
   // separating them. The consumer must not guess bindings from generated code.
+  let filename = filename.replace('\\', "/");
   let mut imports = vec![];
   let mut statements = vec![];
   for item in module.body {
     if let ModuleItem::ModuleDecl(ModuleDecl::Import(import)) = item {
+      let mut source = import.src.value.to_string_lossy().into_owned();
+      // std::path's absolute-path checks are unsupported on wasm.
+      if source == "." || source == ".." || source.starts_with("./") || source.starts_with("../") {
+        if let Some((directory, _)) = filename.rsplit_once('/') {
+          source = format!("{directory}/{source}");
+          if !source.starts_with('/') && source.as_bytes().get(1) != Some(&b':') {
+            source = format!("./{source}");
+          }
+        }
+      }
       for specifier in import.specifiers {
-        let ImportSpecifier::Named(named) = specifier else {
-          return Err("definition dependency must be a named import".into());
-        };
-        let imported = match named.imported {
-          Some(ModuleExportName::Ident(ident)) => ident.sym.to_string(),
-          Some(ModuleExportName::Str(value)) => value.value.to_string_lossy().into_owned(),
-          None => named.local.sym.to_string(),
+        let local = specifier.local().sym.to_string();
+        let namespace = matches!(specifier, ImportSpecifier::Namespace(_)).then_some(true);
+        let imported = match specifier {
+          ImportSpecifier::Default(_) => "default".into(),
+          ImportSpecifier::Namespace(_) => "*".into(),
+          ImportSpecifier::Named(named) => match named.imported {
+            Some(ModuleExportName::Ident(ident)) => ident.sym.to_string(),
+            Some(ModuleExportName::Str(value)) => value.value.to_string_lossy().into_owned(),
+            None => named.local.sym.to_string(),
+          },
+          #[allow(unreachable_patterns)]
+          _ => return Err("unknown definition import specifier".into()),
         };
         imports.push(DefineImport {
-          source: import.src.value.to_string_lossy().into_owned(),
+          source: source.clone(),
           imported,
-          local: named.local.sym.to_string(),
+          local,
+          namespace,
         });
       }
     } else {
@@ -1004,7 +1024,7 @@ fn transform_react_lynx_inner(
         let mut defines_for_worklet: Vec<Define> = vec![];
         helpers::HELPERS.set(&helpers::Helpers::new(false), || {
           for define in defines_collector.borrow().iter() {
-            let (code, imports) = match print_define(&c, define.items.clone(), top_level_mark, &comments) {
+            let (code, imports) = match print_define(&c, define.items.clone(), top_level_mark, &comments, &options.filename) {
               Ok(printed) => printed,
               Err(err) => {
                 define_errors.push(esbuild::PartialMessage {
@@ -1224,6 +1244,147 @@ mod wasm {
 #[cfg(test)]
 mod tests {
   use super::*;
+
+  fn worklet_definition(source: &str, filename: &str) -> Define {
+    let result = transform_react_lynx_inner(
+      source.into(),
+      TransformNodiffOptions {
+        filename: filename.into(),
+        worklet: Either::B(WorkletVisitorConfig {
+          target: swc_plugins_shared::target_napi::TransformTarget::JS,
+          custom_global_ident_names: Some(vec!["call".into(), "api".into(), "named".into()]),
+          ..Default::default()
+        }),
+        css_scope: Either::A(false),
+        ..Default::default()
+      },
+    );
+    assert!(result.errors.is_empty(), "{:?}", result.errors);
+    let mut definitions = result.defines_for_worklet.unwrap();
+    assert_eq!(definitions.len(), 1);
+    definitions.remove(0)
+  }
+
+  #[test]
+  fn should_collect_business_imports_for_background_only_worklets() {
+    let definition = worklet_definition(
+      r#"
+import { runOnBackground, useState } from '@lynx-js/react';
+export const handler = () => {
+  'main thread';
+  runOnBackground(() => {})();
+};
+"#,
+      "test.js",
+    );
+    let imports = definition.imports.unwrap();
+    let dependency = imports
+      .iter()
+      .find(|item| item.imported == "runOnBackground")
+      .unwrap();
+    assert_eq!(dependency.source, "@lynx-js/react");
+    assert!(definition
+      .code
+      .contains(&format!("{}(_jsFn1)()", dependency.local)));
+    assert!(!imports.iter().any(|item| item.imported == "useState"));
+    assert_eq!(imports.len(), 2);
+  }
+
+  #[test]
+  fn should_preserve_import_forms_and_rebase_relative_definition_dependencies() {
+    for (filename, expected) in [
+      ("/project/src/test.js", "/project/src/./bridge.js"),
+      ("C:\\project\\src\\test.js", "C:/project/src/./bridge.js"),
+      ("src/test.js", "./src/./bridge.js"),
+      ("test.js", "./bridge.js"),
+    ] {
+      let definition = worklet_definition(
+        r#"
+import call, * as api from './bridge.js';
+import { original as named } from './bridge.js';
+export const handler = () => {
+  'main thread';
+  return [call(), api.value, { named }];
+};
+"#,
+        filename,
+      );
+      let imports = definition.imports.unwrap();
+      let default = imports
+        .iter()
+        .find(|item| item.imported == "default")
+        .unwrap();
+      assert_eq!(default.source, expected);
+      assert_eq!(default.local, "call");
+      assert_eq!(default.namespace, None);
+      let namespace = imports
+        .iter()
+        .find(|item| item.namespace == Some(true))
+        .unwrap();
+      assert_eq!(namespace.imported, "*");
+      assert_eq!(namespace.source, expected);
+      let named = imports
+        .iter()
+        .find(|item| item.imported == "original")
+        .unwrap();
+      assert_eq!(named.source, expected);
+      assert!(definition.code.contains(&named.local));
+    }
+  }
+
+  #[test]
+  fn should_rebase_only_relative_definition_imports() {
+    for (source, expected) in [
+      (".", "/project/src/."),
+      ("..", "/project/src/.."),
+      ("./bridge.js", "/project/src/./bridge.js"),
+      ("../bridge.js", "/project/src/../bridge.js"),
+      (".hidden/x", ".hidden/x"),
+      ("..hidden/x", "..hidden/x"),
+      ("bridge", "bridge"),
+    ] {
+      let definition = worklet_definition(
+        &format!(
+          "import call from '{source}'; export const handler = () => {{ 'main thread'; return call(); }};"
+        ),
+        "/project/src/test.js",
+      );
+      let imports = definition.imports.unwrap();
+      let dependency = imports
+        .iter()
+        .find(|item| item.imported == "default")
+        .unwrap();
+      assert_eq!(dependency.source, expected);
+    }
+  }
+
+  #[test]
+  fn should_exclude_captured_and_shadowed_imports_from_worklet_dependencies() {
+    for source in [
+      "import { value } from './values.js'; export const handler = () => { 'main thread'; return value; };",
+      "import { runOnBackground } from './bridge.js'; export const handler = (runOnBackground) => { 'main thread'; runOnBackground(() => {})(); };",
+    ] {
+      let definition = worklet_definition(source, "test.js");
+      let imports = definition.imports.unwrap();
+      assert_eq!(imports.len(), 1);
+      assert_eq!(imports[0].imported, "registerWorklet");
+    }
+  }
+
+  #[test]
+  fn should_preserve_string_named_definition_imports() {
+    let definition = worklet_definition(
+      "import { 'string-name' as call } from 'bridge'; export const handler = () => { 'main thread'; return call(); };",
+      "test.js",
+    );
+    let imports = definition.imports.unwrap();
+    let dependency = imports
+      .iter()
+      .find(|item| item.imported == "string-name")
+      .unwrap();
+    assert_eq!(dependency.source, "bridge");
+    assert!(definition.code.contains(&format!("{}()", dependency.local)));
+  }
 
   #[test]
   fn test_syntax_serialize_and_deserialize() {
