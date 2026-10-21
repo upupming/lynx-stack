@@ -12,6 +12,9 @@ function updateMTRefInitValue({ data }: { data: string }): void {
   // This update ignores reloadVersion check.
   // MainThreadRefs created before reloadTemplate may still be referenced by user in some cases after reloadTemplate.
   const patch = JSON.parse(data) as MainThreadRefInitValuePatch;
+  if (typeof __ALOG__ !== 'undefined' && __ALOG__) {
+    console.alog?.('[ReactLynxDebug] Snapshot MTS updateMTRefInitValue:\n' + data);
+  }
   updateWorkletRefInitValueChanges(patch);
 }
 
@@ -26,5 +29,8 @@ export function sendMTRefInitValueToMainThread(): void {
   }
 
   const data = JSON.stringify(patch);
+  if (typeof __ALOG__ !== 'undefined' && __ALOG__) {
+    console.alog?.('[ReactLynxDebug] Snapshot BTS -> MTS sendMTRefInitValue:\n' + data);
+  }
   lynx.getNativeApp().callLepusMethod(LifecycleConstant.updateMTRefInitValue, { data });
 }

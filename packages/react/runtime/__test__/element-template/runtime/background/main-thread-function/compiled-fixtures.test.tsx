@@ -3,6 +3,10 @@
 // LICENSE file in the root directory of this source tree.
 
 import path from 'node:path';
+import {
+  installElementTemplateRefInitValueListener,
+  resetElementTemplateRefInitValueListener,
+} from '../../../../../src/element-template/main-thread-ref-init-value.js';
 import { fileURLToPath } from 'node:url';
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -104,6 +108,7 @@ describe('Compiled runOnMainThread background fixtures', () => {
     vi.stubGlobal('__LoadLepusChunk', vi.fn());
 
     envManager.switchToMainThread();
+    installElementTemplateRefInitValueListener();
     installElementTemplatePatchListener();
     lynx.getJSContext().addEventListener(ElementTemplateLifecycleConstant.update, onUpdate);
     envManager.switchToBackground();
@@ -113,6 +118,7 @@ describe('Compiled runOnMainThread background fixtures', () => {
     envManager.switchToMainThread();
     lynx.getJSContext().removeEventListener(ElementTemplateLifecycleConstant.update, onUpdate);
     resetElementTemplatePatchListener();
+    resetElementTemplateRefInitValueListener();
     envManager.switchToBackground();
     resetElementTemplateHydrationListener();
     resetElementTemplateCommitState();
@@ -137,7 +143,7 @@ describe('Compiled runOnMainThread background fixtures', () => {
   }> {
     return loadCompiledFixturePair<CompiledRunOnMainThreadModule>(
       FIXTURE,
-      { enableWorkletTransform: true },
+      { enableWorkletTransform: true, envManager },
     );
   }
 

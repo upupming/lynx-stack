@@ -22,6 +22,7 @@ import { applyElementTemplateUpdateCommands } from '../../../../src/element-temp
 import { ElementTemplateUpdateOps } from '../../../../src/element-template/protocol/opcodes.js';
 import { renderToElementTemplate } from '../../../../src/element-template/runtime/render/render-direct.js';
 import { resetElementTemplatePatchListener } from '../../../../src/element-template/native/patch-listener.js';
+import { resetElementTemplateRefInitValueListener } from '../../../../src/element-template/main-thread-ref-init-value.js';
 import { resetTemplateId } from '../../../../src/element-template/runtime/template/handle.js';
 import { elementTemplateRegistry } from '../../../../src/element-template/runtime/template/registry.js';
 import type {
@@ -181,6 +182,7 @@ async function compileAndRender(
     };
   } finally {
     resetElementTemplatePatchListener();
+    resetElementTemplateRefInitValueListener();
     fs.rmSync(tempDir, { recursive: true, force: true });
   }
 }
