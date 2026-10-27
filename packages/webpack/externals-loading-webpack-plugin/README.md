@@ -11,6 +11,12 @@ development serving and build-time asset emission.
 Use `@lynx-js/externals-loading-webpack-plugin` directly only when you need the
 low-level webpack/Rspack runtime integration.
 
+Synchronous external bundles are prefetched during startup, but their sections
+are evaluated on the first import. This preserves module initialization order,
+including initializing a page's worklet runtime before importing a legacy
+component external. Exports are cached after evaluation; host-provided exports
+are preserved. Asynchronous externals keep their existing eager loading behavior.
+
 ## Usage
 
 ```ts

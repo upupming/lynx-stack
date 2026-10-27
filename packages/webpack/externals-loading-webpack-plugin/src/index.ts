@@ -388,6 +388,24 @@ export class ExternalsLoadingPlugin {
         const runtimeGlobalsInit =
           `${lynxExternalGlobal} = ${lynxExternalGlobal} === undefined ? {} : ${lynxExternalGlobal};`;
         const loadExternalFunc = `
+function deferExternal(name, load) {
+  const globals = ${lynxExternalGlobal};
+  const descriptor = Object.getOwnPropertyDescriptor(globals, name);
+  if ((descriptor && descriptor.get) || globals[name] !== undefined) return;
+  function mount(value) {
+    Object.defineProperty(globals, name, {
+      value, writable: true, enumerable: true, configurable: true
+    });
+    return value;
+  }
+  Object.defineProperty(globals, name, {
+    configurable: true,
+    enumerable: true,
+    get() { return mount(load()); },
+    set: mount
+  });
+}
+
 function createRetryingHandler(fetchBundle, retries) {
   let cachedResponse = null
   let asyncPromise = null
@@ -569,7 +587,11 @@ function createLoadExternalSync(handler, sectionPath, timeout) {
             // Preserve any value the host may have pre-populated for this global,
             // matching the same === undefined guard used on the primary load path.
             loadCode.add(
-              `${mountVar} = ${mountVar} === undefined ? ${existingMountVar} : ${mountVar};`,
+              async
+                ? `${mountVar} = ${mountVar} === undefined ? ${existingMountVar} : ${mountVar};`
+                : `deferExternal(${
+                  JSON.stringify(libraryNameStr)
+                }, () => ${existingMountVar});`,
             );
             continue;
           }
@@ -587,9 +609,11 @@ function createLoadExternalSync(handler, sectionPath, timeout) {
           }
 
           loadCode.add(
-            `${mountVar} = ${mountVar} === undefined ? createLoadExternalSync(handler${handlerIndex}, ${
+            `deferExternal(${
+              JSON.stringify(libraryNameStr)
+            }, () => createLoadExternalSync(handler${handlerIndex}, ${
               JSON.stringify(layerOptions.sectionPath)
-            }, ${timeout}) : ${mountVar};`,
+            }, ${timeout}));`,
           );
         }
 
