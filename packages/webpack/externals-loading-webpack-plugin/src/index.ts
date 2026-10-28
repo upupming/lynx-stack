@@ -587,11 +587,9 @@ function createLoadExternalSync(handler, sectionPath, timeout) {
             // Preserve any value the host may have pre-populated for this global,
             // matching the same === undefined guard used on the primary load path.
             loadCode.add(
-              async
-                ? `${mountVar} = ${mountVar} === undefined ? ${existingMountVar} : ${mountVar};`
-                : `deferExternal(${
-                  JSON.stringify(libraryNameStr)
-                }, () => ${existingMountVar});`,
+              `deferExternal(${
+                JSON.stringify(libraryNameStr)
+              }, () => ${existingMountVar});`,
             );
             continue;
           }
@@ -599,21 +597,12 @@ function createLoadExternalSync(handler, sectionPath, timeout) {
 
           const handlerIndex = [...url2fetchCode.keys()].indexOf(urlKey);
 
-          if (async) {
-            loadCode.add(
-              `${mountVar} = ${mountVar} === undefined ? createLoadExternalAsync(handler${handlerIndex}, ${
-                JSON.stringify(layerOptions.sectionPath)
-              }) : ${mountVar};`,
-            );
-            continue;
-          }
-
           loadCode.add(
-            `deferExternal(${
-              JSON.stringify(libraryNameStr)
-            }, () => createLoadExternalSync(handler${handlerIndex}, ${
+            `deferExternal(${JSON.stringify(libraryNameStr)}, () => ${
+              async ? 'createLoadExternalAsync' : 'createLoadExternalSync'
+            }(handler${handlerIndex}, ${
               JSON.stringify(layerOptions.sectionPath)
-            }, ${timeout}));`,
+            }${async ? '' : `, ${timeout}`}));`,
           );
         }
 

@@ -57,9 +57,8 @@ it('should call loadScript only once per (bundle, section) pair', async () => {
   expect(mainThread).toContain(pkgBAssignment);
 
   // PkgE reuses PkgD (both async, same section) — no extra createLoadExternalAsync call.
-  const pkgEAssignment = '["PkgE"] === undefined ? '
-    + 'lynx[Symbol.for(\'__LYNX_EXTERNAL_GLOBAL__\')]["PkgD"] : '
-    + 'lynx[Symbol.for(\'__LYNX_EXTERNAL_GLOBAL__\')]["PkgE"]';
+  const pkgEAssignment = 'deferExternal' + '("PkgE", () => '
+    + 'lynx[Symbol.for(\'__LYNX_EXTERNAL_GLOBAL__\')]["PkgD"]);';
   expect(background).toContain(pkgEAssignment);
   expect(mainThread).toContain(pkgEAssignment);
 });
