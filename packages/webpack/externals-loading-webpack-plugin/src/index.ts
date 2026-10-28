@@ -542,6 +542,7 @@ function createLoadExternalSync(handler, sectionPath, timeout) {
           const libraryNameStr = Array.isArray(libraryNameWithDefault)
             ? libraryNameWithDefault[0]
             : libraryNameWithDefault;
+          const externalName = JSON.stringify(libraryNameStr);
 
           const normalizedExternal = bundlePath
             ? {
@@ -574,7 +575,7 @@ function createLoadExternalSync(handler, sectionPath, timeout) {
             getLynxExternalGlobal(
               externalsLoadingPluginOptions.globalObject,
             )
-          }[${JSON.stringify(libraryNameStr)}]`;
+          }[${externalName}]`;
 
           // If another external already generated a loadScript call for this exact
           // (bundle, section, async) triple, reuse its result instead of calling
@@ -586,24 +587,22 @@ function createLoadExternalSync(handler, sectionPath, timeout) {
           if (existingMountVar !== undefined) {
             // Preserve any value the host may have pre-populated for this global,
             // matching the same === undefined guard used on the primary load path.
-            loadCode.add(
-              `deferExternal(${
-                JSON.stringify(libraryNameStr)
-              }, () => ${existingMountVar});`,
-            );
+            const alias =
+              `deferExternal(${externalName}, () => ${existingMountVar});`;
+            loadCode.add(alias);
             continue;
           }
           sectionLoadTracker.set(sectionKey, mountVar);
 
           const handlerIndex = [...url2fetchCode.keys()].indexOf(urlKey);
-
-          loadCode.add(
-            `deferExternal(${JSON.stringify(libraryNameStr)}, () => ${
-              async ? 'createLoadExternalAsync' : 'createLoadExternalSync'
-            }(handler${handlerIndex}, ${
-              JSON.stringify(layerOptions.sectionPath)
-            }${async ? '' : `, ${timeout}`}));`,
-          );
+          const loader = async
+            ? 'createLoadExternalAsync'
+            : 'createLoadExternalSync';
+          const sectionPath = JSON.stringify(layerOptions.sectionPath);
+          const timeoutArgument = async ? '' : `, ${timeout}`;
+          const load =
+            `deferExternal(${externalName}, () => ${loader}(handler${handlerIndex}, ${sectionPath}${timeoutArgument}));`;
+          loadCode.add(load);
         }
 
         return [
